@@ -1,0 +1,3 @@
+{
+ :framework #profile {:dev #include "dev.edn"}
+ }
