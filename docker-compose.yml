@@ -1,0 +1,16 @@
+version: '3.6'
+
+services:
+  db:
+    container_name: framework-db
+    image: postgres:10.6
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: test
+      POSTGRES_USER: test
+      POSTGRES_MULTIPLE_DATABASES: example,example_test
+
+    volumes:
+      - ./dev/database:/docker-entrypoint-initdb.d
+    ports:
+      - "54320:5432"
