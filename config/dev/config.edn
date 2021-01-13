@@ -1,1 +1,12 @@
-{:framework.db.storage/postgresql {:port 5432}}
+{:framework.db.storage/postgresql {:port 54320
+                                   :dbname "example"
+                                   :host "localhost"
+                                   :dbtype "postgresql"
+                                   :user "test"
+                                   :password "test"}
+
+ :framework.db.storage/migration {:store :database
+                                  :migration-dir "resources/migrations"
+                                  :init-in-transaction? false
+                                  :migration-table-name "migrations"}
+ }
