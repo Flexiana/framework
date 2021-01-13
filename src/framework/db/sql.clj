@@ -36,6 +36,8 @@
    call])
 
 (defn fmt-create-table-stmt
+  "This function should not exist. Research why jdbc cant process
+  create statements with ?."
   [hsql]
   (let [qry-raw (sql/format hsql)
         qry (reduce
@@ -50,7 +52,7 @@
   (let [query (if (:create-table hsql)
                 (fmt-create-table-stmt hsql)
                 (sql/format hsql))
-        conn (if (get-in config [:conn :connecttion])
+        conn (if (get-in config [:conn :connection])
                (get-in config [:conn :connection])
                (:connection config))]
     (jdbc/execute! conn query)))
