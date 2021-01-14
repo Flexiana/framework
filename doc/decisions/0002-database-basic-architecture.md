@@ -31,6 +31,8 @@ control over the features.
 
 - [Positive] Framework is more aligned with its goals
 - [Positive] Framework already have a `SQL` layer to be used
+- [Negative] Choosing to wrap underlying libraries adds the work to
+  keep our library in sync with new features they release
 - [Negative] We were not able to use `integrant` as desired in the
   beginning because it violates the first rationale.
 - [Negative] We were not able to use `duct` as desired because it
