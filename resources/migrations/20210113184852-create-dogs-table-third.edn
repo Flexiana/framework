@@ -1,3 +1,0 @@
-{:ns framework.db.migration-files.20210113184852-create-dogs-table-third
- :up-fn up
- :down-fn down}
