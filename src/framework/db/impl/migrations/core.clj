@@ -28,10 +28,6 @@
 
 (defn create
   [config name]
-  )
-
-(defn create
-  [config name]
   (let [[migration-name migration-dir] (impl.migratus/create config name)
         filename (string/replace migration-name #"-" "_")
         absolute-path (str migrations-folder-path "/" filename ".clj")
