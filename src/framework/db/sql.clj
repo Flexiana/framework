@@ -72,7 +72,8 @@
   (psqlh/create-table (:table-name args)))
 
 (defn drop-table
-  ([table-name])
+  ([table-name]
+   (drop-table table-name {:dbtype :default}))
   ([table-name opts]
    (let [{:keys [dbtype]} opts
          args {:table-name table-name}]
