@@ -7,10 +7,12 @@
             :plugins []
             :main ^:skip-aot components
             :uberjar-name "handlers.jar"
-            :source-paths   ["app" "components"]
+            :source-paths ["app" "components"]
             :profiles {:dev   {:resource-paths ["config/dev"]}
                        :local {:resource-paths ["config/local"]}
-                       :prod  {:resource-paths ["config/prod"]}}
+                       :prod  {:resource-paths ["config/prod"]}
+                       :test  {:resource-paths ["config/test"]
+                               :dependencies   [[kerodon "0.9.1"]]}}
             :aliases {"ci"    ["do" "clean," "cloverage," "lint," "uberjar"]
                       "kondo" ["run" "-m" "clj-kondo.main" "--lint" "src" "test"]
                       "lint"  ["do" "kondo," "eastwood," "kibit"]})
