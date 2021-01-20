@@ -2,7 +2,8 @@
             :description "FIXME: write description"
             :min-lein-version "2.0.0"
             :dependencies [[org.clojure/clojure "1.10.1"]
-                           [com.flexiana/framework "0.1.0"]]
+                           [com.flexiana/framework "0.1.0"]
+                           [com.flexiana/corpus "0.1.3"]]
             :plugins []
             :main ^:skip-aot components
             :uberjar-name "handlers.jar"
