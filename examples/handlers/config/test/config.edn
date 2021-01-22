@@ -1,16 +1,4 @@
-{:framework.db.storage/postgresql {:port     5432
-                                   :dbname   "handlers"
-                                   :host     "localhost"
-                                   :dbtype   "postgresql"
-                                   :user     "postgres"
-                                   :password "postgres"}
-
- :framework.db.storage/migration  {:store                :database
-                                   :migration-dir        "resources/migrations"
-                                   :init-in-transaction? false
-                                   :migration-table-name "migrations"}
-
- :framework.app/ring              {:defaults {:params    {:urlencoded true
+{:framework.app/ring              {:defaults {:params    {:urlencoded true
                                                           :multipart  true
                                                           :nested     true
                                                           :keywordize true}
@@ -27,7 +15,4 @@
                                               :responses {:not-modified-responses true
                                                           :absolute-redirects     true
                                                           :content-types          true}}}
-
- :framework.app/web-server        {:port  3000
-                                   :join? false}
  }
