@@ -11,7 +11,6 @@
   (let [pg-cfg (:framework.db.storage/postgresql config)
         app-cfg (:framework.app/ring config)
         web-server-cfg (:framework.app/web-server config)]
-
     (->
       (component/system-map
         :config config

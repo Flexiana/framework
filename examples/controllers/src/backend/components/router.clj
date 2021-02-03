@@ -1,16 +1,18 @@
 (ns router
-  (:require [controllers.status :as status]
-            [controllers.index :as index]
-            [controllers.actions :as actions]
+  (:require [controllers.index :as index]
+            [controllers.re-frame :as re-frame]
             [reitit.ring :as ring]
             [com.stuartsierra.component :as component]))
 
-;; TODO: refactor to
-; :NAME :PATTERN :ACTION
-; :homepage [:GET "/"] app.controllers.index/index-action
+;; TODO: refactor to smth like
+;(route->
+;  :homepage (GET "/" app.controllers.homepage/index-action)
+;  :dynamic-content (dynamic "/:content-type/:url" (somefunction)))
+;:static-content ["/assets/*" (ring/create-resource-handler)]
 (def routes
-  [["/" {:action actions/index-action}]
-   ])
+  [["/" {:controller index/index}]
+   ["/re-frame" {:controller re-frame/index}]
+   ["/assets/*" (ring/create-resource-handler)]])
 
 (defrecord Router [db]
   component/Lifecycle

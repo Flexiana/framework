@@ -3,11 +3,11 @@
             :min-lein-version "2.0.0"
             :dependencies [[org.clojure/clojure "1.10.1"]
                            [com.flexiana/framework "0.1.0"]
-                           [com.flexiana/corpus "0.1.3"]
+                           [metosin/reitit "0.5.6"]
+                           [duct/server.http.jetty "0.2.1"]
                            [thheller/shadow-cljs "2.11.7"]
                            [reagent "0.10.0"]
                            [re-frame "1.1.2"]
-
                            [funcool/cats "2.4.1"]]
             :plugins [[lein-shadow "0.3.1"]
                       [lein-shell "0.5.0"]]
