@@ -28,7 +28,6 @@
         ;; short-circuit
         ;; TODO: refactor it
         (let [resp (-> router (get :ring-router) (ring/ring-handler) (apply [request]))]
-          (println resp)
           (xiana/error (response state resp)))
         (xiana/error (response state {:status 404 :body "Not Found"}))))))
 
@@ -55,7 +54,7 @@
       :handler
       (fn [http-request]
         (->
-          (xiana/state-flow->
+          (xiana/flow->
             (create-empty-state)
             (add-deps {:router router :db db})
             (add-http-request http-request)

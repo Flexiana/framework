@@ -10,7 +10,7 @@
 
 (def extract m/extract)
 
-(defmacro state-flow->
+(defmacro flow->
   [state & forms]
   `(m/>>=
      (ok ~state)

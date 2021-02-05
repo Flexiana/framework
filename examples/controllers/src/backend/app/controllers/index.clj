@@ -33,7 +33,7 @@
 
 (defn index
   [state]
-  (xiana/state-flow->
+  (xiana/flow->
     state
     (require-logged-in)
     (something-else)
