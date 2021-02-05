@@ -1,4 +1,4 @@
-(ns xiana
+(ns xiana.core
   (:require [cats.core :as m]
             [cats.monad.either :as me]))
 

@@ -1,5 +1,5 @@
 (ns app
-  (:require [xiana]
+  (:require [xiana.core :as xiana]
             [reitit.core :as r]
             [com.stuartsierra.component :as component]
             [reitit.ring :as ring]))

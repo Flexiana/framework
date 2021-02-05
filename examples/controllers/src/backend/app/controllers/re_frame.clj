@@ -1,5 +1,5 @@
 (ns controllers.re-frame
-  (:require [xiana]
+  (:require [xiana.core :as xiana]
             [ring.util.response :as response]))
 
 (defn index

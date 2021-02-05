@@ -1,4 +1,4 @@
-(defproject com.flexiana/framework "0.1.0"
+(defproject com.flexiana/framework "0.1.2"
   :description "Framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
@@ -10,7 +10,8 @@
                  [org.postgresql/postgresql "42.2.2"]
                  [seancorfield/next.jdbc "1.1.613"]
                  [migratus "1.3.3"]
-                 [potemkin "0.4.5"]]
+                 [potemkin "0.4.5"]
+                 [funcool/cats "2.4.1"]]
   :target "target/%s/"
   :profiles {:dev   {:resource-paths ["config/dev"]}
              :local {:resource-paths ["config/local"]}

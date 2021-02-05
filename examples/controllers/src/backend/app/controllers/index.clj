@@ -1,5 +1,5 @@
 (ns controllers.index
-  (:require [xiana]))
+  (:require [xiana.core :as xiana]))
 
 (defn index-view
   [state]
