@@ -1,7 +1,6 @@
 (ns framework.db.sql
   (:require
     [clojure.string :as string]
-    [framework.config.core :as config]
     [honeysql-postgres.format]
     [honeysql-postgres.helpers :as psqlh]
     [honeysql.core :as sql]
@@ -58,7 +57,7 @@
                (:connection config))]
     (jdbc/execute! conn query)))
 
-(defmulti build-clause (fn [optype dbtype args] [dbtype optype]))
+(defmulti build-clause (fn [optype dbtype _args] [dbtype optype]))
 
 (defn create-table
   ([table-name]

@@ -5,7 +5,7 @@
 
 (defrecord Config []
   component/Lifecycle
-  (start [this]
+  (start [_this]
          (load-env)))
 
 (defn new-config
