@@ -8,6 +8,7 @@
   [env]
   (-> env
       (update :framework.db.storage/postgresql db.storage/->PostgreSQL)
+
       component/map->SystemMap))
 
 (defn -main
