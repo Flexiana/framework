@@ -1,8 +1,8 @@
 (ns framework.core-test
   (:require
-   [clojure.test :refer [deftest
-                         is]]
-   [clj-kondo.core :as kondo]))
+    [clj-kondo.core :as kondo]
+    [clojure.test :refer [deftest
+                          is]]))
 
 (deftest lint
   (let [{:keys [findings analysis]}
