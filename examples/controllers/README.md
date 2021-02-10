@@ -4,6 +4,15 @@ FIXME: description
 
 ## Usage
 
+### Prepare PostgreSQL
+Before the first run, you must prepare the database:
+
+    user: postgres
+
+    password: postgres
+    
+    Create a database, named 'controllers'
+
 ### Build frontend and run the backend
 
     lein release
