@@ -1,17 +1,19 @@
 (ns framework.components.core
   (:require
-    [com.stuartsierra.component :as component]
-    [framework.config.core :as config]
-    [framework.db.storage :as db.storage]))
+   [com.stuartsierra.component :as component]
+   [framework.db.storage :as db.storage]
+   [config.core :refer [load-env]]))
+
 
 (defn system
-  [config]
-  (let [pg-cfg (:framework.db.storage/postgresql config)]
-    (component/system-map
-      :config config
-      :db (db.storage/postgresql pg-cfg))))
+  [env]
+  (-> env
+      (update :framework.db.storage/postgresql db.storage/->PostgreSQL)
+      component/map->SystemMap))
 
 (defn -main
   [& _args]
-  (let [config (config/edn)]
-    (component/start (system config))))
+  (let [env (load-env)]
+    (-> env
+        system
+        component/start)))
