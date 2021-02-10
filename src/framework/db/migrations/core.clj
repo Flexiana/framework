@@ -59,3 +59,29 @@
         namespace-content              (format content-clojure-file namespace)]
     (create-clojure-file absolute-path namespace-content)
     (insert-content-migratus-file migration-dir migration-name namespace)))
+
+(defn migration-cfg
+  [env]
+  (let [{:framework.db.storage/keys [postgresql]} env
+        mig-cfg                                   (assoc-in env [:framework.db.storage/migration
+                                                                 :db]
+                                                            postgresql)]
+    mig-cfg))
+
+(defn migrate
+  [env]
+  (->  env
+       migration-cfg
+       migratus/migrate))
+
+(defn rollback-last
+  [env]
+  (-> env
+      migration-cfg
+      migratus/rollback))
+
+(defn reset
+  [env]
+  (-> env
+      migration-cfg
+      migratus/reset))
