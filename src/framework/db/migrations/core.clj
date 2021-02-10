@@ -65,7 +65,7 @@
   (let [{:framework.db.storage/keys [postgresql]} env
         mig-cfg                                   (assoc-in env [:framework.db.storage/migration
                                                                  :db]
-                                                            postgresql)]
+                                                    postgresql)]
     mig-cfg))
 
 (defn migrate
