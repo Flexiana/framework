@@ -23,5 +23,4 @@
                         "run"
                         "-m"
                         "cljstyle.main"]}
-  :main framework.components.core
-  )
+  :main framework.components.core)

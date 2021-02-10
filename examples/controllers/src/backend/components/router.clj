@@ -1,8 +1,9 @@
 (ns router
-  (:require [controllers.index :as index]
-            [controllers.re-frame :as re-frame]
-            [reitit.ring :as ring]
-            [com.stuartsierra.component :as component]))
+  (:require
+    [com.stuartsierra.component :as component]
+    [controllers.index :as index]
+    [controllers.re-frame :as re-frame]
+    [reitit.ring :as ring]))
 
 ;; TODO: refactor to smth like
 ;(route->
@@ -17,7 +18,7 @@
 (defrecord Router [db]
   component/Lifecycle
   (start [this]
-    (assoc this :ring-router (ring/router routes))))
+         (assoc this :ring-router (ring/router routes))))
 
 (defn make-router
   []

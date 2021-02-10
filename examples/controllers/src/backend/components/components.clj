@@ -1,10 +1,11 @@
 (ns components
-  (:require [app]
-            [web-server]
-            [router]
-            [com.stuartsierra.component :as component]
-            [framework.config.core :as config]
-            [framework.db.storage :as db.storage]))
+  (:require
+    [app]
+    [com.stuartsierra.component :as component]
+    [framework.config.core :as config]
+    [framework.db.storage :as db.storage]
+    [router]
+    [web-server]))
 
 (defn system
   [config]

@@ -1,11 +1,12 @@
 (ns framework.db.sql
-  (:require [next.jdbc :as jdbc]
-            [honeysql.core :as sql]
-            [honeysql-postgres.helpers :as psqlh]
-            [honeysql-postgres.format]
-            [potemkin :refer [import-vars]]
-            [clojure.string :as string]
-            [framework.config.core :as config]))
+  (:require
+    [clojure.string :as string]
+    [framework.config.core :as config]
+    [honeysql-postgres.format]
+    [honeysql-postgres.helpers :as psqlh]
+    [honeysql.core :as sql]
+    [next.jdbc :as jdbc]
+    [potemkin :refer [import-vars]]))
 
 (import-vars
   [honeysql.helpers

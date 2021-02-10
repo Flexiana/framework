@@ -1,6 +1,7 @@
 (ns framework.db.postgresql
-  (:require [honeysql-postgres.helpers]
-            [potemkin :refer [import-vars]]))
+  (:require
+    [honeysql-postgres.helpers]
+    [potemkin :refer [import-vars]]))
 
 (import-vars
   [honeysql-postgres.helpers

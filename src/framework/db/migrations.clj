@@ -1,7 +1,8 @@
 (ns framework.db.migrations
-  (:require [framework.config.core :as config]
-            [framework.db.impl.migrations.core :as impl.core]
-            [migratus.core :as migratus]))
+  (:require
+    [framework.config.core :as config]
+    [framework.db.impl.migrations.core :as impl.core]
+    [migratus.core :as migratus]))
 
 (defn migration-cfg
   [config]
