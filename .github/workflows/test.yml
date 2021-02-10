@@ -22,4 +22,4 @@ jobs:
           m2-
 
     - name: Run tests
-      run: lein with-profile +test run
+      run: lein test
