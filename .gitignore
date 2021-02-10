@@ -10,6 +10,7 @@ pom.xml.asc
 /.nrepl-port
 /.dir-locals.el
 /profiles.clj
+/.clj-kondo/cache/
 /dev/resources/local.edn
 /dev/src/local.clj
 .eastwood

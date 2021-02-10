@@ -16,11 +16,21 @@
   :profiles {:dev      {:resource-paths ["config/dev"]}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
-             :cljstyle {:dependencies [[mvxcvi/cljstyle "0.14.0"
-                                        o:exclusions [org.clojure/clojure]]]}}
+             :cljstyle {:dependencies []}
+             :test     {:source-paths ["test"]
+                        :dependencies [[lambdaisland/kaocha "1.0.732"]
+                                       [mvxcvi/cljstyle "0.14.0"
+                                        :exclusions [org.clojure/clojure]]
+                                       [clj-kondo "2021.01.20"]
+                                       [nubank/matcher-combinators "3.1.4"]]}}
   :aliases {"cljstyle" ["with-profile"
-                        "+cljstyle"
+                        "+test"
                         "run"
                         "-m"
-                        "cljstyle.main"]}
+                        "cljstyle.main"]
+            "test"     ["with-profile"
+                        "+test"
+                        "run"
+                        "-m"
+                        "kaocha.runner"]}
   :main framework.components.core)
