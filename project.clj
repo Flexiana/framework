@@ -13,8 +13,15 @@
                  [potemkin "0.4.5"]
                  [funcool/cats "2.4.1"]]
   :target "target/%s/"
-  :profiles {:dev   {:resource-paths ["config/dev"]}
-             :local {:resource-paths ["config/local"]}
-             :prod  {:resource-paths ["config/prod"]}}
+  :profiles {:dev      {:resource-paths ["config/dev"]}
+             :local    {:resource-paths ["config/local"]}
+             :prod     {:resource-paths ["config/prod"]}
+             :cljstyle {:dependencies [[mvxcvi/cljstyle "0.14.0"
+                                        o:exclusions [org.clojure/clojure]]]}}
+  :aliases {"cljstyle" ["with-profile"
+                        "+cljstyle"
+                        "run"
+                        "-m"
+                        "cljstyle.main"]}
   :main framework.components.core
   )
