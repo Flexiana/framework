@@ -1,13 +1,15 @@
 (ns framework.config.core
-  (:require [config.core :refer [load-env]]
-            [com.stuartsierra.component :as component]))
+  (:require
+    [com.stuartsierra.component :as component]
+    [config.core :refer [load-env]]))
 
 (defrecord Config []
   component/Lifecycle
   (start [this]
-    (load-env)))
+         (load-env)))
 
-(defn new-config []
+(defn new-config
+  []
   (->Config))
 
 (defn edn

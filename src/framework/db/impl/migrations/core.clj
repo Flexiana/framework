@@ -1,7 +1,8 @@
 (ns framework.db.impl.migrations.core
-  (:require [clojure.java.io :as io]
-            [framework.db.impl.migrations.migratus :as impl.migratus]
-            [clojure.string :as string]))
+  (:require
+    [clojure.java.io :as io]
+    [clojure.string :as string]
+    [framework.db.impl.migrations.migratus :as impl.migratus]))
 
 (def content-migratus-file
   "{:ns %s\n :up-fn up\n :down-fn down}")
