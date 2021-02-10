@@ -3,8 +3,7 @@
    [clojure.test :refer [deftest
                          is
                          testing]]
-   [clj-kondo.core :as kondo]
-   [matcher-combinators.test :refer [match?]]))
+   [clj-kondo.core :as kondo]))
 
 (deftest lint
   (let [{:keys [findings analysis]}
