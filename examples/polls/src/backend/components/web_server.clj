@@ -1,15 +1,26 @@
 (ns web-server
-  (:require [ring.adapter.jetty :as jetty]
-            [com.stuartsierra.component :as component]))
+  (:require
+    [com.stuartsierra.component :as component]
+    [ring.adapter.jetty :as jetty]))
 
-(defrecord WebServer [http-server app config]
+
+(defrecord WebServer
+  [http-server app config]
+
   component/Lifecycle
-  (start [this]
+
+  (start
+    [this]
     (assoc this :http-server
-                (jetty/run-jetty (:handler app) config)))
-  (stop [this]
+           (jetty/run-jetty (:handler app) config)))
+
+
+  (stop
+    [this]
     (.stop http-server)
     this))
 
-(defn make-web-server [config]
+
+(defn make-web-server
+  [config]
   (map->WebServer {:config config}))

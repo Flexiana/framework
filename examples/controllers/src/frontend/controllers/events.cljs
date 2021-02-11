@@ -1,10 +1,10 @@
 (ns controllers.events
   (:require
-   [re-frame.core :as re-frame]
-   [controllers.db :as db]
-   ))
+    [controllers.db :as db]
+    [re-frame.core :as re-frame]))
+
 
 (re-frame/reg-event-db
- ::initialize-db
- (fn [_ _]
-   db/default-db))
+  ::initialize-db
+  (fn [_ _]
+    db/default-db))

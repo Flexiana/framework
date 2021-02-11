@@ -1,14 +1,19 @@
 (ns xiana.core
-  (:require [cats.core :as m]
-            [cats.monad.either :as me]))
+  (:require
+    [cats.core :as m]
+    [cats.monad.either :as me]))
 
-(defrecord State [http-request request-data response session-data deps])
+
+(defrecord State
+  [http-request request-data response session-data deps])
+
 
 (def ok me/right)
 
 (def error me/left)
 
 (def extract m/extract)
+
 
 (defmacro flow->
   [state & forms]

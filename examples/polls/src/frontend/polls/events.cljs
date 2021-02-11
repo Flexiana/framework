@@ -1,10 +1,10 @@
 (ns polls.events
   (:require
-   [re-frame.core :as re-frame]
-   [polls.db :as db]
-   ))
+    [polls.db :as db]
+    [re-frame.core :as re-frame]))
+
 
 (re-frame/reg-event-db
- ::initialize-db
- (fn [_ _]
-   db/default-db))
+  ::initialize-db
+  (fn [_ _]
+    db/default-db))

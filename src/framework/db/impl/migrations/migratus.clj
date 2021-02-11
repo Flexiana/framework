@@ -1,15 +1,22 @@
 (ns framework.db.impl.migrations.migratus
-  (:require [migratus.migrations :as migrations]
-            [migratus.protocols :as proto]
-            [migratus.utils :as utils]
-            [clojure.java.io :as io])
-  (:import [java.util Date TimeZone]
-           java.text.SimpleDateFormat))
+  (:require
+    [clojure.java.io :as io]
+    [migratus.migrations :as migrations]
+    [migratus.protocols :as proto]
+    [migratus.utils :as utils])
+  (:import
+    java.text.SimpleDateFormat
+    (java.util
+      Date
+      TimeZone)))
 
-(defn timestamp []
+
+(defn timestamp
+  []
   (let [fmt (doto (SimpleDateFormat. "yyyyMMddHHmmss ")
               (.setTimeZone (TimeZone/getTimeZone "UTC")))]
     (.format fmt (Date.))))
+
 
 (defn create
   [config name]
@@ -20,6 +27,7 @@
     (doseq [mig-file (proto/migration-files* :edn migration-name)]
       (.createNewFile (io/file migration-dir mig-file)))
     [migration-name migration-dir]))
+
 
 (defn get-migrations-folder-path
   [config]

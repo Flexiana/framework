@@ -1,11 +1,11 @@
 (ns donor.views
   (:require
-   [re-frame.core :as re-frame]
-   [donor.subs :as subs]
-   ))
+    [donor.subs :as subs]
+    [re-frame.core :as re-frame]))
 
-(defn main-panel []
+
+(defn main-panel
+  []
   (let [name (re-frame/subscribe [::subs/name])]
     [:div
-     [:h1 "Hello from " @name]
-     ]))
+     [:h1 "Hello from " @name]]))

@@ -1,11 +1,13 @@
 (ns framework.db.sql
-  (:require [next.jdbc :as jdbc]
-            [honeysql.core :as sql]
-            [honeysql-postgres.helpers :as psqlh]
-            [honeysql-postgres.format]
-            [potemkin :refer [import-vars]]
-            [clojure.string :as string]
-            [framework.config.core :as config]))
+  (:require
+    [clojure.string :as string]
+    [framework.config.core :as config]
+    [honeysql-postgres.format]
+    [honeysql-postgres.helpers :as psqlh]
+    [honeysql.core :as sql]
+    [next.jdbc :as jdbc]
+    [potemkin :refer [import-vars]]))
+
 
 (import-vars
   [honeysql.helpers
@@ -31,9 +33,11 @@
    modifiers
    where])
 
+
 (import-vars
   [honeysql.core
    call])
+
 
 (defn fmt-create-table-stmt
   "This function should not exist. Research why jdbc cant process
@@ -47,6 +51,7 @@
               (rest qry-raw))]
     [qry]))
 
+
 (defn execute!
   [hsql config]
   (let [query (if (:create-table hsql)
@@ -57,7 +62,9 @@
                (:connection config))]
     (jdbc/execute! conn query)))
 
+
 (defmulti build-clause (fn [optype dbtype args] [dbtype optype]))
+
 
 (defn create-table
   ([table-name]
@@ -67,9 +74,11 @@
          args {:table-name table-name}]
      (build-clause :create-table dbtype args))))
 
+
 (defmethod build-clause [:default :create-table]
   [_ _ args]
   (psqlh/create-table (:table-name args)))
+
 
 (defn drop-table
   ([table-name]
@@ -79,14 +88,17 @@
          args {:table-name table-name}]
      (build-clause :drop-table dbtype args))))
 
+
 (defmethod build-clause [:default :drop-table]
   [_ _ args]
   (psqlh/drop-table (:table-name args)))
+
 
 (defn with-columns
   [m rows]
   (let [args {:map m :rows rows}]
     (build-clause :with-columns :default args)))
+
 
 (defmethod build-clause [:default :with-columns]
   [_ _ args]

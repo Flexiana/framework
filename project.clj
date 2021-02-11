@@ -16,5 +16,4 @@
   :profiles {:dev   {:resource-paths ["config/dev"]}
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}}
-  :main framework.components.core
-  )
+  :main framework.components.core)
