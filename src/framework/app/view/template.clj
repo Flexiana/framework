@@ -26,9 +26,16 @@
       (xiana/extract)
       (:template)))
 
-(defn set-language
-  "Getting the language from http-request's header from state-map"
+(defmulti set-language
+  (fn [action] action))
+
+(defmethod set-language :auto
   [state]
   (let [{{:keys [headers]} :http-request} state]
     (xiana/ok
       (assoc state :lang (get headers "accept-language")))))
+
+(defmethod set-language :manual
+  [state [& lang :as langs]]
+  (xiana/ok
+    (assoc state :lang langs)))
