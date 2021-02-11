@@ -8,12 +8,10 @@
   [env]
   (-> env
       (update :framework.db.storage/postgresql db.storage/->PostgreSQL)
-
       component/map->SystemMap))
 
 (defn -main
   [& _args]
-  (let [env (load-env)]
-    (-> env
-        system
-        component/start)))
+  (-> (load-env)
+      system
+      component/start))
