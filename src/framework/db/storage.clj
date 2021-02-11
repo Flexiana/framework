@@ -3,8 +3,8 @@
     [com.stuartsierra.component :as component]
     [next.jdbc :as jdbc]))
 
-(defrecord PostgreSQL [config]
-  component/Lifecycle
+(defrecord PostgreSQL
+  [config]
   (start [this]
          (let [datasource (jdbc/get-datasource config)]
            (-> this
