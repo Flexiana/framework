@@ -6,7 +6,7 @@ FIXME: description
 
 ### Start dockerized PostgreSQL
 
-    docker-start.sh
+    postgres-start.sh
 
 ### Build frontend and run the backend
 
