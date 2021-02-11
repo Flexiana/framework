@@ -1,17 +1,16 @@
 (ns framework.db.migrations.core
   (:require
-    [clojure.java.io :as io]
-    [clojure.string :as string]
-    [migratus.core :as migratus]
-    [migratus.migrations :as migrations]
-    [migratus.protocols :as proto]
-    [migratus.utils :as utils])
+   [clojure.java.io :as io]
+   [clojure.string :as string]
+   [migratus.core :as migratus]
+   [migratus.migrations :as migrations]
+   [migratus.protocols :as proto]
+   [migratus.utils :as utils])
   (:import
-    java.text.SimpleDateFormat
-    (java.util
-      Date
-      TimeZone)))
-
+   java.text.SimpleDateFormat
+   (java.util
+    Date
+    TimeZone)))
 (def content-migratus-file
   "{:ns %s\n :up-fn up\n :down-fn down}")
 
@@ -22,7 +21,7 @@
   (-> (java.io.File. "src/framework/db/migration_files") .getAbsolutePath))
 
 (defn create-clojure-file
-  [fpath namespace]
+  [fpath ^String namespace]
   (with-open [wrtr (io/writer fpath)]
     (.write wrtr namespace)
     (.write wrtr "\n\n")
