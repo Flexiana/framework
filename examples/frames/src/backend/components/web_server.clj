@@ -3,7 +3,6 @@
     [com.stuartsierra.component :as component]
     [ring.adapter.jetty :as jetty]))
 
-
 (defrecord WebServer
   [http-server app-component config]
   component/Lifecycle
@@ -15,7 +14,6 @@
     [this]
     (.stop http-server)
     this))
-
 
 (defn web-server
   "Returns a new instance of the web server component which
