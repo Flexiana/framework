@@ -4,6 +4,10 @@ FIXME: description
 
 ## Usage
 
+### Start dockerized PostgreSQL
+
+    postgres-start.sh
+
 ### Build frontend and run the backend
 
     lein release
