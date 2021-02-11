@@ -10,9 +10,6 @@
 (def content-clojure-file
   "(ns %s\n  (:require [framework.db.sql :as sql]))")
 
-(def migrations-folder-path
-  (-> (java.io.File. "src/framework/db/migration_files") .getAbsolutePath))
-
 (defn create-clojure-file
   [fpath namespace]
   (with-open [wrtr (io/writer fpath)]
@@ -30,9 +27,10 @@
 (defn create
   [config name]
   (let [[migration-name migration-dir] (impl.migratus/create config name)
-        filename (string/replace migration-name #"-" "_")
-        absolute-path (str migrations-folder-path "/" filename ".clj")
-        namespace (str "framework.db.migration-files." migration-name)
-        namespace-content (format content-clojure-file namespace)]
+        filename               (string/replace migration-name #"-" "_")
+        migrations-folder-path (impl.migratus/get-migrations-folder-path config)
+        absolute-path          (str migrations-folder-path "/" filename ".clj")
+        namespace              (str "framework.db.migration-files." migration-name)
+        namespace-content      (format content-clojure-file namespace)]
     (create-clojure-file absolute-path namespace-content)
     (insert-content-migratus-file migration-dir migration-name namespace)))

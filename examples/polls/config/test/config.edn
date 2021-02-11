@@ -1,0 +1,18 @@
+{:framework.app/ring              {:defaults {:params    {:urlencoded true
+                                                          :multipart  true
+                                                          :nested     true
+                                                          :keywordize true}
+                                              :cookies   true
+                                              :session   {:flash true
+                                                          :cookie-attrs
+                                                                 {:http-only true, :same-site :strict}}
+                                              :security  {:anti-forgery         true
+                                                          :xss-protection
+                                                                                {:enable? true, :mode :block}
+                                                          :frame-options        :sameorigin
+                                                          :content-type-options :nosniff}
+                                              :static    {:resources "public"}
+                                              :responses {:not-modified-responses true
+                                                          :absolute-redirects     true
+                                                          :content-types          true}}}
+ }

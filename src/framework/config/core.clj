@@ -3,7 +3,8 @@
     [com.stuartsierra.component :as component]
     [config.core :refer [load-env]]))
 
-(defrecord Config []
+(defrecord Config
+  []
   component/Lifecycle
   (start [_this]
          (load-env)))

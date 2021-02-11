@@ -5,7 +5,7 @@
                           is]]))
 
 (deftest lint
-  (let [{:keys [findings analysis]}
+  (let [{:keys [findings _analysis]}
         (kondo/run! {:lint ["src"]
                      :config {:linters {:not-empty?        false
                                         :unresolved-symbol {:exclude '[]}}
