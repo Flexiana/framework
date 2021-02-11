@@ -1,27 +1,23 @@
 # frames
 
-FIXME: description
-
-## Installation
-
-Download from http://example.com/FIXME.
-
 ## Usage
 
-FIXME: explanation
+### Start dockerized PostgreSQL
 
-## Options
+    postgres-start.sh
 
-FIXME: listing of options this app accepts.
 
-## Examples
+### Compile front-end and run the application
 
-...
+    lein release
+    
+    lein run
 
-### Bugs
+### Open the app
 
-...
+http://localhost:3000/
 
-### Any Other Sections
-### That You Think
-### Might be Useful
+http://localhost:3000/status
+
+should response
+{"status":"OK"}

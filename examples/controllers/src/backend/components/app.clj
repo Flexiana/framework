@@ -61,24 +61,22 @@
   [config router db]
 
   component/Lifecycle
-
-  (start
-    [this]
-    (assoc this
-      :handler
-      (fn [http-request]
-        (->
-          (xiana/flow->
-            (create-empty-state)
-            (add-deps {:router router :db db})
-            (add-http-request http-request)
-            (pre-route-middlewares)
-            (route)
-            (pre-controller-middlewares)
-            (run-controller)
-            (post-controller-middlewares))
-          (xiana/extract)
-          (get :response))))))
+  (start [this]
+         (assoc this
+           :handler
+           (fn [http-request]
+             (->
+               (xiana/flow->
+                 (create-empty-state)
+                 (add-deps {:router router :db db})
+                 (add-http-request http-request)
+                 (pre-route-middlewares)
+                 (route)
+                 (pre-controller-middlewares)
+                 (run-controller)
+                 (post-controller-middlewares))
+               (xiana/extract)
+               (get :response))))))
 
 (defn make-app
   [config]

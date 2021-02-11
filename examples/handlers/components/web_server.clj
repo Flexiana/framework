@@ -5,15 +5,11 @@
 
 (defrecord WebServer
   [http-server app-component config]
-
   component/Lifecycle
-
   (start
     [this]
     (assoc this :http-server
       (jetty/run-jetty app-component config)))
-
-
   (stop
     [this]
     (.stop http-server)

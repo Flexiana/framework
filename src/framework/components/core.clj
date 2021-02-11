@@ -12,6 +12,6 @@
       :db (db.storage/postgresql pg-cfg))))
 
 (defn -main
-  [& args]
+  [& _args]
   (let [config (config/edn)]
     (component/start (system config))))
