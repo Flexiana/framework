@@ -4,7 +4,6 @@
     [framework.db.impl.migrations.core :as impl.core]
     [migratus.core :as migratus]))
 
-
 (defn migration-cfg
   [config]
   (let [pg-cfg (:framework.db.storage/postgresql config)
@@ -13,21 +12,17 @@
                     (assoc :db pg-cfg))]
     mig-cfg))
 
-
 (defn create
   [name]
   (impl.core/create (migration-cfg (config/edn)) name))
-
 
 (defn migrate
   []
   (migratus/migrate (migration-cfg (config/edn))))
 
-
 (defn rollback-last
   []
   (migratus/rollback (migration-cfg (config/edn))))
-
 
 (defn reset
   []

@@ -4,11 +4,9 @@
     [corpus.responses.hiccup :as hiccup]
     [corpus.router.reitit :as corpus]))
 
-
 (def routes
   (concat [""
            ["/status" {:get status/handle-status}]]))
-
 
 (defn ring-app
   [conf]

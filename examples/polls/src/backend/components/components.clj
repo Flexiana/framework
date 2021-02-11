@@ -7,7 +7,6 @@
     [router]
     [web-server]))
 
-
 (defn system
   [config]
   (let [pg-cfg (:framework.db.storage/postgresql config)
@@ -24,7 +23,6 @@
         {:router     [:db]
          :app        [:router :db]
          :web-server [:app]}))))
-
 
 (defn -main
   [& _args]

@@ -6,13 +6,11 @@
     [corpus.router.reitit :as corpus]
     [reitit.ring :as ring]))
 
-
 (def routes
   (concat [""
            ["/" {:get index/handle-index}]
            ["/status" {:get status/handle-status}]
            ["/assets/*" (ring/create-resource-handler)]]))
-
 
 (defn ring-app
   [conf]

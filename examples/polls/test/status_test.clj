@@ -6,7 +6,6 @@
     [kerodon.core :refer :all]
     [kerodon.test :refer :all]))
 
-
 (deftest status-test
   (let [config (config/edn)
         app-cfg (:framework.app/ring config)

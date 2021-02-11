@@ -3,7 +3,6 @@
     [honeysql-postgres.helpers]
     [potemkin :refer [import-vars]]))
 
-
 (import-vars
   [honeysql-postgres.helpers
    upsert

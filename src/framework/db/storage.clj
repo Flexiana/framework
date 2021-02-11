@@ -3,7 +3,6 @@
     [com.stuartsierra.component :as component]
     [next.jdbc :as jdbc]))
 
-
 (defrecord PostgreSQL
   [config]
 
@@ -20,7 +19,6 @@
   (stop
     [this]
     (dissoc this :datasource :connection)))
-
 
 (defn postgresql
   [config]

@@ -6,7 +6,6 @@
     [framework.db.storage :as db.storage]
     [web-server]))
 
-
 (defn system
   [config]
   (let [pg-cfg (:framework.db.storage/postgresql config)
@@ -18,7 +17,6 @@
       :db (db.storage/postgresql pg-cfg)
       :app-component (app/ring-app app-cfg)
       :web-server (web-server/web-server web-server-cfg))))
-
 
 (defn -main
   [& args]

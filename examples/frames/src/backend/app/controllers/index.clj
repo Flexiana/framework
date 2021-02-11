@@ -3,7 +3,6 @@
     [corpus.responses :as responses]
     [ring.util.response :as response]))
 
-
 (defn handle-index
   [& _args]
   (-> "index.html"

@@ -6,12 +6,10 @@
     [re-frame.core :as re-frame]
     [reagent.dom :as rdom]))
 
-
 (defn dev-setup
   []
   (when config/debug?
     (println "dev mode")))
-
 
 (defn ^:dev/after-load mount-root
   []
@@ -19,7 +17,6 @@
   (let [root-el (.getElementById js/document "app")]
     (rdom/unmount-component-at-node root-el)
     (rdom/render [views/main-panel] root-el)))
-
 
 (defn init
   []

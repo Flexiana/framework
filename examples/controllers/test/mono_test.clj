@@ -5,7 +5,6 @@
     [kerodon.test :refer :all]
     [mono]))
 
-
 (deftest test-mono-router
   (-> (session mono/app)
       (visit "/pong")

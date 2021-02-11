@@ -15,7 +15,6 @@
    ["/re-frame" {:controller re-frame/index}]
    ["/assets/*" (ring/create-resource-handler)]])
 
-
 (defrecord Router
   [db]
 
@@ -24,7 +23,6 @@
   (start
     [this]
     (assoc this :ring-router (ring/router routes))))
-
 
 (defn make-router
   []

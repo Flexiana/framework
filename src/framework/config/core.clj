@@ -3,7 +3,6 @@
     [com.stuartsierra.component :as component]
     [config.core :refer [load-env]]))
 
-
 (defrecord Config
   []
 
@@ -13,11 +12,9 @@
     [this]
     (load-env)))
 
-
 (defn new-config
   []
   (->Config))
-
 
 (defn edn
   []

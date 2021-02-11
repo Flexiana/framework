@@ -3,7 +3,6 @@
     [com.stuartsierra.component :as component]
     [ring.adapter.jetty :as jetty]))
 
-
 (defrecord WebServer
   [http-server app config]
 
@@ -12,14 +11,13 @@
   (start
     [this]
     (assoc this :http-server
-           (jetty/run-jetty (:handler app) config)))
+      (jetty/run-jetty (:handler app) config)))
 
 
   (stop
     [this]
     (.stop http-server)
     this))
-
 
 (defn make-web-server
   [config]
