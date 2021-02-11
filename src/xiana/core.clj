@@ -3,7 +3,14 @@
     [cats.core :as m]
     [cats.monad.either :as me]))
 
-(defrecord State [http-request request-data response session-data deps])
+(defrecord State [http-request
+                  request-data
+                  response
+                  session-data
+                  deps
+                  template
+                  lang
+                  dict-fn])
 
 (def ok me/right)
 

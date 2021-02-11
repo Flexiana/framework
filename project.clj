@@ -11,7 +11,9 @@
                  [seancorfield/next.jdbc "1.1.613"]
                  [migratus "1.3.3"]
                  [potemkin "0.4.5"]
-                 [funcool/cats "2.4.1"]]
+                 [funcool/cats "2.4.1"]
+                 [hiccup "1.0.5"]
+                 [tongue "0.2.10"]]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths ["config/dev"]}
              :local    {:resource-paths ["config/local"]}
