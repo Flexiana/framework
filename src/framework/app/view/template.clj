@@ -38,4 +38,4 @@
 (defmethod set-language :manual
   [state [& _lang :as langs]]
   (xiana/ok
-   (assoc state :lang langs)))
+    (assoc state :lang langs)))
