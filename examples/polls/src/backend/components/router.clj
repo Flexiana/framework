@@ -17,7 +17,9 @@
 
 (defrecord Router
   [db]
+
   component/Lifecycle
+
   (start
     [this]
     (assoc this :ring-router (ring/router routes))))
