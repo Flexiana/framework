@@ -36,6 +36,6 @@
       (assoc state :lang (get headers "accept-language")))))
 
 (defmethod set-language :manual
-  [state [& lang :as langs]]
+  [state [& _lang :as langs]]
   (xiana/ok
-    (assoc state :lang langs)))
+   (assoc state :lang langs)))
