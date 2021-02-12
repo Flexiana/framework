@@ -10,6 +10,10 @@
                   deps
                   template
                   lang
+                  layout
+                  is-api
+                  is-html
+                  ready-hiccup
                   dict-fn])
 
 (def ok me/right)
