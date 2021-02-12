@@ -1,2 +1,2 @@
-CREATE DATABASE IF NOT EXISTS controllers;
+CREATE DATABASE controllers;
 GRANT ALL PRIVILEGES ON DATABASE controllers TO postgres;
