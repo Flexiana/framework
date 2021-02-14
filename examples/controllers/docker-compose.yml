@@ -6,6 +6,9 @@ services:
       dockerfile: db.Dockerfile
     volumes:
       - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "controllers"
+      PG_DATA: "/var/lib/postgresql/data"
     ports:
       - "5432:5432"
 
