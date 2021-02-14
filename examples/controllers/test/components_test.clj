@@ -1,10 +1,10 @@
 (ns components-test
   (:require
-   [framework.config.core :as config]
-   [com.stuartsierra.component :as component]
-   [components :as comps]
-   [clj-http.client :as http]
-   [clojure.test :refer [deftest is use-fixtures]]))
+    [clj-http.client :as http]
+    [clojure.test :refer [deftest is use-fixtures]]
+    [com.stuartsierra.component :as component]
+    [components :as comps]
+    [framework.config.core :as config]))
 
 (defn std-system-fixture
   [f]

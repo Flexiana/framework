@@ -1,9 +1,9 @@
 (ns app
   (:require
-   [com.stuartsierra.component :as component]
-   [reitit.core :as r]
-   [reitit.ring :as ring]
-   [xiana.core :as xiana]))
+    [com.stuartsierra.component :as component]
+    [reitit.core :as r]
+    [reitit.ring :as ring]
+    [xiana.core :as xiana]))
 
 (defn create-empty-state
   []
@@ -58,26 +58,26 @@
     (controller state)))
 
 (defrecord App
-    [config router db]
+  [config router db]
 
   component/Lifecycle
   (stop [this] this)
   (start [this]
-    (assoc this
+         (assoc this
            :handler
            (fn [http-request]
              (->
-              (xiana/flow->
-               (create-empty-state)
-               (add-deps {:router router :db db})
-               (add-http-request http-request)
-               (pre-route-middlewares)
-               (route)
-               (pre-controller-middlewares)
-               (run-controller)
-               (post-controller-middlewares))
-              (xiana/extract)
-              (get :response))))))
+               (xiana/flow->
+                 (create-empty-state)
+                 (add-deps {:router router :db db})
+                 (add-http-request http-request)
+                 (pre-route-middlewares)
+                 (route)
+                 (pre-controller-middlewares)
+                 (run-controller)
+                 (post-controller-middlewares))
+               (xiana/extract)
+               (get :response))))))
 
 (defn make-app
   [config]

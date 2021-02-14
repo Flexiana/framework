@@ -16,11 +16,11 @@
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defrecord Router
-    [db]
+  [db]
   component/Lifecycle
   (stop [this] this)
   (start
-      [this]
+    [this]
     (assoc this :ring-router (ring/router routes))))
 
 (defn make-router

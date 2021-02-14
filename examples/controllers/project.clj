@@ -29,7 +29,6 @@
                                :asset-path "/js/compiled"
                                :modules    {:app {:init-fn  controllers.core/init
                                                   :preloads [devtools.preload]}}
-
                                         ;:devtools {:http-root "resources/public"
                                         ;           :http-port 8280
                                         ;           :http-handler controllers.handler/dev-handler
