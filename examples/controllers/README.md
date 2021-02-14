@@ -34,4 +34,11 @@ FIXME: description
     
 ### Run controllers test
 
-    Start the db with ./postgres-start.sh and run `lein test components.main-test`
+    Start the db with 
+    ```bash 
+    ./postgres-start.sh
+    ``` 
+    and run tests with
+    ```bash 
+    lein test components-test
+    ```
