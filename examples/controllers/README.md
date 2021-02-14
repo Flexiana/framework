@@ -31,3 +31,7 @@ FIXME: description
     
     curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/wrong
     Not Found
+    
+### Run controllers test
+
+    Start the db with ./postgres-start.sh and run `lein test components.main-test`
