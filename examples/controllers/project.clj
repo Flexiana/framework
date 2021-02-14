@@ -20,8 +20,9 @@
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [[kerodon "0.9.1"]]}}
-  :shadow-cljs {:nrepl  {:port 8777}
+                     :dependencies   [[clj-http "3.12.0"]
+                                      [kerodon "0.9.1"]]}}
+  :shadow-cljs {:nrepl {:port 8777}
 
                 :builds {:app {:target     :browser
                                :output-dir "resources/public/js/compiled"
@@ -29,10 +30,10 @@
                                :modules    {:app {:init-fn  controllers.core/init
                                                   :preloads [devtools.preload]}}
 
-                               ;:devtools {:http-root "resources/public"
-                               ;           :http-port 8280
-                               ;           :http-handler controllers.handler/dev-handler
-                               ;           }
+                                        ;:devtools {:http-root "resources/public"
+                                        ;           :http-port 8280
+                                        ;           :http-handler controllers.handler/dev-handler
+                                        ;           }
                                }}}
 
   :aliases {"ci"      ["do" "clean," "cloverage," "lint," "uberjar"]
