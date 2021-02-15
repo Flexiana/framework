@@ -19,7 +19,6 @@
 (defn set-template
   "Setting the hiccup template function to state map."
   [state template]
-  (println (str ";; Set-temlpate" state))
   (xiana/ok
     (assoc state :template template)))
 
@@ -32,7 +31,6 @@
 
 (defn set-language-auto
   [state]
-  (println (str ";; Set-language-auto" state))
   (let [{{:keys [headers]} :http-request} state]
     (xiana/ok
       (assoc state :lang (keyword (get headers "accept-language"))))))
@@ -44,7 +42,6 @@
 
 (defn response-html
   [state]
-  (println (str ";;Response-html" state))
   (xiana/ok
     (assoc state :is-html true)))
 

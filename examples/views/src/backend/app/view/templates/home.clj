@@ -11,5 +11,6 @@
       [:h1
        (dict-fn lang :greet-title "Xiana framework")]
       [:hr]
-      (->> (dict-fn lang :date d)
-           (dict-fn lang :present-date))]]))
+      ;; (->> (dict-fn lang :date d)
+      ;;      (dict-fn lang :present-date))
+      (dict-fn lang :date d)]]))

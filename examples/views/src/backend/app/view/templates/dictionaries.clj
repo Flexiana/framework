@@ -20,8 +20,8 @@
 
 (def home-dict
   {:en {:greet-title "Hello from {1}!"
-        :date (tongue/inst-formatter "{weekdays-long} {day}, {months-long} {year}" en-string-dates)
+        :date (tongue/inst-formatter "{weekday-long} {day}, {month-long} {year}" en-string-dates)
         :present-date "The current date is {1}"}
    :fr {:greet-title "Bonjour de {1}!"
-        :date (tongue/inst-formatter "{weekdays-long} {day}, {months-long} {year}" fr-string-dates)
+        :date (tongue/inst-formatter "{weekday-long} {day}, {month-long} {year}" fr-string-dates)
         :present-date "La date actuelle est {1}"}})

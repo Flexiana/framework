@@ -7,14 +7,7 @@
                   request-data
                   response
                   session-data
-                  deps
-                  template
-                  lang
-                  layout
-                  is-api
-                  is-html
-                  ready-hiccup
-                  dict-fn])
+                  deps])
 
 (def ok me/right)
 
