@@ -61,6 +61,7 @@
   [config router db]
 
   component/Lifecycle
+  (stop [this] this)
   (start [this]
          (assoc this
            :handler
