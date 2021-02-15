@@ -1,6 +1,6 @@
 (ns framework.db.acl-test
   (:require [clojure.test :refer :all])
-  (:require [framework.db.acl :refer [action-table user-id acl]]))
+  (:require [framework.db.acl :refer [action-table acl]]))
 
 
 
@@ -132,10 +132,35 @@
 (defn env [env user-id]
   (let [user (fetch-db mock-db :users #(= user-id (:id %)))
         role (:role user)]
-    (println role)
     (cond-> env
             user (assoc-in [:session :user] user)
-            role (assoc :user-roles (fetch-db mock-db :roles role)))))
-(env {} 1)
+            role (assoc-in [:session :user :roles] (fetch-db mock-db :roles role)))))
 
-(acl (env {} 1) "SELECT * FROM items;")
+(deftest inject
+         (is (= {:session    {:user {:id 1, :name "John", :surname "Doe", :email "doe.john@test.com", :role :customer}},
+                 :user-roles {:customer [{:select "items", :filter :all}
+                                         {:select "users", :filter :own}
+                                         {:update "users", :filter :own}
+                                         {:delete "users", :filter :own}
+                                         {:insert "addresses", :filter :own}
+                                         {:update "addresses", :filter :own}
+                                         {:select "addresses", :filter :own}
+                                         {:delete "addresses", :filter :own}
+                                         {:select "carts", :filter :own}
+                                         {:insert "carts", :filter :own}
+                                         {:update "carts", :filter :own}
+                                         {:delete "carts", :filter :own}]}}
+                (env {} 1))))
+
+(deftest acl-test
+  (is (acl (env {} 1) "SELECT * FROM items;"))
+  (is (not (acl (env {} 1) "DELETE * FROM items;")))
+  (is (acl (env {} 2) "DELETE FROM cart WHERE user-id IN (SELECT id FROM items WHERE name = 'foo');"))
+  (is (acl (env {} 1) "DELETE FROM items;"))
+  (is (acl (env {} 1) "INSERT * FROM items ;"))
+  (is (acl (env {} 1) "UPDATE * FROM items ;"))
+  (is (acl (env {} 1) "SELECT * FROM items ;"))
+  (is (acl (env {} 1) "SELECT * FROM items ;"))
+  (is (acl (env {} 1) "SELECT * FROM items ;"))
+  (is (acl (env {} 1) "SELECT * FROM items ;"))
+  (is (acl (env {} 1) "SELECT * FROM items ;")))
