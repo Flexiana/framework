@@ -1,0 +1,2 @@
+CREATE DATABASE todoapp;
+GRANT ALL PRIVILEGES ON DATABASE todoapp TO postgres;
