@@ -46,6 +46,22 @@
                         :surname         "Doe"
                         :email           "doe.janet@test.com"
                         :role            :customer}]
+   :items [{:id 1
+            :name "salami slicer"
+            :price {:value 28.49
+                    :currency "USD"}}
+           {:id 2
+            :name "bread knife"
+            :price {:value 12.97
+                    :currency "USD"}}
+           {:id 3
+            :name "Meat tenderizer"
+            :price {:value 14.99
+                    :currency "USD"}}
+           {:id 4
+            :name "cheese grater"
+            :price {:value 12.49
+                    :currency "USD"}}]
    :addresses         [{:id          1
                         :country     "Czech Republic"
                         :city        "Prague"
