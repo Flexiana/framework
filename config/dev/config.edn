@@ -8,4 +8,11 @@
  :framework.db.storage/migration {:store                :database
                                   :migration-dir        "resources/migrations"
                                   :init-in-transaction? false
-                                  :migration-table-name "migrations"}}
+                                  :migration-table-name "migrations"}
+ :framework.app/emails            {:host ""
+                                   :user  ""
+                                   :pass  ""
+                                   :tls true
+                                   :port 587
+                                   :from ""}
+                               }
