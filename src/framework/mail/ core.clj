@@ -7,7 +7,7 @@
   [body atts]
   (let [body-payload [:alternative
                       {:type "text/plain"
-                       :content (cu/strip-tagsbody)}
+                       :content (cu/strip-tags body)}
                       {:type "text/html"
                        :content body}]
         attachments (if (string? atts) (vector atts) atts)
