@@ -1,6 +1,6 @@
 (ns framework.db.storage
   (:require
-   [next.jdbc :as jdbc]))
+    [next.jdbc :as jdbc]))
 
 (defrecord PostgreSQL
   [config]
