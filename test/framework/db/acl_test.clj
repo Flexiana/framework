@@ -3,7 +3,8 @@
     [clojure.test :refer [is deftest]]
     [framework.db.acl :refer [->roles
                               insert-action
-                              acl]]))
+                              acl]]
+    [honeysql.core :as sql]))
 
 (def mock-db
   {:users             [{:id      1
@@ -178,8 +179,36 @@
   (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users;")))
   (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users WHERE user-id EQ 2")))
   (is (false? (acl (add-user-by-id {} 1) "INSERT INTO users")))
-  (is (true? (acl (add-user-by-id {} 1) "DELETE * FROM users WHERE id EQ 1")))
-  (is (false? (acl (add-user-by-id {} 1) "DELETE * FROM users WHERE user-id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1) "DELETE * FROM users WHERE id EQ 2")))
+  (is (true? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 1")))
+  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE user-id EQ 2")))
+  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 2")))
   (is (true? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 1")))
   (is (false? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 2"))))
+
+(deftest user-addresses
+  (is (true? (acl (add-user-by-id {} 1)
+                  "SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1")))
+  (is (false? (acl (add-user-by-id {} 1)
+                   "SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2")))
+  (is (true? (acl (add-user-by-id {} 1)
+                  "UPDATE addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1")))
+  (is (false? (acl (add-user-by-id {} 1)
+                   "UPDATE * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2")))
+  (is (true? (acl (add-user-by-id {} 1)
+                  "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1")))
+  (is (false? (acl (add-user-by-id {} 1)
+                   "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2"))))
+
+
+;(is (false? (acl (add-user-by-id {} 1) "SELECT * FROM addresses WHERE id EQ 1")))
+;(is (false? (acl (add-user-by-id {} 1) "SELECT * FROM addresses;")))
+;(is (true? (acl (add-user-by-id {} 1) "UPDATE addresses WHERE user-id EQ 1;")))
+;(is (false? (acl (add-user-by-id {} 1) "UPDATE addresses WHERE user-id EQ 2;")))
+;(is (false? (acl (add-user-by-id {} 1) "UPDATE addresses;")))
+
+;(def sqlmap
+;  {:select [:a :b :c]
+;   :from   [:users]
+;   :where  [:= :id "baz"]})
+;
+;(sql/format sqlmap)

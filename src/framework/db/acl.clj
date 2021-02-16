@@ -23,7 +23,7 @@
 
 (defn ->where
   [query]
-  (last (flatten (re-seq #"WHERE (user-id|id) EQ ([\w-]+)" query))))
+  (last (flatten (re-seq #"WHERE (user-id|id|user\.id) (EQ|=) ([\w-]+)" query))))
 
 (defn owns?
   [query user-id]
@@ -36,10 +36,10 @@
     (every? true? (for [a action]
                     (let [table (:table a)
                           actions (:actions a)
-                          roles-in-table (first (filter #(or (= :all (:table %)) (= table (:table %))) roles))
-                          actions-in-table (:actions roles-in-table)
-                          filer-in-table (:filter roles-in-table)]
+                          roles-at-table (first (filter #(or (= :all (:table %)) (= table (:table %))) roles))
+                          actions-at-table (:actions roles-at-table)
+                          filter-at-table (:filter roles-at-table)]
                       (cond
-                        (= :all filer-in-table) (every? (set actions-in-table) actions)
-                        (= :own filer-in-table) (and (owns? query (get-in session [:user :id])) (every? (set actions-in-table) actions))
+                        (= :all filter-at-table) (every? (set actions-at-table) actions)
+                        (= :own filter-at-table) (and (owns? query (get-in session [:user :id])) (every? (set actions-at-table) actions))
                         :else false))))))
