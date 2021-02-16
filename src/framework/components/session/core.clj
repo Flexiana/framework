@@ -1,7 +1,7 @@
 (ns framework.components.session.core)
 
 (defprotocol Session
-  (fetch?
+  (fetch
     [store key])
   (add!
     [store key value])
@@ -12,7 +12,7 @@
   ([] (init-in-memory-session (atom {})))
   ([store]
    (reify Session
-     (fetch? [_ k]
+     (fetch [_ k]
        (get @store k))
      (add! [_ k v]
        (let [key (or k (java.util.UUID/randomUUID))]
