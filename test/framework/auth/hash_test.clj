@@ -6,6 +6,7 @@
 
 (defn testing-ok [settings]
   (let [encrypted (hash/make settings password)]
+    (println encrypted)
     (is (true? (hash/check settings password encrypted)))))
 
 (defn testing-mistake [settings]
@@ -27,4 +28,6 @@
     (testing-mistake fragment)
     (testing-ok fragment)))
 
-
+(deftest test-assert-functionality
+  (let [fragment {:framework.app/auth {:hash-algorithm :argon2}}]
+    (is (thrown? java.lang.AssertionError (hash/make fragment password)))))

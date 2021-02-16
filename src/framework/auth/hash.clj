@@ -3,30 +3,47 @@
             [crypto.password.pbkdf2 :as hash-p]
             [crypto.password.scrypt :as hash-s]))
 
-(defn- dispatch-make
-  [{settings :framework.app/auth} _password]
-  (let [key (:hash-algorithm settings)
-        algorithm? (contains? [:bcrypt :pbkdf2 :scrypt] key)]
-    (if algorithm? key :bcrypt)))
+(def supported [:bcrypt :pbkdf2 :scrypt])
 
-(defmulti make dispatch-make)
+(defn- dispatch
+  ([_state _password]
+   (dispatch _state _password nil))
+  ([{{:keys [hash-algorithm]} :framework.app/auth} _password _encrypted]
+   {:pre [(some #(= hash-algorithm %) supported)]}
+   hash-algorithm))
 
-(defmethod make :bcrypt [_state password]
-  (hash-b/encrypt password))
+(defmulti make dispatch)
 
-(defmethod make :scrypt [_state password]
-  (hash-s/encrypt password))
+(defmethod make :bcrypt
+  [{{:keys [bcrypt-settings]
+     :or {bcrypt-settings {:work-factor 11}}} :framework.app/auth}
+   password]
+  (hash-b/encrypt password (:work-factor bcrypt-settings)))
 
-(defmethod make :pbkdf2 [_state password]
-  (hash-p/encrypt password))
+(defmethod make :scrypt
+  [{{:keys [scrypt-settings]
+     :or {scrypt-settings {:cpu-cost 32768
+                           :memory-cost 8
+                           :parallelization 1}}} :framework.app/auth}
+   password]
+  (hash-s/encrypt
+   password
+   (:cpu-cost scrypt-settings)
+   (:memory-cost scrypt-settings)
+   (:parallelization scrypt-settings)))
 
-(defn- dispatch-check
-  [{settings :framework.app/auth} _password _encrypted]
-  (let [key (:hash-algorithm settings)
-        algorithm? (contains? [:bcrypt :pbkdf2 :scrypt] key)]
-    (if algorithm? key :bcrypt)))
+(defmethod make :pbkdf2
+  [{{:keys [pbkdf2-settings]
+     :or {pbkdf2-settings {:type :sha1
+                           :iterations 100000}}} :framework.app/auth}
+   password]
+  (hash-p/encrypt
+   password
+   (:iterations pbkdf2-settings)
+   (if (= :sha1 (:type pbkdf2-settings))
+     "HMAC-SHA1" "HMAC-SHA256")))
 
-(defmulti check dispatch-check)
+(defmulti check dispatch)
 
 (defmethod check :bcrypt [_state password encrypted]
   (hash-b/check password encrypted))
