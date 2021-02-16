@@ -3,13 +3,16 @@
             [crypto.password.pbkdf2 :as hash-p]
             [crypto.password.scrypt :as hash-s]))
 
-(defn- dispatch-make
-  [{settings :framework.app/auth} _password]
-  (let [key (:hash-algorithm settings)
-        algorithm? (contains? [:bcrypt :pbkdf2 :scrypt] key)]
-    (if algorithm? key :bcrypt)))
+(defn- dispatch
+  ([_state _password]
+   (dispatch _state _password nil))
+  ([{settings :framework.app/auth} _password _encrypted]
+   (let [key (:hash-algorithm settings)
+         supported [:bcrypt :pbkdf2 :scrypt]
+         algorithm? (contains? supported key)]
+     (if algorithm? key :bcrypt))))
 
-(defmulti make dispatch-make)
+(defmulti make dispatch)
 
 (defmethod make :bcrypt [_state password]
   (hash-b/encrypt password))
@@ -20,13 +23,7 @@
 (defmethod make :pbkdf2 [_state password]
   (hash-p/encrypt password))
 
-(defn- dispatch-check
-  [{settings :framework.app/auth} _password _encrypted]
-  (let [key (:hash-algorithm settings)
-        algorithm? (contains? [:bcrypt :pbkdf2 :scrypt] key)]
-    (if algorithm? key :bcrypt)))
-
-(defmulti check dispatch-check)
+(defmulti check dispatch)
 
 (defmethod check :bcrypt [_state password encrypted]
   (hash-b/check password encrypted))

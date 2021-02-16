@@ -6,6 +6,7 @@
 
 (defn testing-ok [settings]
   (let [encrypted (hash/make settings password)]
+    (println encrypted)
     (is (true? (hash/check settings password encrypted)))))
 
 (defn testing-mistake [settings]

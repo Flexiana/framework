@@ -23,3 +23,15 @@ Full configuration looks like this
                                    :port 587
                                    :from "System Admin <sysadmin@example.com>"}
 ```
+
+## Hashing
+
+The module `framework.auth.hash` provides secure Bcrypt, Scrypt and Pbkdf2 hashing for storing user passwords.
+If you'd like to define someone of them, their keys are: `:bcrypt :scrypt :pbkdf2`. If you don't define one of them, Bcrypt will be defined by default. You can setup the key within `config` derectory as show as:
+
+```clojure
+:framework.app/auth {:hash-algorithm :bcrypt }
+```
+
+The module has `make` (it generate a hashed password) and `check` (it verify encripted password with current string) functions to deal hashing process.
+
