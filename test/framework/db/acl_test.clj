@@ -1,19 +1,39 @@
 (ns framework.db.acl-test
-  (:require [clojure.test :refer :all])
-  (:require [framework.db.acl :refer [action-table acl]]))
+  (:require
+    [clojure.test :refer :all]
+    [framework.db.acl :refer [->roles
+                              insert-action
+                              acl]]))
 
+(deftest get-roles-from-query
+  (is (= '({:table "test_table" :actions [:select]}) (->roles "SELECT * FROM test_table")))
+  (is (= '({:table "films" :actions [:insert]}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');"))) (is (= '([:insert "films"]) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
+  (is (= '({:table "producers" :actions [:select]} {:table "films" :actions [:delete]}) (->roles "DELETE FROM films\n  WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');"))) (is (= '([:insert "films"]) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
+  (is (= '({:actions [:update] :table "films"}) (->roles "UPDATE films SET kind = 'Dramatic' WHERE kind = 'Drama';"))) (is (= '([:insert "films"]) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
+  (is (= '({:actions [:drop] :table "conversation"}) (->roles "DROP TABLE conversation;")))
+  (is (= '({:actions [:insert] :table "films"}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
+  (is (= '({:actions [:truncate] :table "bigtable"}) (->roles "TRUNCATE bigtable;")))
+  (is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees ADD COLUMN address text")))
+  (is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees DROP COLUMN address"))))
 
-
-(deftest action-test
-  (is (= '([:select "test_table"]) (action-table "SELECT * FROM test_table")))
-  (is (= '([:insert "films"]) (action-table "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');"))) (is (= '([:insert "films"]) (action-table "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
-  (is (= '([:delete "films"] [:select "producers"]) (action-table "DELETE FROM films\n  WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');"))) (is (= '([:insert "films"]) (action-table "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
-  (is (= '([:update "films"]) (action-table "UPDATE films SET kind = 'Dramatic' WHERE kind = 'Drama';"))) (is (= '([:insert "films"]) (action-table "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
-  (is (= '([:drop "conversation"]) (action-table "DROP TABLE conversation;")))
-  (is (= '([:insert "films"]) (action-table "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
-  (is (= '([:truncate "bigtable"]) (action-table "TRUNCATE bigtable;")))
-  (is (= '([:alter "employees"]) (action-table "ALTER TABLE employees ADD COLUMN address text")))
-  (is (= '([:alter "employees"]) (action-table "ALTER TABLE employees DROP COLUMN address"))))
+(deftest insert-action-test
+  (is (= [{:table   "films"
+           :actions #{:select}}]
+         (insert-action [] "films" :select)))
+  (is (= [{:table   "films"
+           :actions #{:update :select}}]
+         (insert-action [{:table   "films"
+                          :actions [:select]}] "films" :update)))
+  (is (= [{:table   "films"
+           :actions #{:update :select}}]
+         (insert-action [{:table   "films"
+                          :actions [:select :update]}] "films" :update)))
+  (is (= [{:table   "films"
+           :actions #{:select}}
+          {:table   "producers"
+           :actions #{:update :select}}]
+         (insert-action [{:table   "producers"
+                          :actions #{:update :select}}] "films" :select))))
 
 (def mock-db
   {:users             [{:id      1
@@ -82,85 +102,74 @@
                         :address-id 1}
                        {:user-id    2
                         :address-id 2}]
-   :roles             [{:customer [{:select "items"
-                                    :filter :all}
-                                   {:select "users"
-                                    :filter :own}
-                                   {:update "users"
-                                    :filter :own}
-                                   {:delete "users"
-                                    :filter :own}
-                                   {:insert "addresses"
-                                    :filter :own}
-                                   {:update "addresses"
-                                    :filter :own}
-                                   {:select "addresses"
-                                    :filter :own}
-                                   {:delete "addresses"
-                                    :filter :own}
-                                   {:select "carts"
-                                    :filter :own}
-                                   {:insert "carts"
-                                    :filter :own}
-                                   {:update "carts"
-                                    :filter :own}
-                                   {:delete "carts"
-                                    :filter :own}]}
-                       {:warehouse-worker [{:select "items"
-                                            :filter :all}
-                                           {:update "carts"
-                                            :filter :all}
-                                           {:select "carts"
-                                            :filter :all}]
-                        :postal-worker    [{:select "carts"
-                                            :filter :all}
-                                           {:update "carts"
-                                            :filter :all}
-                                           {:select :users
-                                            :filter :all}
-                                           {:select "addresses"
-                                            :filter :all}]
-                        :shop-worker      [{:all    "items"
-                                            :filter :all}]
-                        :administrator    [{:all    :all
-                                            :filter :all}]}]})
+   :roles             [{:customer [{:table   "items"
+                                    :actions [:select]
+                                    :filter  :all}
+                                   {:table   "users"
+                                    :actions [:select :update :delete]
+                                    :filter  :own}
+                                   {:table   "addresses"
+                                    :actions [:select :update :delete]
+                                    :filter  :own}
+                                   {:table   "carts"
+                                    :actions [:select :update :delete]
+                                    :filter  :own}]}
+                       {:warehouse-worker [{:table   "items"
+                                            :actions [:select :update]
+                                            :filter  :all}]}
+                       {:postal-worker [{:table   "carts"
+                                         :actions [:select :update]
+                                         :filter  :all}
+                                        {:table   "addresses"
+                                         :actions [:select]
+                                         :filter  :all}]}
+                       {:shop-worker [{:table   "items"
+                                       :actions :all
+                                       :filter  :all}]}
+                       {:administrator [{:tables  :all
+                                         :actions :all
+                                         :filter  :all}]}]})
 
-(defn fetch-db [db table where]
+(defn fetch-db
+  [db table where]
   (if-let [found (filter where (get db table))]
     (if (next found) found (first found))))
 
-(defn env [env user-id]
+(is (= {:administrator [{:tables  :all
+                         :actions :all
+                         :filter  :all}]}
+       (fetch-db mock-db :roles :administrator)))
+
+(defn add-user-by-id
+  [env user-id]
   (let [user (fetch-db mock-db :users #(= user-id (:id %)))
         role (:role user)]
     (cond-> env
-            user (assoc-in [:session :user] user)
-            role (assoc-in [:session :user :roles] (fetch-db mock-db :roles role)))))
+      user (assoc-in [:session :user] user)
+      role (assoc-in [:session :user :roles] (get (fetch-db mock-db :roles role) role)))))
 
-(deftest inject
-         (is (= {:session    {:user {:id 1, :name "John", :surname "Doe", :email "doe.john@test.com", :role :customer}},
-                 :user-roles {:customer [{:select "items", :filter :all}
-                                         {:select "users", :filter :own}
-                                         {:update "users", :filter :own}
-                                         {:delete "users", :filter :own}
-                                         {:insert "addresses", :filter :own}
-                                         {:update "addresses", :filter :own}
-                                         {:select "addresses", :filter :own}
-                                         {:delete "addresses", :filter :own}
-                                         {:select "carts", :filter :own}
-                                         {:insert "carts", :filter :own}
-                                         {:update "carts", :filter :own}
-                                         {:delete "carts", :filter :own}]}}
-                (env {} 1))))
+(deftest inject-user
+  (is (= {:session
+          {:user
+           {:id      1,
+            :name    "John"
+            :surname "Doe"
+            :email   "doe.john@test.com"
+            :role    :customer
+            :roles   [{:table "items", :actions [:select], :filter :all}
+                      {:table "users", :actions [:select :update :delete], :filter :own}
+                      {:table "addresses", :actions [:select :update :delete], :filter :own}
+                      {:table "carts", :actions [:select :update :delete], :filter :own}]}}}
+         (add-user-by-id {} 1))))
 
-(deftest acl-test
-  (is (acl (env {} 1) "SELECT * FROM items;"))
-  (is (not (acl (env {} 1) "DELETE * FROM items;")))
-  (is (acl (env {} 2) "DELETE FROM cart WHERE user-id IN (SELECT id FROM items WHERE name = 'foo');"))
-  (is (acl (env {} 1) "DELETE FROM items;"))
-  (is (acl (env {} 1) "INSERT * FROM items ;"))
-  (is (acl (env {} 1) "UPDATE * FROM items ;"))
-  (is (acl (env {} 1) "SELECT * FROM items ;"))
-  (is (acl (env {} 1) "SELECT * FROM items ;"))
-  (is (acl (env {} 1) "SELECT * FROM items ;"))
-  (is (acl (env {} 1) "SELECT * FROM items ;"))
-  (is (acl (env {} 1) "SELECT * FROM items ;")))
+(is (acl (add-user-by-id {} 1) "SELECT * FROM items;"))
+(is (not (acl (add-user-by-id {} 1) "DELETE * FROM items;")))
+(is (acl (add-user-by-id {} 2) "DELETE FROM carts WHERE user-id EQ 2"))
+(is (acl (add-user-by-id {} 1) "DELETE FROM items;"))
+(is (acl (add-user-by-id {} 1) "INSERT * FROM items ;"))
+(is (acl (add-user-by-id {} 1) "UPDATE * FROM items ;"))
+(is (acl (add-user-by-id {} 1) "SELECT * FROM items ;"))
+(is (acl (add-user-by-id {} 1) "SELECT * FROM items ;"))
+(is (acl (add-user-by-id {} 1) "SELECT * FROM items ;"))
+(is (acl (add-user-by-id {} 1) "SELECT * FROM items ;"))
+(is (acl (add-user-by-id {} 1) "SELECT * FROM items ;"))
