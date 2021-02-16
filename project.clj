@@ -14,6 +14,7 @@
                  [funcool/cats "2.4.1"]
                  [com.draines/postal "2.0.4"]
                  [funcool/cuerdas "2020.03.26-3"]
+                 [crypto-password "0.2.1"]
 ]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths ["config/dev"]}

@@ -15,4 +15,5 @@
                                    :tls true
                                    :port 587
                                    :from ""}
-                               }
+ :framework.app/auth {:hash-algorithm :bcrypt ;; Available values: :bcrypt :scrypt :pbkdf2
+                      }}
