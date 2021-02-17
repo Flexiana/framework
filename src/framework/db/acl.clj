@@ -41,19 +41,25 @@
   ([query]
    (map->roles query []))
   ([query actions]
-   (println (mapv (partial map->roles actions) (filter map? (:where query))))
    (cond-> actions
      (:select query) (insert-action (:from query) :select)
+     (:update query) (insert-action (:update query) :update)
+     (:truncate query) (insert-action (:truncate query) :truncate)
+     (:insert-into query) (insert-action (:insert-into query) :insert)
      (:delete-from query) (insert-action (:delete-from query) :delete)
-     (:where query) (insert-action (flatten (mapv map->roles (filter map? (:where query))))))))
-
-;(insert-action [] [:producers] :select)
+     (:where query) (insert-action (flatten (mapv map->roles (filter map? (:where query)))))
+     (:in query) (insert-action (flatten (mapv map->roles (filter map? (:in query)))))
+     (:not-in query) (insert-action (flatten (mapv map->roles (filter map? (:not-in query)))))
+     (:from query) (insert-action (flatten (mapv map->roles (filter map? (:from query)))))
+     (:having query) (insert-action (flatten (mapv map->roles (filter map? (:having query))))))))
 
 (defn ->roles
   [query]
-  (if (string? query)
-    (map #(update % :actions vec) (str->roles query))
-    (map #(update % :actions vec) (map->roles query))))
+  (map #(update % :actions vec)
+       (cond
+         (string? query) (str->roles query)
+         (map? query) (map->roles query)
+         (coll? query) (flatten (map ->roles query)))))
 
 (defn ->where
   [query]
