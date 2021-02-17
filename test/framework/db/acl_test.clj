@@ -131,17 +131,19 @@
                                                              (columns :code, :title, :did, :date_prod, :kind)
                                                              (values [["T_601", "Yojimbo", 106, "1961-06-16", "Drama"]])))))
   (is (= '({:table "producers" :actions [:select]} {:table "films" :actions [:delete]}) (->roles (-> (delete-from "films")
-                                                                                                     (where [:in "producer_id" (-> (select :id))])))))
+                                                                                                     (where [:in "producer_id" (-> (select :id)
+                                                                                                                                   (from "producers")
+                                                                                                                                   (where [:= :name "foo"]))])))))
   (is (= '({:actions [:update] :table "films"}) (->roles (-> (helpers/update :films)
                                                              (sset {:kind "Dramatic"})
                                                              (where [:= :kind "Drama"])
                                                              sql/format))))
-  (is (= '({:actions [:truncate] :table "bigtable"}) (->roles (truncate :bigtable)))))
-;Drop isn't supported by HoneySQL
-;(is (= '({:actions [:drop] :table "conversation"}) (->roles "DROP TABLE conversation;"))))
-;ALTER isn't supported by HoneySQL
-;(is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees ADD COLUMN address text")))
-;(is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees DROP COLUMN address"))))
+  (is (= '({:actions [:truncate] :table "bigtable"}) (->roles (truncate :bigtable))))
+  ;Drop isn't supported by HoneySQL
+  (is (= [""] (sql/format {:drop "conversation"})))
+  ;ALTER isn't supported by HoneySQL "ALTER TABLE employees ADD COLUMN address text"
+  (is (= [" "] (sql/format {:alter-table :employees
+                            :add-column  [:address :text]}))))
 
 (deftest insert-action-test
   (is (= [{:table   "films"
@@ -178,7 +180,13 @@
           {:table   "producers"
            :actions #{:update :select}}]
          (insert-action [{:table   "producers"
-                          :actions #{:update :select}}] [:films] :select))))
+                          :actions #{:update :select}}] [:films] :select)))
+  (is (= [{:table   "films"
+           :actions #{:select}}
+          {:table   "producers"
+           :actions #{:update :select}}]
+         (insert-action [{:table   "producers"
+                          :actions #{:update :select}}] [:films :f] :select))))
 
 (deftest inject-user
   (is (= {:session
@@ -207,8 +215,34 @@
   (is (false? (acl (add-user-by-id {} 1) "DELETE FROM items WHERE id EQ 125;")))
   (is (false? (acl (add-user-by-id {} 1) "UPDATE items WHERE id EQ 123;"))))
 
+(deftest customer-on-items-HoneySQL
+  (is (true? (acl (add-user-by-id {} 1) (-> (select [:*])
+                                            (from :items)))))
+  (is (false? (acl (add-user-by-id {} 1) (insert-into "items"))))
+  (is (false? (acl (add-user-by-id {} 1) (-> (delete-from "items")
+                                             (where [:= :id 125])))))
+  (is (= ["UPDATE ? WHERE id = ?" "items" 123]
+         (-> (update "items")
+             (where [:= :id 123])
+             sql/format)))
+  (is (false? (acl (add-user-by-id {} 1) (-> (update "items")
+                                             (where [:= :id 123]))))))
+
 (deftest customer-on-users
   (is (true? (acl (add-user-by-id {} 1) "SELECT * FROM users WHERE id EQ 1")))
+  (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users;")))
+  (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users WHERE user-id EQ 2")))
+  (is (false? (acl (add-user-by-id {} 1) "INSERT INTO users")))
+  (is (true? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 1")))
+  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE user-id EQ 2")))
+  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 2")))
+  (is (true? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 1")))
+  (is (false? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 2"))))
+
+(deftest customer-on-users-HoneySQL
+  (is (true? (acl (add-user-by-id {} 1) (-> (select :*)
+                                            (from [:users :u])
+                                            (where [:= :u.id 1])))))
   (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users;")))
   (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users WHERE user-id EQ 2")))
   (is (false? (acl (add-user-by-id {} 1) "INSERT INTO users")))

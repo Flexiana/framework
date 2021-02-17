@@ -4,7 +4,7 @@
 
 (defn collify
   [x]
-  (if (coll? x) x [x]))
+  (if (coll? x) x (vector x)))
 
 (defn un-collify
   [x]
@@ -17,13 +17,18 @@
      actions
      table-actions))
   ([actions table action]
-   (let [t (cond-> (collify table)
+   (let [t (cond->
+             (flatten (collify table))
              coll? first
              keyword? name)
          table-actions (first (filter #(#{t} (:table %)) actions))
          old-actions (into #{} (:actions table-actions))]
      (conj (remove #(= table-actions %) actions)
        {:table t :actions (reduce conj old-actions (collify action))}))))
+
+(cond-> (collify [:users :u])
+  coll? first
+  keyword? name)
 
 (defn str->roles
   [query]
@@ -46,6 +51,7 @@
      (:update query) (insert-action (:update query) :update)
      (:truncate query) (insert-action (:truncate query) :truncate)
      (:insert-into query) (insert-action (:insert-into query) :insert)
+     (:delete query) (insert-action (:delete query) :delete)
      (:delete-from query) (insert-action (:delete-from query) :delete)
      (:where query) (insert-action (flatten (mapv map->roles (filter map? (:where query)))))
      (:any query) (insert-action (flatten (mapv map->roles (filter map? (:any query)))))
@@ -63,13 +69,22 @@
          (map? query) (map->roles query)
          (coll? query) (flatten (map ->roles query)))))
 
-(defn ->where
+(defn str->where
   [query]
   (last (flatten (re-seq #"WHERE (user-id|id|user\.id) (EQ|=) ([\w-]+)" query))))
 
+(defn map->where
+  [query]
+  (println (:from query) (:where query))
+  (str (rand-int 3)))
+
 (defn owns?
   [query user-id]
-  (= (str user-id) (->where query)))
+  (= (str user-id)
+     (cond
+       (string? query) (str->where query)
+       (map? query) (map->where query)
+       (coll? query) (every? true? (flatten (map #(owns? % user-id) query))))))
 
 (defn acl
   [{:keys [session]} query]
