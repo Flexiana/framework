@@ -1,15 +1,18 @@
 (ns framework.auth.hash-test
-  (:require [clojure.test :refer [deftest is]]
-            [framework.auth.hash :as hash]))
+  (:require
+    [clojure.test :refer [deftest is]]
+    [framework.auth.hash :as hash]))
 
 (def password "myPersonalPassword!")
 
-(defn testing-ok [settings]
+(defn testing-ok
+  [settings]
   (let [encrypted (hash/make settings password)]
     (println encrypted)
     (is (true? (hash/check settings password encrypted)))))
 
-(defn testing-mistake [settings]
+(defn testing-mistake
+  [settings]
   (let [encrypted (hash/make settings password)]
     (is (false? (hash/check settings "myWrongPassword!" encrypted)))))
 

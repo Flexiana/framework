@@ -1,7 +1,8 @@
 (ns framework.auth.hash
-  (:require [crypto.password.bcrypt :as hash-b]
-            [crypto.password.pbkdf2 :as hash-p]
-            [crypto.password.scrypt :as hash-s]))
+  (:require
+    [crypto.password.bcrypt :as hash-b]
+    [crypto.password.pbkdf2 :as hash-p]
+    [crypto.password.scrypt :as hash-s]))
 
 (def supported [:bcrypt :pbkdf2 :scrypt])
 
@@ -27,10 +28,10 @@
                            :parallelization 1}}} :framework.app/auth}
    password]
   (hash-s/encrypt
-   password
-   (:cpu-cost scrypt-settings)
-   (:memory-cost scrypt-settings)
-   (:parallelization scrypt-settings)))
+    password
+    (:cpu-cost scrypt-settings)
+    (:memory-cost scrypt-settings)
+    (:parallelization scrypt-settings)))
 
 (defmethod make :pbkdf2
   [{{:keys [pbkdf2-settings]
@@ -38,10 +39,10 @@
                            :iterations 100000}}} :framework.app/auth}
    password]
   (hash-p/encrypt
-   password
-   (:iterations pbkdf2-settings)
-   (if (= :sha1 (:type pbkdf2-settings))
-     "HMAC-SHA1" "HMAC-SHA256")))
+    password
+    (:iterations pbkdf2-settings)
+    (if (= :sha1 (:type pbkdf2-settings))
+      "HMAC-SHA1" "HMAC-SHA256")))
 
 (defmulti check dispatch)
 
