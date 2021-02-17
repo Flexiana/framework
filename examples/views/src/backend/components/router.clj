@@ -4,11 +4,10 @@
     [controllers.home-ctrl :as hctrl]
     [controllers.index :as index]
     [controllers.re-frame :as re-frame]
+    [controllers.records-ctrl :as rctrl]
     [reitit.ring :as ring]
     [view.core :as xviews]
-    [xiana.core :as xiana]
-    [controllers.records-ctrl :as rctrl]))
-
+    [xiana.core :as xiana]))
 
 (def routes
   [["/" {:controller hctrl/home-controller}]

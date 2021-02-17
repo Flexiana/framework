@@ -27,7 +27,6 @@
         :present-date "La date actuelle est {1}"}
    :tongue/fallback :en})
 
-
 (def records-dict
   {:en {:table-title "Dummy records"
         :header-first-name "First Name"

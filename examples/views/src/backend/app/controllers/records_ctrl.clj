@@ -1,9 +1,10 @@
 (ns controllers.records-ctrl
-  (:require [xiana.core :as xiana]
-            [view.core :as xview]
-            [view.templates.layout :as lay]
-            [view.templates.records :as record-temp]
-            [view.templates.dictionaries :as dicts]))
+  (:require
+    [view.core :as xview]
+    [view.templates.dictionaries :as dicts]
+    [view.templates.layout :as lay]
+    [view.templates.records :as record-temp]
+    [xiana.core :as xiana]))
 
 (defn record-response
   [body]

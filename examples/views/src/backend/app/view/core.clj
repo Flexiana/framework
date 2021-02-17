@@ -82,7 +82,6 @@
       :else (-> state
                 (xiana/ok)))))
 
-
 (defmethod view :render
   [state _]
   (let [{:keys [is-html is-api layout template]} state]

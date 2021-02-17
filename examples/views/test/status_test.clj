@@ -1,16 +1,15 @@
 (ns status-test
   (:require
-   [backend.components.app]
-   [clojure.test :refer :all]
-   [com.stuartsierra.component :as component]
-   [view.templates.dictionaries :as dicts]
-   [view.templates.home :as home-temp]
-   [view.templates.layout :as lay]
-   [view.templates.records :as record-temp]
+    [backend.components.app]
+    [clojure.test :refer :all]
+    [com.stuartsierra.component :as component]
     [framework.config.core :as config]
     [kerodon.core :refer :all]
-    [kerodon.test :refer :all]))
-
+    [kerodon.test :refer :all]
+    [view.templates.dictionaries :as dicts]
+    [view.templates.home :as home-temp]
+    [view.templates.layout :as lay]
+    [view.templates.records :as record-temp]))
 
 
 ;; (deftest home-page
