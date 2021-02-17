@@ -48,6 +48,8 @@
      (:insert-into query) (insert-action (:insert-into query) :insert)
      (:delete-from query) (insert-action (:delete-from query) :delete)
      (:where query) (insert-action (flatten (mapv map->roles (filter map? (:where query)))))
+     (:any query) (insert-action (flatten (mapv map->roles (filter map? (:any query)))))
+     (:all query) (insert-action (flatten (mapv map->roles (filter map? (:all query)))))
      (:in query) (insert-action (flatten (mapv map->roles (filter map? (:in query)))))
      (:not-in query) (insert-action (flatten (mapv map->roles (filter map? (:not-in query)))))
      (:from query) (insert-action (flatten (mapv map->roles (filter map? (:from query)))))

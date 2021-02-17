@@ -131,21 +131,17 @@
                                                              (columns :code, :title, :did, :date_prod, :kind)
                                                              (values [["T_601", "Yojimbo", 106, "1961-06-16", "Drama"]])))))
   (is (= '({:table "producers" :actions [:select]} {:table "films" :actions [:delete]}) (->roles (-> (delete-from "films")
-                                                                                                     (where [:in "producer_id" (-> (select :id)
-                                                                                                                                   (from :producers)
-                                                                                                                                   (where [:= :name "foo"]))])))))
+                                                                                                     (where [:in "producer_id" (-> (select :id))])))))
   (is (= '({:actions [:update] :table "films"}) (->roles (-> (helpers/update :films)
                                                              (sset {:kind "Dramatic"})
                                                              (where [:= :kind "Drama"])
                                                              sql/format))))
-
-  ;Drop isn't supported by HoneySQL
-  ;(is (= '({:actions [:drop] :table "conversation"}) (->roles "DROP TABLE conversation;"))))
-
   (is (= '({:actions [:truncate] :table "bigtable"}) (->roles (truncate :bigtable)))))
-  ;ALTER isn't supported by HoneySQL
-  ;(is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees ADD COLUMN address text")))
-  ;(is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees DROP COLUMN address"))))
+;Drop isn't supported by HoneySQL
+;(is (= '({:actions [:drop] :table "conversation"}) (->roles "DROP TABLE conversation;"))))
+;ALTER isn't supported by HoneySQL
+;(is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees ADD COLUMN address text")))
+;(is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees DROP COLUMN address"))))
 
 (deftest insert-action-test
   (is (= [{:table   "films"
