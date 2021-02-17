@@ -27,7 +27,7 @@ Full configuration looks like this
 ## Hashing
 
 The module `framework.auth.hash` provides secure Bcrypt, Scrypt and Pbkdf2 hashing for storing user passwords.
-If you'd like to define someone of them, their keys are: `:bcrypt :scrypt :pbkdf2`. If you don't define one of them, Bcrypt will be defined by default. You can setup the key within `config` derectory as well as its corresponding optional configuration. The values by default for each algorithm is defined as follows:
+If you'd like to define someone of them, their keys are: `:bcrypt :scrypt :pbkdf2`. If you don't define one of them, Bcrypt will be defined by default. You can setup the key within `config` derectory as well as its corresponding optional configuration. The values by default for each algorithm are defined as follows:
 
 ```clojure
 :framework.app/auth {:hash-algorithm :bcrypt ;; Available values: :bcrypt, :scrypt, and :pbkdf2
