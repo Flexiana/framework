@@ -7,9 +7,9 @@
 (def supported [:bcrypt :pbkdf2 :scrypt])
 
 (defn- dispatch
-  ([_state _password]
-   (dispatch _state _password nil))
-  ([{{:keys [hash-algorithm]} :framework.app/auth} _password _encrypted]
+  ([state password]
+   (dispatch state password nil))
+  ([{{:keys [hash-algorithm]} :framework.app/auth} _ _]
    {:pre [(some #(= hash-algorithm %) supported)]}
    hash-algorithm))
 
@@ -46,11 +46,11 @@
 
 (defmulti check dispatch)
 
-(defmethod check :bcrypt [_state password encrypted]
+(defmethod check :bcrypt [_ password encrypted]
   (hash-b/check password encrypted))
 
-(defmethod check :scrypt [_state password encrypted]
+(defmethod check :scrypt [_ password encrypted]
   (hash-s/check password encrypted))
 
-(defmethod check :pbkdf2 [_state password encrypted]
+(defmethod check :pbkdf2 [_ password encrypted]
   (hash-p/check password encrypted))
