@@ -4,15 +4,15 @@
     [controllers.home-ctrl :as hctrl]
     [controllers.index :as index]
     [controllers.re-frame :as re-frame]
-    [reitit.ring :as ring]))
+    [reitit.ring :as ring]
+    [view.core :as xviews]
+    [xiana.core :as xiana]
+    [controllers.records-ctrl :as rctrl]))
 
-;; TODO: refactor to smth like
-;(route->
-;  :homepage (GET "/" app.controllers.homepage/index-action)
-;  :dynamic-content (dynamic "/:content-type/:url" (somefunction)))
-;:static-content ["/assets/*" (ring/create-resource-handler)]
+
 (def routes
   [["/" {:controller hctrl/home-controller}]
+   ["/records" {:controller rctrl/records-controller}]
    ["/re-frame" {:controller re-frame/index}]
    ["/assets/*" (ring/create-resource-handler)]])
 

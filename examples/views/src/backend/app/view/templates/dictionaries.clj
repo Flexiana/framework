@@ -24,4 +24,21 @@
         :present-date "The current date is {1}"}
    :fr {:greet-title "Bonjour de {1}!"
         :date (tongue/inst-formatter "{weekday-long} {day}, {month-long} {year}" fr-string-dates)
-        :present-date "La date actuelle est {1}"}})
+        :present-date "La date actuelle est {1}"}
+   :tongue/fallback :en})
+
+
+(def records-dict
+  {:en {:table-title "Dummy records"
+        :header-first-name "First Name"
+        :header-last-name "Last Name"
+        :header-age "Age"
+        :header-date "Date"
+        :date (tongue/inst-formatter "{weekday-long} {day}, {month-long} {year}" en-string-dates)}
+   :fr {:table-title "Dossiers factices "
+        :header-first-name "Prénom"
+        :header-last-name "Nom de famille "
+        :header-age "Âge"
+        :header-date "Date"
+        :date (tongue/inst-formatter "{weekday-long} {day}, {month-long} {year}" fr-string-dates)}
+   :tongue/fallback :en})
