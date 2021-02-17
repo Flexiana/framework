@@ -4,7 +4,8 @@
     [framework.db.acl :refer [->roles
                               insert-action
                               acl]]
-    [honeysql.core :as sql]))
+    [honeysql.core :as sql]
+    [honeysql.helpers :refer :all :as helpers]))
 
 (def mock-db
   {:users             [{:id      1
@@ -114,8 +115,22 @@
       user (assoc-in [:session :user] user)
       role (assoc-in [:session :user :roles] (get (fetch-db mock-db :roles role) role)))))
 
-(deftest get-roles-from-query
+(deftest get-roles-from-query-string
   (is (= '({:table "test_table" :actions [:select]}) (->roles "SELECT * FROM test_table")))
+  (is (= '({:table "films" :actions [:insert]}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
+  (is (= '({:table "films" :actions [:insert]}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
+  (is (= '({:table "producers" :actions [:select]} {:table "films" :actions [:delete]}) (->roles "DELETE FROM films\n  WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');")))
+  (is (= '({:table "films" :actions [:insert]}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
+  (is (= '({:actions [:update] :table "films"}) (->roles "UPDATE films SET kind = 'Dramatic' WHERE kind = 'Drama';")))
+  (is (= '({:table "films" :actions [:insert]}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
+  (is (= '({:actions [:drop] :table "conversation"}) (->roles "DROP TABLE conversation;")))
+  (is (= '({:actions [:insert] :table "films"}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
+  (is (= '({:actions [:truncate] :table "bigtable"}) (->roles "TRUNCATE bigtable;")))
+  (is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees ADD COLUMN address text")))
+  (is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees DROP COLUMN address"))))
+
+(deftest get-roles-from-query-map
+  (is (= '({:table "test_table" :actions [:select]}) (->roles (-> (select :*) (from "test_table")))))
   (is (= '({:table "films" :actions [:insert]}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
   (is (= '({:table "films" :actions [:insert]}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
   (is (= '({:table "producers" :actions [:select]} {:table "films" :actions [:delete]}) (->roles "DELETE FROM films\n  WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');")))
@@ -212,3 +227,16 @@
 ;   :where  [:= :id "baz"]})
 ;
 ;(sql/format sqlmap)
+
+(select [:*])
+"DELETE FROM films WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');"
+
+(sql/format (-> (delete-from "films")
+                (where [:in "producer_id" (-> (select :id)
+                                              (from :producers)
+                                              (where [:= :name "foo"]))])))
+(->roles (-> (delete-from "films")
+             (where [:in "producer_id" (-> (select :id)
+                                           (from :producers)
+                                           (where [:= :name "foo"]))])))
+

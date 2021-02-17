@@ -2,14 +2,30 @@
   (:require
     [clojure.string :as str]))
 
-(defn insert-action
-  [actions table action]
-  (let [table-actions (first (filter #(#{table} (:table %)) actions))
-        old-actions (into #{} (:actions table-actions))]
-    (conj (remove #(= table-actions %) actions)
-      {:table table :actions (conj old-actions action)})))
+(defn collify
+  [x]
+  (if (coll? x) x [x]))
 
-(defn ->roles
+(defn un-collify
+  [x]
+  (if (= 1 (count x)) (first x) x))
+
+(defn insert-action
+  ([actions table-actions]
+   (reduce (fn [acc {:keys [table actions]}]
+             (insert-action acc table actions))
+     actions
+     table-actions))
+  ([actions table action]
+   (let [t (cond-> (collify table)
+             coll? first
+             keyword? name)
+         table-actions (first (filter #(#{t} (:table %)) actions))
+         old-actions (into #{} (:actions table-actions))]
+     (conj (remove #(= table-actions %) actions)
+       {:table t :actions (reduce conj old-actions (collify action))}))))
+
+(defn str->roles
   [query]
   (let [q (str/replace query ";" " ")
         r (reduce
@@ -20,6 +36,24 @@
               (re-seq #"(ALTER|SELECT|INSERT|CREATE|DROP|TRUNCATE|DELETE).*(FROM|INTO|TABLE)\s+(\S*)" q)
               (re-seq #"(UPDATE|TRUNCATE)(\s+)(\S*)" q)))]
     (map #(update % :actions vec) r)))
+
+(defn map->roles
+  ([query]
+   (map->roles query []))
+  ([query actions]
+   (println (mapv (partial map->roles actions) (filter map? (:where query))))
+   (cond-> actions
+     (:select query) (insert-action (:from query) :select)
+     (:delete-from query) (insert-action (:delete-from query) :delete)
+     (:where query) (insert-action (flatten (mapv map->roles (filter map? (:where query))))))))
+
+;(insert-action [] [:producers] :select)
+
+(defn ->roles
+  [query]
+  (if (string? query)
+    (map #(update % :actions vec) (str->roles query))
+    (map #(update % :actions vec) (map->roles query))))
 
 (defn ->where
   [query]
