@@ -10,6 +10,13 @@
   [x]
   (if (= 1 (count x)) (first x) x))
 
+(defn ->table-name
+  [table]
+  (cond->
+    (flatten (collify table))
+    coll? first
+    keyword? name))
+
 (defn insert-action
   ([actions table-actions]
    (reduce (fn [acc {:keys [table actions]}]
@@ -17,18 +24,11 @@
      actions
      table-actions))
   ([actions table action]
-   (let [t (cond->
-             (flatten (collify table))
-             coll? first
-             keyword? name)
+   (let [t (->table-name table)
          table-actions (first (filter #(#{t} (:table %)) actions))
          old-actions (into #{} (:actions table-actions))]
      (conj (remove #(= table-actions %) actions)
        {:table t :actions (reduce conj old-actions (collify action))}))))
-
-(cond-> (collify [:users :u])
-  coll? first
-  keyword? name)
 
 (defn str->roles
   [query]
@@ -73,9 +73,22 @@
   [query]
   (last (flatten (re-seq #"WHERE (user-id|id|user\.id) (EQ|=) ([\w-]+)" query))))
 
+(defn table-aliases
+  [{:keys [from join left-join right-join full-join cross-join]}]
+  (reduce (fn [acc q]
+            (let [fq (first q)]
+              (cond
+                (string? fq) (conj acc (into [] (repeat 2 fq)))
+                (keyword? fq) (conj acc (into [] (repeat 2 (->table-name fq))))
+                (coll? fq) (conj acc (into [] (map ->table-name (reverse fq))))
+                :else acc)))
+    {}
+    [from join left-join right-join full-join cross-join]))
+
 (defn map->where
-  [query]
-  (println (:from query) (:where query))
+  [{:keys [from join left-join right-join full-join cross-join where] :as query}]
+  (println query)
+
   (str (rand-int 3)))
 
 (defn owns?

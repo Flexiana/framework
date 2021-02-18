@@ -1,9 +1,12 @@
 (ns framework.db.acl-test
   (:require
     [clojure.test :refer [is deftest]]
+    [clojure.uuid :as uuid]
     [framework.db.acl :refer [->roles
                               insert-action
-                              acl]]
+                              owns?
+                              acl
+                              table-aliases]]
     [honeysql.core :as sql]
     [honeysql.helpers :refer :all :as helpers]))
 
@@ -115,6 +118,19 @@
       user (assoc-in [:session :user] user)
       role (assoc-in [:session :user :roles] (get (fetch-db mock-db :roles role) role)))))
 
+(deftest get-table-aliases
+  (is (= {"u" "users"} (table-aliases {:select '(:*) :from '([:users :u]) :where [:and [:< :id 1] [:> :id 1]]})))
+  (is (= {"users" "users"} (table-aliases {:select '(:*) :from '(:users) :where [:and [:< :id 1] [:> :id 1]]})))
+  (is (= {"users" "users"} (table-aliases (-> (select :*)
+                                              (from :users)
+                                              (join [:cart :c] [:= :users.id :c.user-id])))))
+  (is (= {"users" "users", "c" "cart"} (table-aliases (-> (select :*)
+                                                          (from "users")
+                                                          (join [:cart :c] [:= :users.id :c.user-id])))))
+  (is (= {"users" "users", "c" "cart"} (table-aliases (-> (select :*)
+                                                          (from :users)
+                                                          (join [:cart :c] [:= :users.id :c.user-id]))))))
+
 (deftest get-roles-from-query-string
   (is (= '({:table "test_table" :actions [:select]}) (->roles "SELECT * FROM test_table")))
   (is (= '({:table "films" :actions [:insert]}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
@@ -144,6 +160,14 @@
   ;ALTER isn't supported by HoneySQL "ALTER TABLE employees ADD COLUMN address text"
   (is (= [" "] (sql/format {:alter-table :employees
                             :add-column  [:address :text]}))))
+
+(deftest owner-test)
+(is (true? (owns? "SELECT * FROM users WHERE id = 1" 1)))
+
+(is (true? (owns? (-> (select :*)
+                      (from [:users :u])
+                      (where [:< :id 1])
+                      (merge-where [:> :id 1])) 1)))
 
 (deftest insert-action-test
   (is (= [{:table   "films"
