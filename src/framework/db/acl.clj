@@ -96,18 +96,16 @@
     [from join left-join right-join full-join cross-join]))
 
 (defn map->where-collect
-  [{:keys [select from where] :as query}]
+  [{:keys [update delete-from insert-into from where] :as query}]
   (let [[op p1 p2] where
+        t-name (or insert-into from update delete-from)
         t-aliases (table-aliases query)
         c-aliases (column-aliases query)
-        c-name #(if (= [:*] select)
-                  %1
-                  (c-aliases %))
+        c-name #(get c-aliases % %)
         full-field-name #(let [[c t] (reverse (str/split (->table-name %) #"\."))]
-                           (cond
+                           (if
                              t (format "%s.%s" (t-aliases t) (c-name c))
-                             (c-aliases c) (format "%s.%s" (->table-name from) (c-name c))
-                             :else nil))]
+                             (format "%s.%s" (->table-name t-name) (c-name c))))]
     (cond-> []
       (vector? p1) (concat (map->where-collect (assoc query :where p1)))
       (vector? p2) (concat (map->where-collect (assoc query :where p2)))
@@ -116,11 +114,11 @@
 
 (defn map->where
   [query user-id]
-  (->>
-    (map->where-collect query)
-    (filter #(get % "users.id"))
-    (map #(and (= := (:op %)) (= user-id (get % "users.id"))))
-    (every? true?)))
+  (let [roles (->>
+                (map->where-collect query)
+                (filter #(get % "users.id"))
+                (map #(and (= := (:op %)) (= user-id (get % "users.id")))))]
+    (and (not-empty roles) (every? true? roles))))
 
 (defn owns?
   [query user-id]

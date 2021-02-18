@@ -132,6 +132,18 @@
   (is (= {"users" "users", "c" "cart"} (table-aliases (-> (select :*)
                                                           (from :users)
                                                           (join [:cart :c] [:= :users.id :c.user-id]))))))
+(table-aliases (-> (select :*)
+                   (from :addresses)
+                   (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
+                   (merge-join :users [:= :users.id :postal-addresses.user-id])
+                   (where [:= :users.id 1])))
+
+(map->where-collect (-> (select :*)
+                        (from :addresses)
+                        (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
+                        (merge-join :users [:= :users.id :postal-addresses.user-id])
+                        (where [:= :users.id 1])
+                        (merge-where [:= :addresses.id 2])))
 
 (deftest get-column-aliases
   (is (= {"a" "a", "bar" "b", "c" "c", "x" "d"} (column-aliases {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a :a] [:< :bar 100]]}))))
@@ -296,18 +308,24 @@
   (is (true? (acl (add-user-by-id {} 1) (-> (select :*)
                                             (from [:users :u])
                                             (where [:= :u.id 1])))))
-  (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users;")))
-  (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users WHERE user-id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1) "INSERT INTO users")))
-  (is (true? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 1")))
-  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE user-id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 2")))
-  (is (true? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 1")))
-  (is (false? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 2"))))
-
-(-> (select :a [:b :bar] :c [:d :x])
-    (from [:foo :quux])
-    (where [:= :quux.a :a] [:< :bar 100]))
+  (is (false? (acl (add-user-by-id {} 1) (-> (select :*)
+                                             (from [:users :u])))))
+  (is (false? (acl (add-user-by-id {} 1) (-> (select :*)
+                                             (from [:users :u])
+                                             (where [:= :u.id 2])))))
+  (is (false? (acl (add-user-by-id {} 1) (insert-into "users"))))
+  ; "DELETE FROM users WHERE id EQ 1"
+  (is (true? (acl (add-user-by-id {} 1) (-> (delete-from :users)
+                                            (where [:= :id 1])))))
+  ;"DELETE FROM users WHERE user-id EQ 2"
+  (is (false? (acl (add-user-by-id {} 1) (-> (delete-from :users)
+                                             (where [:= :id 2])))))
+  ; "UPDATE users WHERE user-id EQ 1"
+  (is (true? (acl (add-user-by-id {} 1) (-> (update :users)
+                                            (where [:= :id 1])))))
+  ; "UPDATE users WHERE user-id EQ 2"
+  (is (false? (acl (add-user-by-id {} 1) (-> (update :users)
+                                             (where [:= :id 2]))))))
 
 (deftest user-addresses
   (is (true? (acl (add-user-by-id {} 1)
@@ -322,6 +340,36 @@
                   "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1")))
   (is (false? (acl (add-user-by-id {} 1)
                    "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2"))))
+
+(deftest user-addresses)
+
+(is (true? (acl (add-user-by-id {} 1)
+                ;"SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1"
+                (-> (select :*)
+                    (from :addresses)
+                    (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
+                    (merge-join :users [:= :users.id :postal-addresses.user-id])
+                    (where [:= :users.id 1])))))
+
+(is (false? (acl (add-user-by-id {} 1)
+                 ;"SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2"
+                 (-> (select :*)
+                     (from :addresses)
+                     (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
+                     (merge-join :users [:= :users.id :postal-addresses.user-id])
+                     (where [:= :users.id 2])))))
+
+(is (true? (acl (add-user-by-id {} 1)
+                "UPDATE addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1")))
+
+(is (false? (acl (add-user-by-id {} 1)
+                 "UPDATE * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2")))
+
+(is (true? (acl (add-user-by-id {} 1)
+                "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1")))
+
+(is (false? (acl (add-user-by-id {} 1)
+                 "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2")))
 
 
 ;(is (false? (acl (add-user-by-id {} 1) "SELECT * FROM addresses WHERE id EQ 1")))
