@@ -1,12 +1,14 @@
 (ns framework.db.acl-test
   (:require
     [clojure.test :refer [is deftest]]
-    [clojure.uuid :as uuid]
     [framework.db.acl :refer [->roles
+                              map->where
+                              map->where-collect
                               insert-action
                               owns?
                               acl
-                              table-aliases]]
+                              table-aliases
+                              column-aliases]]
     [honeysql.core :as sql]
     [honeysql.helpers :refer :all :as helpers]))
 
@@ -121,15 +123,42 @@
 (deftest get-table-aliases
   (is (= {"u" "users"} (table-aliases {:select '(:*) :from '([:users :u]) :where [:and [:< :id 1] [:> :id 1]]})))
   (is (= {"users" "users"} (table-aliases {:select '(:*) :from '(:users) :where [:and [:< :id 1] [:> :id 1]]})))
-  (is (= {"users" "users"} (table-aliases (-> (select :*)
-                                              (from :users)
-                                              (join [:cart :c] [:= :users.id :c.user-id])))))
+  (is (= {"users" "users" "c" "cart"} (table-aliases (-> (select :*)
+                                                         (from :users)
+                                                         (join [:cart :c] [:= :users.id :c.user-id])))))
   (is (= {"users" "users", "c" "cart"} (table-aliases (-> (select :*)
                                                           (from "users")
                                                           (join [:cart :c] [:= :users.id :c.user-id])))))
   (is (= {"users" "users", "c" "cart"} (table-aliases (-> (select :*)
                                                           (from :users)
                                                           (join [:cart :c] [:= :users.id :c.user-id]))))))
+
+(deftest get-column-aliases
+  (is (= {"a" "a", "bar" "b", "c" "c", "x" "d"} (column-aliases {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a :a] [:< :bar 100]]}))))
+
+(map->where-collect {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a 1] [:< :bar 100]]})
+
+(map->where (-> (select :*)
+                (from :users)
+                (where [:= :users.id 1])) 1)
+
+(map->where-collect (-> (select :f.* :b.baz :c.quux [:b.bla "bla-bla"]
+                                (sql/call :now) (sql/raw "@x := 10"))
+                        (modifiers :distinct)
+                        (from [:foo :f] [:baz :b])
+                        (join :draq [:= :f.b :draq.x])
+                        (left-join [:clod :c] [:= :f.a :c.d])
+                        (right-join :bock [:= :bock.z :c.e])
+                        (where [:or
+                                [:and [:= :f.a "bort"] [:not= :b.baz (sql/param :param1)]]
+                                [:< 1 2 3]
+                                [:in :f.e [1 (sql/param :param2) 3]]
+                                [:between :f.e 10 20]])
+                        (group :f.a :c.e)
+                        (having [:< 0 :f.e])
+                        (order-by [:b.baz :desc] :c.quux [:f.a :nulls-first])
+                        (limit 50)
+                        (offset 10)))
 
 (deftest get-roles-from-query-string
   (is (= '({:table "test_table" :actions [:select]}) (->roles "SELECT * FROM test_table")))
@@ -275,6 +304,10 @@
   (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 2")))
   (is (true? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 1")))
   (is (false? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 2"))))
+
+(-> (select :a [:b :bar] :c [:d :x])
+    (from [:foo :quux])
+    (where [:= :quux.a :a] [:< :bar 100]))
 
 (deftest user-addresses
   (is (true? (acl (add-user-by-id {} 1)

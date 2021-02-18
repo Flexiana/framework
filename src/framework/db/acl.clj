@@ -1,6 +1,7 @@
 (ns framework.db.acl
   (:require
-    [clojure.string :as str]))
+    [clojure.string :as str]
+    [clojure.tools.logging :as log]))
 
 (defn collify
   [x]
@@ -73,6 +74,15 @@
   [query]
   (last (flatten (re-seq #"WHERE (user-id|id|user\.id) (EQ|=) ([\w-]+)" query))))
 
+(defn column-aliases
+  [{:keys [select]}]
+  (reduce (fn [acc q]
+            (cond
+              (keyword? q) (conj acc (into [] (repeat 2 (->table-name q))))
+              (vector? q) (conj acc (into [] (map ->table-name (reverse q))))
+              :else acc))
+    {} select))
+
 (defn table-aliases
   [{:keys [from join left-join right-join full-join cross-join]}]
   (reduce (fn [acc q]
@@ -85,19 +95,39 @@
     {}
     [from join left-join right-join full-join cross-join]))
 
-(defn map->where
-  [{:keys [from join left-join right-join full-join cross-join where] :as query}]
-  (println query)
+(defn map->where-collect
+  [{:keys [select from where] :as query}]
+  (let [[op p1 p2] where
+        t-aliases (table-aliases query)
+        c-aliases (column-aliases query)
+        c-name #(if (= [:*] select)
+                  %1
+                  (c-aliases %))
+        full-field-name #(let [[c t] (reverse (str/split (->table-name %) #"\."))]
+                           (cond
+                             t (format "%s.%s" (t-aliases t) (c-name c))
+                             (c-aliases c) (format "%s.%s" (->table-name from) (c-name c))
+                             :else nil))]
+    (cond-> []
+      (vector? p1) (concat (map->where-collect (assoc query :where p1)))
+      (vector? p2) (concat (map->where-collect (assoc query :where p2)))
+      (keyword? p1) (conj {:op op (full-field-name p1) p2})
+      (keyword? p2) (conj {:op op (full-field-name p2) p1}))))
 
-  (str (rand-int 3)))
+(defn map->where
+  [query user-id]
+  (->>
+    (map->where-collect query)
+    (filter #(get % "users.id"))
+    (map #(and (= := (:op %)) (= user-id (get % "users.id"))))
+    (every? true?)))
 
 (defn owns?
   [query user-id]
-  (= (str user-id)
-     (cond
-       (string? query) (str->where query)
-       (map? query) (map->where query)
-       (coll? query) (every? true? (flatten (map #(owns? % user-id) query))))))
+  (cond
+    (string? query) (= (str user-id) (str->where query))
+    (map? query) (map->where query user-id)
+    (coll? query) (every? true? (flatten (map #(owns? % user-id) query)))))
 
 (defn acl
   [{:keys [session]} query]
