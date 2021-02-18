@@ -132,10 +132,12 @@
   (is (= {"users" "users", "c" "cart"} (table-aliases (-> (select :*)
                                                           (from :users)
                                                           (join [:cart :c] [:= :users.id :c.user-id]))))))
+
 (table-aliases (-> (select :*)
                    (from :addresses)
-                   (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
-                   (merge-join :users [:= :users.id :postal-addresses.user-id])
+                   (merge-from :a)
+                   (join [:postal-addresses :pa] [:= :addresses.id :pa.address-id])
+                   (merge-join :users [:= :users.id :pa.user-id])
                    (where [:= :users.id 1])))
 
 (map->where-collect (-> (select :*)

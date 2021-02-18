@@ -85,15 +85,14 @@
 
 (defn table-aliases
   [{:keys [from join left-join right-join full-join cross-join]}]
-  (reduce (fn [acc q]
-            (let [fq (first q)]
-              (cond
-                (string? fq) (conj acc (into [] (repeat 2 fq)))
-                (keyword? fq) (conj acc (into [] (repeat 2 (->table-name fq))))
-                (coll? fq) (conj acc (into [] (map ->table-name (reverse fq))))
-                :else acc)))
+  (reduce (fn [acc fq]
+            (cond
+              (string? fq) (conj acc (into [] (repeat 2 fq)))
+              (keyword? fq) (conj acc (into [] (repeat 2 (->table-name fq))))
+              (coll? fq) (conj acc (into [] (map ->table-name (reverse fq))))
+              :else acc))
     {}
-    [from join left-join right-join full-join cross-join]))
+    (reduce conj (take-nth 2 (concat join left-join right-join full-join cross-join)) from)))
 
 (defn map->where-collect
   [{:keys [update delete-from insert-into from where] :as query}]
