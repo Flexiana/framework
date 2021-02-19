@@ -4,6 +4,13 @@
                                    :dbtype   "postgresql"
                                    :user     "postgres"
                                    :password "postgres"}
+ :framework.db.storage/migration  {:store                :database
+                                   :migration-dir        "resources/migrations"
+                                   :parent-migration-dir "src/"
+                                   :migration-dir        "migrations"
+                                   :init-in-transaction? false
+                                   :init-in-transaction? false
+                                   :migration-table-name "migrations"}
 
  :framework.app/ring {:defaults {:params    {:urlencoded true
                                              :multipart  true

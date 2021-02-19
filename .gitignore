@@ -15,5 +15,9 @@ pom.xml.asc
 /dev/src/local.clj
 .eastwood
 .idea/
+<<<<<<< HEAD
 .lsp/
 .clj-kondo/
+=======
+.cpcache/
+>>>>>>> 7b6086650dc895f8b6706cc147f48718ba2e748a

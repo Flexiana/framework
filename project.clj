@@ -12,8 +12,14 @@
                  [migratus "1.3.3"]
                  [potemkin "0.4.5"]
                  [funcool/cats "2.4.1"]
+<<<<<<< HEAD
                  [hiccup "1.0.5"]
                  [tongue "0.2.10"]]
+=======
+                 [com.draines/postal "2.0.4"]
+                 [funcool/cuerdas "2020.03.26-3"]
+]
+>>>>>>> 7b6086650dc895f8b6706cc147f48718ba2e748a
   :target "target/%s/"
   :profiles {:dev      {:resource-paths ["config/dev"]}
              :local    {:resource-paths ["config/local"]}
