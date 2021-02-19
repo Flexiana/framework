@@ -16,3 +16,5 @@ pom.xml.asc
 .eastwood
 .idea/
 .cpcache/
+.clj-kondo/
+.lsp/
