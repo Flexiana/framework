@@ -152,7 +152,8 @@
   (is (= {"a" "a", "bar" "b", "c" "c", "x" "d"} (column-aliases {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a :a] [:< :bar 100]]}))))
 
 (deftest testing-collect-actions
-  (is (= '({:op :=, "foo.a" 1} {:op :<, "foo.b" 100})) (map->where-collect {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a 1] [:< :bar 100]]}))
+  (is (= '({:op :=, "foo.a" 1} {:op :<, "foo.b" 100})
+         (map->where-collect {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a 1] [:< :bar 100]]})))
   (is (true? (map->owns? (-> (select :*)
                              (from :users)
                              (where [:= :users.id 1])) 1)))
