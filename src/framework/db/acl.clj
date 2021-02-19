@@ -71,7 +71,9 @@
 
 (defn str->where
   [query]
-  (last (flatten (re-seq #"WHERE (user-id|id|users\.id) (EQ|=) ([\w-]+)" query))))
+  (->> (re-seq #"WHERE (user-id|id|users\.id) (EQ|=) ([\w-]+)" query)
+       flatten
+       last))
 
 (defn column-aliases
   [{:keys [select]}]
@@ -84,31 +86,38 @@
 
 (defn table-aliases
   [{:keys [from join left-join right-join full-join cross-join]}]
-  (reduce (fn [acc fq]
-            (cond
-              (string? fq) (conj acc (into [] (repeat 2 fq)))
-              (keyword? fq) (conj acc (into [] (repeat 2 (->table-name fq))))
-              (coll? fq) (conj acc (into [] (map ->table-name (reverse fq))))
-              :else acc))
-    {}
-    (reduce conj (take-nth 2 (concat join left-join right-join full-join cross-join)) from)))
+  (let [join-tables (->>
+                      (concat join left-join right-join full-join cross-join)
+                      (take-nth 2))
+        tables (reduce conj join-tables from)]
+    (reduce (fn [acc fq]
+              (cond
+                (string? fq) (conj acc (into [] (repeat 2 fq)))
+                (keyword? fq) (conj acc (into [] (repeat 2 (->table-name fq))))
+                (coll? fq) (conj acc (into [] (map ->table-name (reverse fq))))
+                :else acc))
+      {}
+      tables)))
 
-(defn map->where-collect
-  [{:keys [update delete-from insert-into from where] :as query}]
-  (let [[op p1 p2] where
-        t-name (or insert-into from update delete-from)
+(defn full-field-name
+  [{:keys [update delete-from insert-into from] :as query} field]
+  (let [t-name (or insert-into from update delete-from)
         t-aliases (table-aliases query)
         c-aliases (column-aliases query)
         c-name #(get c-aliases % %)
-        full-field-name #(let [[c t] (reverse (str/split (->table-name %) #"\."))]
-                           (if
-                             t (format "%s.%s" (t-aliases t) (c-name c))
-                             (format "%s.%s" (->table-name t-name) (c-name c))))]
+        [c t] (reverse (str/split (->table-name field) #"\."))]
+    (if t
+      (format "%s.%s" (t-aliases t) (c-name c))
+      (format "%s.%s" (->table-name t-name) (c-name c)))))
+
+(defn map->where-collect
+  [{:keys [where] :as query}]
+  (let [[op p1 p2] where]
     (cond-> []
       (vector? p1) (concat (map->where-collect (assoc query :where p1)))
       (vector? p2) (concat (map->where-collect (assoc query :where p2)))
-      (keyword? p1) (conj {:op op (full-field-name p1) p2})
-      (keyword? p2) (conj {:op op (full-field-name p2) p1}))))
+      (keyword? p1) (conj {:op op (full-field-name query p1) p2})
+      (keyword? p2) (conj {:op op (full-field-name query p2) p1}))))
 
 (defn map->owns?
   [query user-id]

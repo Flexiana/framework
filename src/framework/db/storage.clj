@@ -20,6 +20,7 @@
 
 (defn execute-in-transaction
   [{:keys [db]} query]
-  (jdbc/with-transaction [connection (:datasource db)]
-                         (jdbc/execute! connection (if (string? query) (vector query) query))))
+  (let [q (if (string? query) (vector query) query)]
+    (jdbc/with-transaction [connection (:datasource db)]
+                           (jdbc/execute! connection q))))
 
