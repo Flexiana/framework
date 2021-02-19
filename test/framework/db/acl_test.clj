@@ -281,55 +281,49 @@
 
 (deftest customer-on-items
   (is (true? (acl (add-user-by-id {} 1) "SELECT * FROM items;")))
-  (is (false? (acl (add-user-by-id {} 1) "INSERT INTO items ;")))
-  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM items WHERE id EQ 125;")))
-  (is (false? (acl (add-user-by-id {} 1) "UPDATE items WHERE id EQ 123;"))))
-
-(deftest customer-on-items-HoneySQL
   (is (true? (acl (add-user-by-id {} 1) (-> (select [:*])
                                             (from :items)))))
+  (is (false? (acl (add-user-by-id {} 1) "INSERT INTO items ;")))
   (is (false? (acl (add-user-by-id {} 1) (insert-into "items"))))
+  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM items WHERE id EQ 125;")))
   (is (false? (acl (add-user-by-id {} 1) (-> (delete-from "items")
                                              (where [:= :id 125])))))
-  (is (= ["UPDATE ? WHERE id = ?" "items" 123]
-         (-> (update "items")
-             (where [:= :id 123])
-             sql/format)))
+  (is (false? (acl (add-user-by-id {} 1) "UPDATE items WHERE id EQ 123;")))
   (is (false? (acl (add-user-by-id {} 1) (-> (update "items")
                                              (where [:= :id 123]))))))
 
 (deftest customer-on-users
   (is (true? (acl (add-user-by-id {} 1) "SELECT * FROM users WHERE id EQ 1")))
-  (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users;")))
-  (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users WHERE user-id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1) "INSERT INTO users")))
-  (is (true? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 1")))
-  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE user-id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 2")))
-  (is (true? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 1")))
-  (is (false? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 2"))))
-
-(deftest customer-on-users-HoneySQL
   (is (true? (acl (add-user-by-id {} 1) (-> (select :*)
                                             (from [:users :u])
                                             (where [:= :u.id 1])))))
+  (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users;")))
   (is (false? (acl (add-user-by-id {} 1) (-> (select :*)
                                              (from [:users :u])))))
+  (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users WHERE user-id EQ 2")))
   (is (false? (acl (add-user-by-id {} 1) (-> (select :*)
                                              (from [:users :u])
                                              (where [:= :u.id 2])))))
+  (is (false? (acl (add-user-by-id {} 1) "INSERT INTO users")))
   (is (false? (acl (add-user-by-id {} 1) (insert-into "users"))))
+  (is (true? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 1")))
   (is (true? (acl (add-user-by-id {} 1) (-> (delete-from :users)
                                             (where [:= :id 1])))))
+  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE users.id EQ 2")))
+  (is (false? (acl (add-user-by-id {} 1) (-> (delete-from :users)
+                                             (where [:= :users.id 2])))))
+  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 2")))
   (is (false? (acl (add-user-by-id {} 1) (-> (delete-from :users)
                                              (where [:= :id 2])))))
+  (is (true? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 1")))
   (is (true? (acl (add-user-by-id {} 1) (-> (update :users)
                                             (where [:= :id 1])))))
+  (is (false? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 2")))
   (is (false? (acl (add-user-by-id {} 1) (-> (update :users)
                                              (where [:= :id 2]))))))
 
-(deftest user-addresses
-  ;text based validation can be fooled, these should be 'false'
+(deftest customer-on-addresses
+  ;TODO text based validation can be fooled, these should be 'false'
   (is (true? (acl (add-user-by-id {} 1) "SELECT * FROM addresses WHERE id EQ 1")))
   (is (true? (acl (add-user-by-id {} 1) "UPDATE addresses WHERE user-id EQ 1;")))
   ;but the same query with maps shows the real result
@@ -338,10 +332,12 @@
                    (-> (select :*)
                        (from :addresses)
                        (where [:= :id 1])))))
+  ;user-id is not guaranteed to be the same as the user's id
   (is (false? (acl (add-user-by-id {} 1)
                    ;"UPDATE addresses WHERE user-id EQ 1;"
                    (-> (update :*)
-                       (from :addresses)))))
+                       (from :addresses)
+                       (where [:= :user-id 1])))))
   ;but mostly the results are the same
   (is (= (acl (add-user-by-id {} 1)
               "SELECT * FROM addresses;")
