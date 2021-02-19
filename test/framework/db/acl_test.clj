@@ -258,6 +258,9 @@
          (insert-action [{:table   "producers"
                           :actions #{:update :select}}] [:films :f] :select))))
 
+(def customer (add-user-by-id {} 1))
+(def administrator (add-user-by-id {} 2))
+
 (deftest inject-user
   (is (= {:session
           {:user
@@ -270,245 +273,242 @@
                       {:table "users", :actions [:select :update :delete], :filter :own}
                       {:table "addresses", :actions [:select :update :delete], :filter :own}
                       {:table "carts", :actions [:select :update :delete], :filter :own}]}}}
-         (add-user-by-id {} 1)))
+         customer))
   (is (= {:session {:user {:id      2
                            :name    "Admin"
                            :surname "Doe"
                            :email   "doe.admin@test.com"
                            :role    :administrator
                            :roles   [{:table :all :actions :all :filter :all}]}}}
-         (add-user-by-id {} 2))))
+         administrator)))
 
 (deftest customer-on-items
-  (is (true? (acl (add-user-by-id {} 1) "SELECT * FROM items;")))
-  (is (true? (acl (add-user-by-id {} 1) (-> (select [:*])
-                                            (from :items)))))
-  (is (false? (acl (add-user-by-id {} 1) "INSERT INTO items ;")))
-  (is (false? (acl (add-user-by-id {} 1) (insert-into "items"))))
-  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM items WHERE id EQ 125;")))
-  (is (false? (acl (add-user-by-id {} 1) (-> (delete-from "items")
-                                             (where [:= :id 125])))))
-  (is (false? (acl (add-user-by-id {} 1) "UPDATE items WHERE id EQ 123;")))
-  (is (false? (acl (add-user-by-id {} 1) (-> (update "items")
-                                             (where [:= :id 123]))))))
+  (is (true? (acl customer "SELECT * FROM items;")))
+  (is (true? (acl customer (-> (select [:*])
+                               (from :items)))))
+  (is (false? (acl customer "INSERT INTO items ;")))
+  (is (false? (acl customer (insert-into "items"))))
+  (is (false? (acl customer "DELETE FROM items WHERE id EQ 125;")))
+  (is (false? (acl customer (-> (delete-from "items")
+                                (where [:= :id 125])))))
+  (is (false? (acl customer "UPDATE items WHERE id EQ 123;")))
+  (is (false? (acl customer (-> (update "items")
+                                (where [:= :id 123]))))))
 
 (deftest customer-on-users
-  (is (true? (acl (add-user-by-id {} 1) "SELECT * FROM users WHERE id EQ 1")))
-  (is (true? (acl (add-user-by-id {} 1) (-> (select :*)
-                                            (from [:users :u])
-                                            (where [:= :u.id 1])))))
-  (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users;")))
-  (is (false? (acl (add-user-by-id {} 1) (-> (select :*)
-                                             (from [:users :u])))))
-  (is (false? (acl (add-user-by-id {} 1) "SELECT * FROM users WHERE user-id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1) (-> (select :*)
-                                             (from [:users :u])
-                                             (where [:= :u.id 2])))))
-  (is (false? (acl (add-user-by-id {} 1) "INSERT INTO users")))
-  (is (false? (acl (add-user-by-id {} 1) (insert-into "users"))))
-  (is (true? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 1")))
-  (is (true? (acl (add-user-by-id {} 1) (-> (delete-from :users)
-                                            (where [:= :id 1])))))
-  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE users.id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1) (-> (delete-from :users)
-                                             (where [:= :users.id 2])))))
-  (is (false? (acl (add-user-by-id {} 1) "DELETE FROM users WHERE id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1) (-> (delete-from :users)
-                                             (where [:= :id 2])))))
-  (is (true? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 1")))
-  (is (true? (acl (add-user-by-id {} 1) (-> (update :users)
-                                            (where [:= :id 1])))))
-  (is (false? (acl (add-user-by-id {} 1) "UPDATE users WHERE user-id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1) (-> (update :users)
-                                             (where [:= :id 2]))))))
+  (is (true? (acl customer "SELECT * FROM users WHERE id EQ 1")))
+  (is (true? (acl customer (-> (select :*)
+                               (from [:users :u])
+                               (where [:= :u.id 1])))))
+  (is (false? (acl customer "SELECT * FROM users;")))
+  (is (false? (acl customer (-> (select :*)
+                                (from [:users :u])))))
+  (is (false? (acl customer "SELECT * FROM users WHERE user-id EQ 2")))
+  (is (false? (acl customer (-> (select :*)
+                                (from [:users :u])
+                                (where [:= :u.id 2])))))
+  (is (false? (acl customer "INSERT INTO users")))
+  (is (false? (acl customer (insert-into "users"))))
+  (is (true? (acl customer "DELETE FROM users WHERE id EQ 1")))
+  (is (true? (acl customer (-> (delete-from :users)
+                               (where [:= :id 1])))))
+  (is (false? (acl customer "DELETE FROM users WHERE users.id EQ 2")))
+  (is (false? (acl customer (-> (delete-from :users)
+                                (where [:= :users.id 2])))))
+  (is (false? (acl customer "DELETE FROM users WHERE id EQ 2")))
+  (is (false? (acl customer (-> (delete-from :users)
+                                (where [:= :id 2])))))
+  (is (true? (acl customer "UPDATE users WHERE user-id EQ 1")))
+  (is (true? (acl customer (-> (update :users)
+                               (where [:= :id 1])))))
+  (is (false? (acl customer "UPDATE users WHERE user-id EQ 2")))
+  (is (false? (acl customer (-> (update :users)
+                                (where [:= :id 2]))))))
 
 (deftest customer-on-addresses
   ;TODO text based validation can be fooled, these should be 'false'
-  (is (true? (acl (add-user-by-id {} 1) "SELECT * FROM addresses WHERE id EQ 1")))
-  (is (true? (acl (add-user-by-id {} 1) "UPDATE addresses WHERE user-id EQ 1;")))
+  (is (true? (acl customer "SELECT * FROM addresses WHERE id EQ 1")))
+  (is (true? (acl customer "UPDATE addresses WHERE user-id EQ 1;")))
   ;but the same query with maps shows the real result
-  (is (false? (acl (add-user-by-id {} 1)
+  (is (false? (acl customer
                    ;"SELECT * FROM addresses WHERE id EQ 1"
                    (-> (select :*)
                        (from :addresses)
                        (where [:= :id 1])))))
   ;user-id is not guaranteed to be the same as the user's id
-  (is (false? (acl (add-user-by-id {} 1)
+  (is (false? (acl customer
                    ;"UPDATE addresses WHERE user-id EQ 1;"
                    (-> (update :*)
                        (from :addresses)
                        (where [:= :user-id 1])))))
   ;but mostly the results are the same
   (is (= false
-         (acl (add-user-by-id {} 1)
+         (acl customer
               "SELECT * FROM addresses;")
          ;You can use table names as keyword
-         (acl (add-user-by-id {} 1)
+         (acl customer
               (-> (select :*)
                   (from :addresses)))
          ;or string:
-         (acl (add-user-by-id {} 1)
+         (acl customer
               (-> (select :*)
                   (from "addresses")))
          ;cannot fool with aliases
-         (acl (add-user-by-id {} 1)
+         (acl customer
               (-> (select :*)
                   (from [:addresses :users])))))
-  (is (true? (acl (add-user-by-id {} 1)
+  (is (true? (acl customer
                   "SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
-  (is (true? (acl (add-user-by-id {} 1)
+  (is (true? (acl customer
                   (-> (select :*)
                       (from :addresses)
                       (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
                       (merge-join :users [:= :users.id :postal-addresses.user-id])
                       (where [:= :users.id 1])))))
-  (is (false? (acl (add-user-by-id {} 1)
+  (is (false? (acl customer
                    "SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1)
+  (is (false? (acl customer
                    (-> (select :*)
                        (from :addresses)
                        (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
                        (merge-join :users [:= :users.id :postal-addresses.user-id])
                        (where [:= :users.id 2])))))
-  (is (true? (acl (add-user-by-id {} 1)
+  (is (true? (acl customer
                   "UPDATE addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
-  (is (true? (acl (add-user-by-id {} 1)
+  (is (true? (acl customer
                   (-> (update :addresses)
                       (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
                       (merge-join :users [:= :users.id :postal-addresses.user-id])
                       (where [:= :users.id 1])))))
-  (is (false? (acl (add-user-by-id {} 1)
+  (is (false? (acl customer
                    "UPDATE * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1)
+  (is (false? (acl customer
                    (-> (update :addresses)
                        (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
                        (merge-join :users [:= :users.id :p.user-id])
                        (where [:= :users.id 2])))))
-  (is (true? (acl (add-user-by-id {} 1)
+  (is (true? (acl customer
                   "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
-  (is (true? (acl (add-user-by-id {} 1)
+  (is (true? (acl customer
                   (-> (delete-from :addresses)
                       (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
                       (merge-join :users [:= :users.id :p.user-id])
                       (where [:= :users.id 1])))))
-  (is (false? (acl (add-user-by-id {} 1)
+  (is (false? (acl customer
                    "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
-  (is (false? (acl (add-user-by-id {} 1)
+  (is (false? (acl customer
                    (-> (delete-from :addresses)
                        (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
                        (merge-join :users [:= :users.id :p.user-id])
                        (where [:= :users.id 2]))))))
 
 (deftest administrator-on-items
-  (let [administrator (add-user-by-id {} 2)]
-    (is (true? (acl administrator "SELECT * FROM items;")))
-    (is (true? (acl administrator (-> (select [:*])
-                                      (from :items)))))
-    (is (true? (acl administrator "INSERT INTO items ;")))
-    (is (true? (acl administrator (insert-into "items"))))
-    (is (true? (acl administrator "DELETE FROM items WHERE id EQ 125;")))
-    (is (true? (acl administrator (-> (delete-from "items")
-                                      (where [:= :id 125])))))
-    (is (true? (acl administrator "UPDATE items WHERE id EQ 123;")))
-    (is (true? (acl administrator (-> (update "items")
-                                      (where [:= :id 123])))))))
+  (is (true? (acl administrator "SELECT * FROM items;")))
+  (is (true? (acl administrator (-> (select [:*])
+                                    (from :items)))))
+  (is (true? (acl administrator "INSERT INTO items ;")))
+  (is (true? (acl administrator (insert-into "items"))))
+  (is (true? (acl administrator "DELETE FROM items WHERE id EQ 125;")))
+  (is (true? (acl administrator (-> (delete-from "items")
+                                    (where [:= :id 125])))))
+  (is (true? (acl administrator "UPDATE items WHERE id EQ 123;")))
+  (is (true? (acl administrator (-> (update "items")
+                                    (where [:= :id 123]))))))
 
 (deftest administrator-on-users
-  (let [administrator (add-user-by-id {} 2)]
-    (is (true? (acl administrator "SELECT * FROM users WHERE id EQ 1")))
-    (is (true? (acl administrator (-> (select :*)
-                                      (from [:users :u]
-                                            (where [:= :u.id 1]))))))
-    (is (true? (acl administrator "SELECT * FROM users;")))
-    (is (true? (acl administrator (-> (select :*)
-                                      (from [:users :u])))))
-    (is (true? (acl administrator "SELECT * FROM users WHERE user-id EQ 2")))
-    (is (true? (acl administrator (-> (select :*)
-                                      (from [:users :u])
-                                      (where [:= :u.id 2])))))
-    (is (true? (acl administrator "INSERT INTO users")))
-    (is (true? (acl administrator (insert-into "users"))))
-    (is (true? (acl administrator "DELETE FROM users WHERE id EQ 1")))
-    (is (true? (acl administrator (-> (delete-from :users)
-                                      (where [:= :id 1])))))
-    (is (true? (acl administrator "DELETE FROM users WHERE users.id EQ 2")))
-    (is (true? (acl administrator (-> (delete-from :users)
-                                      (where [:= :users.id 2])))))
-    (is (true? (acl administrator "DELETE FROM users WHERE id EQ 2")))
-    (is (true? (acl administrator (-> (delete-from :users)
-                                      (where [:= :id 2])))))
-    (is (true? (acl administrator "UPDATE users WHERE user-id EQ 1")))
-    (is (true? (acl administrator (-> (update :users)
-                                      (where [:= :id 1])))))
-    (is (true? (acl administrator "UPDATE users WHERE user-id EQ 2")))
-    (is (true? (acl administrator (-> (update :users)
-                                      (where [:= :id 2])))))))
+  (is (true? (acl administrator "SELECT * FROM users WHERE id EQ 1")))
+  (is (true? (acl administrator (-> (select :*)
+                                    (from [:users :u]
+                                          (where [:= :u.id 1]))))))
+  (is (true? (acl administrator "SELECT * FROM users;")))
+  (is (true? (acl administrator (-> (select :*)
+                                    (from [:users :u])))))
+  (is (true? (acl administrator "SELECT * FROM users WHERE user-id EQ 2")))
+  (is (true? (acl administrator (-> (select :*)
+                                    (from [:users :u])
+                                    (where [:= :u.id 2])))))
+  (is (true? (acl administrator "INSERT INTO users")))
+  (is (true? (acl administrator (insert-into "users"))))
+  (is (true? (acl administrator "DELETE FROM users WHERE id EQ 1")))
+  (is (true? (acl administrator (-> (delete-from :users)
+                                    (where [:= :id 1])))))
+  (is (true? (acl administrator "DELETE FROM users WHERE users.id EQ 2")))
+  (is (true? (acl administrator (-> (delete-from :users)
+                                    (where [:= :users.id 2])))))
+  (is (true? (acl administrator "DELETE FROM users WHERE id EQ 2")))
+  (is (true? (acl administrator (-> (delete-from :users)
+                                    (where [:= :id 2])))))
+  (is (true? (acl administrator "UPDATE users WHERE user-id EQ 1")))
+  (is (true? (acl administrator (-> (update :users)
+                                    (where [:= :id 1])))))
+  (is (true? (acl administrator "UPDATE users WHERE user-id EQ 2")))
+  (is (true? (acl administrator (-> (update :users)
+                                    (where [:= :id 2]))))))
 
 (deftest administrator-on-addresses
-  (let [administrator (add-user-by-id {} 2)]
-    (is (true? (acl administrator "SELECT * FROM addresses WHERE id EQ 1")))
-    (is (true? (acl administrator
-                    (-> (select :*)
-                        (from :addresses)
-                        (where [:= :id 1])))))
-    (is (true? (acl administrator "UPDATE addresses WHERE user-id EQ 1;")))
-    (is (true? (acl administrator
-                    (-> (update :*)
-                        (from :addresses)
-                        (where [:= :user-id 1])))))
-    (is (= true
-           (acl administrator
-                "SELECT * FROM addresses;")
-           (acl administrator
-                (-> (select :*)
-                    (from :addresses)))
-           (acl administrator
-                (-> (select :*)
-                    (from "addresses")))
-           (acl administrator
-                (-> (select :*)
-                    (from [:addresses :users])))))
-    (is (true? (acl administrator
-                    "SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
-    (is (true? (acl administrator
-                    (-> (select :*)
-                        (from :addresses)
-                        (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
-                        (merge-join :users [:= :users.id :postal-addresses.user-id])
-                        (where [:= :users.id 1])))))
-    (is (true? (acl administrator
-                    "SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
-    (is (true? (acl administrator
-                    (-> (select :*)
-                        (from :addresses)
-                        (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
-                        (merge-join :users [:= :users.id :postal-addresses.user-id])
-                        (where [:= :users.id 2])))))
-    (is (true? (acl administrator
-                    "UPDATE addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
-    (is (true? (acl administrator
-                    (-> (update :addresses)
-                        (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
-                        (merge-join :users [:= :users.id :postal-addresses.user-id])
-                        (where [:= :users.id 1])))))
-    (is (true? (acl administrator
-                    "UPDATE * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
-    (is (true? (acl administrator
-                    (-> (update :addresses)
-                        (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
-                        (merge-join :users [:= :users.id :p.user-id])
-                        (where [:= :users.id 2])))))
-    (is (true? (acl administrator
-                    "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
-    (is (true? (acl administrator
-                    (-> (delete-from :addresses)
-                        (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
-                        (merge-join :users [:= :users.id :p.user-id])
-                        (where [:= :users.id 1])))))
-    (is (true? (acl administrator
-                    "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
-    (is (true? (acl administrator
-                    (-> (delete-from :addresses)
-                        (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
-                        (merge-join :users [:= :users.id :p.user-id])
-                        (where [:= :users.id 2])))))))
+  (is (true? (acl administrator "SELECT * FROM addresses WHERE id EQ 1")))
+  (is (true? (acl administrator
+                  (-> (select :*)
+                      (from :addresses)
+                      (where [:= :id 1])))))
+  (is (true? (acl administrator "UPDATE addresses WHERE user-id EQ 1;")))
+  (is (true? (acl administrator
+                  (-> (update :*)
+                      (from :addresses)
+                      (where [:= :user-id 1])))))
+  (is (= true
+         (acl administrator
+              "SELECT * FROM addresses;")
+         (acl administrator
+              (-> (select :*)
+                  (from :addresses)))
+         (acl administrator
+              (-> (select :*)
+                  (from "addresses")))
+         (acl administrator
+              (-> (select :*)
+                  (from [:addresses :users])))))
+  (is (true? (acl administrator
+                  "SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
+  (is (true? (acl administrator
+                  (-> (select :*)
+                      (from :addresses)
+                      (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
+                      (merge-join :users [:= :users.id :postal-addresses.user-id])
+                      (where [:= :users.id 1])))))
+  (is (true? (acl administrator
+                  "SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
+  (is (true? (acl administrator
+                  (-> (select :*)
+                      (from :addresses)
+                      (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
+                      (merge-join :users [:= :users.id :postal-addresses.user-id])
+                      (where [:= :users.id 2])))))
+  (is (true? (acl administrator
+                  "UPDATE addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
+  (is (true? (acl administrator
+                  (-> (update :addresses)
+                      (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
+                      (merge-join :users [:= :users.id :postal-addresses.user-id])
+                      (where [:= :users.id 1])))))
+  (is (true? (acl administrator
+                  "UPDATE * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
+  (is (true? (acl administrator
+                  (-> (update :addresses)
+                      (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
+                      (merge-join :users [:= :users.id :p.user-id])
+                      (where [:= :users.id 2])))))
+  (is (true? (acl administrator
+                  "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
+  (is (true? (acl administrator
+                  (-> (delete-from :addresses)
+                      (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
+                      (merge-join :users [:= :users.id :p.user-id])
+                      (where [:= :users.id 1])))))
+  (is (true? (acl administrator
+                  "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
+  (is (true? (acl administrator
+                  (-> (delete-from :addresses)
+                      (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
+                      (merge-join :users [:= :users.id :p.user-id])
+                      (where [:= :users.id 2]))))))
