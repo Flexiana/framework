@@ -72,7 +72,7 @@
 
 (defn str->where
   [query]
-  (last (flatten (re-seq #"WHERE (user-id|id|user\.id) (EQ|=) ([\w-]+)" query))))
+  (last (flatten (re-seq #"WHERE (user-id|id|users\.id) (EQ|=) ([\w-]+)" query))))
 
 (defn column-aliases
   [{:keys [select]}]
