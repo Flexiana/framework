@@ -1,8 +1,5 @@
-(ns framework.app.view.core)
-
 (ns framework.app.view.core
   (:require
-    [hiccup.core :as hiccup]
     [hiccup2.core :as hiccup2]
     [tongue.core :as tongue]
     [xiana.core :as xiana]))
