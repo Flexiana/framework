@@ -104,11 +104,11 @@
   (let [t-name (or insert-into from update delete-from)
         t-aliases (table-aliases query)
         c-aliases (column-aliases query)
-        c-name #(get c-aliases % %)
-        [c t] (reverse (str/split (->table-name field) #"\."))]
+        [c t] (reverse (str/split (->table-name field) #"\."))
+        c-name (get c-aliases c c)]
     (if t
-      (format "%s.%s" (t-aliases t) (c-name c))
-      (format "%s.%s" (->table-name t-name) (c-name c)))))
+      (format "%s.%s" (t-aliases t) c-name)
+      (format "%s.%s" (->table-name t-name) c-name))))
 
 (defn map->where-collect
   [{:keys [where] :as query}]
