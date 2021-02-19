@@ -1,89 +1,95 @@
 (ns view.core
   (:require
-    [hiccup.core :as hiccup]
+    [hiccup.page :as hiccupage]
+    [hiccup2.core :as hiccup2]
     [tongue.core :as tongue]
     [xiana.core :as xiana]))
 
 (defn ->html
   [hic]
-  (hiccup/html hic))
+  (hiccup2/html hic))
 
-(defmulti view
-  (fn [state action & rest]
-    action))
-
-(defmethod view :set-template
-  [state _ template]
+(defn set-template
+  [state template]
   (-> state
       (assoc :template (partial template))
       xiana/ok))
 
-(defmethod view :set-layout
-  [state _ layout]
+(defn set-layout
+  [state layout]
   (-> state
       (assoc :layout (partial layout))
       xiana/ok))
 
-(defmethod view :auto-set-lang
-  [state _]
+(defn auto-set-lang
+  [state]
   (let [{{:keys [headers]} :http-request} state]
+    (println headers)
     (-> state
         (assoc-in [:lang] (keyword (get headers "accept-language")))
         xiana/ok)))
 
-(defmethod view :set-lang
-  [state _ [& lang :as langs]]
+(defn set-lang
+  [state langs]
   (-> state
-      (assoc :lang langs)
+      (assoc-in [:lang] langs)
       xiana/ok))
 
-(defmethod view :is-html
-  [state _]
+(defn set-lang-by-query-params
+  [state]
+  (let [{{{:keys [language]} :params} :request-data} state]
+    (-> state
+        (assoc-in [:lang] (keyword language))
+        xiana/ok)))
+
+(defn is-html
+  [state]
   (-> state
       (assoc :is-html true)
       xiana/ok))
 
-(defmethod view :is-api
-  [state _]
+(defn is-api
+  [state]
   (-> state
       (assoc :is-api true)
       xiana/ok))
 
-(defmethod view :set-dict
-  [state _ dict-map]
+(defn set-dict
+  [state dict-map]
   (let [dfn (tongue/build-translate dict-map)]
     (-> state
         (assoc :dict-fn (partial dfn))
         xiana/ok)))
 
-(defmethod view :set-view-data
-  [state _ data]
+(defn set-view-data
+  [state data]
   (-> state
       (assoc :view-data (partial data))
       xiana/ok))
 
-(defmethod view :set-response
-  [state _ resp]
+(defn set-response
+  [state resp]
   (-> state
       (assoc :response-fn (partial resp))
       (xiana/ok)))
 
-(defmethod view :generate-response
-  [state _ & data]
+(defn generate-response
+  [state & data]
   (let [{:keys [is-html ready-hiccup response-fn]} state]
     (cond
       is-html (-> state
                   (assoc-in [:response] (-> state
                                             ready-hiccup
                                             ->html
+                                            str
                                             response-fn))
                   (xiana/ok))
           ;;TODO is-api
       :else (-> state
                 (xiana/ok)))))
 
-(defmethod view :render
-  [state _]
+(defn render
+  [state]
   (let [{:keys [is-html is-api layout template]} state]
     (cond
       is-html (-> state

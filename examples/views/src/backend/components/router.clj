@@ -10,15 +10,19 @@
     [xiana.core :as xiana]))
 
 (def routes
-  [["/" {:controller hctrl/home-controller}]
-   ["/records" {:controller rctrl/records-controller}]
-   ["/re-frame" {:controller re-frame/index}]
-   ["/assets/*" (ring/create-resource-handler)]])
+  [["/"
+    [""
+     ["{language}" {:controller hctrl/home-controller}]]]
+   ["/:language/records" {:controller rctrl/records-controller}]
+   ["/:language/re-frame" {:controller re-frame/index}]
+   ["/:language/assets/*" (ring/create-resource-handler)]])
 
 (defrecord Router [db]
   component/Lifecycle
   (start [this]
-         (assoc this :ring-router (ring/router routes))))
+         (assoc this :ring-router (ring/router routes)))
+  (stop [this]
+        (assoc this :ring-router nil)))
 
 (defn make-router
   []

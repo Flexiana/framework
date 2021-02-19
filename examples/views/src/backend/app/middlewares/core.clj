@@ -5,14 +5,14 @@
 
 (defn change-lang-middleware
   [state]
-  ;; (clojure.pprint/pprint state)
   (-> state
-      (assoc :lang :fr)
+      (assoc-in [:lang] :fr)
       xiana/ok))
 
 (defn pre-route-middlewares
   [state]
   (xiana/flow-> state
+                ;; (xview/set-lang-by-query-params)
                 xiana/ok))
 
 (defn pre-controller-middlewares
@@ -23,5 +23,6 @@
 (defn post-controller-middlewares
   [state]
   (xiana/flow-> state
-                (xview/view :generate-response)
+                ;; (change-lang-middleware)
+                (xview/generate-response)
                 xiana/ok))

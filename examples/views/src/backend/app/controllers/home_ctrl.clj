@@ -15,10 +15,10 @@
 (defn home-controller
   [state]
   (xiana/flow-> state
-                (xview/view :is-html)
-                (xview/view :auto-set-lang)
-                (xview/view :set-layout lay/layout)
-                (xview/view :set-template home-temp/home)
-                (xview/view :set-dict dicts/home-dict)
-                (xview/view :set-response home-response)
-                (xview/view :render)))
+                (xview/is-html)
+                (xview/set-lang :en)
+                (xview/set-layout lay/layout)
+                (xview/set-template home-temp/home)
+                (xview/set-dict dicts/home-dict)
+                (xview/set-response home-response)
+                (xview/render)))

@@ -9,6 +9,7 @@
                  [reagent "0.10.0"]
                  [re-frame "1.1.2"]
                  [hiccup "1.0.5"]
+                 [hiccup "2.0.0-alpha2"]
                  [tongue "0.2.10"]]
   :plugins [[lein-shadow "0.3.1"]
             [lein-shell "0.5.0"]
@@ -22,7 +23,8 @@
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [[kerodon "0.9.1"]]}}
+                     :dependencies   [[kerodon "0.9.1"]
+                                      [clj-http "3.12.0"]]}}
   :shadow-cljs {:nrepl  {:port 8777}
 
                 :builds {:app {:target     :browser

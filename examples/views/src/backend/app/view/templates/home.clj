@@ -4,13 +4,18 @@
 
 (defn home
   [state]
-  (let [{:keys [dict-fn lang]} state]
+  (let [{:keys [dict-fn lang]} state
+        l (if (vector? lang)
+            (first lang)
+            lang)]
     [:div.container
      [:div.column.u-full-width
       {:style {:text-align "center"}}
       [:h1
-       (dict-fn lang :greet-title "Xiana framework")]
+       (dict-fn l :greet-title "Xiana framework")]
       [:hr]
-      ;; (->> (dict-fn lang :date d)
-      ;;      (dict-fn lang :present-date))
-      (dict-fn lang :date d)]]))
+      [:div.row.u-full-width
+       [:a#fr.button {:href "/fr"} "fr"]
+       [:a#en.button {:href "/en"} "en"]]
+      [:div#date
+       (dict-fn l :date d)]]]))

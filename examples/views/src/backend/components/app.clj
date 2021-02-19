@@ -30,9 +30,13 @@
   [{request :http-request {router :router} :deps :as state}]
   (let [match (r/match-by-path (:ring-router router) (:uri request))
         handler (get-in match [:data :handler])
+        params (get match :path-params)
         controller (get-in match [:data :controller])]
     (if controller
-      (xiana/ok (assoc-in state [:request-data :controller] controller))
+      (-> state
+          (assoc-in [:request-data :controller] controller)
+          (assoc-in [:request-data :params] params)
+          xiana/ok)
       (if handler
         ;; short-circuit
         ;; TODO: refactor it
@@ -44,6 +48,8 @@
   [state]
   (let [controller (get-in state [:request-data :controller])]
     (controller state)))
+
+(def create-handler)
 
 (defrecord App [config router db]
   component/Lifecycle
@@ -62,7 +68,9 @@
                  (run-controller)
                  (xmid/post-controller-middlewares))
                (xiana/extract)
-               (get :response))))))
+               (get :response)))))
+  (stop [this]
+        (assoc this :handler nil)))
 
 (defn make-app
   [config]

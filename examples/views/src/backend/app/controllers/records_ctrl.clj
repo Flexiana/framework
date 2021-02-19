@@ -24,11 +24,11 @@
 (defn records-controller
   [state]
   (xiana/flow-> state
-                (xview/view :is-html)
-                (xview/view :auto-set-lang)
-                (xview/view :set-layout lay/layout)
-                (xview/view :set-template record-temp/records)
-                (xview/view :set-dict dicts/records-dict)
-                (xview/view :set-response record-response)
-                (xview/view :set-view-data (dummy-data))
-                (xview/view :render)))
+                (xview/is-html)
+                (xview/set-lang-by-query-params)
+                (xview/set-layout lay/layout)
+                (xview/set-template record-temp/records)
+                (xview/set-dict dicts/records-dict)
+                (xview/set-response record-response)
+                (xview/set-view-data (dummy-data))
+                (xview/render)))
