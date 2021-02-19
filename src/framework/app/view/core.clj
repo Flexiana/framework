@@ -78,6 +78,7 @@
     (cond
       is-html (-> state
                   (assoc-in [:response] (-> state
+                                            data
                                             ready-hiccup
                                             ->html
                                             str
@@ -89,7 +90,7 @@
 
 (defn render
   [state]
-  (let [{:keys [is-html is-api layout template]} state]
+  (let [{:keys [is-html layout template]} state]
     (cond
       is-html (-> state
                   (assoc-in [:ready-hiccup] (partial (comp layout template)))
