@@ -293,7 +293,7 @@
   (is (false? (acl customer (-> (delete-from "items")
                                 (where [:= :id 125])))))
   (is (false? (acl customer "UPDATE items WHERE id EQ 123;")))
-  (is (false? (acl customer (-> (update "items")
+  (is (false? (acl customer (-> (helpers/update "items")
                                 (where [:= :id 123]))))))
 
 (deftest customer-on-users
@@ -320,10 +320,10 @@
   (is (false? (acl customer (-> (delete-from :users)
                                 (where [:= :id 2])))))
   (is (true? (acl customer "UPDATE users WHERE user-id EQ 1")))
-  (is (true? (acl customer (-> (update :users)
+  (is (true? (acl customer (-> (helpers/update :users)
                                (where [:= :id 1])))))
   (is (false? (acl customer "UPDATE users WHERE user-id EQ 2")))
-  (is (false? (acl customer (-> (update :users)
+  (is (false? (acl customer (-> (helpers/update :users)
                                 (where [:= :id 2]))))))
 
 (deftest customer-on-addresses
@@ -339,7 +339,7 @@
   ;user-id is not guaranteed to be the same as the user's id
   (is (false? (acl customer
                    ;"UPDATE addresses WHERE user-id EQ 1;"
-                   (-> (update :*)
+                   (-> (helpers/update :*)
                        (from :addresses)
                        (where [:= :user-id 1])))))
   ;but mostly the results are the same
@@ -377,14 +377,14 @@
   (is (true? (acl customer
                   "UPDATE addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
   (is (true? (acl customer
-                  (-> (update :addresses)
+                  (-> (helpers/update :addresses)
                       (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
                       (merge-join :users [:= :users.id :postal-addresses.user-id])
                       (where [:= :users.id 1])))))
   (is (false? (acl customer
                    "UPDATE * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
   (is (false? (acl customer
-                   (-> (update :addresses)
+                   (-> (helpers/update :addresses)
                        (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
                        (merge-join :users [:= :users.id :p.user-id])
                        (where [:= :users.id 2])))))
@@ -413,7 +413,7 @@
   (is (true? (acl administrator (-> (delete-from "items")
                                     (where [:= :id 125])))))
   (is (true? (acl administrator "UPDATE items WHERE id EQ 123;")))
-  (is (true? (acl administrator (-> (update "items")
+  (is (true? (acl administrator (-> (helpers/update "items")
                                     (where [:= :id 123]))))))
 
 (deftest administrator-on-users
@@ -440,10 +440,10 @@
   (is (true? (acl administrator (-> (delete-from :users)
                                     (where [:= :id 2])))))
   (is (true? (acl administrator "UPDATE users WHERE user-id EQ 1")))
-  (is (true? (acl administrator (-> (update :users)
+  (is (true? (acl administrator (-> (helpers/update :users)
                                     (where [:= :id 1])))))
   (is (true? (acl administrator "UPDATE users WHERE user-id EQ 2")))
-  (is (true? (acl administrator (-> (update :users)
+  (is (true? (acl administrator (-> (helpers/update :users)
                                     (where [:= :id 2]))))))
 
 (deftest administrator-on-addresses
@@ -454,7 +454,7 @@
                       (where [:= :id 1])))))
   (is (true? (acl administrator "UPDATE addresses WHERE user-id EQ 1;")))
   (is (true? (acl administrator
-                  (-> (update :*)
+                  (-> (helpers/update :*)
                       (from :addresses)
                       (where [:= :user-id 1])))))
   (is (= true
@@ -488,14 +488,14 @@
   (is (true? (acl administrator
                   "UPDATE addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 1")))
   (is (true? (acl administrator
-                  (-> (update :addresses)
+                  (-> (helpers/update :addresses)
                       (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
                       (merge-join :users [:= :users.id :postal-addresses.user-id])
                       (where [:= :users.id 1])))))
   (is (true? (acl administrator
                   "UPDATE * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE users.id EQ 2")))
   (is (true? (acl administrator
-                  (-> (update :addresses)
+                  (-> (helpers/update :addresses)
                       (join [:postal-addresses :p] [:= :addresses.id :p.address-id])
                       (merge-join :users [:= :users.id :p.user-id])
                       (where [:= :users.id 2])))))

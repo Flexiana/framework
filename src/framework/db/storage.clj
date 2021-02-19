@@ -1,6 +1,5 @@
 (ns framework.db.storage
   (:require
-    [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component]
     [next.jdbc :as jdbc]))
 
