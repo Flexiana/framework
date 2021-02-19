@@ -135,6 +135,6 @@
                           actions-at-table (:actions roles-at-table)
                           filter-at-table (:filter roles-at-table)]
                       (cond
-                        (= :all filter-at-table) true
+                        (= :all filter-at-table) (or (= :all actions-at-table) (every? (set actions-at-table) actions))
                         (= :own filter-at-table) (and (owns? query (get-in session [:user :id])) (every? (set actions-at-table) actions))
                         :else false))))))
