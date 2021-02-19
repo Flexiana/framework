@@ -1,8 +1,8 @@
 (ns framework.db.storage
   (:require
-    [next.jdbc :as jdbc]
+    [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component]
-    [clojure.tools.logging :as log]))
+    [next.jdbc :as jdbc]))
 
 (defrecord PostgreSQL
   [config]
@@ -19,8 +19,8 @@
   [config]
   (->PostgreSQL config))
 
-
-(defn execute-in-transaction [{:keys [db]} query]
+(defn execute-in-transaction
+  [{:keys [db]} query]
   (jdbc/with-transaction [connection (:datasource db)]
-    (jdbc/execute! connection (if (string? query) (vector query) query))))
+                         (jdbc/execute! connection (if (string? query) (vector query) query))))
 
