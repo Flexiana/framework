@@ -111,7 +111,7 @@
       (keyword? p1) (conj {:op op (full-field-name p1) p2})
       (keyword? p2) (conj {:op op (full-field-name p2) p1}))))
 
-(defn map->where
+(defn map->owns?
   [query user-id]
   (let [roles (->>
                 (map->where-collect query)
@@ -123,7 +123,7 @@
   [query user-id]
   (cond
     (string? query) (= (str user-id) (str->where query))
-    (map? query) (map->where query user-id)
+    (map? query) (map->owns? query user-id)
     (coll? query) (every? true? (flatten (map #(owns? % user-id) query)))))
 
 (defn acl

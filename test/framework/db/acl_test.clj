@@ -2,7 +2,7 @@
   (:require
     [clojure.test :refer [is deftest]]
     [framework.db.acl :refer [->roles
-                              map->where
+                              map->owns?
                               map->where-collect
                               insert-action
                               owns?
@@ -110,7 +110,8 @@
 (defn fetch-db
   [db table where]
   (if-let [found (filter where (get db table))]
-    (if (next found) found (first found))))
+    (if (next found) found (first found))
+    []))
 
 (defn add-user-by-id
   [env user-id]
@@ -150,29 +151,29 @@
 (deftest get-column-aliases
   (is (= {"a" "a", "bar" "b", "c" "c", "x" "d"} (column-aliases {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a :a] [:< :bar 100]]}))))
 
-(map->where-collect {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a 1] [:< :bar 100]]})
-
-(map->where (-> (select :*)
-                (from :users)
-                (where [:= :users.id 1])) 1)
-
-(map->where-collect (-> (select :f.* :b.baz :c.quux [:b.bla "bla-bla"]
-                                (sql/call :now) (sql/raw "@x := 10"))
-                        (modifiers :distinct)
-                        (from [:foo :f] [:baz :b])
-                        (join :draq [:= :f.b :draq.x])
-                        (left-join [:clod :c] [:= :f.a :c.d])
-                        (right-join :bock [:= :bock.z :c.e])
-                        (where [:or
-                                [:and [:= :f.a "bort"] [:not= :b.baz (sql/param :param1)]]
-                                [:< 1 2 3]
-                                [:in :f.e [1 (sql/param :param2) 3]]
-                                [:between :f.e 10 20]])
-                        (group :f.a :c.e)
-                        (having [:< 0 :f.e])
-                        (order-by [:b.baz :desc] :c.quux [:f.a :nulls-first])
-                        (limit 50)
-                        (offset 10)))
+(deftest testing-collect-actions
+  (is (= '({:op :=, "foo.a" 1} {:op :<, "foo.b" 100})) (map->where-collect {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a 1] [:< :bar 100]]}))
+  (is (true (map->owns? (-> (select :*)
+                            (from :users)
+                            (where [:= :users.id 1])) 1)))
+  (is (= '({:op :=, "foo.a" "bort"} {:op :not=, "baz.baz" #sql/param :param1})
+         (map->where-collect (-> (select :f.* :b.baz :c.quux [:b.bla "bla-bla"]
+                                         (sql/call :now) (sql/raw "@x := 10"))
+                                 (modifiers :distinct)
+                                 (from [:foo :f] [:baz :b])
+                                 (join :draq [:= :f.b :draq.x])
+                                 (left-join [:clod :c] [:= :f.a :c.d])
+                                 (right-join :bock [:= :bock.z :c.e])
+                                 (where [:or
+                                         [:and [:= :f.a "bort"] [:not= :b.baz (sql/param :param1)]]
+                                         [:< 1 2 3]
+                                         [:in :f.e [1 (sql/param :param2) 3]]
+                                         [:between :f.e 10 20]])
+                                 (group :f.a :c.e)
+                                 (having [:< 0 :f.e])
+                                 (order-by [:b.baz :desc] :c.quux [:f.a :nulls-first])
+                                 (limit 50)
+                                 (offset 10))))))
 
 (deftest get-roles-from-query-string
   (is (= '({:table "test_table" :actions [:select]}) (->roles "SELECT * FROM test_table")))
@@ -204,13 +205,15 @@
   (is (= [" "] (sql/format {:alter-table :employees
                             :add-column  [:address :text]}))))
 
-(deftest owner-test)
-(is (true? (owns? "SELECT * FROM users WHERE id = 1" 1)))
-
-(is (true? (owns? (-> (select :*)
-                      (from [:users :u])
-                      (where [:< :id 1])
-                      (merge-where [:> :id 1])) 1)))
+(deftest owner-test
+  (is (true? (owns? "SELECT * FROM users WHERE id = 1" 1)))
+  (is (true? (owns? (-> (select :*)
+                        (from [:users :u])
+                        (where [:= :id 1])) 1)))
+  (is (false? (owns? (-> (select :*)
+                         (from [:users :u])
+                         (where [:< :id 1])
+                         (merge-where [:> :id 1])) 1))))
 
 (deftest insert-action-test
   (is (= [{:table   "films"
@@ -316,16 +319,12 @@
                                              (from [:users :u])
                                              (where [:= :u.id 2])))))
   (is (false? (acl (add-user-by-id {} 1) (insert-into "users"))))
-  ; "DELETE FROM users WHERE id EQ 1"
   (is (true? (acl (add-user-by-id {} 1) (-> (delete-from :users)
                                             (where [:= :id 1])))))
-  ;"DELETE FROM users WHERE user-id EQ 2"
   (is (false? (acl (add-user-by-id {} 1) (-> (delete-from :users)
                                              (where [:= :id 2])))))
-  ; "UPDATE users WHERE user-id EQ 1"
   (is (true? (acl (add-user-by-id {} 1) (-> (update :users)
                                             (where [:= :id 1])))))
-  ; "UPDATE users WHERE user-id EQ 2"
   (is (false? (acl (add-user-by-id {} 1) (-> (update :users)
                                              (where [:= :id 2]))))))
 
@@ -343,26 +342,26 @@
   (is (false? (acl (add-user-by-id {} 1)
                    "DELETE FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2"))))
 
-(deftest user-addresses)
+(deftest user-addresses-HoneySQL
+  (is (true? (acl (add-user-by-id {} 1)
+                  ;"SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1"
+                  (-> (select :*)
+                      (from :addresses)
+                      (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
+                      (merge-join :users [:= :users.id :postal-addresses.user-id])
+                      (where [:= :users.id 1])))))
+
+  (is (false? (acl (add-user-by-id {} 1)
+                   ;"SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2"
+                   (-> (select :*)
+                       (from :addresses)
+                       (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
+                       (merge-join :users [:= :users.id :postal-addresses.user-id])
+                       (where [:= :users.id 2]))))))
 
 (is (true? (acl (add-user-by-id {} 1)
-                ;"SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1"
-                (-> (select :*)
-                    (from :addresses)
-                    (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
-                    (merge-join :users [:= :users.id :postal-addresses.user-id])
-                    (where [:= :users.id 1])))))
-
-(is (false? (acl (add-user-by-id {} 1)
-                 ;"SELECT * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2"
-                 (-> (select :*)
-                     (from :addresses)
-                     (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
-                     (merge-join :users [:= :users.id :postal-addresses.user-id])
-                     (where [:= :users.id 2])))))
-
-(is (true? (acl (add-user-by-id {} 1)
-                "UPDATE addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1")))
+                ;"UPDATE addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 1"
+                ())))
 
 (is (false? (acl (add-user-by-id {} 1)
                  "UPDATE * FROM addresses JOIN postal-addresses ON addresses.id = postal-addresses.addresses-id JOIN users ON users.id = postal-addresses.user-id WHERE user.id EQ 2")))
