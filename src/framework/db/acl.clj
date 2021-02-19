@@ -130,13 +130,11 @@
   [{:keys [session]} query]
   (let [action (->roles query)
         roles (get-in session [:user :roles])]
-    (every? true? (for [a action]
-                    (let [table (:table a)
-                          actions (:actions a)
-                          roles-at-table (first (filter #(or (= :all (:table %)) (= table (:table %))) roles))
+    (every? true? (for [{:keys [actions table]} action]
+                    (let [roles-at-table (first (filter #(or (= :all (:table %)) (= table (:table %))) roles))
                           actions-at-table (:actions roles-at-table)
                           filter-at-table (:filter roles-at-table)]
                       (cond
-                        (= :all filter-at-table) (every? (set actions-at-table) actions)
+                        (= :all filter-at-table) true
                         (= :own filter-at-table) (and (owns? query (get-in session [:user :id])) (every? (set actions-at-table) actions))
                         :else false))))))
