@@ -1,14 +1,14 @@
 (ns framework.db.acl-test
   (:require
     [clojure.test :refer [is deftest]]
-    [framework.db.acl :refer [->roles
-                              map->owns?
-                              map->where-collect
+    [framework.db.acl :refer [->necessary-permits
+                              sql-map->owns?
+                              sql-map->wheres
                               insert-action
                               owns?
                               acl
-                              table-aliases
-                              column-aliases]]
+                              reverse-table-aliases
+                              reverse-column-aliases]]
     [honeysql.core :as sql]
     [honeysql.helpers :refer :all :as helpers]))
 
@@ -122,84 +122,84 @@
       role (assoc-in [:session :user :roles] (get (fetch-db mock-db :roles role) role)))))
 
 (deftest get-table-aliases
-  (is (= {"u" "users"} (table-aliases {:select '(:*) :from '([:users :u]) :where [:and [:< :id 1] [:> :id 1]]})))
-  (is (= {"users" "users"} (table-aliases {:select '(:*) :from '(:users) :where [:and [:< :id 1] [:> :id 1]]})))
-  (is (= {"users" "users" "c" "cart"} (table-aliases (-> (select :*)
-                                                         (from :users)
-                                                         (join [:cart :c] [:= :users.id :c.user-id])))))
-  (is (= {"users" "users", "c" "cart"} (table-aliases (-> (select :*)
-                                                          (from "users")
-                                                          (join [:cart :c] [:= :users.id :c.user-id])))))
-  (is (= {"users" "users", "c" "cart"} (table-aliases (-> (select :*)
-                                                          (from :users)
-                                                          (join [:cart :c] [:= :users.id :c.user-id]))))))
+  (is (= {"u" "users"} (reverse-table-aliases {:select '(:*) :from '([:users :u]) :where [:and [:< :id 1] [:> :id 1]]})))
+  (is (= {"users" "users"} (reverse-table-aliases {:select '(:*) :from '(:users) :where [:and [:< :id 1] [:> :id 1]]})))
+  (is (= {"users" "users" "c" "cart"} (reverse-table-aliases (-> (select :*)
+                                                                 (from :users)
+                                                                 (join [:cart :c] [:= :users.id :c.user-id])))))
+  (is (= {"users" "users", "c" "cart"} (reverse-table-aliases (-> (select :*)
+                                                                  (from "users")
+                                                                  (join [:cart :c] [:= :users.id :c.user-id])))))
+  (is (= {"users" "users", "c" "cart"} (reverse-table-aliases (-> (select :*)
+                                                                  (from :users)
+                                                                  (join [:cart :c] [:= :users.id :c.user-id]))))))
 
-(table-aliases (-> (select :*)
-                   (from :addresses)
-                   (merge-from :a)
-                   (join [:postal-addresses :pa] [:= :addresses.id :pa.address-id])
-                   (merge-join :users [:= :users.id :pa.user-id])
-                   (where [:= :users.id 1])))
+(reverse-table-aliases (-> (select :*)
+                           (from :addresses)
+                           (merge-from :a)
+                           (join [:postal-addresses :pa] [:= :addresses.id :pa.address-id])
+                           (merge-join :users [:= :users.id :pa.user-id])
+                           (where [:= :users.id 1])))
 
-(map->where-collect (-> (select :*)
-                        (from :addresses)
-                        (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
-                        (merge-join :users [:= :users.id :postal-addresses.user-id])
-                        (where [:= :users.id 1])
-                        (merge-where [:= :addresses.id 2])))
+(sql-map->wheres (-> (select :*)
+                     (from :addresses)
+                     (join :postal-addresses [:= :addresses.id :postal-addresses.address-id])
+                     (merge-join :users [:= :users.id :postal-addresses.user-id])
+                     (where [:= :users.id 1])
+                     (merge-where [:= :addresses.id 2])))
 
 (deftest get-column-aliases
-  (is (= {"a" "a", "bar" "b", "c" "c", "x" "d"} (column-aliases {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a :a] [:< :bar 100]]}))))
+  (is (= {"a" "a", "bar" "b", "c" "c", "x" "d"} (reverse-column-aliases {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a :a] [:< :bar 100]]}))))
 
 (deftest testing-collect-actions
   (is (= '({:op :=, "foo.a" 1} {:op :<, "foo.b" 100})
-         (map->where-collect {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a 1] [:< :bar 100]]})))
-  (is (true? (map->owns? (-> (select :*)
-                             (from :users)
-                             (where [:= :users.id 1])) 1)))
+         (sql-map->wheres {:select '(:a [:b :bar] :c [:d :x]), :from '([:foo :quux]), :where [:and [:= :quux.a 1] [:< :bar 100]]})))
+  (is (true? (sql-map->owns? (-> (select :*)
+                                 (from :users)
+                                 (where [:= :users.id 1])) 1)))
   (is (= '({:op :=, "foo.a" "bort"} {:op :not=, "baz.baz" #sql/param :param1})
-         (map->where-collect (-> (select :f.* :b.baz :c.quux [:b.bla "bla-bla"]
-                                         (sql/call :now) (sql/raw "@x := 10"))
-                                 (modifiers :distinct)
-                                 (from [:foo :f] [:baz :b])
-                                 (join :draq [:= :f.b :draq.x])
-                                 (left-join [:clod :c] [:= :f.a :c.d])
-                                 (right-join :bock [:= :bock.z :c.e])
-                                 (where [:or
-                                         [:and [:= :f.a "bort"] [:not= :b.baz (sql/param :param1)]]
-                                         [:< 1 2 3]
-                                         [:in :f.e [1 (sql/param :param2) 3]]
-                                         [:between :f.e 10 20]])
-                                 (group :f.a :c.e)
-                                 (having [:< 0 :f.e])
-                                 (order-by [:b.baz :desc] :c.quux [:f.a :nulls-first])
-                                 (limit 50)
-                                 (offset 10))))))
+         (sql-map->wheres (-> (select :f.* :b.baz :c.quux [:b.bla "bla-bla"]
+                                      (sql/call :now) (sql/raw "@x := 10"))
+                              (modifiers :distinct)
+                              (from [:foo :f] [:baz :b])
+                              (join :draq [:= :f.b :draq.x])
+                              (left-join [:clod :c] [:= :f.a :c.d])
+                              (right-join :bock [:= :bock.z :c.e])
+                              (where [:or
+                                      [:and [:= :f.a "bort"] [:not= :b.baz (sql/param :param1)]]
+                                      [:< 1 2 3]
+                                      [:in :f.e [1 (sql/param :param2) 3]]
+                                      [:between :f.e 10 20]])
+                              (group :f.a :c.e)
+                              (having [:< 0 :f.e])
+                              (order-by [:b.baz :desc] :c.quux [:f.a :nulls-first])
+                              (limit 50)
+                              (offset 10))))))
 
 (deftest get-roles-from-query-string
-  (is (= '({:table "test_table" :actions [:select]}) (->roles "SELECT * FROM test_table")))
-  (is (= '({:table "films" :actions [:insert]}) (->roles "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
-  (is (= '({:table "producers" :actions [:select]} {:table "films" :actions [:delete]}) (->roles "DELETE FROM films\n  WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');")))
-  (is (= '({:actions [:update] :table "films"}) (->roles "UPDATE films SET kind = 'Dramatic' WHERE kind = 'Drama';")))
-  (is (= '({:actions [:drop] :table "conversation"}) (->roles "DROP TABLE conversation;")))
-  (is (= '({:actions [:truncate] :table "bigtable"}) (->roles "TRUNCATE bigtable;")))
-  (is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees ADD COLUMN address text")))
-  (is (= '({:actions [:alter] :table "employees"}) (->roles "ALTER TABLE employees DROP COLUMN address"))))
+  (is (= '({:table "test_table" :actions [:select]}) (->necessary-permits "SELECT * FROM test_table")))
+  (is (= '({:table "films" :actions [:insert]}) (->necessary-permits "INSERT INTO films (code, title, did, date_prod, kind)\n    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');")))
+  (is (= '({:table "producers" :actions [:select]} {:table "films" :actions [:delete]}) (->necessary-permits "DELETE FROM films\n  WHERE producer_id IN (SELECT id FROM producers WHERE name = 'foo');")))
+  (is (= '({:actions [:update] :table "films"}) (->necessary-permits "UPDATE films SET kind = 'Dramatic' WHERE kind = 'Drama';")))
+  (is (= '({:actions [:drop] :table "conversation"}) (->necessary-permits "DROP TABLE conversation;")))
+  (is (= '({:actions [:truncate] :table "bigtable"}) (->necessary-permits "TRUNCATE bigtable;")))
+  (is (= '({:actions [:alter] :table "employees"}) (->necessary-permits "ALTER TABLE employees ADD COLUMN address text")))
+  (is (= '({:actions [:alter] :table "employees"}) (->necessary-permits "ALTER TABLE employees DROP COLUMN address"))))
 
 (deftest get-roles-from-query-map
-  (is (= '({:table "test_table" :actions [:select]}) (->roles (-> (select :*) (from "test_table")))))
-  (is (= '({:table "films" :actions [:insert]}) (->roles (-> (insert-into "films")
-                                                             (columns :code, :title, :did, :date_prod, :kind)
-                                                             (values [["T_601", "Yojimbo", 106, "1961-06-16", "Drama"]])))))
-  (is (= '({:table "producers" :actions [:select]} {:table "films" :actions [:delete]}) (->roles (-> (delete-from "films")
-                                                                                                     (where [:in "producer_id" (-> (select :id)
-                                                                                                                                   (from "producers")
-                                                                                                                                   (where [:= :name "foo"]))])))))
-  (is (= '({:actions [:update] :table "films"}) (->roles (-> (helpers/update :films)
-                                                             (sset {:kind "Dramatic"})
-                                                             (where [:= :kind "Drama"])
-                                                             sql/format))))
-  (is (= '({:actions [:truncate] :table "bigtable"}) (->roles (truncate :bigtable))))
+  (is (= '({:table "test_table" :actions [:select]}) (->necessary-permits (-> (select :*) (from "test_table")))))
+  (is (= '({:table "films" :actions [:insert]}) (->necessary-permits (-> (insert-into "films")
+                                                                         (columns :code, :title, :did, :date_prod, :kind)
+                                                                         (values [["T_601", "Yojimbo", 106, "1961-06-16", "Drama"]])))))
+  (is (= '({:table "producers" :actions [:select]} {:table "films" :actions [:delete]}) (->necessary-permits (-> (delete-from "films")
+                                                                                                                 (where [:in "producer_id" (-> (select :id)
+                                                                                                                                               (from "producers")
+                                                                                                                                               (where [:= :name "foo"]))])))))
+  (is (= '({:actions [:update] :table "films"}) (->necessary-permits (-> (helpers/update :films)
+                                                                         (sset {:kind "Dramatic"})
+                                                                         (where [:= :kind "Drama"])
+                                                                         sql/format))))
+  (is (= '({:actions [:truncate] :table "bigtable"}) (->necessary-permits (truncate :bigtable))))
   ;Drop isn't supported by HoneySQL
   (is (= [""] (sql/format {:drop "conversation"})))
   ;ALTER isn't supported by HoneySQL "ALTER TABLE employees ADD COLUMN address text"
