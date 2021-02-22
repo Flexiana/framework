@@ -60,10 +60,10 @@
         (assoc :dict-fn (partial dfn))
         xiana/ok)))
 
-(defn set-view-data
+(defn set-view
   [state data]
   (-> state
-      (assoc :view-data (partial data))
+      (assoc :view (partial data))
       xiana/ok))
 
 (defn set-response
@@ -71,6 +71,32 @@
   (-> state
       (assoc :response-fn (partial resp))
       (xiana/ok)))
+
+(defn get-layout-fn
+  [state]
+  (if-let [layout (:layout state)]
+    layout
+    (throw (Exception. ">> Layout has not been setted!"))))
+
+(defn get-layout
+  [state]
+  (let [layout (get-layout-fn state)]
+    (try
+      (layout)
+      (catch Exception e (str ">> Caught Exception: " (.getMessage e))))))
+
+(defn get-view-fn
+  [state]
+  (if-let [view-data (:view state)]
+    view-data
+    (throw (Exception. ">> View data not setted!"))))
+
+(defn get-view
+  [state]
+  (let [view-data (get-view-fn state)]
+    (try
+      (view-data)
+      (catch Exception e (str ">> Caught Exception: " (.getMessage e))))))
 
 (defn generate-response
   [state & data]

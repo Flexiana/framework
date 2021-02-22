@@ -1,7 +1,7 @@
 (ns view.templates.layout)
 
 (defn layout
-  [body]
+  [& body]
   [:html
    [:head
     [:title "Xiana"]
