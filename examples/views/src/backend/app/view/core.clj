@@ -100,7 +100,7 @@
       (catch Exception e (str ">> Caught Exception: " (.getMessage e))))))
 
 (defn generate-response
-  [state & data]
+  [state]
   (let [{:keys [is-html ready-hiccup ready-view response-fn]} state]
     (cond
       is-html (-> state
