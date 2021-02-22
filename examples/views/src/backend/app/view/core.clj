@@ -101,7 +101,7 @@
 
 (defn generate-response
   [state & data]
-  (let [{:keys [is-html ready-hiccup response-fn]} state]
+  (let [{:keys [is-html ready-hiccup ready-view response-fn]} state]
     (cond
       is-html (-> state
                   (assoc-in [:response] (-> state
@@ -110,17 +110,22 @@
                                             str
                                             response-fn))
                   (xiana/ok))
-          ;;TODO is-api
+      is-api (-> state
+                 (assoc-in [:response] (response-fn (ready-view)))
+                 (xiana/ok))
       :else (-> state
                 (xiana/ok)))))
 
 (defn render
   [state]
-  (let [{:keys [is-html is-api layout template]} state]
+  (let [{:keys [is-html is-api layout template view]} state]
     (cond
       is-html (-> state
                   (assoc-in [:ready-hiccup] (partial (comp layout template)))
                   (xiana/ok))
+      is-api (-> state
+                 (assoc-in [:ready-view] (partial view))
+                 (xiana/ok))
       :else (-> state
                 (assoc-in [:ready-hiccup] nil)
                 (xiana/ok)))))
