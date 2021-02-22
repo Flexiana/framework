@@ -62,9 +62,9 @@
         xiana/ok)))
 
 (defn set-view
-  [state data]
+  [state action view-fn]
   (-> state
-      (assoc :view (partial data))
+      (assoc-in [:view :data action] (partial view-fn))
       xiana/ok))
 
 (defn set-response
@@ -86,18 +86,13 @@
       (layout)
       (catch Exception e (str ">> Caught Exception: " (.getMessage e))))))
 
-(defn get-view-fn
-  [state]
-  (if-let [view-data (:view state)]
-    view-data
-    (throw (Exception. ">> View data not setted!"))))
-
 (defn get-view
-  [state]
-  (let [view-data (get-view-fn state)]
+  [state action]
+  (if-let [view-data (get-in state [:view :data action])]
     (try
       (view-data)
-      (catch Exception e (str ">> Caught Exception: " (.getMessage e))))))
+      (catch Exception e (str ">> Caught Exception: " (.getMessage e))))
+    (throw (Exception. ">> Requested view fn not found!"))))
 
 (defn generate-response
   [state]
@@ -111,21 +106,28 @@
                                             response-fn))
                   (xiana/ok))
       is-api (-> state
-                 (assoc-in [:response] (response-fn (ready-view)))
+                 (assoc-in [:response] (response-fn ready-view))
                  (xiana/ok))
       :else (-> state
                 (xiana/ok)))))
 
 (defn render
-  [state]
-  (let [{:keys [is-html is-api layout template view]} state]
+  [state view-action]
+  (let [{:keys [is-html is-api layout template view]} state
+        v (get-in view [:data view-action])]
     (cond
       is-html (-> state
                   (assoc-in [:ready-hiccup] (partial (comp layout template)))
+                  (assoc-in [:ready-view] (try
+                                            (v)
+                                            (catch Exception e (str ">> Caught Exception: " (.getMessage e)))))
                   (xiana/ok))
       is-api (-> state
-                 (assoc-in [:ready-view] (partial view))
+                 (assoc-in [:ready-view] (try
+                                           (v)
+                                           (catch Exception e (str ">> Caught Exception: " (.getMessage e)))))
                  (xiana/ok))
       :else (-> state
                 (assoc-in [:ready-hiccup] nil)
+                (assoc-in [:ready-view] nil)
                 (xiana/ok)))))

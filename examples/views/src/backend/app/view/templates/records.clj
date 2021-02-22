@@ -2,7 +2,8 @@
 
 (defn records
   [state]
-  (let [{:keys [dict-fn lang view-data]} state]
+  (let [{:keys [dict-fn lang view]} state
+        {{:keys [records]} :data} view]
     [:div {:class "container"}
      [:div.column.u-full-width
       {:style {:text-align "center"}}
@@ -16,7 +17,7 @@
          [:th (dict-fn lang :header-age)]
          [:th (dict-fn lang :header-date)]]]
        [:tbody
-        (for [rec view-data]
+        (for [rec records]
           [:tr {:style "font-weight:lighter"}
            [:th (:first-name rec)]
            [:th (:last-name rec)]

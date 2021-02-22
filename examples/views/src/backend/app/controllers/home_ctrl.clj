@@ -21,4 +21,4 @@
                 (xview/set-template home-temp/home)
                 (xview/set-dict dicts/home-dict)
                 (xview/set-response home-response)
-                (xview/render)))
+                (xview/render nil)))

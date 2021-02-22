@@ -30,5 +30,5 @@
                 (xview/set-template record-temp/records)
                 (xview/set-dict dicts/records-dict)
                 (xview/set-response record-response)
-                (xview/set-view (dummy-data))
-                (xview/render)))
+                (xview/set-view :records (dummy-data))
+                (xview/render :records)))
