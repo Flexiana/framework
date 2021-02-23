@@ -13,7 +13,7 @@
             [migratus-lein "0.7.3"]]
   :main ^:skip-aot components
   :uberjar-name "frames.jar"
-  :source-paths ["src/backend/app" "src/backend/components" "src/frontend"]
+  :source-paths ["src/backend/app" "src/backend/components" "src/frontend" "src/shared"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :profiles {:dev   {:resource-paths ["config/dev"]
                      :dependencies   [[binaryage/devtools "1.0.2"]]}
@@ -28,12 +28,12 @@
                                :output-dir "resources/public/js/compiled"
                                :asset-path "/js/compiled"
                                :modules    {:app {:init-fn  controllers.core/init
-                                                  :preloads [devtools.preload]}}
+                                                  :preloads [devtools.preload]}}}}}
                                         ;:devtools {:http-root "resources/public"
                                         ;           :http-port 8280
                                         ;           :http-handler controllers.handler/dev-handler
                                         ;           }
-                               }}}
+
 
   :aliases {"ci"      ["do" "clean," "cloverage," "lint," "uberjar"]
             "kondo"   ["run" "-m" "clj-kondo.main" "--lint" "src" "test"]

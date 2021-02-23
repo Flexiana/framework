@@ -2,8 +2,10 @@
   (:require
     [com.stuartsierra.component :as component]
     [reitit.core :as r]
+    [reitit.coercion :as rc]
     [reitit.ring :as ring]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [commons :refer :all]))
 
 (defn create-empty-state
   []
@@ -26,10 +28,17 @@
 (defn route
   [{request :http-request {router :router} :deps :as state}]
   (let [match (r/match-by-path (:ring-router router) (:uri request))
-        handler (get-in match [:data :handler])
+        method (:request-method request)
+        handler (or (get-in match [:data :handler]) (-> match :result method :handler))
         controller (get-in match [:data :controller])]
+        ;parameters (rc/coerce! match)]
     (if controller
-      (xiana/ok (assoc-in state [:request-data :controller] controller))
+      (xiana/ok (-> state
+                    (?assoc-in [:http-request :path-params] (:path-params match)) ;TODO middleware?
+                    ;(?assoc-in [:request-data :match] match)
+                    (?assoc-in [:request-data :handler] handler)
+                    (assoc-in [:request-data :controller] controller)))
+
       (if handler
         ;; short-circuit
         ;; TODO: refactor it
@@ -43,9 +52,11 @@
 
 (defn pre-controller-middlewares
   [state]
-  ;(xiana/state-flow->
-  ;  state
-  ;  (require-logged-in)))
+  ;(try
+  ;  (let [parameters (rc/coerce! (get-in state [:request-data :match]))]
+  ;    (xiana/ok (assoc-in state [:request-data :parameters] parameters)))
+  ;  (catch Exception e
+  ;    (xiana/error (assoc state :response {:status 400 :body "Coercion error on your input"}))))
   (xiana/ok state))
 
 (defn post-controller-middlewares
