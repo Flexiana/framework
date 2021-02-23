@@ -2,11 +2,11 @@
   (:require
     [clojure.string :as str]))
 
-(defn collify
+(defn- collify
   [x]
   (if (coll? x) x (vector x)))
 
-(defn ->table-name
+(defn- ->table-name
   [table]
   (cond->
     (flatten (collify table))
@@ -25,7 +25,7 @@
      (conj (remove #(= table-actions %) actions)
        {:table t :actions (reduce conj old-actions (collify action))}))))
 
-(defn str->necessary-permits
+(defn- str->necessary-permits
   [query]
   (let [q (str/replace query ";" " ")
         r (reduce
@@ -37,7 +37,7 @@
               (re-seq #"(UPDATE|TRUNCATE)(\s+)(\S*)" q)))]
     (map #(update % :actions vec) r)))
 
-(defn sql-map->necessary-permits
+(defn- sql-map->necessary-permits
   ([query]
    (sql-map->necessary-permits query []))
   ([query actions]
@@ -64,7 +64,7 @@
          (map? query) (sql-map->necessary-permits query)
          (coll? query) (flatten (map ->necessary-permits query)))))
 
-(defn str->where
+(defn- str->where
   [query]
   (->> (re-seq #"WHERE (user-id|id|users\.id) (EQ|=) ([\w-]+)" query)
        flatten
@@ -94,7 +94,7 @@
       {}
       tables)))
 
-(defn full-field-name
+(defn- full-field-name
   [{:keys [update delete-from insert-into from] :as query} field]
   (let [t-name (or insert-into from update delete-from)
         t-aliases (reverse-table-aliases query)
