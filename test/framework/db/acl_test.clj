@@ -118,8 +118,8 @@
   (let [user (fetch-db mock-db :users #(= user-id (:id %)))
         role (:role user)]
     (cond-> env
-            user (assoc-in [:session :user] user)
-            role (assoc-in [:session :user :permissions] (get (fetch-db mock-db :permissions role) role)))))
+      user (assoc-in [:session :user] user)
+      role (assoc-in [:session :user :permissions] (get (fetch-db mock-db :permissions role) role)))))
 
 (deftest get-table-aliases
   (is (= {"u" "users"} (reverse-table-aliases {:select '(:*) :from '([:users :u]) :where [:and [:< :id 1] [:> :id 1]]})))
