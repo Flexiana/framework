@@ -132,7 +132,7 @@
 (defn acl
   [{:keys [session]} query]
   (let [necessary-permits (->necessary-permits query)
-        existing-permits (get-in session [:user :roles])]
+        existing-permits (get-in session [:user :permissions])]
     (every? true? (for [{:keys [actions table]} necessary-permits]
                     (let [existing-permissions-on-table (->> existing-permits
                                                              (filter #(or (= :all (:table %)) (= table (:table %))))

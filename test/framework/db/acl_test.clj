@@ -79,7 +79,7 @@
                         :address-id 1}
                        {:user-id    2
                         :address-id 2}]
-   :roles             [{:customer [{:table   "items"
+   :permissions       [{:customer [{:table   "items"
                                     :actions [:select]
                                     :filter  :all}
                                    {:table   "users"
@@ -118,8 +118,8 @@
   (let [user (fetch-db mock-db :users #(= user-id (:id %)))
         role (:role user)]
     (cond-> env
-      user (assoc-in [:session :user] user)
-      role (assoc-in [:session :user :roles] (get (fetch-db mock-db :roles role) role)))))
+            user (assoc-in [:session :user] user)
+            role (assoc-in [:session :user :permissions] (get (fetch-db mock-db :permissions role) role)))))
 
 (deftest get-table-aliases
   (is (= {"u" "users"} (reverse-table-aliases {:select '(:*) :from '([:users :u]) :where [:and [:< :id 1] [:> :id 1]]})))
@@ -265,22 +265,22 @@
 (deftest inject-user
   (is (= {:session
           {:user
-           {:id      1,
-            :name    "John"
-            :surname "Doe"
-            :email   "doe.john@test.com"
-            :role    :customer
-            :roles   [{:table "items", :actions [:select], :filter :all}
-                      {:table "users", :actions [:select :update :delete], :filter :own}
-                      {:table "addresses", :actions [:select :update :delete], :filter :own}
-                      {:table "carts", :actions [:select :update :delete], :filter :own}]}}}
+           {:id          1,
+            :name        "John"
+            :surname     "Doe"
+            :email       "doe.john@test.com"
+            :role        :customer
+            :permissions [{:table "items", :actions [:select], :filter :all}
+                          {:table "users", :actions [:select :update :delete], :filter :own}
+                          {:table "addresses", :actions [:select :update :delete], :filter :own}
+                          {:table "carts", :actions [:select :update :delete], :filter :own}]}}}
          customer))
-  (is (= {:session {:user {:id      2
-                           :name    "Admin"
-                           :surname "Doe"
-                           :email   "doe.admin@test.com"
-                           :role    :administrator
-                           :roles   [{:table :all :actions :all :filter :all}]}}}
+  (is (= {:session {:user {:id          2
+                           :name        "Admin"
+                           :surname     "Doe"
+                           :email       "doe.admin@test.com"
+                           :role        :administrator
+                           :permissions [{:table :all :actions :all :filter :all}]}}}
          administrator)))
 
 (deftest customer-on-items
