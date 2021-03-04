@@ -130,16 +130,15 @@
     (coll? query) (every? true? (flatten (map #(owns? % user-id) query)))))
 
 (defn acl
-  [{:keys [session]} query]
-  (let [necessary-permits (->necessary-permits query)
-        existing-permits (get-in session [:user :permissions])]
+  [{:keys [id permissions]} query]
+  (let [necessary-permits (->necessary-permits query)]
     (every? true? (for [{:keys [actions table]} necessary-permits]
-                    (let [existing-permissions-on-table (->> existing-permits
+                    (let [existing-permissions-on-table (->> permissions
                                                              (filter #(or (= :all (:table %)) (= table (:table %))))
                                                              first)
                           actions-on-table (:actions existing-permissions-on-table)
                           filter-on-actions (:filter existing-permissions-on-table)]
                       (cond
                         (= :all filter-on-actions) (or (= :all actions-on-table) (every? (set actions-on-table) actions))
-                        (= :own filter-on-actions) (and (owns? query (get-in session [:user :id])) (every? (set actions-on-table) actions))
+                        (= :own filter-on-actions) (and (owns? query id) (every? (set actions-on-table) actions))
                         :else false))))))
