@@ -1,0 +1,24 @@
+{
+  "name": "cabinet",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "repl": "shadow-cljs node-repl",
+    "test": "shadow-cljs compile test",
+    "build": "shadow-cljs release app",
+    "serve": "shadow-cljs watch app",
+    "prebuild": "rm -r ./public/assets ; postcss ./source/app/base.css -o ./public/assets/main.css --env production",
+    "preserve": "rm -r ./public/assets ; postcss ./source/app/base.css -o ./public/assets/main.css"
+  },
+  "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^4.0.2",
+    "autoprefixer": "^10.2.4",
+    "postcss-cli": "^8.3.1",
+    "shadow-cljs": "^2.11.15",
+    "tailwindcss": "^2.0.3"
+  },
+  "dependencies": {
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  }
+}

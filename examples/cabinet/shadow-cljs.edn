@@ -1,0 +1,22 @@
+{:source-paths
+ ["source"]
+
+ :dependencies
+ [[herb "0.10.0"]
+  [garden "1.3.10"]
+  [reagent "1.0.0"]
+  [re-frame "1.1.2"]
+  [cljs-ajax "0.8.1"]
+  [metosin/reitit "0.5.11"]]
+
+ :dev-http {1234 "public"}
+ :builds
+ {:app {:target :browser
+        :output-dir "public/assets"
+        :modules {:main {:init-fn app.core/main}}
+        :release {:compiler-options {:optimizations :advanced :output-feature-set :es5}}
+        :dev {:compiler-options {:output-feature-set :es6}}}
+  :test {:target    :node-test
+         :output-to ".shadow-cljs/__test__/node-tests.js"
+         :ns-regexp "-test$"
+         :autorun   true}}}
