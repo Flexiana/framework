@@ -21,33 +21,4 @@
                                                      :memory-cost     8
                                                      :parallelization 1}
                                    :pbkdf2-settings {:type       :sha1 ;; Available values: :sha1 and :sha256
-                                                     :iterations 100000}}
- :users/permissions               {:customer         [{:resource "items"
-                                                       :actions  [:read]
-                                                       :filter   :all}
-                                                      {:resource "users"
-                                                       :actions  [:read :update :delete]
-                                                       :filter   :own}
-                                                      {:resource "addresses"
-                                                       :actions  [:create :read :update :delete]
-                                                       :filter   :own}
-                                                      {:resource "carts"
-                                                       :actions  [:create :read :update :delete]
-                                                       :filter   :own}]
-                                   :warehouse-worker [{:resource "items"
-                                                       :actions  [:read :update]
-                                                       :filter   :all}]
-                                   :postal-worker    [{:resource "carts"
-                                                       :actions  [:read :update]
-                                                       :filter   :all}
-                                                      {:resource "addresses"
-                                                       :actions  [:read]
-                                                       :filter   :all}]
-                                   :shop-worker      [{:resource "items"
-                                                       :actions  :all
-                                                       :filter   :all}]
-                                   :administrator    [{:resource :all
-                                                       :actions  :all
-                                                       :filter   :all}]}}
-
-
+                                                     :iterations 100000}}}
