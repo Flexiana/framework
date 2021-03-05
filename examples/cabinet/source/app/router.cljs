@@ -1,15 +1,16 @@
 (ns app.router
-  (:require [reagent.core :as r]
-            [reitit.frontend :as rf]
-            [reitit.frontend.easy :as rfe]
-            [reitit.coercion.spec :as rcs]
-            [app.welcome.views.login :as login]))
+  (:require
+    [app.welcome.views.login :as login]
+    [reagent.core :as r]
+    [reitit.coercion.spec :as rcs]
+    [reitit.frontend :as rf]
+    [reitit.frontend.easy :as rfe]))
 
 (defn redirect!
   [to]
   (r/create-class
-   {:component-did-mount #(rfe/replace-state to)
-    :render (fn [] nil)}))
+    {:component-did-mount #(rfe/replace-state to)
+     :render (fn [] nil)}))
 
 (def routes
   [["/"

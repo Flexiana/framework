@@ -1,7 +1,8 @@
 (ns app.core
-  (:require [reagent.dom :as dom]
-            [reitit.frontend.easy :as rfe]
-            [app.router :as router]))
+  (:require
+    [app.router :as router]
+    [reagent.dom :as dom]
+    [reitit.frontend.easy :as rfe]))
 
 (defn app
   []

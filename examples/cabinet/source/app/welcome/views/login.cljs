@@ -1,6 +1,7 @@
 (ns app.welcome.views.login
-  (:require [app.common.components.button :as button]
-            [app.common.components.input :as input]))
+  (:require
+    [app.common.components.button :as button]
+    [app.common.components.input :as input]))
 
 (defn- hero
   [form]
@@ -14,14 +15,14 @@
 (defn view
   []
   (hero
-   [:form
-    (-> input/component
-        ((input/set-placeholder "Email or username"))
-        ((input/render {})))
-    (-> input/component
-        ((input/set-placeholder "Password"))
-        ((input/set-type "password"))
-        ((input/render {})))
-    (-> button/component
-        ((button/set-label "Sign In"))
-        ((button/render {:on-click #(js/console.log "Hi from console!")})))]))
+    [:form
+     (-> input/component
+         ((input/set-placeholder "Email or username"))
+         ((input/render {})))
+     (-> input/component
+         ((input/set-placeholder "Password"))
+         ((input/set-type "password"))
+         ((input/render {})))
+     (-> button/component
+         ((button/set-label "Sign In"))
+         ((button/render {:on-click #(js/console.log "Hi from console!")})))]))
