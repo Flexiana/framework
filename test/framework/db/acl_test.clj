@@ -259,28 +259,26 @@
          (insert-action [{:table   "producers"
                           :actions #{:update :select}}] [:films :f] :select))))
 
-(def customer (add-user-by-id {} 1))
-(def administrator (add-user-by-id {} 2))
+(def customer (get-in (add-user-by-id {} 1) [:session :user]))
+(def administrator (get-in (add-user-by-id {} 2) [:session :user]))
 
 (deftest inject-user
-  (is (= {:session
-          {:user
-           {:id          1,
-            :name        "John"
-            :surname     "Doe"
-            :email       "doe.john@test.com"
-            :role        :customer
-            :permissions [{:table "items", :actions [:select], :filter :all}
-                          {:table "users", :actions [:select :update :delete], :filter :own}
-                          {:table "addresses", :actions [:select :update :delete], :filter :own}
-                          {:table "carts", :actions [:select :update :delete], :filter :own}]}}}
+  (is (= {:id          1,
+          :name        "John"
+          :surname     "Doe"
+          :email       "doe.john@test.com"
+          :role        :customer
+          :permissions [{:table "items", :actions [:select], :filter :all}
+                        {:table "users", :actions [:select :update :delete], :filter :own}
+                        {:table "addresses", :actions [:select :update :delete], :filter :own}
+                        {:table "carts", :actions [:select :update :delete], :filter :own}]}
          customer))
-  (is (= {:session {:user {:id          2
-                           :name        "Admin"
-                           :surname     "Doe"
-                           :email       "doe.admin@test.com"
-                           :role        :administrator
-                           :permissions [{:table :all :actions :all :filter :all}]}}}
+  (is (= {:id          2
+          :name        "Admin"
+          :surname     "Doe"
+          :email       "doe.admin@test.com"
+          :role        :administrator
+          :permissions [{:table :all :actions :all :filter :all}]}
          administrator)))
 
 (deftest customer-on-items
