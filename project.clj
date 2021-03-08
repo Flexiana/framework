@@ -25,7 +25,7 @@
   :lein-tools-deps/config {:config-files ["deps.edn"]
                            :clojure-executables ["/usr/bin/clojure" "/usr/local/bin" "/usr/local/sbin"]}
 
-  :source-paths [".lein-git-deps/src/main" "src"]
+  :source-paths [".lein-git-deps/tailwind_garden/src/main" "src"]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths ["config/dev"]
                         :lein-tools-deps/config {:config-files ["deps.edn"]
