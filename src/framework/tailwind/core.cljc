@@ -11,7 +11,6 @@
     [garden.def :refer [defstyles]]
     [garden.stylesheet]))
 
-
 (defn- result-css-map
   [user-col]
   (-> (hash-map)
