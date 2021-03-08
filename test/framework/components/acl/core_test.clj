@@ -4,7 +4,7 @@
     [framework.components.acl.core :refer [has-access
                                            is-allowed]]))
 
-(def config
+(def custom-roles
   {:customer         [{:resource "items"
                        :actions  [:read]
                        :filter   :all}
@@ -33,14 +33,14 @@
                        :actions  [:all]
                        :filter   :all}]})
 
-(deftest has-access-test
-  (is (= :all (has-access config {:role :customer :resource "items" :privilege :read})))
-  (is (false? (has-access config {:role :customer :resource "items" :privilege :delete})))
-  (is (= :own (has-access config {:role :customer :resource "users" :privilege :read})))
-  (is (= :own (has-access config {:role :customer :resource "users" :privilege :delete})))
-  (is (= :all (has-access config {:role :administrator :resource "users" :privilege :read}))))
+(deftest custom-roles-test
+  (is (= :all (has-access custom-roles {:role :customer :resource "items" :privilege :read})))
+  (is (false? (has-access custom-roles {:role :customer :resource "items" :privilege :delete})))
+  (is (= :own (has-access custom-roles {:role :customer :resource "users" :privilege :read})))
+  (is (= :own (has-access custom-roles {:role :customer :resource "users" :privilege :delete})))
+  (is (= :all (has-access custom-roles {:role :administrator :resource "users" :privilege :read}))))
 
-(def config-for-user-based-usage
+(def default-roles
   {:guest     [{:resource "items"
                 :actions  [:read]
                 :filter   :all}]
@@ -69,25 +69,25 @@
 (def admin {:is_active true :is_superuser true})
 (def suspended-admin {:is_active false :is_superuser true})
 
-(deftest user-based-acl
-  (is (= :all (has-access config-for-user-based-usage guest {:resource "items" :privilege :read})))
-  (is (false? (has-access config-for-user-based-usage guest {:resource "users" :privilege :read})))
-  (is (= :own (has-access config-for-user-based-usage member {:resource "users" :privilege :read})))
-  (is (= :own (has-access config-for-user-based-usage member {:resource "addresses" :privilege :read})))
-  (is (false? (has-access config-for-user-based-usage staff {:resource "users" :privilege :read})))
-  (is (= :all (has-access config-for-user-based-usage staff {:resource "items" :privilege :update})))
-  (is (= :all (has-access config-for-user-based-usage admin {:resource "items" :privilege :create})))
-  (is (= :all (has-access config-for-user-based-usage admin {:resource "items" :privilege :create})))
-  (is (= :all (has-access config-for-user-based-usage suspended-admin {:resource "items" :privilege :read})))
-  (is (false? (has-access config-for-user-based-usage suspended-admin {:resource "items" :privilege :create})))
-  (is (false? (has-access config-for-user-based-usage suspended-admin {:resource "users" :privilege :delete}))))
+(deftest default-role-tests
+  (is (= :all (has-access default-roles guest {:resource "items" :privilege :read})))
+  (is (false? (has-access default-roles guest {:resource "users" :privilege :read})))
+  (is (= :own (has-access default-roles member {:resource "users" :privilege :read})))
+  (is (= :own (has-access default-roles member {:resource "addresses" :privilege :read})))
+  (is (false? (has-access default-roles staff {:resource "users" :privilege :read})))
+  (is (= :all (has-access default-roles staff {:resource "items" :privilege :update})))
+  (is (= :all (has-access default-roles admin {:resource "items" :privilege :create})))
+  (is (= :all (has-access default-roles admin {:resource "items" :privilege :create})))
+  (is (= :all (has-access default-roles suspended-admin {:resource "items" :privilege :read})))
+  (is (false? (has-access default-roles suspended-admin {:resource "items" :privilege :create})))
+  (is (false? (has-access default-roles suspended-admin {:resource "users" :privilege :delete}))))
 
 (defn state-with-user
   ([user]
    (if (map? user)
-     {:acl/permissions config-for-user-based-usage
+     {:acl/permissions default-roles
       :user            user}
-     {:acl/permissions config
+     {:acl/permissions custom-roles
       :user            {:role user}})))
 
 (defn get-ok
@@ -118,7 +118,7 @@
 
 (defn state-with-user-request
   [user uri method]
-  {:acl/permissions config-for-user-based-usage
+  {:acl/permissions default-roles
    :user            user
    :http-request    {:uri            uri
                      :request-method method}})
