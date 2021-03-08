@@ -2,10 +2,10 @@
   (:require
     [clojure.test :refer [deftest
                           is]]
-    [framework.components.session.core :refer [init-in-memory-session
-                                               add!
-                                               fetch
-                                               delete!]]))
+    [framework.components.session.backend :refer [init-in-memory-session
+                                                  add!
+                                                  fetch
+                                                  delete!]]))
 
 (deftest test-in-memory-session-store
   (let [user-id (java.util.UUID/randomUUID)
