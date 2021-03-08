@@ -1,1 +1,4 @@
 
+[submodule "src/framework/app/view/css/tailwind-garden"]
+	path = src/framework/app/view/css/tailwind-garden
+	url = https://github.com/wilkerlucio/tailwind-garden.git
