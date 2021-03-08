@@ -18,14 +18,12 @@
                  [garden "1.3.10"]
                  [hickory "0.7.1"]
                  [hiccup "1.0.5"]]
-  :plugins [[lein-tools-deps "0.4.5"]
-            [lein-git-deps "0.0.1-SNAPSHOT"]]
+  :plugins [[lein-tools-deps "0.4.5"]]
   :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
-  :git-dependencies [["https://github.com/wilkerlucio/tailwind-garden.git" "main"]]
   :lein-tools-deps/config {:config-files ["deps.edn"]
                            :clojure-executables ["/usr/bin/clojure" "/usr/local/bin" "/usr/local/sbin"]}
 
-  :source-paths [".lein-git-deps/tailwind_garden/src/main" "src"]
+  :source-paths ["src"]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths ["config/dev"]
                         :lein-tools-deps/config {:config-files ["deps.edn"]
