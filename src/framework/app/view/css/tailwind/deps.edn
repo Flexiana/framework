@@ -1,0 +1,3 @@
+{:paths ["resources" "src"]
+ :deps {com.wsscode/pathom3 {:git/url "https://github.com/wilkerlucio/pathom3"
+                             :sha "c50d2e75dd084190c58c0e5a599c8e3f1a88d9ef"}}}

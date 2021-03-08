@@ -1,17 +1,14 @@
-(ns framework.tailwind.core
+(ns framework.app.view.css.tailwind.core
   (:refer-clojure :exclude [bases])
   (:require
     [clojure.set :as st]
-    [clojure.string :as s]
-    [com.wsscode.tailwind-garden.expanders :as exp]
-    [framework.tailwind.helpers :as hlp]
-    [framework.tailwind.preparers :as prep]
-    [framework.tailwind.resolvers :as rlv]
+    [framework.app.view.css.tailwind.helpers :as hlp]
+    [framework.app.view.css.tailwind.preparers :as prep]
+    [framework.app.view.css.tailwind.resolvers :as rlv]
     [garden.core :as garden]
-    [garden.def :refer [defstyles]]
     [garden.stylesheet]))
 
-(defn- result-css-map
+(defn result-css-map
   [user-col]
   (-> (hash-map)
       (assoc-in [:defaults] (-> rlv/smart-css-map
@@ -31,7 +28,7 @@
       (assoc-in [:user-css] (select-keys (-> rlv/smart-css-map
                                              :user-css) user-col))))
 
-(defn- update-hiccup-css-keys-atom*
+(defn update-hiccup-css-keys-atom*
   "A helper function to mutate the inline hiccup classes."
   [[& classes]]
   (doseq [k classes]
@@ -48,7 +45,7 @@
       (hlp/class-keys->classes-string classes))
     ""))
 
-(defn- update-user-css-atom*
+(defn update-user-css-atom*
   "A helper function to mutate the user-css atom."
   [gform-map]
   (swap! prep/user-css conj gform-map))
@@ -63,50 +60,55 @@
     (update-user-css-atom* rsl)
     (update-hiccup-css-keys-atom* k)))
 
-(defn- group-sm:queries
+(defn group-sm:queries
   [{:keys [bases:sm]}]
   (if-not (empty? bases:sm)
     (garden.stylesheet/at-media {:screen true
                                  :min-width "640px"}
                                 (reduce into [] (for [v (vals bases:sm)]
-                                                  [(hlp/extract-garden-element v)])))))
+                                                  [(hlp/extract-garden-element v)])))
+    {}))
 
-(defn- group-md:queries
+(defn group-md:queries
   [{:keys [bases:md]}]
   (if-not (empty? bases:md)
     (garden.stylesheet/at-media {:min-width "768px"
                                  :screen true}
                                 (reduce into [] (for [v (vals bases:md)]
-                                                  [(hlp/extract-garden-element v)])))))
+                                                  [(hlp/extract-garden-element v)])))
+    {}))
 
-(defn- group-lg:queries
+(defn group-lg:queries
   [{:keys [bases:lg]}]
   (if-not (empty? bases:lg)
     (garden.stylesheet/at-media {:screen true :min-width "1024px"}
                                 (reduce into [] (for [v (vals bases:lg)]
-                                                  [(hlp/extract-garden-element v)])))))
+                                                  [(hlp/extract-garden-element v)])))
+    {}))
 
-(defn- group-xl:queries
+(defn group-xl:queries
   [{:keys [bases:xl]}]
   (if-not (empty? bases:xl)
     (garden.stylesheet/at-media {:screen true :min-width "1280px"}
                                 (reduce into [] (for [v (vals bases:xl)]
-                                                  [(hlp/extract-garden-element v)])))))
+                                                  [(hlp/extract-garden-element v)])))
+    {}))
 
-(defn- group-2xl:queries
+(defn group-2xl:queries
   [{:keys [bases:2xl]}]
   (if-not (empty? bases:2xl)
     (garden.stylesheet/at-media {:min-width "1536px"}
                                 (reduce into [] (for [v (vals bases:2xl)]
-                                                  [(hlp/extract-garden-element v)])))))
+                                                  [(hlp/extract-garden-element v)])))
+    {}))
 
-(defn- state-usr-classes
+(defn state-usr-classes
   "Evaluate the css functions of css classes to add the garden forms
   in the user-css atom. Accepts a vector of functions"
   [& fns]
   (apply eval fns))
 
-(defn- ->garden
+(defn ->garden
   ([]
    (let [col (vec @prep/css-keys-in-hiccup)
          res-css-map (result-css-map col)
@@ -157,16 +159,16 @@
        animation))))
 
 (defmulti garden-to
-  (fn [action & col] action))
+  (fn [action & _] action))
 
 (defmethod garden-to :css
-  ([_ [& :as key-col]]
+  ([_ [& key-col]]
    (garden.core/css (->garden key-col)))
   ([_]
    (garden.core/css (->garden))))
 
 (defmethod garden-to :file
-  ([_ [& :as key-col] ^String file-name]
+  ([_ [& key-col] ^String file-name]
    (spit (str file-name ".css") (garden.core/css (->garden key-col))))
   ([_ ^String file-name]
    (spit (str file-name ".css") (garden.core/css (->garden)))))

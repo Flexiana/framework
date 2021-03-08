@@ -8,7 +8,11 @@
   (let [{:keys [findings _analysis]}
         (kondo/run! {:lint ["src"]
                      :config {:linters {:not-empty?        false
-                                        :unresolved-symbol {:exclude '[]}}
+                                        :unresolved-symbol {:exclude '[get-bases get-bases:sm get-bases:md
+                                                                       get-bases:lg get-bases:xl get-bases:2xl
+                                                                       get-theme get-container get-animation
+                                                                       default-components get-hiccup-classes
+                                                                       spit]}}
                               :output        {:analysis true}
                               :lint-as       `{}
                               :skip-comments true}})]

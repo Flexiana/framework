@@ -1,34 +1,27 @@
-(ns framework.tailwind.preparers
+(ns framework.app.view.css.tailwind.preparers
   (:refer-clojure :exclude [bases])
   (:require
-    [clojure.string :as s]
-    [com.wsscode.com.wsscode.ind-garden.components.accessibility :as accessibility]
-    [com.wsscode.com.wsscode.ind-garden.components.backgrounds :as backgrounds]
-    [com.wsscode.com.wsscode.ind-garden.components.base :as base]
-    [com.wsscode.com.wsscode.ind-garden.components.borders :as borders]
-    [com.wsscode.com.wsscode.ind-garden.components.box-alignment :as box-alignment]
-    [com.wsscode.com.wsscode.ind-garden.components.effects :as effects]
-    [com.wsscode.com.wsscode.ind-garden.components.flexbox :as flexbox]
-    [com.wsscode.com.wsscode.ind-garden.components.grid :as grid]
-    [com.wsscode.com.wsscode.ind-garden.components.interactivity :as interactivity]
-    [com.wsscode.com.wsscode.ind-garden.components.layout :as layout]
-    [com.wsscode.com.wsscode.ind-garden.components.sizing :as sizing]
-    [com.wsscode.com.wsscode.ind-garden.components.spacing :as spacing]
-    [com.wsscode.com.wsscode.ind-garden.components.svg :as svg]
-    [com.wsscode.com.wsscode.ind-garden.components.tables :as tables]
-    [com.wsscode.com.wsscode.ind-garden.components.transforms :as transforms]
-    [com.wsscode.com.wsscode.ind-garden.components.transitions :as transitions]
-    [com.wsscode.com.wsscode.ind-garden.components.typography :as typography]
-    [com.wsscode.pathom3.connect.indexes :as pci]
-    [com.wsscode.pathom3.connect.operation :as pco]
-    [com.wsscode.pathom3.interface.smart-map :as psm]
+    [com.wsscode.tailwind-garden.components.accessibility :as accessibility]
+    [com.wsscode.tailwind-garden.components.backgrounds :as backgrounds]
+    [com.wsscode.tailwind-garden.components.base :as base]
+    [com.wsscode.tailwind-garden.components.borders :as borders]
+    [com.wsscode.tailwind-garden.components.box-alignment :as box-alignment]
+    [com.wsscode.tailwind-garden.components.effects :as effects]
+    [com.wsscode.tailwind-garden.components.flexbox :as flexbox]
+    [com.wsscode.tailwind-garden.components.grid :as grid]
+    [com.wsscode.tailwind-garden.components.interactivity :as interactivity]
+    [com.wsscode.tailwind-garden.components.layout :as layout]
+    [com.wsscode.tailwind-garden.components.sizing :as sizing]
+    [com.wsscode.tailwind-garden.components.spacing :as spacing]
+    [com.wsscode.tailwind-garden.components.svg :as svg]
+    [com.wsscode.tailwind-garden.components.tables :as tables]
+    [com.wsscode.tailwind-garden.components.transforms :as transforms]
+    [com.wsscode.tailwind-garden.components.transitions :as transitions]
+    [com.wsscode.tailwind-garden.components.typography :as typography]
     [com.wsscode.tailwind-garden.expanders :as exp]
-    [framework.tailwind.helpers :as hlp]
-    [garden.core :as garden]
-    [garden.def :refer [defstyles]]
-    [garden.stylesheet]))
+    [framework.app.view.css.tailwind.helpers :as hlp]))
 
-(defn- layout'
+(defn layout'
   []
   (reduce into
     [(layout/box-sizing)
@@ -44,7 +37,7 @@
      (layout/visibility)
      (layout/z-index)]))
 
-(defn- flexbox'
+(defn flexbox'
   []
   (reduce into
     [(flexbox/flex-direction)
@@ -54,7 +47,7 @@
      (flexbox/flex-shrink)
      (flexbox/order)]))
 
-(defn- grid'
+(defn grid'
   []
   (reduce into
     [(grid/grid-template-columns)
@@ -66,7 +59,7 @@
      (grid/grid-auto-rows)
      (grid/gap)]))
 
-(defn- box-alignment'
+(defn box-alignment'
   []
   (reduce into
     [(box-alignment/justify-content)
@@ -79,14 +72,14 @@
      (box-alignment/place-items)
      (box-alignment/place-self)]))
 
-(defn- spacing'
+(defn spacing'
   []
   (reduce into
     [(spacing/margin)
      (spacing/padding)
      (spacing/space-between)]))
 
-(defn- sizing'
+(defn sizing'
   []
   (reduce into
     [(sizing/width)
@@ -96,7 +89,7 @@
      (sizing/min-height)
      (sizing/max-height)]))
 
-(defn- typography'
+(defn typography'
   []
   (reduce into
     [(typography/font-family)
@@ -126,7 +119,7 @@
      (typography/whitespace)
      (typography/word-break)]))
 
-(defn- backgrounds'
+(defn backgrounds'
   []
   (reduce into
     [(backgrounds/background-attachment)
@@ -143,7 +136,7 @@
      (exp/with-variants ["hover" "focus" "active"]
                         (backgrounds/gradient-color-stops))]))
 
-(defn- borders'
+(defn borders'
   []
   (reduce into
     [(borders/border-radius)
@@ -166,15 +159,20 @@
      (exp/with-variants ["hover" "focus"]
                         (borders/ring-offset-width))
      (exp/with-variants ["hover" "focus"]
-                        (borders/ring-offset-color))]))
+                        (borders/ring-offset-color))
 
-(defn- tables'
+     (exp/with-variants ["hover" "focus"]
+                        (effects/box-shadow))
+     (exp/with-variants ["hover" "focus" "disabled"]
+                        (effects/opacity))]))
+
+(defn tables'
   []
   (reduce into
     [(tables/border-collapse)
      (tables/table-layout)]))
 
-(defn- transitions'
+(defn transitions'
   []
   (reduce into
     [(transitions/transition-property)
@@ -194,7 +192,7 @@
      (exp/with-variants ["hover"]
                         (transforms/skew))]))
 
-(defn- transforms'
+(defn transforms'
   []
   (reduce into
     [(transforms/transform)
@@ -208,7 +206,7 @@
      (exp/with-variants ["hover"]
                         (transforms/skew))]))
 
-(defn- interactivity'
+(defn interactivity'
   []
   (reduce into
     [(interactivity/appearance)
@@ -219,7 +217,7 @@
      (interactivity/resize)
      (interactivity/user-select)]))
 
-(defn- svg'
+(defn svg'
   []
   (reduce into
     [(svg/fill)
@@ -252,11 +250,11 @@
                   :theme base/preflight
                   :container (layout/container))))
 
-(defn- generate-default-components
+(defn generate-default-components
   [{:keys [theme ring-vars]}]
   (reduce into [theme ring-vars]))
 
-(defn- generate-base-components-no-mqueries
+(defn generate-base-components-no-mqueries
   "A function that returns the map of base components without media queries.
   e.g {:bases {:.class-name ['.class-name' {:css-properties 'css-args'}]}}"
   [{:keys [bases]}]
@@ -268,7 +266,7 @@
                                     svg])]
     (hlp/garden->map reduced-bases)))
 
-(defn- generate-base-components-with-sm
+(defn generate-base-components-with-sm
   [{:keys [bases]}]
   (let [{:keys [layout flexbox grid box-alignment spacing sizing typography
                 backgrounds borders tables transitions transforms interactivity
@@ -278,7 +276,7 @@
                                     svg])]
     (hlp/unfold-responsive-selectors "640px" "sm" reduced-bases)))
 
-(defn- generate-base-components-with-md
+(defn generate-base-components-with-md
   [{:keys [bases]}]
   (let [{:keys [layout flexbox grid box-alignment spacing sizing typography
                 backgrounds borders tables transitions transforms interactivity
@@ -288,7 +286,7 @@
                                     svg])]
     (hlp/unfold-responsive-selectors "768px" "md" reduced-bases)))
 
-(defn- generate-base-components-with-lg
+(defn generate-base-components-with-lg
   [{:keys [bases]}]
   (let [{:keys [layout flexbox grid box-alignment spacing sizing typography
                 backgrounds borders tables transitions transforms interactivity
@@ -298,7 +296,7 @@
                                     svg])]
     (hlp/unfold-responsive-selectors "1024px" "lg" reduced-bases)))
 
-(defn- generate-base-components-with-xl
+(defn generate-base-components-with-xl
   [{:keys [bases]}]
   (let [{:keys [layout flexbox grid box-alignment spacing sizing typography
                 backgrounds borders tables transitions transforms interactivity
@@ -308,7 +306,7 @@
                                     svg])]
     (hlp/unfold-responsive-selectors "1280px" "xl" reduced-bases)))
 
-(defn- generate-base-components-with-2xl
+(defn generate-base-components-with-2xl
   [{:keys [bases]}]
   (let [{:keys [layout flexbox grid box-alignment spacing sizing typography
                 backgrounds borders tables transitions transforms interactivity

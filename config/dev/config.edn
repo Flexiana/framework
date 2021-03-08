@@ -1,5 +1,5 @@
 {:framework.db.storage/postgresql {:port     5432
-                                   :dbname   "example"
+                                   :dbname   "views"
                                    :host     "localhost"
                                    :dbtype   "postgresql"
                                    :user     "postgres"

@@ -16,17 +16,20 @@
                  [funcool/cuerdas "2020.03.26-3"]
                  [crypto-password "0.2.1"]
                  [garden "1.3.10"]
-                 [hickory "0.7.1"]]
+                 [hickory "0.7.1"]
+                 [hiccup "1.0.5"]]
   :plugins [[lein-tools-deps "0.4.5"]
             [lein-git-deps "0.0.1-SNAPSHOT"]]
   :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
   :git-dependencies [["https://github.com/wilkerlucio/tailwind-garden.git" "main"]]
-  :lein-tools-deps/config {:config-files [:install :user :project "/src/framework/tailwind/deps.edn"]
+  :lein-tools-deps/config {:config-files ["deps.edn"]
                            :clojure-executables ["/usr/bin/clojure" "/usr/local/bin" "/usr/local/sbin"]}
 
-  :source-paths [".lein-git-deps/tailwind-garden/src/main" "src"]
+  :source-paths [".lein-git-deps/src/main" "src"]
   :target "target/%s/"
-  :profiles {:dev      {:resource-paths ["config/dev"]}
+  :profiles {:dev      {:resource-paths ["config/dev"]
+                        :lein-tools-deps/config {:config-files ["deps.edn"]
+                                                 :clojure-executables ["/usr/bin/clojure" "/usr/local/bin" "/usr/local/sbin"]}}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
