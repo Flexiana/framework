@@ -12,7 +12,7 @@
                              :session-backend)
         session-id (get-in request [:headers "session-id"])
         user  (fetch sessions-backend session-id)]
-    (xiana/ok (assoc-in state [:http-request :user] user))))
+    (xiana/ok (assoc-in state [:deps :session :session-data :user] user))))
 
 
 (defn auth-middleware

@@ -4,8 +4,8 @@
 
 
 (defn require-logged-in
-  [{req :http-request :as state}]
-  (if (get req :user)
+  [state]
+  (if (get-in state [:deps :session :session-data :user])
     (xiana/ok state)
     (xiana/error (assoc state :response {:status 401 :body "Unauthorized"}))))
 

@@ -4,11 +4,12 @@
     [xiana.core :as xiana]))
 
 (defn protected-view
-  [{request :http-request :as state}]
+  [state]
   (xiana/ok (assoc state
               :response {:status 200
                          :headers {"Content-Type" "application/json"}
-                         :body (str "Hello " (get-in request [:user :first-name]))})))
+                         :body (str "Hello " (get-in state [:deps :session :session-data :user :first-name]))})))
+
 
 (defn protected-controller
   [state]
