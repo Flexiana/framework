@@ -25,8 +25,7 @@
   :source-paths ["src"]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths ["config/dev"]
-                        :lein-tools-deps/config {:config-files ["deps.edn"]
-                                                 :clojure-executables ["/usr/bin/clojure" "/usr/local/bin" "/usr/local/sbin"]}}
+                        :lein-tools-deps/config {:config-files ["deps.edn"]}}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
