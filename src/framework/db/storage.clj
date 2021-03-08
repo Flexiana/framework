@@ -1,6 +1,5 @@
 (ns framework.db.storage
   (:require
-    [com.stuartsierra.component :as component]
     [next.jdbc :as jdbc]))
 
 (defrecord PostgreSQL
