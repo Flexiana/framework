@@ -1,3 +1,1 @@
-[submodule ".lein-git-deps"]
-	path = .lein-git-deps
-	url = https://github.com/wilkerlucio/tailwind-garden.git
+
