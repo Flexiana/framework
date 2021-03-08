@@ -21,7 +21,7 @@
     (f)
     (finally
       (do           (reset! tprep/css-keys-in-hiccup #{})
-        (reset! tprep/user-css {})))))
+                    (reset! tprep/user-css {})))))
 
 (use-fixtures :each atom-reseter-fixture)
 
