@@ -4,8 +4,7 @@
     [com.wsscode.pathom3.connect.indexes :as pci]
     [com.wsscode.pathom3.connect.operation :as pco]
     [com.wsscode.pathom3.interface.smart-map :as psm]
-    [framework.tailwind.preparers :as prep]
-    ))
+    [framework.tailwind.preparers :as prep]))
 
 (pco/defresolver get-bases []
                  {:bases (prep/generate-base-components-no-mqueries @prep/css-db)})

@@ -1,8 +1,8 @@
 (ns framework.tailwind.helpers
   (:require
     [clojure.string :as s]
-    [garden.stylesheet]
-    [com.wsscode.tailwind-garden.expanders :as exp]))
+    [com.wsscode.tailwind-garden.expanders :as exp]
+    [garden.stylesheet]))
 
 (defn- strip-whitespace
   [s]
@@ -37,8 +37,8 @@
   (into (hash-map)
         (for [f css-forms]
           {(keyword (s/replace (strip-whitespace (str "." prefix ":" (subs (name (first f)) 1))) #"\\" "")) (garden.stylesheet/at-media {:min-width breakpoint
-                                                                                                                    :screen true}
-                                                                                                                   (into [] (map #(update % 0 exp/prefix-classname (str prefix "\\" ":"))) [f]))})))
+                                                                                                                                         :screen true}
+                                                                                                                                        (into [] (map #(update % 0 exp/prefix-classname (str prefix "\\" ":"))) [f]))})))
 
 (defn- extract-garden-element
   [garden-record]

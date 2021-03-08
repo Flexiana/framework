@@ -3,14 +3,13 @@
   (:require
     [clojure.set :as st]
     [clojure.string :as s]
-    [garden.core :as garden]
-    [garden.def :refer [defstyles]]
-    [garden.stylesheet]
     [com.wsscode.tailwind-garden.expanders :as exp]
     [framework.tailwind.helpers :as hlp]
     [framework.tailwind.preparers :as prep]
-    [framework.tailwind.resolvers :as rlv]))
-
+    [framework.tailwind.resolvers :as rlv]
+    [garden.core :as garden]
+    [garden.def :refer [defstyles]]
+    [garden.stylesheet]))
 
 
 (defn- result-css-map
@@ -69,38 +68,38 @@
   [{:keys [bases:sm]}]
   (if-not (empty? bases:sm)
     (garden.stylesheet/at-media {:screen true
-                               :min-width "640px"}
-                              (reduce into [] (for [v (vals bases:sm)]
-                                                [(hlp/extract-garden-element v)])))))
+                                 :min-width "640px"}
+                                (reduce into [] (for [v (vals bases:sm)]
+                                                  [(hlp/extract-garden-element v)])))))
 
 (defn- group-md:queries
   [{:keys [bases:md]}]
   (if-not (empty? bases:md)
     (garden.stylesheet/at-media {:min-width "768px"
-                               :screen true}
-                              (reduce into [] (for [v (vals bases:md)]
-                                                [(hlp/extract-garden-element v)])))))
+                                 :screen true}
+                                (reduce into [] (for [v (vals bases:md)]
+                                                  [(hlp/extract-garden-element v)])))))
 
 (defn- group-lg:queries
   [{:keys [bases:lg]}]
   (if-not (empty? bases:lg)
     (garden.stylesheet/at-media {:screen true :min-width "1024px"}
-                              (reduce into [] (for [v (vals bases:lg)]
-                                                [(hlp/extract-garden-element v)])))))
+                                (reduce into [] (for [v (vals bases:lg)]
+                                                  [(hlp/extract-garden-element v)])))))
 
 (defn- group-xl:queries
   [{:keys [bases:xl]}]
   (if-not (empty? bases:xl)
     (garden.stylesheet/at-media {:screen true :min-width "1280px"}
-                              (reduce into [] (for [v (vals bases:xl)]
-                                                [(hlp/extract-garden-element v)])))))
+                                (reduce into [] (for [v (vals bases:xl)]
+                                                  [(hlp/extract-garden-element v)])))))
 
 (defn- group-2xl:queries
   [{:keys [bases:2xl]}]
   (if-not (empty? bases:2xl)
     (garden.stylesheet/at-media {:min-width "1536px"}
-                              (reduce into [] (for [v (vals bases:2xl)]
-                                                [(hlp/extract-garden-element v)])))))
+                                (reduce into [] (for [v (vals bases:2xl)]
+                                                  [(hlp/extract-garden-element v)])))))
 
 (defn- state-usr-classes
   "Evaluate the css functions of css classes to add the garden forms
@@ -118,10 +117,10 @@
          animation (-> rlv/smart-css-map :animation)
          container (-> rlv/smart-css-map :container)]
      (conj
-      defaults
-      bases
-      usr
-      container
+       defaults
+       bases
+       usr
+       container
        (-> res-css-map
            (group-sm:queries))
        (-> res-css-map
@@ -132,8 +131,7 @@
            (group-xl:queries))
        (-> res-css-map
            (group-2xl:queries))
-       animation
-       )))
+       animation)))
   ([coll]
    (let [col (st/union (set coll) @prep/css-keys-in-hiccup)
          res-css-map (result-css-map col)
@@ -143,10 +141,10 @@
          animation (-> rlv/smart-css-map :animation)
          container ((-> rlv/smart-css-map :container))]
      (conj
-      defaults
-      bases
-      usr
-      container
+       defaults
+       bases
+       usr
+       container
        (-> res-css-map
            (group-sm:queries))
        (-> res-css-map

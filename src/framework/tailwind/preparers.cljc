@@ -2,12 +2,6 @@
   (:refer-clojure :exclude [bases])
   (:require
     [clojure.string :as s]
-    [com.wsscode.pathom3.connect.indexes :as pci]
-    [com.wsscode.pathom3.connect.operation :as pco]
-    [com.wsscode.pathom3.interface.smart-map :as psm]
-    [garden.core :as garden]
-    [garden.def :refer [defstyles]]
-    [garden.stylesheet]
     [com.wsscode.com.wsscode.ind-garden.components.accessibility :as accessibility]
     [com.wsscode.com.wsscode.ind-garden.components.backgrounds :as backgrounds]
     [com.wsscode.com.wsscode.ind-garden.components.base :as base]
@@ -25,8 +19,14 @@
     [com.wsscode.com.wsscode.ind-garden.components.transforms :as transforms]
     [com.wsscode.com.wsscode.ind-garden.components.transitions :as transitions]
     [com.wsscode.com.wsscode.ind-garden.components.typography :as typography]
+    [com.wsscode.pathom3.connect.indexes :as pci]
+    [com.wsscode.pathom3.connect.operation :as pco]
+    [com.wsscode.pathom3.interface.smart-map :as psm]
     [com.wsscode.tailwind-garden.expanders :as exp]
-    [framework.tailwind.helpers :as hlp]))
+    [framework.tailwind.helpers :as hlp]
+    [garden.core :as garden]
+    [garden.def :refer [defstyles]]
+    [garden.stylesheet]))
 
 (defn- layout'
   []
@@ -129,8 +129,8 @@
 (defn- backgrounds'
   []
   (reduce into
-          [(backgrounds/background-attachment)
-           (backgrounds/background-color)
+    [(backgrounds/background-attachment)
+     (backgrounds/background-color)
      (backgrounds/background-clip)
      (exp/with-variants ["hover" "focus" "active"]
                         (backgrounds/background-color))
@@ -146,28 +146,27 @@
 (defn- borders'
   []
   (reduce into
-    [
-     (borders/border-radius)
+    [(borders/border-radius)
      (exp/with-variants ["hover" "focus"]
-       (borders/border-color))
+                        (borders/border-color))
      (borders/border-width)
      (exp/with-variants ["hover" "focus"]
-       (borders/border-opacity))
+                        (borders/border-opacity))
      (borders/border-style)
      (borders/divide-width)
      (borders/divide-color)
      (borders/divide-opacity)
      (borders/divide-style)
      (exp/with-variants ["hover" "focus"]
-       (borders/ring-width))
+                        (borders/ring-width))
      (exp/with-variants ["hover" "focus"]
-       (borders/ring-color))
+                        (borders/ring-color))
      (exp/with-variants ["hover" "focus"]
-       (borders/ring-opacity))
+                        (borders/ring-opacity))
      (exp/with-variants ["hover" "focus"]
-       (borders/ring-offset-width))
+                        (borders/ring-offset-width))
      (exp/with-variants ["hover" "focus"]
-       (borders/ring-offset-color))]))
+                        (borders/ring-offset-color))]))
 
 (defn- tables'
   []
