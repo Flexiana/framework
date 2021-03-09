@@ -157,3 +157,38 @@
          (get-ok (is-allowed (state-with-user-request :administrator "/items/" :put)))))
   (is (= :all
          (get-ok (is-allowed (state-with-user-request :administrator "/items/" :post))))))
+
+(def complex-roles
+  {:guest     [{:resource "posts"
+                :actions  [:read]
+                :filter   :all}]
+   :member    [{:resource "posts"
+                :actions  [:read]
+                :filter   :all}
+               {:resource "posts"
+                :actions  [:create :update :delete]
+                :filter   :own}
+               {:resource "comments"
+                :actions  [:create :update :delete]
+                :filter   :own}
+               {:resource "comments"
+                :actions  [:read]
+                :filter   :all}
+               {:resource "users"
+                :actions  [:create :update :delete]
+                :filter   :own}
+               {:resource "users"
+                :actions  [:read]
+                :filter   :all}]
+   :staff     [{:resource "posts"
+                :actions  [:read :update :delete]
+                :filter   :all}
+               {:resource "comments"
+                :actions  [:read :update :delete]
+                :filter   :all}
+               {:resource "users"
+                :actions  [:read]
+                :filter   :all}]
+   :superuser [{:resource :all
+                :actions  [:all]
+                :filter   :all}]})
