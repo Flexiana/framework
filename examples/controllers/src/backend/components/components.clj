@@ -16,7 +16,7 @@
       (component/system-map
         :config config
         :db (db.storage/postgresql pg-cfg)
-        :router (router/make-router)
+        :router (router/make-router router/routes)
         :app (app/make-app app-cfg)
         :web-server (web-server/make-web-server web-server-cfg))
       (component/system-using

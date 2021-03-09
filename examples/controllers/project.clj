@@ -4,9 +4,12 @@
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [com.flexiana/framework "0.1.2"]
                  [metosin/reitit "0.5.6"]
+                 [metosin/malli "0.2.1"]
                  [duct/server.http.jetty "0.2.1"]
                  [thheller/shadow-cljs "2.11.7"]
                  [reagent "0.10.0"]
+                 [clj-http "3.12.0"]
+                 [org.clojure/data.xml "0.0.8"]
                  [re-frame "1.1.2"]]
   :plugins [[lein-shadow "0.3.1"]
             [lein-shell "0.5.0"]
@@ -20,8 +23,9 @@
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [[clj-http "3.12.0"]
+                     :dependencies   [
                                       [kerodon "0.9.1"]]}}
+  :jvm-opts ["-Dmalli.registry/type=custom"]
   :shadow-cljs {:nrepl {:port 8777}
 
                 :builds {:app {:target     :browser
