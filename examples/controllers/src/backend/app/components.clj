@@ -1,11 +1,16 @@
 (ns components
   (:require
-    [app]
     [com.stuartsierra.component :as component]
+    [framework.components.app.core :as xiana.app]
+    [framework.components.router.core :as xiana.router]
+    [framework.components.web-server.core :as xiana.web-server]
     [framework.config.core :as config]
     [framework.db.storage :as db.storage]
-    [router]
-    [web-server]))
+    [interceptors]
+    [router]))
+
+;TODO rename to something like main
+
 
 (defn system
   [config]
@@ -16,9 +21,11 @@
       (component/system-map
         :config config
         :db (db.storage/postgresql pg-cfg)
-        :router (router/make-router router/routes)
-        :app (app/make-app app-cfg)
-        :web-server (web-server/make-web-server web-server-cfg))
+        :router (xiana.router/make-router router/routes)
+        :app (xiana.app/make-app app-cfg
+                                 [interceptors/wrap-path-params]
+                                 [interceptors/require-logged-in])
+        :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using
         {:router     [:db]
          :app        [:router :db]

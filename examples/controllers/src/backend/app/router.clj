@@ -1,9 +1,10 @@
+;TODO rename to routes
 (ns router
   (:require
     [com.stuartsierra.component :as component]
     [controllers.index :as index]
     [controllers.re-frame :as re-frame]
-    [controllers.rest :as rest]
+    [framework.components.app.core :as xiana.app]
     ;TODO do we want to require every part of domain logic here?
     [my-domain-logic.siege-machines :as mydomain.siege-machines]
     [reitit.ring :as ring]
@@ -70,7 +71,7 @@
 (def routes
   [["/" {:controller index/index}]
    ["/re-frame" {:controller re-frame/index}]
-   ["" {:controller rest/ctrl
+   ["" {:controller xiana.app/default-controller
         :coercion (rcm/create {:registry registry})
         :muuntaja minun-muuntajani
         :middleware [parameters/parameters-middleware
@@ -87,15 +88,3 @@
     ["/api/villagers/{mydomain/id}/tasklist"]]
    ;["/api/*" {:controller rest/ctrl}]
    ["/assets/*" (ring/create-resource-handler)]])
-
-(defrecord Router
-  [db]
-  component/Lifecycle
-  (stop [this] this)
-  (start
-    [this]
-    (assoc this :ring-router (ring/router (:routes this)))))
-
-(defn make-router
-  [routes]
-  (map->Router {:routes routes}))
