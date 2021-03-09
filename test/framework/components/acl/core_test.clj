@@ -192,3 +192,11 @@
    :superuser [{:resource :all
                 :actions  [:all]
                 :filter   :all}]})
+
+(deftest complex-roles-test
+  (is (= :all (has-access complex-roles {:role :guest :resource "posts" :privilege :read})))
+  (is (false? (has-access complex-roles {:role :guest :resource "posts" :privilege :create})))
+  (is (= :all (has-access complex-roles {:role :member :resource "posts" :privilege :read})))
+  (is (= :own (has-access complex-roles {:role :member :resource "posts" :privilege :create})))
+  (is (= :all (has-access complex-roles {:role :member :resource "comments" :privilege :read})))
+  (is (= :own (has-access complex-roles {:role :member :resource "comments" :privilege :update}))))

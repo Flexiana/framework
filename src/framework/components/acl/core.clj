@@ -19,10 +19,10 @@
      (:is_active user) (has-access permissions (assoc access :role :member))))
   ([permissions {:keys [role resource privilege]}]
    (let [granted (->> (get permissions role)
-                      (filter #(#{resource :all} (:resource %)))
-                      first)]
-     (if (some #{privilege :all} (:actions granted))
-       (:filter granted)
+                      (filter #(#{resource :all} (:resource %))))
+         granted-by (first (filter #(some #{privilege :all} (:actions %)) granted))]
+     (if granted-by
+       (:filter granted-by)
        false))))
 
 (def action-mapping
