@@ -12,6 +12,7 @@
   If user is provided, the role will be resolved from it."
   ([permissions user access]
    (cond
+     (:role user) (has-access permissions (assoc access :role (:role user)))
      (not (:is_active user)) (has-access permissions (assoc access :role :guest))
      (:is_superuser user) (has-access permissions (assoc access :role :superuser))
      (:is_staff user) (has-access permissions (assoc access :role :staff))
