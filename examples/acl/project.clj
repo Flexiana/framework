@@ -2,7 +2,7 @@
             :description "FIXME: write description"
             :min-lein-version "2.0.0"
             :dependencies [[org.clojure/clojure "1.10.1"]
-                           [com.flexiana/framework "0.1.2"]
+                           [com.flexiana/framework "0.1.3"]
                            [metosin/reitit "0.5.6"]
                            [duct/server.http.jetty "0.2.1"]
                            [thheller/shadow-cljs "2.11.7"]
@@ -27,13 +27,13 @@
                                          :output-dir "resources/public/js/compiled"
                                          :asset-path "/js/compiled"
                                          :modules    {:app {:init-fn  acl.core/init
-                                                            :preloads [devtools.preload]}}
+                                                            :preloads [devtools.preload]}}}}}
 
                                          ;:devtools {:http-root "resources/public"
                                          ;           :http-port 8280
                                          ;           :http-handler controllers.handler/dev-handler
                                          ;           }
-                                         }}}
+
 
             :aliases {"ci"      ["do" "clean," "cloverage," "lint," "uberjar"]
                       "kondo"   ["run" "-m" "clj-kondo.main" "--lint" "src" "test"]
