@@ -49,15 +49,14 @@
   |:post   | :update |
   |:put    | :create |
   |:delete | :delete |"
-  ([{:keys [user] :as state} access]
-   (let [permissions (:acl/permissions state)
-         result (if (:role user)
+  ([{{user :user} :session permissions :acl/permissions :as state} access]
+   (let [result (if (:role user)
                   (has-access permissions (assoc access :role (:role user)))
                   (has-access permissions user access))]
      (cond result (xiana/ok (assoc-in state [:response-data :acl] result))
            (:or-else access) ((:or-else access) state)
            :else (xiana/error (assoc state :response {:status 401 :body "Authorization error"})))))
-  ([{:keys [user http-request] :as state}]
+  ([{{user :user} :session http-request :http-request :as state}]
    (let [permissions (:acl/permissions state)
          resource (->resource (:uri http-request))
          privilege (action-mapping (:request-method http-request))

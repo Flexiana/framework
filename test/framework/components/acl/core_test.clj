@@ -86,9 +86,9 @@
   ([user]
    (if (map? user)
      {:acl/permissions default-roles
-      :user            user}
+      :session         {:user user}}
      {:acl/permissions custom-roles
-      :user            {:role user}})))
+      :session         {:user {:role user}}})))
 
 (defn get-ok
   [t]
@@ -120,11 +120,11 @@
   [user uri method]
   (if (map? user)
     {:acl/permissions default-roles
-     :user            user
+     :session         {:user user}
      :http-request    {:uri            uri
                        :request-method method}}
     {:acl/permissions custom-roles
-     :user            {:role user}
+     :session         {:user {:role user}}
      :http-request    {:uri            uri
                        :request-method method}}))
 
