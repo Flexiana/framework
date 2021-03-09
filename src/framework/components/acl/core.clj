@@ -60,7 +60,9 @@
    (let [permissions (:acl/permissions state)
          resource (->resource (:uri http-request))
          privilege (action-mapping (:request-method http-request))
-         result (has-access permissions user {:resource resource :privilege privilege})]
+         result (if (:role user)
+                  (has-access permissions {:resource resource :privilege privilege :role (:role user)})
+                  (has-access permissions user {:resource resource :privilege privilege}))]
      (if result
        (xiana/ok (assoc-in state [:response-data :acl] result))
        (xiana/error (assoc state :response {:status 401 :body "Authorization error"}))))))
