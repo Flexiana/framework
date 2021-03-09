@@ -1,6 +1,7 @@
 (ns router
   (:require [controllers.index :as index]
             [controllers.re-frame :as re-frame]
+            [controllers.posts :as posts]
             [reitit.ring :as ring]
             [com.stuartsierra.component :as component]))
 
@@ -12,6 +13,8 @@
 (def routes
   [["/" {:controller index/index}]
    ["/re-frame" {:controller re-frame/index}]
+   ["/posts" {:controller posts/find}]
+
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defrecord Router [db]

@@ -47,7 +47,7 @@
   (let [controller (get-in state [:request-data :controller])]
     (controller state)))
 
-(defrecord App [config router db]
+(defrecord App [config router db acl-permissions]
   component/Lifecycle
   (start [this]
     (assoc this
@@ -56,7 +56,7 @@
         (->
           (xiana/flow->
             (create-empty-state)
-            (add-deps {:router router :db db})
+            (add-deps {:router router :db db :acl/permissions acl-permissions})
             (add-http-request http-request)
             (pre-route-middlewares)
             (route)
