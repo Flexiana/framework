@@ -20,7 +20,7 @@ jobs:
         key: m2-${{ hashFiles('project.clj') }}
         restore-keys: |
           m2-
-
+        ci: '1.10.2.796'
     - name: Run cljstyle
       run: lein cljstyle check src test
 
