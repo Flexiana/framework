@@ -21,13 +21,13 @@
   :plugins [[lein-tools-deps "0.4.5"]]
   :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
   :lein-tools-deps/config {:config-files [:install :user :project "deps.edn"]
-                           :clojure-executables [".m2/repository/org/clojure/clojure"]}
+                           :clojure-executables ["clojure"]}
 
   :source-paths ["src"]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths ["config/dev"]
                         :lein-tools-deps/config {:config-files [:install :user :project "deps.edn"]
-                                                 :clojure-executables [".m2/repository/org/clojure/clojure"]}}
+                                                 :clojure-executables ["clojure"]}}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
