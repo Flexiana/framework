@@ -118,10 +118,15 @@
 
 (defn state-with-user-request
   [user uri method]
-  {:acl/permissions default-roles
-   :user            user
-   :http-request    {:uri            uri
-                     :request-method method}})
+  (if (map? user)
+    {:acl/permissions default-roles
+     :user            user
+     :http-request    {:uri            uri
+                       :request-method method}}
+    {:acl/permissions custom-roles
+     :user            {:role user}
+     :http-request    {:uri            uri
+                       :request-method method}}))
 
 (deftest xiana-flow-from-request-only
   (is (= :all
@@ -139,4 +144,16 @@
   (is (= :all
          (get-ok (is-allowed (state-with-user-request suspended-admin "/items/" :get)))))
   (is (= {:status 401, :body "Authorization error"}
-         (get-error (is-allowed (state-with-user-request suspended-admin "/items/" :put))))))
+         (get-error (is-allowed (state-with-user-request suspended-admin "/items/" :put)))))
+  (is (= :all
+         (get-ok (is-allowed (state-with-user-request :customer "/items/" :get)))))
+  (is (= {:status 401, :body "Authorization error"}
+         (get-error (is-allowed (state-with-user-request :customer "/items/" :post)))))
+  (is (= :own
+         (get-ok (is-allowed (state-with-user-request :customer "/addresses/" :post)))))
+  (is (= :all
+         (get-ok (is-allowed (state-with-user-request :administrator "/items/" :get)))))
+  (is (= :all
+         (get-ok (is-allowed (state-with-user-request :administrator "/items/" :put)))))
+  (is (= :all
+         (get-ok (is-allowed (state-with-user-request :administrator "/items/" :post))))))
