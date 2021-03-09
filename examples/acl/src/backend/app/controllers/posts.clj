@@ -18,7 +18,7 @@
 (defn require-logged-in [{req :http-request :as state}]
   (if-let [authorization (get-in req [:headers "authorization"])]
     (xiana/ok (-> (assoc-in state [:session-data :authorization] authorization)
-                  (assoc-in [:user :id] (UUID/fromString authorization))))
+                  (assoc-in [:session :user :id] (UUID/fromString authorization))))
     (xiana/error (assoc state :response {:status 401 :body "Unauthorized"}))))
 
 (defn something-else
@@ -33,7 +33,7 @@
 (defn purify [elem]
   (into {} (map (fn [[k v]] {(keyword (last (str/split (name k) #"/"))) v}) elem)))
 
-(defn fetch-user [{{id :id} :user :as state}]
+(defn fetch-user [{{{id :id} :user} :session :as state}]
   (let [query (-> (select :*)
                   (from :users)
                   (where [:= :id id])
