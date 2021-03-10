@@ -22,7 +22,7 @@
                       (filter #(#{resource :all} (:resource %))))
          granted-by (first (filter #(some #{privilege :all} (:actions %)) granted))]
      (if granted-by
-       (:filter granted-by)
+       (or (:restriction granted-by) true)
        false))))
 
 (def action-mapping
@@ -66,3 +66,9 @@
      (if result
        (xiana/ok (assoc-in state [:response-data :acl] result))
        (xiana/error (assoc state :response {:status 401 :body "Authorization error"}))))))
+
+(defn grant
+  ([state role resource privilege restriction])
+  ([state role resource privilege]))
+
+;allow and deny

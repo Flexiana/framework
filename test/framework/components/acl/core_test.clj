@@ -5,33 +5,33 @@
                                            is-allowed]]))
 
 (def custom-roles
-  {:customer         [{:resource "items"
-                       :actions  [:read]
-                       :filter   :all}
-                      {:resource "users"
-                       :actions  [:read :update :delete]
-                       :filter   :own}
-                      {:resource "addresses"
-                       :actions  [:create :read :update :delete]
-                       :filter   :own}
-                      {:resource "carts"
-                       :actions  [:create :read :update :delete]
-                       :filter   :own}]
-   :warehouse-worker [{:resource "items"
-                       :actions  [:read :update]
-                       :filter   :all}]
-   :postal-worker    [{:resource "carts"
-                       :actions  [:read :update]
-                       :filter   :all}
-                      {:resource "addresses"
-                       :actions  [:read]
-                       :filter   :all}]
-   :shop-worker      [{:resource "items"
-                       :actions  [:all]
-                       :filter   :all}]
-   :administrator    [{:resource :all
-                       :actions  [:all]
-                       :filter   :all}]})
+  {:customer         [{:resource    "items"
+                       :actions     [:read]
+                       :restriction :all}
+                      {:resource    "users"
+                       :actions     [:read :update :delete]
+                       :restriction :own}
+                      {:resource    "addresses"
+                       :actions     [:create :read :update :delete]
+                       :restriction :own}
+                      {:resource    "carts"
+                       :actions     [:create :read :update :delete]
+                       :restriction :own}]
+   :warehouse-worker [{:resource    "items"
+                       :actions     [:read :update]
+                       :restriction :all}]
+   :postal-worker    [{:resource    "carts"
+                       :actions     [:read :update]
+                       :restriction :all}
+                      {:resource    "addresses"
+                       :actions     [:read]
+                       :restriction :all}]
+   :shop-worker      [{:resource    "items"
+                       :actions     [:all]
+                       :restriction :all}]
+   :administrator    [{:resource    :all
+                       :actions     [:all]
+                       :restriction :all}]})
 
 (deftest custom-roles-test
   (is (= :all (has-access custom-roles {:role :customer :resource "items" :privilege :read})))
@@ -41,27 +41,27 @@
   (is (= :all (has-access custom-roles {:role :administrator :resource "users" :privilege :read}))))
 
 (def default-roles
-  {:guest     [{:resource "items"
-                :actions  [:read]
-                :filter   :all}]
-   :member    [{:resource "items"
-                :actions  [:read]
-                :filter   :all}
-               {:resource "users"
-                :actions  [:read :update :delete]
-                :filter   :own}
-               {:resource "addresses"
-                :actions  [:create :read :update :delete]
-                :filter   :own}
-               {:resource "carts"
-                :actions  [:create :read :update :delete]
-                :filter   :own}]
-   :staff     [{:resource "items"
-                :actions  [:read :update]
-                :filter   :all}]
-   :superuser [{:resource :all
-                :actions  [:all]
-                :filter   :all}]})
+  {:guest     [{:resource    "items"
+                :actions     [:read]
+                :restriction :all}]
+   :member    [{:resource    "items"
+                :actions     [:read]
+                :restriction :all}
+               {:resource    "users"
+                :actions     [:read :update :delete]
+                :restriction :own}
+               {:resource    "addresses"
+                :actions     [:create :read :update :delete]
+                :restriction :own}
+               {:resource    "carts"
+                :actions     [:create :read :update :delete]
+                :restriction :own}]
+   :staff     [{:resource    "items"
+                :actions     [:read :update]
+                :restriction :all}]
+   :superuser [{:resource    :all
+                :actions     [:all]
+                :restriction :all}]})
 
 (def guest {})
 (def member {:is_active true})
@@ -159,39 +159,39 @@
          (get-ok (is-allowed (state-with-user-request :administrator "/items/" :post))))))
 
 (def complex-roles
-  {:guest     [{:resource "posts"
-                :actions  [:read]
-                :filter   :all}]
-   :member    [{:resource "posts"
-                :actions  [:read]
-                :filter   :all}
-               {:resource "posts"
-                :actions  [:create :update :delete]
-                :filter   :own}
-               {:resource "comments"
-                :actions  [:create :update :delete]
-                :filter   :own}
-               {:resource "comments"
-                :actions  [:read]
-                :filter   :all}
-               {:resource "users"
-                :actions  [:create :update :delete]
-                :filter   :own}
-               {:resource "users"
-                :actions  [:read]
-                :filter   :all}]
-   :staff     [{:resource "posts"
-                :actions  [:read :update :delete]
-                :filter   :all}
-               {:resource "comments"
-                :actions  [:read :update :delete]
-                :filter   :all}
-               {:resource "users"
-                :actions  [:read]
-                :filter   :all}]
-   :superuser [{:resource :all
-                :actions  [:all]
-                :filter   :all}]})
+  {:guest     [{:resource    "posts"
+                :actions     [:read]
+                :restriction :all}]
+   :member    [{:resource    "posts"
+                :actions     [:read]
+                :restriction :all}
+               {:resource    "posts"
+                :actions     [:create :update :delete]
+                :restriction :own}
+               {:resource    "comments"
+                :actions     [:create :update :delete]
+                :restriction :own}
+               {:resource    "comments"
+                :actions     [:read]
+                :restriction :all}
+               {:resource    "users"
+                :actions     [:create :update :delete]
+                :restriction :own}
+               {:resource    "users"
+                :actions     [:read]
+                :restriction :all}]
+   :staff     [{:resource    "posts"
+                :actions     [:read :update :delete]
+                :restriction :all}
+               {:resource    "comments"
+                :actions     [:read :update :delete]
+                :restriction :all}
+               {:resource    "users"
+                :actions     [:read]
+                :restriction :all}]
+   :superuser [{:resource    :all
+                :actions     [:all]
+                :restriction :all}]})
 
 (deftest complex-roles-test
   (is (= :all (has-access complex-roles {:role :guest :resource "posts" :privilege :read})))
