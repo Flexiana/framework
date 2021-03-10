@@ -2,6 +2,13 @@
   (:require
     [xiana.core :as xiana]))
 
+(defn grantee
+  [permissions {:keys [role resource privilege]}]
+  (->> (get permissions role)
+       (filter #(#{resource :all} (:resource %)))
+       (filter #(some #{privilege :all} (:actions %)))
+       first))
+
 (defn has-access
   "Examine if the user is has access to a resource with the provided action.
   If it has, returns anything what is provided in 'permissions' corresponding :restriction field or \"true\".
@@ -17,14 +24,10 @@
      (:is_superuser user) (has-access permissions (assoc access :role :superuser))
      (:is_staff user) (has-access permissions (assoc access :role :staff))
      (:is_active user) (has-access permissions (assoc access :role :member))))
-  ([permissions {:keys [role resource privilege]}]
-   (let [granted (->> (get permissions role)
-                      (filter #(#{resource :all} (:resource %)))
-                      (filter #(some #{privilege :all} (:actions %)))
-                      first)]
-     (if granted
-       (or (:restriction granted) true)
-       false))))
+  ([permissions access]
+   (if-let [granted (grantee permissions access)]
+     (or (:restriction granted) true)
+     false)))
 
 (def action-mapping
   {:get    :read

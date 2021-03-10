@@ -203,3 +203,6 @@
   (is (= :own (has-access complex-roles {:role :member :resource "comments" :privilege :update}))))
 
 (allow {} {:role :guest :resource "posts" :privilege :read :restriction :all})
+(allow {} {:role :guest :resource "posts" :privilege [:response :read] :restriction :all})
+(-> (allow {} {:role :guest :resource "posts" :privilege :read :restriction :all})
+    (allow {:role :guest :resource "posts" :privilege [:response :read] :restriction :all}))
