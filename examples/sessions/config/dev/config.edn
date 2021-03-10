@@ -29,5 +29,5 @@
                                                           :content-types          true}}}
 
  :framework.app/web-server        {:port  3000
-                                   :join? false}
- }
+                                   :join? false}}
+
