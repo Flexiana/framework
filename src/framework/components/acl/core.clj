@@ -4,7 +4,7 @@
 
 (defn has-access
   "Examine if the user is has access to a resource with the provided action.
-  If it has, returns anything what is provided in 'permissions' corresponding :filter field.
+  If it has, returns anything what is provided in 'permissions' corresponding :restriction field or \"true\".
   If isn't then returns \"false\"
   'permissions' is a map keyed by name of permissions.
   'user' is optional, but if it missing you must provide the 'role' field in action.
@@ -68,8 +68,13 @@
        (xiana/ok (assoc-in state [:response-data :acl] result))
        (xiana/error (assoc state :response {:status 401 :body "Authorization error"}))))))
 
-(defn grant
-  ([state role resource privilege restriction])
-  ([state role resource privilege]))
+(defn allow
+  [permissions {:keys [role resource privilege restriction] :as access}]
+  (update permissions
+    role
+    conj {:resource resource
+          :actions (if (coll? privilege) privilege [privilege])
+          :restriction restriction}))
+
 
 ;allow and deny

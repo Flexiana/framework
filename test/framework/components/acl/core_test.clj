@@ -2,7 +2,8 @@
   (:require
     [clojure.test :refer :all]
     [framework.components.acl.core :refer [has-access
-                                           is-allowed]]))
+                                           is-allowed
+                                           allow]]))
 
 (def custom-roles
   {:customer         [{:resource    "items"
@@ -200,3 +201,5 @@
   (is (= :own (has-access complex-roles {:role :member :resource "posts" :privilege :create})))
   (is (= :all (has-access complex-roles {:role :member :resource "comments" :privilege :read})))
   (is (= :own (has-access complex-roles {:role :member :resource "comments" :privilege :update}))))
+
+(allow {} {:role :guest :resource "posts" :privilege :read :restriction :all})
