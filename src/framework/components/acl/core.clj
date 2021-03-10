@@ -71,13 +71,26 @@
        (xiana/ok (assoc-in state [:response-data :acl] result))
        (xiana/error (assoc state :response {:status 401 :body "Authorization error"}))))))
 
+(defn replace-role
+  [roles old new]
+  (conj (remove #{old} roles) new))
+
 (defn allow
-  [permissions {:keys [role resource privilege restriction] :as access}]
-  (update permissions
-    role
-    conj {:resource resource
-          :actions (if (coll? privilege) privilege [privilege])
-          :restriction restriction}))
+  [permissions {:keys [role resource actions restriction]}]
+  (let [actions-vec (if (coll? actions) actions [actions])
+        grants-by-resource (->> (get permissions role)
+                                (filter #(#{resource :all} (:resource %))))
+        granted (->> grants-by-resource
+                     (filter #(some (into #{} (conj actions-vec :all)) (:actions %)))
+                     first)
+        granted-actions (:actions granted)
+        new-role {:resource    resource
+                  :actions     (distinct (concat granted-actions actions-vec))
+                  :restriction restriction}]
+    (cond
+      (= restriction (:restriction granted)) (assoc permissions role (replace-role grants-by-resource granted new-role))
+      granted (assoc permissions role (replace-role grants-by-resource granted new-role))
+      :else (update permissions role conj new-role))))
 
 
 ;allow and deny

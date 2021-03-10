@@ -202,7 +202,9 @@
   (is (= :all (has-access complex-roles {:role :member :resource "comments" :privilege :read})))
   (is (= :own (has-access complex-roles {:role :member :resource "comments" :privilege :update}))))
 
-(allow {} {:role :guest :resource "posts" :privilege :read :restriction :all})
-(allow {} {:role :guest :resource "posts" :privilege [:response :read] :restriction :all})
-(-> (allow {} {:role :guest :resource "posts" :privilege :read :restriction :all})
-    (allow {:role :guest :resource "posts" :privilege [:response :read] :restriction :all}))
+(allow {} {:role :guest :resource "posts" :actions :read :restriction :all})
+(allow {} {:role :guest :resource "posts" :actions [:response :read] :restriction :all})
+(-> (allow {} {:role :guest :resource "posts" :actions :read :restriction :all})
+    (allow {:role :guest :resource "posts" :actions [:response] :restriction :own})
+    (allow {:role :guest :resource "posts" :actions [:delete] :restriction :own})
+    (allow {:role :guest :resource "posts" :actions [:delete]}))
