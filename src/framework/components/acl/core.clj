@@ -76,21 +76,27 @@
   (conj (remove #{old} roles) new))
 
 (defn allow
-  [permissions {:keys [role resource actions restriction]}]
+  [permissions {:keys [role resource actions restriction] :or {restriction :all}}]
   (let [actions-vec (if (coll? actions) actions [actions])
         grants-by-resource (->> (get permissions role)
                                 (filter #(#{resource :all} (:resource %))))
-        granted (->> grants-by-resource
-                     (filter #(some (into #{} (conj actions-vec :all)) (:actions %)))
-                     first)
-        granted-actions (:actions granted)
+        same-restricted (->> grants-by-resource
+                             (filter #((into #{} [restriction :all]) (:restriction %)))
+                             first)
+        same-action (->> grants-by-resource
+                         (filter #((into #{} (conj actions-vec :all)) (:actions %)))
+                         first)
+        granted-actions (:actions same-restricted)
+        new-actions (if (or (some #{:all} actions-vec) (some #{:all} granted-actions))
+                      [:all]
+                      (distinct (concat granted-actions actions-vec)))
         new-role {:resource    resource
-                  :actions     (distinct (concat granted-actions actions-vec))
+                  :actions     new-actions
                   :restriction restriction}]
     (cond
-      (= restriction (:restriction granted)) (assoc permissions role (replace-role grants-by-resource granted new-role))
-      granted (assoc permissions role (replace-role grants-by-resource granted new-role))
-      :else (update permissions role conj new-role))))
+      same-restricted (assoc permissions role (replace-role grants-by-resource same-restricted new-role))
+      same-action (assoc permissions role (replace-role grants-by-resource same-action new-role))
+      (not (or same-action same-restricted)) (update permissions role conj new-role))))
 
 
 ;allow and deny

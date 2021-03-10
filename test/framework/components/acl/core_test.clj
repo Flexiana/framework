@@ -202,9 +202,27 @@
   (is (= :all (has-access complex-roles {:role :member :resource "comments" :privilege :read})))
   (is (= :own (has-access complex-roles {:role :member :resource "comments" :privilege :update}))))
 
-(allow {} {:role :guest :resource "posts" :actions :read :restriction :all})
-(allow {} {:role :guest :resource "posts" :actions [:response :read] :restriction :all})
+(deftest build-config-allow
+  (is (= {:guest [{:resource "posts", :actions [:read], :restriction :all}]}
+         (allow {} {:role :guest :resource "posts" :actions :read :restriction :all}))))
+
+(is (=  (allow {} {:role :guest :resource "posts" :actions [:response :read] :restriction :all})))
+
 (-> (allow {} {:role :guest :resource "posts" :actions :read :restriction :all})
     (allow {:role :guest :resource "posts" :actions [:response] :restriction :own})
     (allow {:role :guest :resource "posts" :actions [:delete] :restriction :own})
     (allow {:role :guest :resource "posts" :actions [:delete]}))
+
+(-> (allow {} {:role :guest :resource "posts" :actions :all :restriction :all})
+    (allow {:role :guest :resource "posts" :actions [:response] :restriction :own})
+    (allow {:role :guest :resource "posts" :actions [:delete] :restriction :own})
+    (allow {:role :guest :resource "posts" :actions [:delete]}))
+
+(-> (allow {} {:role :guest :resource "posts" :actions :read :restriction :all})
+    (allow {:role :guest :resource "posts" :actions [:response] :restriction :own})
+    (allow {:role :guest :resource "posts" :actions [:delete] :restriction :own}))
+
+(-> (allow {} {:role :guest :resource "posts" :actions :read :restriction :all})
+    (allow {:role :guest :resource "posts" :actions [:response] :restriction :own})
+    (allow {:role :guest :resource "posts" :actions [:delete] :restriction :own})
+    (allow {:role :guest :resource "posts" :actions [:all]}))
