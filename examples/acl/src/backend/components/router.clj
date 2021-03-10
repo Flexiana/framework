@@ -13,7 +13,7 @@
 (def routes
   [["/" {:controller index/index}]
    ["/re-frame" {:controller re-frame/index}]
-   ["/posts" {:controller posts/find}]
+   ["/posts" {:controller posts/controller}]
 
    ["/assets/*" (ring/create-resource-handler)]])
 
