@@ -1,5 +1,6 @@
 (ns controllers.posts
   (:require [xiana.core :as xiana]
+            [framework.components.acl.core :as acl]
             [honeysql.core :as sql]
             [honeysql.helpers :refer :all :as helpers]
             [next.jdbc :as jdbc]
@@ -7,13 +8,13 @@
   (:import (java.util UUID)))
 
 (defn index-view
-  [state]
+  [{response-data :response-data :as state}]
   (xiana/ok
     (assoc state
       :response
       {:status  200
        :headers {"Content-Type" "text/plain"}
-       :body    "Index page"})))
+       :body    (str "Index page " response-data)})))
 
 (defn require-logged-in [{req :http-request :as state}]
   (if-let [authorization (get-in req [:headers "authorization"])]
@@ -23,7 +24,6 @@
 
 (defn something-else
   [state]
-  (println state)
   (xiana/ok state))
 
 (defn execute
@@ -43,10 +43,11 @@
              (xiana/error (assoc state :response {:status 404 :body "User not found"})))))
 
 
-(defn find [state]
+(defn controller [state]
   (xiana/flow->
     state
     (require-logged-in)
     (fetch-user)
+    (acl/is-allowed)
     (something-else)
     (index-view)))
