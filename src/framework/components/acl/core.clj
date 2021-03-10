@@ -11,7 +11,7 @@
 
 (defn has-access
   "Examine if the user is has access to a resource with the provided action.
-  If it has, returns anything what is provided in 'permissions' corresponding :restriction field or \"true\".
+  If it has, returns anything what is provided in 'permissions' corresponding :restriction field.
   If isn't then returns \"false\"
   'permissions' is a map keyed by name of permissions.
   'user' is optional, but if it missing you must provide the 'role' field in action.
@@ -26,7 +26,7 @@
      (:is_active user) (has-access permissions (assoc access :role :member))))
   ([permissions access]
    (if-let [granted (grantee permissions access)]
-     (or (:restriction granted) true)
+     (:restriction granted)
      false)))
 
 (def action-mapping
