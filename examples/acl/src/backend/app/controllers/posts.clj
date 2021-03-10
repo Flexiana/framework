@@ -16,11 +16,15 @@
        :headers {"Content-Type" "text/plain"}
        :body    (str "Index page " response-data)})))
 
+(defn unauthorized [state]
+  (xiana/error (assoc state :response {:status 401 :body "Unauthorized"})))
+
 (defn require-logged-in [{req :http-request :as state}]
   (if-let [authorization (get-in req [:headers "authorization"])]
-    (xiana/ok (-> (assoc-in state [:session-data :authorization] authorization)
-                  (assoc-in [:session :user :id] (UUID/fromString authorization))))
-    (xiana/error (assoc state :response {:status 401 :body "Unauthorized"}))))
+    (try (xiana/ok (-> (assoc-in state [:session-data :authorization] authorization)
+                       (assoc-in [:session :user :id] (UUID/fromString authorization))))
+         (catch IllegalArgumentException e (unauthorized state)))
+    (unauthorized state)))
 
 (defn something-else
   [state]
