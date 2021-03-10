@@ -10,15 +10,6 @@
         c (* (.getTimezoneOffset (js/Date.)) 1000 60)]
     (- a (+ b c))))
 
-(def ^:private one-day
-  (* 60 60 24 1000))
-
-(def ^:private today-timestamp
-  (let [a (.now js/Date)
-        b (mod (.now js/Date) one-day)
-        c (* (.getTimezoneOffset (js/Date.)) 1000 60)]
-    (- a (+ b c))))
-
 (def format ::format)
 
 (def component
