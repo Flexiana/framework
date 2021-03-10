@@ -1,15 +1,15 @@
 (ns framework.app.view.css.tailwind.core-test
   (:require
-   [clojure.string :as s]
-   [clojure.test :refer [deftest testing is use-fixtures]]
-   [framework.app.view.css.tailwind.core :as tcore]
-   [framework.app.view.css.tailwind.helpers :as thlp]
-   [framework.app.view.css.tailwind.preparers :as tprep]
-   [framework.app.view.css.tailwind.resolvers :as trlv]
-   [garden.core :as gard]
-   [garden.stylesheet :as gst]
-   [hiccup.core :as hiccup]
-   [hickory.core :as hick]))
+    [clojure.string :as s]
+    [clojure.test :refer [deftest testing is use-fixtures]]
+    [framework.app.view.css.tailwind.core :as tcore]
+    [framework.app.view.css.tailwind.helpers :as thlp]
+    [framework.app.view.css.tailwind.preparers :as tprep]
+    [framework.app.view.css.tailwind.resolvers :as trlv]
+    [garden.core :as gard]
+    [garden.stylesheet :as gst]
+    [hiccup.core :as hiccup]
+    [hickory.core :as hick]))
 
 (defn string->vec
   [s]
