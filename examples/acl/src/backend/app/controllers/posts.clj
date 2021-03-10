@@ -1,20 +1,12 @@
 (ns controllers.posts
   (:require [xiana.core :as xiana]
             [framework.components.acl.core :as acl]
+            [views.posts :as views]
             [honeysql.core :as sql]
             [honeysql.helpers :refer :all :as helpers]
             [next.jdbc :as jdbc]
             [clojure.string :as str])
   (:import (java.util UUID)))
-
-(defn index-view
-  [{response-data :response-data :as state}]
-  (xiana/ok
-    (assoc state
-      :response
-      {:status  200
-       :headers {"Content-Type" "text/plain"}
-       :body    (str "Index page " response-data)})))
 
 (defn unauthorized [state]
   (xiana/error (assoc state :response {:status 401 :body "Unauthorized"})))
@@ -54,4 +46,4 @@
     (fetch-user)
     (acl/is-allowed)
     (something-else)
-    (index-view)))
+    (views/posts-view)))
