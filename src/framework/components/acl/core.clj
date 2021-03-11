@@ -91,32 +91,34 @@
 
 (defn ->permission
   [{a :actions r :restriction :as p}]
-  (cond-> (select-keys p [:role :resource :actions :restriction])
+  (cond-> (select-keys p [:resource :actions :restriction])
     (not (coll? a)) (assoc :actions [a])
     (not r) (assoc :restriction :all)))
 
 (defn allow
-  [permissions {:keys [role resource actions restriction] :or {restriction :all}}]
-  (let [actions-vec (if (coll? actions) actions [actions])
-        grants-by-resource (->> (get permissions role)
-                                (filter #(#{resource :all} (:resource %))))
-        same-restricted (->> grants-by-resource
-                             (filter #(#{restriction} (:restriction %)))
-                             first)
-        same-action (->> grants-by-resource
-                         (filter #(some (into #{} (conj actions-vec :all)) (:actions %)))
-                         first)
-        granted-actions (:actions same-restricted)
-        new-actions (if (or (some #{:all} actions-vec) (some #{:all} granted-actions))
-                      [:all]
-                      (distinct (concat granted-actions actions-vec)))
-        new-role {:resource    resource
-                  :actions     new-actions
-                  :restriction restriction}]
-    (cond
-      (and same-restricted same-action) permissions
-      same-restricted (assoc permissions role (replace-role grants-by-resource same-restricted new-role))
-      same-action (assoc permissions role (replace-role grants-by-resource same-action new-role))
-      (not (or same-action same-restricted)) (update permissions role conj new-role))))
+  [permissions {:keys [role resource actions restriction] :or {restriction :all} :as permission}]
+  (let [new-permission (->permission permission)
+        actions-vec (if (coll? actions) actions [actions])
+        permissions-by-resource (->> (get permissions role)
+                                     (filter #(#{resource :all} (:resource %))))
+        new-permissions (reduce (fn [permissions action]
+                                  (let [same-action (->> permissions
+                                                         (filter #(some (hash-set action :all) (:actions %)))
+                                                         first)
+                                        same-restricted (->> permissions
+                                                             (filter #(#{restriction} (:restriction %)))
+                                                             first)]
+                                    (cond
+                                      (and same-action same-restricted) permissions
+                                      (and same-action (= [:all] (:actions same-action))) permissions
+                                      same-action (remove nil? (-> (replace-role permissions same-action (revoke same-action action))
+                                                                   (conj new-permission)))
+                                      same-restricted (->> (grant same-restricted action)
+                                                           (replace-role permissions same-restricted))
+                                      :else (conj permissions new-permission))))
+                          permissions-by-resource actions-vec)]
+    (if (some #{:all} actions-vec)
+      (assoc permissions role [(assoc new-permission :actions [:all])])
+      (assoc permissions role new-permissions))))
 
 ;allow and deny
