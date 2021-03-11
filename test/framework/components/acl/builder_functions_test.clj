@@ -5,6 +5,7 @@
                                                         override-actions
                                                         remove-resource
                                                         allow
+                                                        deny
                                                         revoke
                                                         grant]]))
 
@@ -67,3 +68,23 @@
                               "post"    [:read :delete :update :comment]})
              (add-actions {"comment" :delete})
              (remove-resource "post")))))
+
+(deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
+      {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
+               {:resource "posts", :actions [:read], :restriction :all}]}
+      {:role :guest :resource "posts", :actions :all})
+
+(deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
+      {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
+               {:resource "posts", :actions [:read], :restriction :all}]}
+      {:role :guest :resource "posts", :actions :read})
+
+(deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
+      {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
+               {:resource "comments", :actions [:read], :restriction :all}]}
+      {:role :guest :resource "comments", :actions :read})
+
+(deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
+      {:guest [{:resource "comments", :actions [:all], :restriction :all}
+               {:resource "comments", :actions [:read :delete], :restriction :own}]}
+      {:role :guest :resource "comments", :actions :read})
