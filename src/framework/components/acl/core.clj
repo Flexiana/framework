@@ -96,6 +96,8 @@
     (not r) (assoc :restriction :all)))
 
 (defn allow
+  "Allows a permission for a role, inserts it into the :acl/roles map.
+  If (:actions permission) or (:actions :permissions) keys contains :all it's going to be [:all]"
   [permissions {:keys [role resource actions restriction] :or {restriction :all} :as permission}]
   (let [new-permission (->permission permission)
         actions-vec (if (coll? actions) actions [actions])
