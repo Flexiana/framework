@@ -79,7 +79,7 @@
   [{actions :actions :as permission} action]
   {:pre [(not-empty permission)]}
   (let [new-actions (remove #{action} actions)]
-    (if-not (empty? new-actions) (assoc permission :actions new-actions))))
+    (when-not (empty? new-actions) (assoc permission :actions new-actions))))
 
 (defn grant
   [{actions :actions :as permission} action]
