@@ -75,16 +75,36 @@
   [roles old new]
   (conj (remove #{old} roles) new))
 
+(defn revoke
+  [{actions :actions :as permission} action]
+  {:pre [(not-empty permission)]}
+  (let [new-actions (remove #{action} actions)]
+    (if-not (empty? new-actions) (assoc permission :actions new-actions))))
+
+(defn grant
+  [{actions :actions :as permission} action]
+  {:pre [(not-empty permission)]}
+  (let [new-actions (if (or (some #{:all} actions) (= :all action))
+                      [:all]
+                      (distinct (conj actions action)))]
+    (assoc permission :actions new-actions)))
+
+(defn ->permission
+  [{a :actions r :restriction :as p}]
+  (cond-> (select-keys p [:role :resource :actions :restriction])
+    (not (coll? a)) (assoc :actions [a])
+    (not r) (assoc :restriction :all)))
+
 (defn allow
   [permissions {:keys [role resource actions restriction] :or {restriction :all}}]
   (let [actions-vec (if (coll? actions) actions [actions])
         grants-by-resource (->> (get permissions role)
                                 (filter #(#{resource :all} (:resource %))))
         same-restricted (->> grants-by-resource
-                             (filter #((into #{} [restriction :all]) (:restriction %)))
+                             (filter #(#{restriction} (:restriction %)))
                              first)
         same-action (->> grants-by-resource
-                         (filter #((into #{} (conj actions-vec :all)) (:actions %)))
+                         (filter #(some (into #{} (conj actions-vec :all)) (:actions %)))
                          first)
         granted-actions (:actions same-restricted)
         new-actions (if (or (some #{:all} actions-vec) (some #{:all} granted-actions))
@@ -94,9 +114,9 @@
                   :actions     new-actions
                   :restriction restriction}]
     (cond
+      (and same-restricted same-action) permissions
       same-restricted (assoc permissions role (replace-role grants-by-resource same-restricted new-role))
       same-action (assoc permissions role (replace-role grants-by-resource same-action new-role))
       (not (or same-action same-restricted)) (update permissions role conj new-role))))
-
 
 ;allow and deny

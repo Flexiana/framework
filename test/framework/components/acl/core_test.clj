@@ -3,6 +3,8 @@
     [clojure.test :refer :all]
     [framework.components.acl.core :refer [has-access
                                            is-allowed
+                                           revoke
+                                           grant
                                            allow]]))
 
 (def custom-roles
@@ -204,9 +206,27 @@
 
 (deftest build-config-allow
   (is (= {:guest [{:resource "posts", :actions [:read], :restriction :all}]}
-         (allow {} {:role :guest :resource "posts" :actions :read :restriction :all}))))
+         (allow {} {:role :guest :resource "posts" :actions :read :restriction :all})))
 
-(is (=  (allow {} {:role :guest :resource "posts" :actions [:response :read] :restriction :all})))
+  (is (= {:guest [{:resource "posts", :actions [:response :read], :restriction :all}]}
+         (allow {} {:role :guest :resource "posts" :actions [:response :read] :restriction :all})))
+
+  (is (= {:guest [{:resource "posts", :actions [:read], :restriction :own}]}
+         (-> (allow {} {:role :guest :resource "posts" :actions :read :restriction :all})
+             (allow {:role :guest :resource "posts" :actions :read :restriction :own}))))
+
+  (is (nil?
+        (revoke {:role :guest :resource "posts" :actions [:delete] :restriction :own} :delete)))
+
+  (is (= {:role :guest, :resource "posts", :actions [:reply], :restriction :own}
+         (revoke {:role :guest :resource "posts" :actions [:delete :reply] :restriction :own} :delete)))
+
+  (is (= {:role :guest, :resource "posts", :actions [:reply :delete], :restriction :own}
+         (grant {:role :guest, :resource "posts", :actions [:reply], :restriction :own} :delete)))
+
+  (is (= {:guest [{:resource "posts", :actions [:delete], :restriction :all}]}
+         (-> (allow {} {:role :guest :resource "posts" :actions [:delete] :restriction :own})
+             (allow {:role :guest :resource "posts" :actions [:delete]})))))
 
 (-> (allow {} {:role :guest :resource "posts" :actions :read :restriction :all})
     (allow {:role :guest :resource "posts" :actions [:response] :restriction :own})
