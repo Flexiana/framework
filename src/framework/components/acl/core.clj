@@ -1,6 +1,6 @@
 (ns framework.components.acl.core
   (:require
-    [framework.components.acl.functions :refer [has-access]]
+    [framework.components.acl.core-functions :refer [has-access]]
     [xiana.core :as xiana]))
 
 (def action-mapping
@@ -9,7 +9,7 @@
    :put    :create
    :delete :delete})
 
-(defn ->resource
+(defn- ->resource
   [uri]
   (re-find #"\w+" uri))
 
