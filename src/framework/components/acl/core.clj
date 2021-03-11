@@ -123,4 +123,23 @@
       (assoc permissions role [(assoc new-permission :actions [:all])])
       (assoc permissions role new-permissions))))
 
-;allow and deny
+(defn init
+  ([state]
+   (if (:acl/available-permissions state)
+     state
+     (assoc state :acl/available-permissions {})))
+  ([state available-permissions]
+   (assoc state :acl/available-permissions available-permissions)))
+
+(defn add-actions
+  [available-permissions action-map]
+  (reduce (fn [perms [resource actions]]
+            (update perms resource concat (if (coll? actions) actions [actions])))
+    available-permissions action-map))
+
+(defn deny
+  [available-permissions permissions {:keys [role resource actions restriction] :or {restriction :all} :as permission}]
+  (let [actions-vec (if (coll? actions) actions [actions])
+        permissions-by-resource (->> (get permissions role)
+                                     (filter #(#{resource :all} (:resource %))))
+        available-by-resource (get available-permissions resource)]))

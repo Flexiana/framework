@@ -5,7 +5,8 @@
                                            is-allowed
                                            revoke
                                            grant
-                                           allow]]))
+                                           allow
+                                           add-actions]]))
 
 (def custom-roles
   {:customer         [{:resource    "items"
@@ -248,3 +249,8 @@
              (allow {:role :guest :resource "posts" :actions [:response] :restriction :own})
              (allow {:role :guest :resource "posts" :actions [:delete] :restriction :own})
              (allow {:role :guest :resource "posts" :actions [:all]})))))
+
+(-> (add-actions {} {"comment" :read
+                     "post" [:read :delete :update :comment]})
+    (add-actions {"comment" :delete}))
+
