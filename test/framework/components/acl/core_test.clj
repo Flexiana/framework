@@ -1,8 +1,7 @@
 (ns framework.components.acl.core-test
   (:require
     [clojure.test :refer :all]
-    [framework.components.acl.core :refer [has-access
-                                           is-allowed]]))
+    [framework.components.acl.core :refer [is-allowed]]))
 
 (def custom-roles
   {:customer         [{:resource    "items"
@@ -136,6 +135,5 @@
          (get-ok (is-allowed (state-with-user-request :administrator "/items/" :put)))))
   (is (= :all
          (get-ok (is-allowed (state-with-user-request :administrator "/items/" :post))))))
-
 
 

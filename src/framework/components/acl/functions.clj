@@ -27,7 +27,6 @@
      (:restriction granted)
      false)))
 
-
 (defn replace-role
   [roles old new]
   (conj (remove #{old} roles) new))
@@ -49,8 +48,8 @@
 (defn ->permission
   [{a :actions r :restriction :as p}]
   (cond-> (select-keys p [:resource :actions :restriction])
-          (not (coll? a)) (assoc :actions [a])
-          (not r) (assoc :restriction :all)))
+    (not (coll? a)) (assoc :actions [a])
+    (not r) (assoc :restriction :all)))
 
 (defn allow
   "Allows a permission for a role, inserts it into the :acl/roles map.
@@ -75,7 +74,7 @@
                                       same-restricted (->> (grant same-restricted action)
                                                            (replace-role permissions same-restricted))
                                       :else (conj permissions new-permission))))
-                                permissions-by-resource actions-vec)]
+                          permissions-by-resource actions-vec)]
     (if (some #{:all} actions-vec)
       (assoc permissions role [(assoc new-permission :actions [:all])])
       (assoc permissions role new-permissions))))
@@ -92,7 +91,7 @@
   [available-permissions action-map]
   (reduce (fn [perms [resource actions]]
             (update perms resource concat (if (coll? actions) actions [actions])))
-          available-permissions action-map))
+    available-permissions action-map))
 
 (defn deny
   [available-permissions permissions {:keys [role resource actions restriction] :or {restriction :all} :as permission}]
