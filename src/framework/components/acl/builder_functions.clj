@@ -76,27 +76,31 @@
             (for [perm perms] (revoke perm action)))
     permissions-by-resource actions-vec))
 
-()
-
 (defn deny
-  [available-permissions permissions {:keys [role resource actions restriction] :or {restriction :all} :as permission}]
+  "Denies an access for a user/group on a resource"
+  [available-permissions permissions {:keys [role resource actions]}]
   (let [actions-vec (collify actions)
         permissions-by-role (get permissions role)
-        permissions-by-resource (->> permissions-by-role
-                                     (filter #(#{resource :all} (:resource %))))
+        permissions-by-resource (if (= resource :all)
+                                  permissions-by-role
+                                  (->> permissions-by-role
+                                       (filter #((hash-set resource :all) (:resource %)))))
         has-all-access (into #{} (filter #(#{[:all]} (:actions %)) permissions-by-resource))
         other-permissions (->> permissions-by-role
-                               (remove #(#{resource :all} (:resource %))))
+                               (remove (into #{} permissions-by-resource)))
         available-by-resource (get available-permissions resource)]
-    (cond
-      (some #{:all} actions-vec) (update permissions role #(remove (reduce hash-set permissions-by-resource) %))
-      (not-empty has-all-access) (assoc permissions role (concat
-                                                           other-permissions
-                                                           (bulk-revoke (remove has-all-access permissions-by-resource) actions-vec)
-                                                           (map #(grant
-                                                                   (assoc % :actions [])
-                                                                   (remove (into #{} actions-vec) available-by-resource))
-                                                                has-all-access)))
-      permissions-by-resource (assoc permissions role (concat other-permissions (bulk-revoke permissions-by-resource actions-vec)))
-      :else permissions)))
-
+    (->> (cond
+           (some #{:all} actions-vec) (assoc permissions role other-permissions)
+           (not-empty has-all-access) (assoc permissions role (concat
+                                                                other-permissions
+                                                                (bulk-revoke (remove has-all-access permissions-by-resource) actions-vec)
+                                                                (map #(grant
+                                                                        (assoc % :actions [])
+                                                                        (remove (into #{} actions-vec) available-by-resource))
+                                                                     has-all-access)))
+           permissions-by-resource (assoc permissions role (concat other-permissions (bulk-revoke permissions-by-resource actions-vec)))
+           :else permissions)
+         (remove nil?)
+         (map (fn [[k v]] [k (remove nil? v)]))
+         (remove #(empty? (second %)))
+         (into {}))))

@@ -69,22 +69,46 @@
              (add-actions {"comment" :delete})
              (remove-resource "post")))))
 
-(deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
-      {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
-               {:resource "posts", :actions [:read], :restriction :all}]}
-      {:role :guest :resource "posts", :actions :all})
+(is (empty? (deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
+                  {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
+                           {:resource "posts", :actions [:read], :restriction :all}]}
+                  {:role :guest :resource "posts", :actions :all})))
 
-(deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
-      {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
-               {:resource "posts", :actions [:read], :restriction :all}]}
-      {:role :guest :resource "posts", :actions :read})
+(is (= {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}]}
+       (deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
+             {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
+                      {:resource "posts", :actions [:read], :restriction :all}]}
+             {:role :guest :resource "posts", :actions :read})))
 
-(deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
-      {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
-               {:resource "comments", :actions [:read], :restriction :all}]}
-      {:role :guest :resource "comments", :actions :read})
+(is (= {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}]}
+       (deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
+             {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
+                      {:resource "comments", :actions [:read], :restriction :all}]}
+             {:role :guest :resource "comments", :actions :read})))
 
-(deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
-      {:guest [{:resource "comments", :actions [:all], :restriction :all}
-               {:resource "comments", :actions [:read :delete], :restriction :own}]}
-      {:role :guest :resource "comments", :actions :read})
+(is (= {:guest [{:resource "comments", :actions [:delete], :restriction :own}
+                {:resource "comments", :actions [:delete :like], :restriction :all}]}
+       (deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
+             {:guest [{:resource "comments", :actions [:all], :restriction :all}
+                      {:resource "comments", :actions [:read :delete], :restriction :own}]}
+             {:role :guest :resource "comments", :actions :read})))
+
+(is (= {:guest [{:resource "posts", :actions [:all], :restriction :own}
+                {:resource "comments", :actions [:delete], :restriction :own}
+                {:resource "comments", :actions [:delete :like], :restriction :all}]}
+       (deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
+             {:guest [{:resource "comments", :actions [:all], :restriction :all}
+                      {:resource "comments", :actions [:read :delete], :restriction :own}
+                      {:resource "posts", :actions [:all], :restriction :own}]}
+             {:role :guest :resource "comments", :actions :read})))
+
+(is (empty? (deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
+                  {:guest [{:resource :all, :actions [:read], :restriction :all}]}
+                  {:role :guest :resource :all, :actions :all})))
+
+(is (= {:guest [{:resource :all, :actions [:delete], :restriction :all}
+                {:resource "post", :actions [:delete], :restriction :all}]}
+       (deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
+             {:guest [{:resource :all, :actions [:read :delete], :restriction :all}
+                      {:resource "post", :actions [:read :delete], :restriction :all}]}
+             {:role :guest :resource :all, :actions :read})))
