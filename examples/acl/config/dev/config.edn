@@ -30,7 +30,7 @@
 
  :framework.app/web-server        {:port  3000
                                    :join? false}
- :acl/permissions                 {:guest     [{:resource    "posts"
+ :acl/roles                       {:guest     [{:resource    "posts"
                                                 :actions     [:read]
                                                 :restriction :all}]
                                    :member    [{:resource    "posts"

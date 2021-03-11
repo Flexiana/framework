@@ -88,10 +88,10 @@
 (defn state-with-user
   ([user]
    (if (map? user)
-     {:acl/permissions default-roles
-      :session         {:user user}}
-     {:acl/permissions custom-roles
-      :session         {:user {:role user}}})))
+     {:acl/roles default-roles
+      :session   {:user user}}
+     {:acl/roles custom-roles
+      :session   {:user {:role user}}})))
 
 (defn get-ok
   [t]
@@ -122,14 +122,14 @@
 (defn state-with-user-request
   [user uri method]
   (if (map? user)
-    {:acl/permissions default-roles
-     :session         {:user user}
-     :http-request    {:uri            uri
-                       :request-method method}}
-    {:acl/permissions custom-roles
-     :session         {:user {:role user}}
-     :http-request    {:uri            uri
-                       :request-method method}}))
+    {:acl/roles    default-roles
+     :session      {:user user}
+     :http-request {:uri            uri
+                    :request-method method}}
+    {:acl/roles    custom-roles
+     :session      {:user {:role user}}
+     :http-request {:uri            uri
+                    :request-method method}}))
 
 (deftest xiana-flow-from-request-only
   (is (= :all
