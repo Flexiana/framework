@@ -63,7 +63,7 @@
 (defn set-view
   [state action view-fn]
   (-> state
-      (assoc-in [:view :data action] (partial view-fn))
+      (assoc-in [:view :action action] (partial view-fn))
       xiana/ok))
 
 (defn set-response
@@ -87,7 +87,7 @@
 
 (defn get-view
   [state action]
-  (if-let [view-data (get-in state [:view :data action])]
+  (if-let [view-data (get-in state [:view :action action])]
     (try
       (view-data)
       (catch Exception e (str ">> Caught Exception: " (.getMessage e))))
