@@ -4,6 +4,20 @@
   [x]
   (if (coll? x) x [x]))
 
+(defn add-actions
+  [available-permissions action-map]
+  (reduce (fn [perms [resource actions]]
+            (update perms resource concat (collify actions)))
+    available-permissions action-map))
+
+(defn override-actions
+  [available-permissions action-map]
+  (merge available-permissions action-map))
+
+(defn remove-resource
+  [available-permissions resource]
+  (dissoc available-permissions resource))
+
 (defn replace-role
   [roles old new]
   (conj (remove #{old} roles) new))
@@ -55,28 +69,6 @@
     (if (some #{:all} actions-vec)
       (assoc permissions role [(assoc new-permission :actions [:all])])
       (assoc permissions role new-permissions))))
-
-(defn init
-  ([state]
-   (if (:acl/available-permissions state)
-     state
-     (assoc state :acl/available-permissions {})))
-  ([state available-permissions]
-   (assoc state :acl/available-permissions available-permissions)))
-
-(defn add-actions
-  [available-permissions action-map]
-  (reduce (fn [perms [resource actions]]
-            (update perms resource concat (collify actions)))
-    available-permissions action-map))
-
-(defn override-actions
-  [available-permissions action-map]
-  (merge available-permissions action-map))
-
-(defn remove-resource
-  [available-permissions resource]
-  (dissoc available-permissions resource))
 
 (defn deny
   [available-permissions permissions {:keys [role resource actions restriction] :or {restriction :all} :as permission}]

@@ -7,6 +7,7 @@
                                                         allow
                                                         revoke
                                                         grant]]))
+
 (deftest build-config-allow
   (is (= {:guest [{:resource "posts", :actions [:read], :restriction :all}]}
          (allow {} {:role :guest :resource "posts" :actions :read :restriction :all})))
@@ -52,16 +53,17 @@
              (allow {:role :guest :resource "posts" :actions [:delete] :restriction :own})
              (allow {:role :guest :resource "posts" :actions [:all]})))))
 
-
-(-> (add-actions {} {"comment" :read
-                     "post"    [:read :delete :update :comment]})
-    (add-actions {"comment" :delete}))
-
-(-> (add-actions {} {"comment" :read
-                     "post"    [:read :delete :update :comment]})
-    (override-actions {"comment" :delete}))
-
-(-> (add-actions {} {"comment" :read
-                     "post"    [:read :delete :update :comment]})
-    (add-actions {"comment" :delete})
-    (remove-resource "post"))
+(deftest build-available-permissions
+  (is (= {"comment" [:read :delete], "post" [:read :delete :update :comment]}
+         (-> (add-actions {} {"comment" :read
+                              "post"    [:read :delete :update :comment]})
+             (add-actions {"comment" :delete}))))
+  (is (= {"comment" :delete, "post" [:read :delete :update :comment]}
+         (-> (add-actions {} {"comment" :read
+                              "post"    [:read :delete :update :comment]})
+             (override-actions {"comment" :delete}))))
+  (is (= {"comment" [:read :delete]}
+         (-> (add-actions {} {"comment" :read
+                              "post"    [:read :delete :update :comment]})
+             (add-actions {"comment" :delete})
+             (remove-resource "post")))))
