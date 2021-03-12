@@ -45,10 +45,4 @@
        (xiana/ok (assoc-in state [:response-data :acl] result))
        (xiana/error (assoc state :response {:status 401 :body "Authorization error"}))))))
 
-(defn init
-  ([state]
-   (if (:acl/available-permissions state)
-     state
-     (init state {})))
-  ([state available-permissions]
-   (assoc state :acl/available-permissions available-permissions)))
+

@@ -9,7 +9,7 @@
                                                         revoke
                                                         grant]]))
 
-(deftest build-config-allow
+(deftest build-roles-allow
   (is (= {:guest [{:resource "posts", :actions [:read], :restriction :all}]}
          (allow {} {:role :guest :resource "posts" :actions :read :restriction :all})))
 
@@ -54,7 +54,7 @@
              (allow {:role :guest :resource "posts" :actions [:delete] :restriction :own})
              (allow {:role :guest :resource "posts" :actions [:all]})))))
 
-(deftest build-available-permissions
+(deftest build-permissions
   (is (= {"comment" [:read :delete], "post" [:read :delete :update :comment]}
          (-> (add-actions {} {"comment" :read
                               "post"    [:read :delete :update :comment]})
@@ -69,7 +69,7 @@
              (add-actions {"comment" :delete})
              (remove-resource "post")))))
 
-(deftest build-config-deny
+(deftest build-roles-deny
   (is (empty? (deny {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
                              {:resource "posts", :actions [:read], :restriction :all}]}
                     {"comment" [:read :delete], "post" [:read :delete :update :comment]}
@@ -112,9 +112,14 @@
          (deny {:guest [{:resource "comments", :actions [:read :delete], :restriction :all}
                         {:resource "post", :actions [:read :delete], :restriction :all}]}
                {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
+               {:role :guest :resource :all, :actions :delete})))
+  (is (= {:guest ({:resource "comments", :actions (:read), :restriction :all})}
+         (deny {:guest [{:resource "comments", :actions [:read :delete], :restriction :all}
+                        {:resource "post", :actions [:all], :restriction :all}]}
+               {}
                {:role :guest :resource :all, :actions :delete}))))
 
-(deftest build-config-allow-with-available-permissions
+(deftest build-roles-allow-with-available-permissions
   (is (= {:guest [{:resource "comments", :actions [:read], :restriction :all}]}
          (allow {}
                 {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
@@ -127,3 +132,5 @@
          (allow {}
                 {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
                 {:role :guest :resource "comments", :actions [:read :delete :like]}))))
+
+
