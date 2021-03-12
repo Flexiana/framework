@@ -17,3 +17,4 @@ pom.xml.asc
 .idea/
 .cpcache/
 .lsp/
+!/.lein-git-deps/

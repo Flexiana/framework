@@ -12,7 +12,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
+    
+    - name: Setup Clojure
+      uses: DeLaGuardo/setup-clojure@3.1
+      with:
+        cli: '1.10.2.796'
+      
     - name: Cache
       uses: actions/cache@v2.1.4
       with:
