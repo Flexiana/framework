@@ -10,7 +10,6 @@
                          :headers {"Content-Type" "application/json"}
                          :body (str "Hello " (get-in state [:deps :session :session-data :user :first-name]))})))
 
-
 (defn protected-controller
   [state]
   (xiana/flow-> state

@@ -230,6 +230,24 @@
 (def css-keys-in-hiccup (atom #{}))
 (def user-css (atom {}))
 
+(defn temporal-animation-frames-fix
+  [col]
+  (let [f (-> (get-in col [0 :value :frames])
+              (first)
+              (second)
+              :transform)
+        s (-> (get-in col [0 :value :frames])
+              (second)
+              (second)
+              :transform)]
+    (cond
+      (and
+        (not= ")" (str (last f)))
+        (not= ")" (str (last s)))) (-> col
+                                       (assoc-in [0 :value :frames] (list [:from {:transform "rotate(0deg)"}]
+                                                                          [:to {:transform "rotate(360deg)"}])))
+      :else col)))
+
 (def css-db
   (atom (hash-map :bases {:layout (layout')
                           :flexbox (flexbox')
@@ -246,7 +264,7 @@
                           :interactivity (interactivity')
                           :svg (svg')}
                   :ring-vars (borders/ring-vars)
-                  :animation (transitions/animation-frames)
+                  :animation (temporal-animation-frames-fix (transitions/animation-frames))
                   :theme base/preflight
                   :container (layout/container))))
 

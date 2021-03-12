@@ -1,8 +1,7 @@
 (ns sessions.middleware
-  (:require [sessions.backend :refer [fetch add! delete!]]
-            [xiana.core :as xiana]))
-
-
+  (:require
+    [sessions.backend :refer [fetch add! delete!]]
+    [xiana.core :as xiana]))
 
 (defn session-middleware
   [{request :http-request :as state}]
@@ -13,7 +12,6 @@
         session-id (get-in request [:headers "session-id"])
         user  (fetch sessions-backend session-id)]
     (xiana/ok (assoc-in state [:deps :session :session-data :user] user))))
-
 
 (defn auth-middleware
   [state]

@@ -3,8 +3,6 @@
     [com.stuartsierra.component :as component]
     [xiana.core :as xiana]))
 
-
-
 (defprotocol SessionStore
   (fetch
     [store key])
@@ -13,7 +11,6 @@
   (delete!
     [store key])
   (dump [store]))
-
 
 (defn init-in-memory-session
   ([] (init-in-memory-session (atom {})))
