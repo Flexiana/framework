@@ -1,16 +1,19 @@
 (ns todoapp.main-test
-  (:require [clojure.test :refer [deftest is testing use-fixtures]]
-            [framework.config.core :as config]
-            [clj-http.client :as http]
-            [todoapp.core :as todoapp]
-            [com.stuartsierra.component :as component]
-            [jsonista.core :as json]
-            [clojure.string :as str]))
+  (:require
+    [clj-http.client :as http]
+    [clojure.string :as str]
+    [clojure.test :refer [deftest is testing use-fixtures]]
+    [com.stuartsierra.component :as component]
+    [framework.config.core :as config]
+    [jsonista.core :as json]
+    [todoapp.core :as todoapp]))
 
-(defn json-read [v]
+(defn json-read
+  [v]
   (if-not (str/blank? v)
     (json/read-value v)
     v))
+
 (defn std-system-fixture
   [f]
   (let [config (config/edn)
