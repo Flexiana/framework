@@ -113,7 +113,7 @@
                         {:resource "post", :actions [:read :delete], :restriction :all}]}
                {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
                {:role :guest :resource :all, :actions :delete})))
-  (is (= {:guest ({:resource "comments", :actions (:read), :restriction :all})}
+  (is (= {:guest [{:resource "comments", :actions [:read], :restriction :all}]}
          (deny {:guest [{:resource "comments", :actions [:read :delete], :restriction :all}
                         {:resource "post", :actions [:all], :restriction :all}]}
                {}
