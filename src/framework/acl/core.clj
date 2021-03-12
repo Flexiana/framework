@@ -27,10 +27,13 @@
   |:post   | :update |
   |:put    | :create |
   |:delete | :delete |"
-  ([{{user :user} :session permissions :acl/roles :as state} access]
-   (let [result (if (:role user)
-                  (has-access permissions (assoc access :role (:role user)))
-                  (has-access permissions user access))]
+  ([{{user :user} :session roles :acl/roles {method :request-method} :http-request :as state} {privilege :privilege :as access}]
+   (let [result (cond
+                  (and privilege (:role user)) (has-access roles (assoc access :role (:role user)))
+                  (:role user) (has-access roles (assoc access
+                                                   :role (:role user)
+                                                   :privilege (action-mapping method)))
+                  :else (has-access roles user access))]
      (cond result (xiana/ok (assoc-in state [:response-data :acl] result))
            (:or-else access) ((:or-else access) state)
            :else (xiana/error (assoc state :response {:status 401 :body "Authorization error"})))))
