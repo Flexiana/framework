@@ -1,4 +1,4 @@
-(ns framework.components.acl.builder-functions
+(ns framework.components.acl.builder.builder
   (:require
     [clojure.test :refer [is]]))
 
