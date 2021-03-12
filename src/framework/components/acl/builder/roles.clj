@@ -21,4 +21,4 @@
   [{ap :acl/available-permissions ar :acl/roles :as state} permission]
   (xiana/ok (assoc state :acl/roles (if ap
                                       (b/deny ar ap permission)
-                                      (b/deny {} ar permission)))))
+                                      (b/deny ar {} permission)))))
