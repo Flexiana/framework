@@ -1,15 +1,16 @@
 (ns framework.components.acl.builder.permissions
   (:require
-    [framework.components.acl.builder.builder :as b]
+    [framework.components.acl.builder.builder-functions :as b]
     [xiana.core :as xiana]))
 
 (defn init
-  ([state]
-   (xiana/ok (if (:acl/available-permissions state)
-               state
-               (init state {}))))
+  ([{ap :acl/available-permissions :as state}]
+   (if ap
+     (init state ap)
+     (init state {})))
   ([state available-permissions]
-   (xiana/ok (assoc state :acl/available-permissions available-permissions))))
+   (let [ap (into {} (b/collify-vals available-permissions))]
+     (xiana/ok (assoc state :acl/available-permissions ap)))))
 
 (defn add-actions
   [{ap :acl/available-permissions :as state} action-map]

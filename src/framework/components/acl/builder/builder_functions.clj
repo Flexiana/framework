@@ -1,18 +1,27 @@
-(ns framework.components.acl.builder.builder)
+(ns framework.components.acl.builder.builder-functions)
 
 (defn collify
   [x]
-  (if (coll? x) x [x]))
+  (if (and (not (map? x)) (coll? x)) x [x]))
+
+(defn collify-vals
+  [m]
+  (->> (map (fn [[k v]] [k (collify v)]) m)
+       (into {})))
+
+(defn distinct-concat
+  [x y]
+  (distinct (into x y)))
 
 (defn add-actions
   [available-permissions action-map]
   (reduce (fn [perms [resource actions]]
-            (update perms resource concat (collify actions)))
+            (update perms resource distinct-concat (collify actions)))
     available-permissions action-map))
 
 (defn override-actions
   [available-permissions action-map]
-  (merge available-permissions action-map))
+  (merge available-permissions (collify-vals action-map)))
 
 (defn remove-resource
   [available-permissions resource]
