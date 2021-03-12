@@ -1,6 +1,8 @@
 (ns app
   (:require
     [com.stuartsierra.component :as component]
+    [framework.acl.builder.permissions :as abp]
+    [framework.acl.builder.roles :as abr]
     [reitit.core :as r]
     [reitit.ring :as ring]
     [xiana.core :as xiana]))
@@ -57,11 +59,14 @@
   (let [controller (get-in state [:request-data :controller])]
     (controller state)))
 
-(defn add-permissions
-  [state acl-permissions]
-  (xiana/ok (assoc state :acl/permissions acl-permissions)))
+(defn init-acl
+  [state acl-permissions acl-roles]
+  (xiana/flow->
+    state
+    (abp/init acl-permissions)
+    (abr/init acl-roles)))
 
-(defrecord App [config router db acl-permissions]
+(defrecord App [config router db acl-permissions acl-roles]
   component/Lifecycle
   (start [this]
          (assoc this
@@ -71,7 +76,7 @@
                (xiana/flow->
                  (create-empty-state)
                  (add-deps {:router router :db db})
-                 (add-permissions acl-permissions)
+                 (init-acl acl-permissions acl-roles)
                  (add-http-request http-request)
                  (pre-route-middlewares)
                  (route)
