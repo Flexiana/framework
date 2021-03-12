@@ -73,13 +73,17 @@
     :put (create-post state)
     :delete (delete-post state)))
 
+(defn acl-failed
+  [state]
+  (xiana/error (assoc state :response {:status 401 :body "failed by or-else"})))
+
 (defn controller
   [state]
   (xiana/flow->
     state
     (require-logged-in)
     (fetch-user)
-    (acl/is-allowed)
+    (acl/is-allowed {:or-else acl-failed})
     (something-else)
     (re-router)
     (views/posts-view)))
