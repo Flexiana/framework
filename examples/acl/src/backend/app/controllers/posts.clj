@@ -67,7 +67,6 @@
 
 (defn re-router
   [{{method :request-method} :http-request :as state}]
-  (println method)
   (case method
     :get (fetch-posts state)
     :post (update-post state)
