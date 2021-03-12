@@ -1,6 +1,4 @@
-(ns framework.components.acl.builder.builder
-  (:require
-    [clojure.test :refer [is]]))
+(ns framework.components.acl.builder.builder)
 
 (defn collify
   [x]
