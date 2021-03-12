@@ -1,7 +1,7 @@
 (ns controllers.posts
   (:require
     [clojure.string :as str]
-    [framework.components.acl.core :as acl]
+    [framework.acl.core :as acl]
     [honeysql.core :as sql]
     [honeysql.helpers :refer :all :as helpers]
     [next.jdbc :as jdbc]

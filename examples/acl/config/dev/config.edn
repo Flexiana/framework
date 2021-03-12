@@ -30,18 +30,30 @@
 
  :framework.app/web-server        {:port  3000
                                    :join? false}
+ :acl/permissions                 {"posts"    [:read :create :update :delete :comment :react]
+                                   "comments" [:read :create :update :delete :reply :react]
+                                   "users"    [:read :create :update :delete :ban]}
  :acl/roles                       {:guest     [{:resource    "posts"
+                                                :actions     [:read]
+                                                :restriction :all}
+                                               {:resource    "comments"
                                                 :actions     [:read]
                                                 :restriction :all}]
                                    :member    [{:resource    "posts"
                                                 :actions     [:read]
                                                 :restriction :all}
                                                {:resource    "posts"
+                                                :actions     [:read :reply :react]
+                                                :restriction :friends}
+                                               {:resource    "posts"
                                                 :actions     [:create :update :delete]
                                                 :restriction :own}
                                                {:resource    "comments"
                                                 :actions     [:create :update :delete]
                                                 :restriction :own}
+                                               {:resource    "comments"
+                                                :actions     [:read :reply :react]
+                                                :restriction :friend}
                                                {:resource    "comments"
                                                 :actions     [:read]
                                                 :restriction :all}
@@ -52,13 +64,13 @@
                                                 :actions     [:read]
                                                 :restriction :all}]
                                    :staff     [{:resource    "posts"
-                                                :actions     [:read :update :delete]
+                                                :actions     [:read :delete]
                                                 :restriction :all}
                                                {:resource    "comments"
-                                                :actions     [:read :update :delete]
+                                                :actions     [:read :delete]
                                                 :restriction :all}
                                                {:resource    "users"
-                                                :actions     [:read]
+                                                :actions     [:read :ban]
                                                 :restriction :all}]
                                    :superuser [{:resource    :all
                                                 :actions     [:all]
