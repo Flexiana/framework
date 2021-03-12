@@ -55,15 +55,15 @@
              (allow {:role :guest :resource "posts" :actions [:all]})))))
 
 (deftest build-permissions
-  (is (= {"comment" [:read :delete], "post" [:read :delete :update :comment]}
+  (is (= {"comment" [:delete :read], "post" [:comment :update :delete :read]}
          (-> (add-actions {} {"comment" :read
                               "post"    [:read :delete :update :comment]})
              (add-actions {"comment" :delete}))))
-  (is (= {"comment" :delete, "post" [:read :delete :update :comment]}
+  (is (= {"comment" [:delete], "post" [:comment :update :delete :read]}
          (-> (add-actions {} {"comment" :read
                               "post"    [:read :delete :update :comment]})
              (override-actions {"comment" :delete}))))
-  (is (= {"comment" [:read :delete]}
+  (is (= {"comment" [:delete :read]}
          (-> (add-actions {} {"comment" :read
                               "post"    [:read :delete :update :comment]})
              (add-actions {"comment" :delete})
