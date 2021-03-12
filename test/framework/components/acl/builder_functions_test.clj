@@ -70,46 +70,60 @@
              (remove-resource "post")))))
 
 (deftest build-config-deny
-  (is (empty? (deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
-                    {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
+  (is (empty? (deny {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
                              {:resource "posts", :actions [:read], :restriction :all}]}
+                    {"comment" [:read :delete], "post" [:read :delete :update :comment]}
                     {:role :guest :resource "posts", :actions :all})))
   (is (= {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}]}
-         (deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
-               {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
+         (deny {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
                         {:resource "posts", :actions [:read], :restriction :all}]}
+               {"comment" [:read :delete], "post" [:read :delete :update :comment]}
                {:role :guest :resource "posts", :actions :read})))
   (is (= {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}]}
-         (deny {"comment" [:read :delete], "post" [:read :delete :update :comment]}
-               {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
+         (deny {:guest [{:resource "posts", :actions [:response :delete], :restriction :own}
                         {:resource "comments", :actions [:read], :restriction :all}]}
+               {"comment" [:read :delete], "post" [:read :delete :update :comment]}
                {:role :guest :resource "comments", :actions :read})))
   (is (= {:guest [{:resource "comments", :actions [:delete], :restriction :own}
                   {:resource "comments", :actions [:delete :like], :restriction :all}]}
-         (deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
-               {:guest [{:resource "comments", :actions [:all], :restriction :all}
+         (deny {:guest [{:resource "comments", :actions [:all], :restriction :all}
                         {:resource "comments", :actions [:read :delete], :restriction :own}]}
+               {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
                {:role :guest :resource "comments", :actions :read})))
   (is (= {:guest [{:resource "posts", :actions [:all], :restriction :own}
                   {:resource "comments", :actions [:delete], :restriction :own}
                   {:resource "comments", :actions [:delete :like], :restriction :all}]}
-         (deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
-               {:guest [{:resource "comments", :actions [:all], :restriction :all}
+         (deny {:guest [{:resource "comments", :actions [:all], :restriction :all}
                         {:resource "comments", :actions [:read :delete], :restriction :own}
                         {:resource "posts", :actions [:all], :restriction :own}]}
+               {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
                {:role :guest :resource "comments", :actions :read})))
-  (is (empty? (deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
-                    {:guest [{:resource :all, :actions [:read], :restriction :all}]}
+  (is (empty? (deny {:guest [{:resource :all, :actions [:read], :restriction :all}]}
+                    {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
                     {:role :guest :resource :all, :actions :all})))
   (is (= {:guest [{:resource :all, :actions [:delete], :restriction :all}
                   {:resource "post", :actions [:delete], :restriction :all}]}
-         (deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
-               {:guest [{:resource :all, :actions [:read :delete], :restriction :all}
+         (deny {:guest [{:resource :all, :actions [:read :delete], :restriction :all}
                         {:resource "post", :actions [:read :delete], :restriction :all}]}
+               {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
                {:role :guest :resource :all, :actions :read})))
   (is (= {:guest [{:resource "comments", :actions [:read], :restriction :all}
                   {:resource "post", :actions [:read], :restriction :all}]}
-         (deny {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
-               {:guest [{:resource "comments", :actions [:read :delete], :restriction :all}
+         (deny {:guest [{:resource "comments", :actions [:read :delete], :restriction :all}
                         {:resource "post", :actions [:read :delete], :restriction :all}]}
+               {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
                {:role :guest :resource :all, :actions :delete}))))
+
+(deftest build-config-allow-with-available-permissions
+  (is (= {:guest [{:resource "comments", :actions [:read], :restriction :all}]}
+         (allow {}
+                {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
+                {:role :guest :resource "comments", :actions :read})))
+  (is (= {:guest [{:resource "comments", :actions [:read :delete], :restriction :all}]}
+         (allow {}
+                {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
+                {:role :guest :resource "comments", :actions [:read :delete]})))
+  (is (= {:guest [{:resource "comments", :actions [:all], :restriction :all}]}
+         (allow {}
+                {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
+                {:role :guest :resource "comments", :actions [:read :delete :like]}))))
