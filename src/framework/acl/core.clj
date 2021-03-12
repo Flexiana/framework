@@ -1,6 +1,6 @@
-(ns framework.components.acl.core
+(ns framework.acl.core
   (:require
-    [framework.components.acl.core-functions :refer [has-access]]
+    [framework.acl.core-functions :refer [has-access]]
     [xiana.core :as xiana]))
 
 (def action-mapping

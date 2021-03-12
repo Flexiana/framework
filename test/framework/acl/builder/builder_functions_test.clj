@@ -1,13 +1,13 @@
-(ns framework.components.acl.builder.builder-functions-test
+(ns framework.acl.builder.builder-functions-test
   (:require
     [clojure.test :refer :all]
-    [framework.components.acl.builder.builder-functions :refer [add-actions
-                                                                override-actions
-                                                                remove-resource
-                                                                allow
-                                                                deny
-                                                                revoke
-                                                                grant]]))
+    [framework.acl.builder.builder-functions :refer [add-actions
+                                                     override-actions
+                                                     remove-resource
+                                                     allow
+                                                     deny
+                                                     revoke
+                                                     grant]]))
 
 (deftest build-roles-allow
   (is (= {:guest [{:resource "posts", :actions [:read], :restriction :all}]}

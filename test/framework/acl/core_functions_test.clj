@@ -1,7 +1,7 @@
-(ns framework.components.acl.core-functions-test
+(ns framework.acl.core-functions-test
   (:require
     [clojure.test :refer :all]
-    [framework.components.acl.core-functions :refer [has-access]]))
+    [framework.acl.core-functions :refer [has-access]]))
 
 (def custom-roles
   {:customer         [{:resource    "items"

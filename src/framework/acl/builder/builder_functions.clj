@@ -1,4 +1,4 @@
-(ns framework.components.acl.builder.builder-functions)
+(ns framework.acl.builder.builder-functions)
 
 (defn collify
   [x]

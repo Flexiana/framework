@@ -1,4 +1,4 @@
-(ns framework.components.acl.core-functions)
+(ns framework.acl.core-functions)
 
 (defn grantee
   [permissions {:keys [role resource privilege]}]

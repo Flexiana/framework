@@ -1,9 +1,9 @@
-(ns framework.components.acl.builder.permissions-test
+(ns framework.acl.builder.permissions-test
   (:require
     [clojure.test :refer :all]
-    [framework.components.acl.builder.permissions :refer [init add-actions
-                                                          override-actions
-                                                          remove-resource]]
+    [framework.acl.builder.permissions :refer [init add-actions
+                                               override-actions
+                                               remove-resource]]
     [xiana.core :as xiana]))
 
 (defn test-permissions

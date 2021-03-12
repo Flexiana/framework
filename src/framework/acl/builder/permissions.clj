@@ -1,6 +1,6 @@
-(ns framework.components.acl.builder.permissions
+(ns framework.acl.builder.permissions
   (:require
-    [framework.components.acl.builder.builder-functions :as b]
+    [framework.acl.builder.builder-functions :as b]
     [xiana.core :as xiana]))
 
 (defn init
