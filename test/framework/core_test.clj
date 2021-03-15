@@ -13,7 +13,10 @@
                                                                        get-theme get-container get-animation
                                                                        default-components get-hiccup-classes
                                                                        spit]}}
+
                               :output        {:analysis true}
                               :lint-as       `{}
                               :skip-comments true}})]
+    (when-not (empty? findings)
+      (clojure.pprint/pprint findings))
     (is (empty? findings))))

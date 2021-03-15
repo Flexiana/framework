@@ -3,7 +3,12 @@
     [com.stuartsierra.component :as component]
     [reitit.core :as r]
     [reitit.ring :as ring]
+    [sessions.backend :refer [add! fetch delete!]]
+   [sessions.middleware :refer [session-middleware auth-middleware]]
     [xiana.core :as xiana]))
+
+
+
 
 (defn create-empty-state
   []
@@ -39,27 +44,31 @@
 
 (defn pre-route-middlewares
   [state]
-  (xiana/ok state))
+  (xiana/flow-> state
+                xiana/ok))
+
 
 (defn pre-controller-middlewares
   [state]
-  ;(xiana/state-flow->
-  ;  state
-  ;  (require-logged-in)))
-  (xiana/ok state))
+  (xiana/flow-> state
+                session-middleware))
+
+
 
 (defn post-controller-middlewares
   [state]
-  (xiana/ok state))
+  (xiana/flow-> state
+                auth-middleware))
+
 
 (defn run-controller
   [state]
   (let [controller (get-in state [:request-data :controller])]
     (controller state)))
 
-(defrecord App
-  [config router db]
 
+(defrecord App
+  [config router db session]
   component/Lifecycle
   (stop [this] this)
   (start [this]
@@ -69,7 +78,7 @@
              (->
                (xiana/flow->
                  (create-empty-state)
-                 (add-deps {:router router :db db})
+                 (add-deps {:router router :db db :session session})
                  (add-http-request http-request)
                  (pre-route-middlewares)
                  (route)
@@ -79,6 +88,8 @@
                (xiana/extract)
                (get :response))))))
 
+
 (defn make-app
   [config]
   (map->App {:config config}))
+
