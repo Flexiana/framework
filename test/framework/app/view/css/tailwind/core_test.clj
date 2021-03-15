@@ -1,16 +1,16 @@
 (ns framework.app.view.css.tailwind.core-test
   (:require
-   [clojure.string :as s]
-   [clojure.test :refer [deftest testing is use-fixtures]]
-   [framework.app.view.css.tailwind.core :as tcore]
-   [framework.app.view.css.tailwind.helpers :as thlp]
-   [framework.app.view.css.tailwind.preparers :as tprep]
-   [framework.app.view.css.tailwind.resolvers :as trlv]
-   [garden.core :as gard]
-   [garden.stylesheet :as gst]
-   [hiccup.core :as hiccup]
-   [hickory.core :as hick]
-   [matcher-combinators.test :refer [match?]]))
+    [clojure.string :as s]
+    [clojure.test :refer [deftest testing is use-fixtures]]
+    [framework.app.view.css.tailwind.core :as tcore]
+    [framework.app.view.css.tailwind.helpers :as thlp]
+    [framework.app.view.css.tailwind.preparers :as tprep]
+    [framework.app.view.css.tailwind.resolvers :as trlv]
+    [garden.core :as gard]
+    [garden.stylesheet :as gst]
+    [hiccup.core :as hiccup]
+    [hickory.core :as hick]
+    [matcher-combinators.test :refer [match?]]))
 
 (defn string->vec
   [s]
@@ -29,10 +29,10 @@
 (deftest using-in-hiccup->hcss*
   (let [hiccup-page [:html
                      [:div#thediv {:class (tcore/->hcss*
-                                           [:.bg-green-500 :.hover:bg-red-500:hover :.sm:bg-yellow-400])}
+                                            [:.bg-green-500 :.hover:bg-red-500:hover :.sm:bg-yellow-400])}
                       "Hello tailwind"
                       [:button#thebut {:class (tcore/->hcss*
-                                               [:.bg-red-100 :.hover:bg-red-600:hover])}
+                                                [:.bg-red-100 :.hover:bg-red-600:hover])}
                        "button"]]]
         html-page   (hiccup/html hiccup-page)]
     (is (= html-page
@@ -40,12 +40,12 @@
 
 (deftest result-css-map
   (let [_ (doall
-           [(tcore/->hcss* [:.bg-green-500 :.hover:bg-red-500:hover :.sm:bg-yellow-400])
-            (tcore/->hcss* [:.bg-red-100 :.hover:bg-red-600:hover])
-            (tcore/->hcss* [:.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
-            (tcore/->hcss* [:.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
-            (tcore/->hcss* [:.bg-pink-100 :.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
-            (tcore/->hcss* [:.bg-pink-100 :.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])])]
+            [(tcore/->hcss* [:.bg-green-500 :.hover:bg-red-500:hover :.sm:bg-yellow-400])
+             (tcore/->hcss* [:.bg-red-100 :.hover:bg-red-600:hover])
+             (tcore/->hcss* [:.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
+             (tcore/->hcss* [:.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
+             (tcore/->hcss* [:.bg-pink-100 :.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
+             (tcore/->hcss* [:.bg-pink-100 :.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])])]
     (is (match? {:defaults
                  [["*" "*::before" "*::after" {:box-sizing "border-box"}]
                   [":root" {:-moz-tab-size "4", :tab-size "4"}]
@@ -208,7 +208,7 @@
 
 (deftest ->hcss*-restult
   (is (= (frequencies (string->vec (tcore/->hcss*
-                                    [:.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])))
+                                     [:.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])))
          (frequencies (string->vec "bg-pink-100 hover:bg-pink-400 focus:bg-pink-400"))))
   (is (= (count (string->vec (tcore/->hcss* [:.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])))
          (count (string->vec "bg-pink-100 hover:bg-pink-400 focus:bg-pink-400"))))
