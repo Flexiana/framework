@@ -1,15 +1,16 @@
 (ns framework.app.view.css.tailwind.core-test
   (:require
-    [clojure.string :as s]
-    [clojure.test :refer [deftest testing is use-fixtures]]
-    [framework.app.view.css.tailwind.core :as tcore]
-    [framework.app.view.css.tailwind.helpers :as thlp]
-    [framework.app.view.css.tailwind.preparers :as tprep]
-    [framework.app.view.css.tailwind.resolvers :as trlv]
-    [garden.core :as gard]
-    [garden.stylesheet :as gst]
-    [hiccup.core :as hiccup]
-    [hickory.core :as hick]))
+   [clojure.string :as s]
+   [clojure.test :refer [deftest testing is use-fixtures]]
+   [framework.app.view.css.tailwind.core :as tcore]
+   [framework.app.view.css.tailwind.helpers :as thlp]
+   [framework.app.view.css.tailwind.preparers :as tprep]
+   [framework.app.view.css.tailwind.resolvers :as trlv]
+   [garden.core :as gard]
+   [garden.stylesheet :as gst]
+   [hiccup.core :as hiccup]
+   [hickory.core :as hick]
+   [matcher-combinators.test :refer [match?]]))
 
 (defn string->vec
   [s]
@@ -45,165 +46,165 @@
             (tcore/->hcss* [:.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
             (tcore/->hcss* [:.bg-pink-100 :.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
             (tcore/->hcss* [:.bg-pink-100 :.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])])]
-    (is (= {:defaults
-            [["*" "*::before" "*::after" {:box-sizing "border-box"}]
-             [":root" {:-moz-tab-size "4", :tab-size "4"}]
-             ["html" {:line-height "1.15", :-webkit-text-size-adjust "100%"}]
-             ["body" {:margin "0"}]
-             ["body"
-              {:font-family
-               "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';"}]
-             ["hr" {:height "0", :color "inherit"}]
-             ["abbr[title]"
-              {:-webkit-text-decoration "underline dotted",
-               :text-decoration         "underline dotted"}]
-             ["b" "strong" {:font-weight "bolder"}]
-             ["code"
-              "kbd"
-              "samp"
-              "pre"
-              {:font-family
-               "ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace",
-               :font-size "1em"}]
-             ["small" {:font-size "80%"}]
-             ["sub"
-              "sup"
-              {:font-size      "75%",
-               :line-height    "0",
-               :position       "relative",
-               :vertical-align "baseline"}]
-             ["sub" {:bottom "-0.25em"}]
-             ["sup" {:top "-0.5em"}]
-             ["table" {:text-indent "0", :border-color "inherit"}]
-             ["button"
-              "input"
-              "optgroup"
-              "select"
-              "textarea"
-              {:font-family "inherit",
-               :font-size   "100%",
-               :line-height "1.15",
-               :margin      "0"}]
-             ["button" "select" {:text-transform "none"}]
-             ["button"
-              "[type='button']"
-              "[type='reset']"
-              "[type='submit']"
-              {:-webkit-appearance "button"}]
-             ["::-moz-focus-inner" {:border-style "none", :padding "0"}]
-             [":-moz-focusring" {:outline "1px dotted ButtonText"}]
-             [":-moz-ui-invalid"]
-             {:box-shadow "none"}
-             ["legend"]
-             {:padding "0"}
-             ["progress"]
-             {:vertical-align "baseline"}
-             ["::-webkit-inner-spin-button"
-              "::-webkit-outer-spin-button"
-              {:height "auto"}]
-             ["[type='search']" {:-webkit-appearance "textfield", :outline-offset "-2px"}]
-             ["::-webkit-search-decoration" {:-webkit-appearance "none"}]
-             ["::-webkit-file-upload-button"
-              {:-webkit-appearance "button", :font "inherit"}]
-             ["summary" {:display "list-item"}]
-             ["blockquote"
-              "dl"
-              "dd"
-              "h1"
-              "h2"
-              "h3"
-              "h4"
-              "h5"
-              "h6"
-              "hr"
-              "figure"
-              "p"
-              "pre"
-              {:margin "0"}]
-             ["button" {:background-color "transparent", :background-image "none"}]
-             ["button:focus"
-              {:outline "1px dotted"}
-              {:outline "5px auto -webkit-focus-ring-color"}]
-             ["fieldset" {:margin "0", :padding "0"}]
-             ["ol" "ul" {:list-style "none", :margin "0", :padding "0"}]
-             ["html"
-              {:font-family
-               "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
-               :line-height "1.5"}]
-             ["body" {:font-family "inherit", :line-height "inherit"}]
-             ["*"
-              "*::before"
-              "*::after"
-              {:border-width "0", :border-style "solid", :border-color "#e5e7eb"}]
-             ["hr" {:border-top-width "1px"}]
-             ["img" {:border-style "solid"}]
-             ["textarea" {:resize "vertical"}]
-             ["input::placeholder"
-              "textarea::placeholder"
-              {:opacity "1", :color "#9ca3af"}]
-             ["button" "[role=\"button\"]" {:cursor "pointer"}]
-             ["table" {:border-collapse "collapse"}]
-             ["h1"
-              "h2"
-              "h3"
-              "h4"
-              "h5"
-              "h6"
-              {:font-size "inherit", :font-weight "inherit"}]
-             ["a" {:color "inherit", :text-decoration "inherit"}]
-             ["button"
-              "input"
-              "optgroup"
-              "select"
-              "textarea"
-              {:padding "0", :line-height "inherit", :color "inherit"}]
-             ["pre"
-              "code"
-              "kbd"
-              "samp"
-              {:font-family
-               "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace"}]
-             ["img"
-              "svg"
-              "video"
-              "canvas"
-              "audio"
-              "iframe"
-              "embed"
-              "object"
-              {:display "block", :vertical-align "middle"}]
-             ["img" "video" {:max-width "100%", :height "auto"}]
-             [:*
-              {:--tw-ring-inset         "var(--tw-empty,/*!*/ /*!*/)",
-               :--tw-ring-offset-width  "0px",
-               :--tw-ring-offset-color  "#fff",
-               :--tw-ring-color         "rgba(59,130,246,0.5)",
-               :--tw-ring-offset-shadow "0 0 transparent",
-               :--tw-ring-shadow        "0 0 transparent"}]],
-            :bases
-            {:.bg-green-500
-             [:.bg-green-500
-              {:--tw-bg-opacity  "1",
-               :background-color "rgba(16, 185, 129, var(--tw-bg-opacity))"}],
-             :.hover:bg-red-500:hover
-             [".hover\\:bg-red-500:hover"
-              {:--tw-bg-opacity  "1",
-               :background-color "rgba(239, 68, 68, var(--tw-bg-opacity))"}]},
-            :bases:sm
-            {:.sm:bg-yellow-400
-             {:identifier :media,
-              :value
-              {:media-queries {:min-width "640px", :screen true},
-               :rules
-               ([[".sm\\:bg-yellow-400"
-                  {:--tw-bg-opacity  "1",
-                   :background-color "rgba(251, 191, 36, var(--tw-bg-opacity))"}]])}}},
-            :bases:md  {},
-            :bases:lg  {},
-            :bases:xl  {},
-            :bases:2xl {},
-            :user-css  {}}
-           (tcore/result-css-map [:.bg-green-500 :.hover:bg-red-500:hover :.sm:bg-yellow-400])))))
+    (is (match? {:defaults
+                 [["*" "*::before" "*::after" {:box-sizing "border-box"}]
+                  [":root" {:-moz-tab-size "4", :tab-size "4"}]
+                  ["html" {:line-height "1.15", :-webkit-text-size-adjust "100%"}]
+                  ["body" {:margin "0"}]
+                  ["body"
+                   {:font-family
+                    "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';"}]
+                  ["hr" {:height "0", :color "inherit"}]
+                  ["abbr[title]"
+                   {:-webkit-text-decoration "underline dotted",
+                    :text-decoration         "underline dotted"}]
+                  ["b" "strong" {:font-weight "bolder"}]
+                  ["code"
+                   "kbd"
+                   "samp"
+                   "pre"
+                   {:font-family
+                    "ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace",
+                    :font-size "1em"}]
+                  ["small" {:font-size "80%"}]
+                  ["sub"
+                   "sup"
+                   {:font-size      "75%",
+                    :line-height    "0",
+                    :position       "relative",
+                    :vertical-align "baseline"}]
+                  ["sub" {:bottom "-0.25em"}]
+                  ["sup" {:top "-0.5em"}]
+                  ["table" {:text-indent "0", :border-color "inherit"}]
+                  ["button"
+                   "input"
+                   "optgroup"
+                   "select"
+                   "textarea"
+                   {:font-family "inherit",
+                    :font-size   "100%",
+                    :line-height "1.15",
+                    :margin      "0"}]
+                  ["button" "select" {:text-transform "none"}]
+                  ["button"
+                   "[type='button']"
+                   "[type='reset']"
+                   "[type='submit']"
+                   {:-webkit-appearance "button"}]
+                  ["::-moz-focus-inner" {:border-style "none", :padding "0"}]
+                  [":-moz-focusring" {:outline "1px dotted ButtonText"}]
+                  [":-moz-ui-invalid"]
+                  {:box-shadow "none"}
+                  ["legend"]
+                  {:padding "0"}
+                  ["progress"]
+                  {:vertical-align "baseline"}
+                  ["::-webkit-inner-spin-button"
+                   "::-webkit-outer-spin-button"
+                   {:height "auto"}]
+                  ["[type='search']" {:-webkit-appearance "textfield", :outline-offset "-2px"}]
+                  ["::-webkit-search-decoration" {:-webkit-appearance "none"}]
+                  ["::-webkit-file-upload-button"
+                   {:-webkit-appearance "button", :font "inherit"}]
+                  ["summary" {:display "list-item"}]
+                  ["blockquote"
+                   "dl"
+                   "dd"
+                   "h1"
+                   "h2"
+                   "h3"
+                   "h4"
+                   "h5"
+                   "h6"
+                   "hr"
+                   "figure"
+                   "p"
+                   "pre"
+                   {:margin "0"}]
+                  ["button" {:background-color "transparent", :background-image "none"}]
+                  ["button:focus"
+                   {:outline "1px dotted"}
+                   {:outline "5px auto -webkit-focus-ring-color"}]
+                  ["fieldset" {:margin "0", :padding "0"}]
+                  ["ol" "ul" {:list-style "none", :margin "0", :padding "0"}]
+                  ["html"
+                   {:font-family
+                    "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+                    :line-height "1.5"}]
+                  ["body" {:font-family "inherit", :line-height "inherit"}]
+                  ["*"
+                   "*::before"
+                   "*::after"
+                   {:border-width "0", :border-style "solid", :border-color "#e5e7eb"}]
+                  ["hr" {:border-top-width "1px"}]
+                  ["img" {:border-style "solid"}]
+                  ["textarea" {:resize "vertical"}]
+                  ["input::placeholder"
+                   "textarea::placeholder"
+                   {:opacity "1", :color "#9ca3af"}]
+                  ["button" "[role=\"button\"]" {:cursor "pointer"}]
+                  ["table" {:border-collapse "collapse"}]
+                  ["h1"
+                   "h2"
+                   "h3"
+                   "h4"
+                   "h5"
+                   "h6"
+                   {:font-size "inherit", :font-weight "inherit"}]
+                  ["a" {:color "inherit", :text-decoration "inherit"}]
+                  ["button"
+                   "input"
+                   "optgroup"
+                   "select"
+                   "textarea"
+                   {:padding "0", :line-height "inherit", :color "inherit"}]
+                  ["pre"
+                   "code"
+                   "kbd"
+                   "samp"
+                   {:font-family
+                    "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace"}]
+                  ["img"
+                   "svg"
+                   "video"
+                   "canvas"
+                   "audio"
+                   "iframe"
+                   "embed"
+                   "object"
+                   {:display "block", :vertical-align "middle"}]
+                  ["img" "video" {:max-width "100%", :height "auto"}]
+                  [:*
+                   {:--tw-ring-inset         "var(--tw-empty,/*!*/ /*!*/)",
+                    :--tw-ring-offset-width  "0px",
+                    :--tw-ring-offset-color  "#fff",
+                    :--tw-ring-color         "rgba(59,130,246,0.5)",
+                    :--tw-ring-offset-shadow "0 0 transparent",
+                    :--tw-ring-shadow        "0 0 transparent"}]],
+                 :bases
+                 {:.bg-green-500
+                  [:.bg-green-500
+                   {:--tw-bg-opacity  "1",
+                    :background-color "rgba(16, 185, 129, var(--tw-bg-opacity))"}],
+                  :.hover:bg-red-500:hover
+                  [".hover\\:bg-red-500:hover"
+                   {:--tw-bg-opacity  "1",
+                    :background-color "rgba(239, 68, 68, var(--tw-bg-opacity))"}]},
+                 :bases:sm
+                 {:.sm:bg-yellow-400
+                  {:identifier :media,
+                   :value
+                   {:media-queries {:min-width "640px", :screen true},
+                    :rules
+                    [[[".sm\\:bg-yellow-400"
+                       {:--tw-bg-opacity  "1",
+                        :background-color "rgba(251, 191, 36, var(--tw-bg-opacity))"}]]]}}},
+                 :bases:md  {},
+                 :bases:lg  {},
+                 :bases:xl  {},
+                 :bases:2xl {},
+                 :user-css  {}}
+                (tcore/result-css-map [:.bg-green-500 :.hover:bg-red-500:hover :.sm:bg-yellow-400])))))
 
 (deftest ->hcss*-restult
   (is (= (frequencies (string->vec (tcore/->hcss*
