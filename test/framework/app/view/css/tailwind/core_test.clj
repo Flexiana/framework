@@ -25,6 +25,37 @@
 
 (use-fixtures :each atom-reseter-fixture)
 
+(deftest result-css-map
+  (let [_ (doall
+            [(tcore/->hcss* [:.bg-green-500 :.hover:bg-red-500:hover :.sm:bg-yellow-400])
+             (tcore/->hcss* [:.bg-red-100 :.hover:bg-red-600:hover])
+             (tcore/->hcss* [:.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
+             (tcore/->hcss* [:.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
+             (tcore/->hcss* [:.bg-pink-100 :.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])
+             (tcore/->hcss* [:.bg-pink-100 :.bg-pink-100 :.hover:bg-pink-400:hover :.focus:bg-pink-400:focus])])]
+    (is (= {:defaults  {}
+            :bases     {:.bg-green-500
+                        [:.bg-green-500
+                         {:--tw-bg-opacity  "1"
+                          :background-color "rgba(16, 185, 129, var(--tw-bg-opacity))"}]
+                        :.hover:bg-red-500:hover [".hover\\:bg-red-500:hover"
+                                                  {:--tw-bg-opacity  "1"
+                                                   :background-color "rgba(239, 68, 68, var(--tw-bg-opacity))"}]}
+            :bases:sm
+            {:.sm:bg-yellow-400
+             #garden.types.CSSAtRule{:identifier :media,
+                                     :value      {:media-queries {:min-width "640px",
+                                                                  :screen    true},
+                                                  :rules         [[[".sm\\:bg-yellow-400"
+                                                                    {:--tw-bg-opacity  "1"
+                                                                     :background-color "rgba(251, 191, 36, var(--tw-bg-opacity))"}]]]}}}
+            :bases:md  {}
+            :bases:lg  {}
+            :bases:xl  {}
+            :bases:2xl {}
+            :user-css  {}}
+           (tcore/result-css-map [:.bg-green-500 :.hover:bg-red-500:hover :.sm:bg-yellow-400])))))
+
 (deftest using-in-hiccup->hcss*
   (let [hiccup-page [:html
                      [:div#thediv {:class (tcore/->hcss*
