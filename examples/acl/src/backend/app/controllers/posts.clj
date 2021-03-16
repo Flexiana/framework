@@ -1,6 +1,7 @@
 (ns controllers.posts
   (:require
     [clojure.string :as str]
+    [clojure.walk :refer [keywordize-keys]]
     [framework.acl.core :as acl]
     [honeysql.core :as sql]
     [honeysql.helpers :refer :all :as helpers]
@@ -25,11 +26,9 @@
          (catch IllegalArgumentException e (unauthorized state)))
     (unauthorized state)))
 
-(defn add-path-params
+(defn add-params
   [state]
-  (println "body string" (rreq/body-string (:http-request state)))
-  (println "wrap" ((par/wrap-params identity) (:http-request state)))
-  (xiana/ok (clojure.core/update state :http-request #((par/wrap-params identity) %))))
+  (xiana/ok (clojure.core/update state :http-request #(keywordize-keys ((par/wrap-params identity) %)))))
 
 (defn execute
   [state query]
@@ -105,7 +104,6 @@
 
 (defn some
   [state]
-  (par/wrap-params (partial println "some"))
   (xiana/ok state))
 
 (defn controller
@@ -115,7 +113,7 @@
     require-logged-in
     fetch-user
     (acl/is-allowed {:or-else views.posts/not-allowed})
-    add-path-params
+    add-params
     select-view
     base-query
     handle-id
