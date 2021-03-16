@@ -25,11 +25,11 @@
          (catch IllegalArgumentException e (unauthorized state)))
     (unauthorized state)))
 
-(defn something-else
+(defn add-path-params
   [state]
-  (println (rreq/body-string (:http-request state)))
-  (println (par/params-request (:http-request state)))
-  (xiana/ok state))
+  (println "body string" (rreq/body-string (:http-request state)))
+  (println "wrap" ((par/wrap-params identity) (:http-request state)))
+  (xiana/ok (clojure.core/update state :http-request #((par/wrap-params identity) %))))
 
 (defn execute
   [state query]
@@ -51,39 +51,75 @@
 
 (defn fetch-posts
   [state]
-  (xiana/ok state))
+  (xiana/flow->
+    state
+    views.posts/all-posts))
 
 (defn update-post
   [state]
-  (xiana/ok state))
+  (xiana/flow->
+    state
+    views.posts/all-posts))
 
 (defn create-post
   [state]
-  (xiana/ok state))
+  (xiana/flow->
+    state
+    views.posts/all-posts))
 
 (defn delete-post
   [state]
+  (xiana/flow->
+    state
+    views.posts/all-posts))
+
+(def view-map
+  {:get   fetch-posts
+   :post   update-post
+   :put    create-post
+   :delete delete-post})
+
+(defn select-view
+  [{{method :request-method} :http-request :as state}]
+  (xiana/ok (assoc state :view (view-map method))))
+
+(def query-map
+  {:get    (-> (select :*)
+               (from :posts))
+   :post   (helpers/update :posts)
+   :put    (insert-into :posts)
+   :delete (delete-from :posts)})
+
+(defn base-query
+  [{{method :request-method} :http-request :as state}]
+  (xiana/ok (assoc state :query (query-map method))))
+
+(defn handle-id
+  [{req :http-request :as state}]
+  (println "handle-id" req)
   (xiana/ok state))
 
-(defn re-router
-  [{{method :request-method} :http-request :as state}]
-  (case method
-    :get (fetch-posts state)
-    :post (update-post state)
-    :put (create-post state)
-    :delete (delete-post state)))
+(defn view
+  [{view :view :as state}]
+  (view state))
 
-(defn acl-failed
+(defn some
   [state]
-  (xiana/error (assoc state :response {:status 401 :body "failed by or-else"})))
+  (par/wrap-params (partial println "some"))
+  (xiana/ok state))
 
 (defn controller
   [state]
   (xiana/flow->
     state
-    (require-logged-in)
-    (fetch-user)
-    (acl/is-allowed {:or-else acl-failed})
-    (something-else)
-    (re-router)
-    (views/posts-view)))
+    require-logged-in
+    fetch-user
+    (acl/is-allowed {:or-else views.posts/not-allowed})
+    add-path-params
+    select-view
+    base-query
+    handle-id
+    some
+    view))
+
+
