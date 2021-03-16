@@ -29,3 +29,6 @@ CREATE TABLE comments (
     creation_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     content character varying NOT NULL
 );
+
+--alter table comments alter column creation_time set default current_timestamp;
+--alter table posts alter column creation_time set default current_timestamp;

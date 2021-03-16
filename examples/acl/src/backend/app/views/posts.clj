@@ -12,13 +12,13 @@
        :body    (str "Place of one post, filtered by " restriction)})))
 
 (defn all-posts
-  [{{restriction :acl} :response-data :as state}]
+  [{response :response-data :as state}]
   (xiana/ok
     (assoc state
       :response
       {:status  200
        :headers {"Content-Type" "text/plain"}
-       :body    (str "Place for all posts, you are able to see: " restriction)})))
+       :body    (str "Place for all posts, you are able to see: " response)})))
 
 (defn not-allowed
   [state]

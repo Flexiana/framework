@@ -104,10 +104,10 @@
 
 (defn handle-id
   "Add where clause to SQL query if it's present"
-  [{{params :params} :http-request query :query :as state}]
-  (println "handle-id" params)
-  (xiana/ok (if (:id params)
-              (assoc state :query (-> query (where [:= :id (:id params)])))
+  [{{{id :id} :query-params} :http-request query :query :as state}]
+  (doseq [k (keys state)] (println [k (k state)]))
+  (xiana/ok (if id
+              (assoc state :query (-> query (where [:= :id (UUID/fromString id)])))
               state)))
 
 (defn view
@@ -119,9 +119,22 @@
 (defn restriction
   "Extends WHERE clause if necessary, to check data-ownership"
   [{{restriction :acl} :response-data query :query :as state}]
-  (case restriction
-    :own (xiana/ok (assoc state :query (-> query (merge-where [:= :user_id (get-in state [:session :user :id])]))))
+  (case [restriction (get-in state [:http-request :request-method])]
+    [:own :get] (xiana/ok (assoc state :query (-> query (merge-where [:= :user_id (get-in state [:session :user :id])]))))
     (xiana/ok state)))
+
+(defn db-call
+  [{query :query :as state}]
+  (println "RUN! " query)
+  (println "SQL: " (sql/format query))
+  (let [result (execute state (sql/format query))]
+    (xiana/ok (assoc-in state [:response-data :db-data] result))))
+
+(defn handle-body
+  [{{form-params :form-params} :http-request query :query :as state}]
+  (xiana/ok (if form-params
+              (assoc state :query (-> query (values [(assoc form-params :user_id (get-in state [:session :user :id]))])))
+              state)))
 
 (defn controller
   "Example controller for ACL, and DataOwnership"
@@ -135,5 +148,7 @@
     select-view
     base-query
     handle-id
+    handle-body
     restriction
+    db-call
     view))
