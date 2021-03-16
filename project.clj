@@ -1,4 +1,4 @@
-(defproject com.flexiana/framework "0.1.3"
+(defproject com.flexiana/framework "0.1.4"
   :description "Framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
@@ -9,13 +9,15 @@
                  [nilenso/honeysql-postgres "0.2.6"]
                  [org.postgresql/postgresql "42.2.2"]
                  [seancorfield/next.jdbc "1.1.613"]
+                 [duct/server.http.jetty "0.2.1"]
                  [migratus "1.3.3"]
                  [potemkin "0.4.5"]
+                 [metosin/reitit "0.5.12"]
                  [funcool/cats "2.4.1"]
                  [com.draines/postal "2.0.4"]
                  [funcool/cuerdas "2020.03.26-3"]
-                 [crypto-password "0.2.1"]
-]
+                 [crypto-password "0.2.1"]]
+
   :target "target/%s/"
   :profiles {:dev      {:resource-paths ["config/dev"]}
              :local    {:resource-paths ["config/local"]}

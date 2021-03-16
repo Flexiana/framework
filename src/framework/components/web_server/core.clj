@@ -1,4 +1,4 @@
-(ns web-server
+(ns framework.components.web-server.core
   (:require
     [com.stuartsierra.component :as component]
     [ring.adapter.jetty :as jetty]))

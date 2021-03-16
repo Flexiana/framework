@@ -1,13 +1,11 @@
 (ns framework.db.storage
   (:require
-    [next.jdbc :as jdbc])
-  (:import
-    (com.stuartsierra.component
-      Lifecycle)))
+    [com.stuartsierra.component :as component]
+    [next.jdbc :as jdbc]))
 
 (defrecord PostgreSQL
   [config]
-  Lifecycle
+  component/Lifecycle
   (start [this]
          (let [datasource (jdbc/get-datasource config)]
            (-> this
