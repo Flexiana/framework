@@ -4,6 +4,7 @@
     [com.stuartsierra.component :as component]
     [framework.config.core :as config]
     [framework.db.storage :as db.storage]
+    [nrepl.server :refer [start-server stop-server]]
     [router]
     [web-server]))
 
@@ -27,6 +28,8 @@
         {:router     [:db]
          :app        [:router :db :acl-permissions :acl-roles]
          :web-server [:app]}))))
+
+(defonce server (start-server :port 7888))
 
 (defn -main
   [& _args]
