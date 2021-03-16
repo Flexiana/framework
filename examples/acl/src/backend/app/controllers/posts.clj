@@ -1,5 +1,6 @@
 (ns controllers.posts
   (:require
+    [clojure.core :as core]
     [clojure.string :as str]
     [clojure.walk :refer [keywordize-keys]]
     [framework.acl.core :as acl]
@@ -73,7 +74,7 @@
     views.posts/all-posts))
 
 (def view-map
-  {:get   fetch-posts
+  {:get    fetch-posts
    :post   update-post
    :put    create-post
    :delete delete-post})
@@ -94,17 +95,22 @@
   (xiana/ok (assoc state :query (query-map method))))
 
 (defn handle-id
-  [{req :http-request :as state}]
-  (println "handle-id" req)
-  (xiana/ok state))
+  [{{params :params} :http-request query :query :as state}]
+  (println "handle-id" params)
+  (xiana/ok (if (:id params)
+              (assoc state :query (-> query (where [:= :id (:id params)])))
+              state)))
 
 (defn view
   [{view :view :as state}]
+  (println (:query state))
   (view state))
 
-(defn some
-  [state]
-  (xiana/ok state))
+(defn restriction
+  [{{restriction :acl} :response-data query :query :as state}]
+  (case restriction
+    :own (xiana/ok (assoc state :query (-> query (merge-where [:= :user_id (get-in state [:session :user :id])]))))
+    (xiana/ok state)))
 
 (defn controller
   [state]
@@ -117,7 +123,7 @@
     select-view
     base-query
     handle-id
-    some
+    restriction
     view))
 
 
