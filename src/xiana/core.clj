@@ -4,7 +4,7 @@
     [cats.monad.either :as me]))
 
 (defrecord State
-  [http-request request-data response session-data deps])
+  [request request-data response session-data deps])
 
 (def ok me/right)
 
