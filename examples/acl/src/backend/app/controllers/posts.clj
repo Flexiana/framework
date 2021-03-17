@@ -123,14 +123,13 @@
 (defn view
   "Prepare and run view"
   [{view :view :as state}]
-  (println (:query state))
   (view state))
 
 (defn restriction-map
   [query user-id case-v]
   (get {[:own :get]    (-> query (merge-where [:= :user_id user-id]))
         [:own :post]   (-> query (merge-where [:= :user_id user-id]))
-        [:own :delete] (-> query (merge-values {:user_id user-id}))}
+        [:own :delete] (-> query (merge-where [:= :user_id user-id]))}
        case-v))
 
 (defn restriction
@@ -146,8 +145,6 @@
 
 (defn db-call
   [{query :query :as state}]
-  (println "RUN! " query)
-  (println "SQL: " (sql/format query))
   (let [result (execute state (sql/format query))]
     (xiana/ok (assoc-in state [:response-data :db-data] result))))
 
