@@ -1,6 +1,6 @@
 (ns framework.components.app.interceptors
   (:require
-    [xiana.commons :refer :all]
+    [xiana.commons :refer [?assoc-in]]
     [xiana.core :as xiana]))
 
 (comment

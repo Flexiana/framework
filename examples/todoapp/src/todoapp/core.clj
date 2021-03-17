@@ -1,25 +1,29 @@
 (ns todoapp.core
-  (:require [com.stuartsierra.component :as component]
-            [framework.db.storage :as db.storage]
-            [reitit.core :as r]
-            [jsonista.core :as json]
-            [reitit.ring :as ring]
-            [ring.adapter.jetty :as jetty]
-            [xiana.core :as xiana]
-            [next.jdbc :as jdbc]
-            [config.core :refer (load-env)])
-  (:import (org.eclipse.jetty.server Server)))
+  (:require
+    [com.stuartsierra.component :as component]
+    [config.core :refer (load-env)]
+    [framework.db.storage :as db.storage]
+    [jsonista.core :as json]
+    [next.jdbc :as jdbc]
+    [reitit.core :as r]
+    [reitit.ring :as ring]
+    [ring.adapter.jetty :as jetty]
+    [xiana.core :as xiana])
+  (:import
+    (org.eclipse.jetty.server
+      Server)))
+
 (defn make-web-server
   [web-server]
   (-> web-server
       (assoc :requires [{:app [:handler]}]
-             :provides [:http-server])
+        :provides [:http-server])
       (with-meta `{component/stop  ~(fn [{:keys [^Server http-server]
-                                         :as   this}]
+                                          :as   this}]
                                       (.stop http-server)
                                       (dissoc this :http-server))
                    component/start ~(fn [{:keys [app]
-                                         :as   this}]
+                                          :as   this}]
                                       (assoc this :http-server (jetty/run-jetty (:handler app) this)))})))
 
 (defn add-deps
@@ -56,9 +60,11 @@
   (-> request-data
       :controller
       (apply [state])))
-(defn state->handler [{:keys [router db]}
-                      state
-                      http-request]
+
+(defn state->handler
+  [{:keys [router db]}
+   state
+   http-request]
   (fn [http-request]
     (-> (xiana/flow-> state
                       (add-deps {:router router
@@ -73,12 +79,12 @@
   [ring]
   (-> ring
       (assoc :requires [:router :db]
-             :provides [:handler])
+        :provides [:handler])
       (with-meta `{component/stop  ~(fn [this] (dissoc this :handler))
                    component/start ~(fn [this]
                                       (assoc this
-                                             :handler
-                                             (partial state->handler this (xiana/map->State {}))))})))
+                                        :handler
+                                        (partial state->handler this (xiana/map->State {}))))})))
 
 (defn controller:index-view
   [state]
@@ -104,7 +110,6 @@
                                                :status  202})
                              xiana/ok)))))
       xiana/ok))
-
 
 (defn make-router
   []

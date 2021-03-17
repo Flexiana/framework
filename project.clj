@@ -15,11 +15,18 @@
                  [metosin/reitit "0.5.12"]
                  [funcool/cats "2.4.1"]
                  [com.draines/postal "2.0.4"]
-                 [funcool/cuerdas "2020.03.26-3"]
-                 [crypto-password "0.2.1"]]
+                 [crypto-password "0.2.1"]
+                 [garden "1.3.10"]
+                 [hickory "0.7.1"]
+                 [hiccup "1.0.5"]]
+  :plugins [[lein-tools-deps "0.4.5"]]
+  :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
+  :lein-tools-deps/config {:config-files [:install :user :project]}
 
+  :source-paths ["src"]
   :target "target/%s/"
-  :profiles {:dev      {:resource-paths ["config/dev"]}
+  :profiles {:dev      {:resource-paths ["config/dev"]
+                        :lein-tools-deps/config {:config-files [:install :user :project]}}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
