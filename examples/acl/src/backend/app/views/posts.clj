@@ -3,13 +3,13 @@
     [xiana.core :as xiana]))
 
 (defn post-view
-  [{{restriction :acl} :response-data :as state}]
+  [{response :response-data :as state}]
   (xiana/ok
     (assoc state
       :response
       {:status  200
        :headers {"Content-Type" "text/plain"}
-       :body    (str "Place of one post, filtered by " restriction)})))
+       :body    (str "Place of one post\n" response)})))
 
 (defn all-posts
   [{response :response-data :as state}]
@@ -22,4 +22,4 @@
 
 (defn not-allowed
   [state]
-  (xiana/error (assoc state :response {:status 401 :body "You don't have right to see posts"})))
+  (xiana/error (assoc state :response {:status 401 :body "You don't have rights to do this"})))

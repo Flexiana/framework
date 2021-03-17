@@ -1,6 +1,5 @@
 (ns controllers.posts
   (:require
-    [clojure.core :as core]
     [clojure.string :as str]
     [clojure.walk :refer [keywordize-keys]]
     [framework.acl.core :as acl]
@@ -8,8 +7,7 @@
     [honeysql.helpers :refer :all :as helpers]
     [next.jdbc :as jdbc]
     [ring.middleware.params :as par]
-    [ring.util.request :as rreq]
-    [views.posts :as views]
+    [views.posts]
     [xiana.core :as xiana])
   (:import
     (java.util
@@ -55,10 +53,15 @@
         (xiana/error (assoc state :response {:status 404 :body "User not found"})))))
 
 (defn fetch-posts
-  [state]
-  (xiana/flow->
-    state
-    views.posts/all-posts))
+  [{{{id :id} :query-params} :http-request
+    :as                      state}]
+  (if id
+    (xiana/flow->
+      state
+      views.posts/post-view)
+    (xiana/flow->
+      state
+      views.posts/all-posts)))
 
 (defn update-post
   [state]
