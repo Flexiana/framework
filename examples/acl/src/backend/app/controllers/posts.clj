@@ -111,7 +111,7 @@
                   method))))
 
 (defn handle-id
-  "Add where clause to SQL query if it's present"
+  "Add where clause to SQL query if it's necessary"
   [{{{id :id} :query-params
      method   :request-method} :http-request
     query                      :query
@@ -144,6 +144,7 @@
     (xiana/ok state)))
 
 (defn db-call
+  "Runs SQL query, inserts result into state"
   [{query :query :as state}]
   (let [result (execute state (sql/format query))]
     (xiana/ok (assoc-in state [:response-data :db-data] result))))
@@ -156,6 +157,7 @@
          method)))
 
 (defn handle-body
+  "Add content from form params"
   [{{form-params :form-params
      method      :request-method} :http-request
     {{user-id :id} :user}         :session
