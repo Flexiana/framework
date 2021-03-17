@@ -102,13 +102,23 @@
   [{{method :request-method} :http-request :as state}]
   (xiana/ok (assoc state :query (query-map method))))
 
+(defn handle-id-map
+  [query id method]
+  (when id (let [uuid-id (UUID/fromString id)]
+             (get {:get    (-> query (where [:= :id uuid-id]))
+                   :post   (-> query (where [:= :id uuid-id]))
+                   :delete (-> query (where [:= :id uuid-id]))}
+                  method))))
+
 (defn handle-id
   "Add where clause to SQL query if it's present"
-  [{{{id :id} :query-params} :http-request query :query :as state}]
-  (doseq [k (keys state)] (println [k (k state)]))
-  (xiana/ok (if id
-              (assoc state :query (-> query (where [:= :id (UUID/fromString id)])))
-              state)))
+  [{{{id :id} :query-params
+     method   :request-method} :http-request
+    query                      :query
+    :as                        state}]
+  (if-let [new-query (handle-id-map query id method)]
+    (xiana/ok (assoc state :query new-query))
+    (xiana/ok state)))
 
 (defn view
   "Prepare and run view"
@@ -116,11 +126,22 @@
   (println (:query state))
   (view state))
 
+(defn restriction-map
+  [query user-id case-v]
+  (get {[:own :get]    (-> query (merge-where [:= :user_id user-id]))
+        [:own :post]   (-> query (merge-where [:= :user_id user-id]))
+        [:own :delete] (-> query (merge-values {:user_id user-id}))}
+       case-v))
+
 (defn restriction
   "Extends WHERE clause if necessary, to check data-ownership"
-  [{{restriction :acl} :response-data query :query :as state}]
-  (case [restriction (get-in state [:http-request :request-method])]
-    [:own :get] (xiana/ok (assoc state :query (-> query (merge-where [:= :user_id (get-in state [:session :user :id])]))))
+  [{{restriction :acl}       :response-data
+    query                    :query
+    {{user-id :id} :user}    :session
+    {method :request-method} :http-request
+    :as                      state}]
+  (if-let [new-query (restriction-map query user-id [restriction method])]
+    (xiana/ok (assoc state :query new-query))
     (xiana/ok state)))
 
 (defn db-call
@@ -130,11 +151,22 @@
   (let [result (execute state (sql/format query))]
     (xiana/ok (assoc-in state [:response-data :db-data] result))))
 
+(defn handle-body-map
+  [query form-params user-id method]
+  (let [content (:content form-params)]
+    (get {:post (-> query (sset {:content content}))
+          :put  (-> query (columns :content :user_id) (values [[content user-id]]))}
+         method)))
+
 (defn handle-body
-  [{{form-params :form-params} :http-request query :query :as state}]
-  (xiana/ok (if form-params
-              (assoc state :query (-> query (values [(assoc form-params :user_id (get-in state [:session :user :id]))])))
-              state)))
+  [{{form-params :form-params
+     method      :request-method} :http-request
+    {{user-id :id} :user}         :session
+    query                         :query
+    :as                           state}]
+  (if-let [new-query (handle-body-map query form-params user-id method)]
+    (xiana/ok (assoc state :query new-query))
+    (xiana/ok state)))
 
 (defn controller
   "Example controller for ACL, and DataOwnership"

@@ -43,7 +43,7 @@
                                                 :actions     [:read]
                                                 :restriction :all}
                                                {:resource    "posts"
-                                                :actions     [:read :reply :react]
+                                                :actions     [:read :comment :react]
                                                 :restriction :friends}
                                                {:resource    "posts"
                                                 :actions     [:create :update :delete]
