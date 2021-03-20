@@ -25,7 +25,7 @@
    (-> {:url                  "http://localhost:3000/posts"
         :headers              {"Authorization" user}
         :unexceptional-status (constantly true)
-        :query-params          {:id id}
+        :query-params         {:id id}
         :method               :get}
        http/request))
   ([user]
@@ -63,7 +63,7 @@
         :headers              {"Authorization" test_admin}
         :unexceptional-status (constantly true)
         :form-params          {:content content}
-        :query-params          {:id id}
+        :query-params         {:id id}
         :method               :put}
        http/request))
   ([user id content]
@@ -71,7 +71,7 @@
         :headers              {"Authorization" user}
         :unexceptional-status (constantly true)
         :form-params          {:content content}
-        :query-params          {:id id}
+        :query-params         {:id id}
         :method               :put}
        http/request)))
 
@@ -129,10 +129,25 @@
     (is (= [1 (first orig-ids)]
            (-> {:url                  "http://localhost:3000/posts"
                 :unexceptional-status (constantly true)
-                :query-params          {:id (first orig-ids)}
+                :query-params         {:id (first orig-ids)}
                 :method               :get}
                http/request
                :body
                post-ids
                ((juxt count first)))) "Guest can read post by id")))
 
+(deftest guest-cannot-delete-posts
+  (let [orig-ids (all-post-ids)]
+    (is (= [401 "You don't have rights to do this"]
+           (-> {:url                  "http://localhost:3000/posts"
+                :unexceptional-status (constantly true)
+                :method               :delete}
+               http/request
+               ((juxt :status :body)))) "Guest can read all posts")
+    (is (= [401 "You don't have rights to do this"]
+           (-> {:url                  "http://localhost:3000/posts"
+                :unexceptional-status (constantly true)
+                :query-params         {:id (first orig-ids)}
+                :method               :delete}
+               http/request
+               ((juxt :status :body)))) "Guest can read post by id")))
