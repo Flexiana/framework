@@ -1,4 +1,10 @@
-{:framework.app/ring              {:defaults {:params    {:urlencoded true
+{:framework.db.storage/postgresql {:port     5432
+                                   :dbname   "acl"
+                                   :host     "localhost"
+                                   :dbtype   "postgresql"
+                                   :user     "postgres"
+                                   :password "postgres"}
+ :framework.app/ring              {:defaults {:params    {:urlencoded true
                                                           :multipart  true
                                                           :nested     true
                                                           :keywordize true}
@@ -15,4 +21,50 @@
                                               :responses {:not-modified-responses true
                                                           :absolute-redirects     true
                                                           :content-types          true}}}
- }
+ :framework.app/web-server        {:port  3000
+                                   :join? false}
+ :acl/permissions                 {"posts"    [:read :create :update :delete :comment :react]
+                                   "comments" [:read :create :update :delete :reply :react]
+                                   "users"    [:read :create :update :delete :ban]}
+ :acl/roles                       {:guest     [{:resource    "posts"
+                                                :actions     [:read]
+                                                :restriction :all}
+                                               {:resource    "comments"
+                                                :actions     [:read]
+                                                :restriction :all}]
+                                   :member    [{:resource    "posts"
+                                                :actions     [:read]
+                                                :restriction :all}
+                                               {:resource    "posts"
+                                                :actions     [:read :comment :react]
+                                                :restriction :friends}
+                                               {:resource    "posts"
+                                                :actions     [:create :update :delete]
+                                                :restriction :own}
+                                               {:resource    "comments"
+                                                :actions     [:create :update :delete]
+                                                :restriction :own}
+                                               {:resource    "comments"
+                                                :actions     [:read :reply :react]
+                                                :restriction :friend}
+                                               {:resource    "comments"
+                                                :actions     [:read]
+                                                :restriction :all}
+                                               {:resource    "users"
+                                                :actions     [:create :update :delete]
+                                                :restriction :own}
+                                               {:resource    "users"
+                                                :actions     [:read]
+                                                :restriction :all}]
+                                   :staff     [{:resource    "posts"
+                                                :actions     [:read :delete]
+                                                :restriction :all}
+                                               {:resource    "comments"
+                                                :actions     [:read :delete]
+                                                :restriction :all}
+                                               {:resource    "users"
+                                                :actions     [:read :ban]
+                                                :restriction :all}]
+                                   :superuser [{:resource    :all
+                                                :actions     [:all]
+                                                :restriction :all}]}}
