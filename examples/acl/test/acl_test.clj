@@ -25,7 +25,7 @@
    (-> {:url                  "http://localhost:3000/posts"
         :headers              {"Authorization" user}
         :unexceptional-status (constantly true)
-        :path-params          {:id id}
+        :query-params          {:id id}
         :method               :get}
        http/request))
   ([user]
@@ -63,7 +63,7 @@
         :headers              {"Authorization" test_admin}
         :unexceptional-status (constantly true)
         :form-params          {:content content}
-        :path-params          {:id id}
+        :query-params          {:id id}
         :method               :put}
        http/request))
   ([user id content]
@@ -71,7 +71,7 @@
         :headers              {"Authorization" user}
         :unexceptional-status (constantly true)
         :form-params          {:content content}
-        :path-params          {:id id}
+        :query-params          {:id id}
         :method               :put}
        http/request)))
 
@@ -108,6 +108,7 @@
     (try
       (delete-all-posts)
       (new-post "Test post")
+      (new-post "Second Test post")
       (f)
       (finally
         (delete-all-posts)
@@ -115,14 +116,23 @@
 
 (use-fixtures :once std-system-fixture)
 
-
-(deftest guest-post-actions)
-
-(let [orig-ids (all-post-ids)]
-  (is (= orig-ids (-> {:url                  "http://localhost:3000/posts"
-                       :unexceptional-status (constantly true)
-                       :method               :get}
-                      http/request
-                      :body
-                      post-ids))))
+(deftest guest-can-read-posts
+  (let [orig-ids (all-post-ids)]
+    (is (= [(count orig-ids) orig-ids]
+           (-> {:url                  "http://localhost:3000/posts"
+                :unexceptional-status (constantly true)
+                :method               :get}
+               http/request
+               :body
+               post-ids
+               ((juxt count identity)))) "Guest can read all posts")
+    (is (= [1 (first orig-ids)]
+           (-> {:url                  "http://localhost:3000/posts"
+                :unexceptional-status (constantly true)
+                :query-params          {:id (first orig-ids)}
+                :method               :get}
+               http/request
+               :body
+               post-ids
+               ((juxt count first)))) "Guest can read post by id")))
 

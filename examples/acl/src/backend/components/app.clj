@@ -84,7 +84,8 @@
                  (run-controller)
                  (post-controller-middlewares))
                (xiana/extract)
-               (get :response))))))
+               (get :response)))))
+  (stop [this]))
 
 (defn make-app
   [config]
