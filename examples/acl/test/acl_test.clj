@@ -6,6 +6,98 @@
     [components :as comps]
     [framework.config.core :as config]))
 
+(def test_customer "611d7f8a-456d-4f3c-802d-4d869dcd89bf")
+(def test_admin "b651939c-96e6-4fbb-88fb-299e728e21c8")
+(def test_suspended_admin "b01fae53-d742-4990-ac01-edadeb4f2e8f")
+(def test_staff "75c0d9b2-2c23-41a7-93a1-d1b716cdfa6c")
+
+(defn delete-all-posts
+  []
+  (-> {:url                  "http://localhost:3000/posts"
+       :headers              {"Authorization" test_admin}
+       :unexceptional-status (constantly true)
+       :method               :delete}
+      http/request))
+
+(defn fetch-posts
+  ([user id]
+   (-> {:url                  "http://localhost:3000/posts"
+        :headers              {"Authorization" user}
+        :unexceptional-status (constantly true)
+        :path-params          {:id id}
+        :method               :get}
+       http/request))
+  ([user]
+   (-> {:url                  "http://localhost:3000/posts"
+        :headers              {"Authorization" user}
+        :unexceptional-status (constantly true)
+        :method               :get}
+       http/request))
+  ([]
+   (-> {:url                  "http://localhost:3000/posts"
+        :headers              {"Authorization" test_admin}
+        :unexceptional-status (constantly true)
+        :method               :get}
+       http/request)))
+
+(defn new-post
+  ([content]
+   (-> {:url                  "http://localhost:3000/posts"
+        :headers              {"Authorization" test_admin}
+        :unexceptional-status (constantly true)
+        :form-params          {:content content}
+        :method               :put}
+       http/request))
+  ([user content]
+   (-> {:url                  "http://localhost:3000/posts"
+        :headers              {"Authorization" user}
+        :unexceptional-status (constantly true)
+        :form-params          {:content content}
+        :method               :put}
+       http/request)))
+
+(defn update-post
+  ([id content]
+   (-> {:url                  "http://localhost:3000/posts"
+        :headers              {"Authorization" test_admin}
+        :unexceptional-status (constantly true)
+        :form-params          {:content content}
+        :path-params          {:id id}
+        :method               :put}
+       http/request))
+  ([user id content]
+   (-> {:url                  "http://localhost:3000/posts"
+        :headers              {"Authorization" user}
+        :unexceptional-status (constantly true)
+        :form-params          {:content content}
+        :path-params          {:id id}
+        :method               :put}
+       http/request)))
+
+(def post-id-regex
+  #":posts\/id #uuid \"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12})")
+
+(defn post-ids
+  [body]
+  (map last (re-seq post-id-regex body)))
+
+(defn logit
+  [x]
+  (println x)
+  x)
+
+(defn all-post-ids
+  []
+  (-> (fetch-posts)
+      :body
+      post-ids))
+
+(defn update-count
+  [body]
+  (-> (re-find #"update-count (\d+)" body)
+      last
+      Integer/parseInt))
+
 (defn std-system-fixture
   [f]
   (let [config (config/edn)
@@ -13,9 +105,15 @@
                    comps/system
                    component/start)]
     (try
+      (delete-all-posts)
+      (new-post "Test post")
       (f)
       (finally
+        (delete-all-posts)
         (component/stop system)))))
 
 (use-fixtures :once std-system-fixture)
+
+
+(deftest guest-post-actions)
 
