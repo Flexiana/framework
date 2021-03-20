@@ -17,14 +17,19 @@
   [state]
   (xiana/error (assoc state :response {:status 401 :body "Unauthorized"})))
 
+(defn guest
+  [state]
+  (xiana/ok (assoc-in state [:session :user] {:id (UUID/randomUUID)
+                                              :role :guest})))
+
 (defn require-logged-in
   "Tricky login, session should handle user data"
   [{req :http-request :as state}]
   (if-let [authorization (get-in req [:headers "authorization"])]
     (try (xiana/ok (-> (assoc-in state [:session-data :authorization] authorization)
                        (assoc-in [:session :user :id] (UUID/fromString authorization))))
-         (catch IllegalArgumentException e (unauthorized state)))
-    (unauthorized state)))
+         (catch IllegalArgumentException e (guest state)))
+    (guest state)))
 
 (defn add-params
   "Extract parameters from request, should be middleware, or interceptor"
@@ -50,7 +55,7 @@
                   sql/format)
         user (first (execute state query))]
     (if user (xiana/ok (assoc-in state [:session :user] (purify user)))
-        (xiana/error (assoc state :response {:status 404 :body "User not found"})))))
+        (xiana/ok state))))
 
 (defn fetch-posts
   [{{{id :id} :query-params} :http-request

@@ -6,6 +6,7 @@
     [components :as comps]
     [framework.config.core :as config]))
 
+(def test_guest "")
 (def test_customer "611d7f8a-456d-4f3c-802d-4d869dcd89bf")
 (def test_admin "b651939c-96e6-4fbb-88fb-299e728e21c8")
 (def test_suspended_admin "b01fae53-d742-4990-ac01-edadeb4f2e8f")
@@ -116,4 +117,12 @@
 
 
 (deftest guest-post-actions)
+
+(let [orig-ids (all-post-ids)]
+  (is (= orig-ids (-> {:url                  "http://localhost:3000/posts"
+                       :unexceptional-status (constantly true)
+                       :method               :get}
+                      http/request
+                      :body
+                      post-ids))))
 
