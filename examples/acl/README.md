@@ -1,29 +1,57 @@
 # acl
 
-FIXME: description
+API implementation for ACL example
 
 ## Usage
 
-### Build frontend and run the backend
+### Prepare
 
-    lein release
+- start postgres with docker-compose, or with `postgres-start.sh` shell-script
+- apply tables and default users from migration sqls
+
+### Run application
 
     lein run
 
-### Open re-frame app
+### Run tests
 
-    open http://localhost:3000/re-frame
+    lein test
 
-### Try controllers
 
-    curl http://localhost:3000/
-    Unauthorized
+
+### Try controller
+
+#### test user-ids:
+
+|role            |user-id                               |
+|----------------|--------------------------------------|
+|guest           | Optional                             |
+|member          | 611d7f8a-456d-4f3c-802d-4d869dcd89bf |
+|admin           | b651939c-96e6-4fbb-88fb-299e728e21c8 |
+|suspended_admin | b01fae53-d742-4990-ac01-edadeb4f2e8f |
+|staff           | 75c0d9b2-2c23-41a7-93a1-d1b716cdfa6c |
+
+#### Test actions:
+
+to select acting user, add `-H "Authorization: {{user-id}}"` to curl parameters
+
+get all posts:
+
+    curl http://localhost:3000/posts
+
+get post by id:
+
+    curl http://localhost:3000/posts?id={{post-id}}
+
+create new post:
     
-    curl http://localhost:3000/wrong
-    Not Found
-    
-    curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/
-    Index page
-    
-    curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/wrong
-    Not Found
+    curl -X PUT -d 'content=something to post' http://localhost:3000/posts
+
+update existing post:
+
+    curl -X POST -d 'content=Update post to this' http://localhost:3000/posts?id={{post-id}}
+
+delete post:
+
+    curl -X DELETE http://localhost:3000/posts?id={{post-id}}
+
