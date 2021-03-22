@@ -47,6 +47,6 @@
              :migration-dir "migrations"
              :db            {:classname   "com.mysql.jdbc.Driver"
                              :subprotocol "postgres"
-                             :subname     "//localhost/controllers"
+                             :subname     "//localhost/acl"
                              :user        "postgres"
                              :password    "postgres"}})
