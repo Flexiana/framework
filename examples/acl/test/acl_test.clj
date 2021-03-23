@@ -128,7 +128,6 @@
     (try
       (f)
       (finally
-        (delete-posts)
         (component/stop system)))))
 
 (use-fixtures :once std-system-fixture)
