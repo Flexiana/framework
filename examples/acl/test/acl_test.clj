@@ -4,7 +4,12 @@
     [clojure.test :refer [deftest is use-fixtures]]
     [com.stuartsierra.component :as component]
     [components :as comps]
-    [framework.config.core :as config]))
+    [framework.config.core :as config]
+    [migratus.core :as migratus]
+    [next.jdbc :as jdbc])
+  (:import
+    (com.opentable.db.postgres.embedded
+      EmbeddedPostgres)))
 
 (def test_member "611d7f8a-456d-4f3c-802d-4d869dcd89bf")
 (def test_admin "b651939c-96e6-4fbb-88fb-299e728e21c8")
@@ -92,24 +97,50 @@
       last
       Integer/parseInt))
 
+(defn embedded-postgres!
+  [config]
+  (let [pg (.start (EmbeddedPostgres/builder))
+        pg-port (.getPort pg)
+        init-sql (slurp "./Docker/init.sql")
+        db-config (-> config
+                      :framework.db.storage/postgresql
+                      (assoc
+                        :port pg-port
+                        :subname (str "//localhost:" pg-port "/acl")))]
+    (jdbc/execute! (dissoc db-config :dbname) [init-sql])
+    (assoc config :framework.db.storage/postgresql db-config)))
+
+(defn migrate!
+  [config]
+  (let [db (:framework.db.storage/postgresql config)
+        mig-config (assoc (:framework.db.storage/migration config) :db db)]
+    (migratus/migrate mig-config))
+  config)
+
 (defn std-system-fixture
   [f]
   (let [config (config/edn)
         system (-> config
+                   embedded-postgres!
+                   migrate!
                    comps/system
                    component/start)]
     (try
-      (delete-posts)
-      (new-post "Test post")
-      (new-post "Second Test post")
       (f)
       (finally
         (delete-posts)
         (component/stop system)))))
 
-(use-fixtures :each std-system-fixture)
+(use-fixtures :once std-system-fixture)
+
+(defn init-db-with-two-posts
+  []
+  (delete-posts)
+  (new-post "Test post")
+  (new-post "Second Test post"))
 
 (deftest guest-can-read-posts
+  (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
     (is (= [(count orig-ids) orig-ids]
            (-> {:url                  "http://localhost:3000/posts"
@@ -130,6 +161,7 @@
                ((juxt count first)))) "Guest can read post by id")))
 
 (deftest guest-cannot-delete-posts
+  (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
     (is (= [401 "You don't have rights to do this"]
            (-> {:url                  "http://localhost:3000/posts"
@@ -146,6 +178,7 @@
                ((juxt :status :body)))) "Guest cannot delete post by id")))
 
 (deftest guest-cannot-create-post
+  (init-db-with-two-posts)
   (is (= [401 "You don't have rights to do this"]
          (-> {:url                  "http://localhost:3000/posts"
               :unexceptional-status (constantly true)
@@ -155,6 +188,7 @@
              ((juxt :status :body)))) "Guest cannot create new post"))
 
 (deftest guest-cannot-update-post
+  (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
     (is (= [401 "You don't have rights to do this"]
            (-> {:url                  "http://localhost:3000/posts"
@@ -166,6 +200,7 @@
                ((juxt :status :body)))) "Guest cannot update post")))
 
 (deftest member-can-read-posts
+  (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
     (is (= [(count orig-ids) orig-ids] (-> (fetch-posts test_member)
                                            :body
@@ -177,6 +212,7 @@
                                     ((juxt count first)))) "Member can read all posts")))
 
 (deftest member-can-create-post
+  (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
     (is (= 1 (-> (new-post test_member "It will be stored")
                  :body
