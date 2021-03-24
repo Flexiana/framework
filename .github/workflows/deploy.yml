@@ -1,0 +1,45 @@
+name: Push to Clojars
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  push-to-clojars:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup Clojure
+      uses: DeLaGuardo/setup-clojure@3.1
+      with:
+        cli: '1.10.2.796'
+      
+    - name: Cache
+      uses: actions/cache@v2.1.4
+      with:
+        path: ~/.m2
+        key: m2-${{ hashFiles('project.clj') }}
+        restore-keys: |
+          m2-
+
+    - name: Setup babashka
+      run: |
+        curl -L  https://github.com/borkdude/babashka/releases/download/v0.2.5/babashka-0.2.5-linux-amd64.zip -o bb.zip
+        unzip bb.zip
+        chmod +x bb
+        sudo mv bb /usr/bin
+
+    - name: Set TAG env variable
+      run: echo "TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+    - name: Deploy to Clojars
+      env:
+        CLOJARS_LOGIN: ${{ secrets.CLOJARS_LOGIN }}
+        CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
+        GPG_OWNERTRUST: ${{ secrets.GPG_OWNERTRUST }}
+        GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
+        TAG: ${{ env.TAG }}
+      run: /usr/bin/bb ./.github/clojars_deploy.bb
