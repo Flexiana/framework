@@ -105,6 +105,7 @@
         db-config (-> config
                       :framework.db.storage/postgresql
                       (assoc
+                        :embedded pg
                         :port pg-port
                         :subname (str "//localhost:" pg-port "/acl")))]
     (jdbc/execute! (dissoc db-config :dbname) [init-sql])
@@ -128,6 +129,7 @@
     (try
       (f)
       (finally
+        (.close (get-in system [:db :config :embedded]))
         (component/stop system)))))
 
 (use-fixtures :once std-system-fixture)
