@@ -4,7 +4,7 @@
     [xiana.core :as xiana]))
 
 (defn session-middleware
-  [{request :http-request :as state}]
+  [{request :request :as state}]
   (let [sessions-backend (-> state
                              :deps
                              :session

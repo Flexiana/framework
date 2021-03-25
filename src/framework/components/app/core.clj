@@ -3,6 +3,8 @@
     [cats.core :as m]
     [com.stuartsierra.component :as component]
     [reitit.core :as r]
+    [framework.acl.builder.roles :as abr]
+    [framework.acl.builder.permissions :as abp]
     [xiana.commons :refer [?assoc-in]]
     [xiana.core :as xiana]))
 
@@ -65,12 +67,21 @@
        (map context)
        (map #(fn [x] (% x)))))
 
+(defn init-acl
+  [this config]
+  (println "init-acl "this config)
+  (xiana/flow->
+    this
+    (abp/init (:acl/permissions config))
+    (abr/init (:acl/roles config))))
+
 (defrecord App
-  [config router db]
+  [config acl-cfg router db]
 
   component/Lifecycle
   (stop [this] this)
   (start [this]
+         (println "Start: " this)
          (assoc this
            :handler
 
@@ -80,7 +91,8 @@
                  (concat
                    [(xiana.core/ok (create-empty-state))
                     (fn [x] (add-deps x {:router router, :db db}))
-                    (fn [x] (add-http-request x http-request))]
+                    (fn [x] (add-http-request x http-request))
+                    (fn [this] (init-acl this acl-cfg))]
                    (-> this :router-interceptors (select-interceptors :enter identity))
                    [(fn [x] (route x))]
                    (-> this :router-interceptors (select-interceptors :leave reverse))
@@ -91,5 +103,5 @@
                (get :response))))))
 
 (defn make-app
-  [config router-interceptors controller-interceptors]
-  (map->App {:config config :router-interceptors router-interceptors :controller-interceptors controller-interceptors}))
+  [config acl-cfg router-interceptors controller-interceptors]
+  (map->App {:config config :acl-cfg acl-cfg :router-interceptors router-interceptors :controller-interceptors controller-interceptors}))

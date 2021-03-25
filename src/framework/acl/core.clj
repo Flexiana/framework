@@ -28,9 +28,9 @@
   |:post   | :update |
   |:put    | :create |
   |:delete | :delete |"
-  ([{{user :user} :session roles :acl/roles {method :request-method} :http-request :as state} {:keys [role privilege resource] :as access}]
+  ([{{{{user :user} :session-data} :session} :deps roles :acl/roles {method :request-method} :request :as state} {:keys [role privilege resource] :as access}]
    (let [pr (or privilege (action-mapping method))
-         res (or resource (->resource (get-in state [:http-request :uri])))
+         res (or resource (->resource (get-in state [:request :uri])))
          role (or role (:role user))
          result (has-access roles user {:resource  res
                                         :role      role
@@ -38,7 +38,7 @@
      (cond result (xiana/ok (assoc-in state [:response-data :acl] result))
            (:or-else access) ((:or-else access) state)
            :else (xiana/error (assoc state :response {:status 401 :body "Authorization error"})))))
-  ([{{user :user} :session http-request :http-request :as state}]
+  ([{{{{user :user} :session-data} :session} :deps http-request :request :as state}]
    (let [permissions (:acl/roles state)
          resource (->resource (:uri http-request))
          privilege (action-mapping (:request-method http-request))
