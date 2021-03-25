@@ -68,9 +68,7 @@
 
 (defn init-acl
   [this config]
-  (xiana/flow->
-    this
-    (acl-builder/init config)))
+  (acl-builder/init this config))
 
 (defrecord App
   [config acl-cfg router db]
