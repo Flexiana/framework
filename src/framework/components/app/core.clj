@@ -2,9 +2,9 @@
   (:require
     [cats.core :as m]
     [com.stuartsierra.component :as component]
-    [reitit.core :as r]
-    [framework.acl.builder.roles :as abr]
     [framework.acl.builder.permissions :as abp]
+    [framework.acl.builder.roles :as abr]
+    [reitit.core :as r]
     [xiana.commons :refer [?assoc-in]]
     [xiana.core :as xiana]))
 
@@ -69,7 +69,6 @@
 
 (defn init-acl
   [this config]
-  (println "init-acl "this config)
   (xiana/flow->
     this
     (abp/init (:acl/permissions config))
@@ -77,14 +76,11 @@
 
 (defrecord App
   [config acl-cfg router db]
-
   component/Lifecycle
   (stop [this] this)
   (start [this]
-         (println "Start: " this)
          (assoc this
            :handler
-
            (fn [http-request]
              (->
                (apply m/>>=
