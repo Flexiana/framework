@@ -2,8 +2,7 @@
   (:require
     [cats.core :as m]
     [com.stuartsierra.component :as component]
-    [framework.acl.builder.permissions :as abp]
-    [framework.acl.builder.roles :as abr]
+    [framework.acl.builder :as acl-builder]
     [reitit.core :as r]
     [xiana.commons :refer [?assoc-in]]
     [xiana.core :as xiana]))
@@ -71,8 +70,7 @@
   [this config]
   (xiana/flow->
     this
-    (abp/init (:acl/permissions config))
-    (abr/init (:acl/roles config))))
+    (acl-builder/init config)))
 
 (defrecord App
   [config acl-cfg router db]
