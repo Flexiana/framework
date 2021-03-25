@@ -3,7 +3,7 @@
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
     [com.stuartsierra.component :as component]
-    [components :as comps]
+    [acl]
     [framework.config.core :as config]
     [migratus.core :as migratus]
     [next.jdbc :as jdbc])
@@ -124,7 +124,7 @@
         system (-> config
                    embedded-postgres!
                    migrate!
-                   comps/system
+                   acl/system
                    component/start)]
     (try
       (f)

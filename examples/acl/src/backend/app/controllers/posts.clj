@@ -19,22 +19,22 @@
 
 (defn guest
   [state]
-  (xiana/ok (assoc-in state [:session :user] {:id (UUID/randomUUID)
-                                              :role :guest})))
+  (xiana/ok (assoc-in state [:deps :session :session-data :user] {:id   (UUID/randomUUID)
+                                                                  :role :guest})))
 
 (defn require-logged-in
   "Tricky login, session should handle user data"
-  [{req :http-request :as state}]
+  [{req :request :as state}]
   (if-let [authorization (get-in req [:headers "authorization"])]
     (try (xiana/ok (-> (assoc-in state [:session-data :authorization] authorization)
-                       (assoc-in [:session :user :id] (UUID/fromString authorization))))
+                       (assoc-in [:deps :session :session-data :user :id] (UUID/fromString authorization))))
          (catch IllegalArgumentException e (guest state)))
     (guest state)))
 
 (defn add-params
   "Extract parameters from request, should be middleware, or interceptor"
   [state]
-  (xiana/ok (clojure.core/update state :http-request #(keywordize-keys ((par/wrap-params identity) %)))))
+  (xiana/ok (clojure.core/update state :request #(keywordize-keys ((par/wrap-params identity) %)))))
 
 (defn execute
   "Executes db query"
@@ -48,17 +48,17 @@
 
 (defn fetch-user
   "Tricky login. Session should handle user data"
-  [{{{id :id} :user} :session :as state}]
+  [{{{{{id :id} :user} :session-data} :session} :deps :as state}]
   (let [query (-> (select :*)
                   (from :users)
                   (where [:= :id id])
                   sql/format)
         user (first (execute state query))]
-    (if user (xiana/ok (assoc-in state [:session :user] (purify user)))
-        (xiana/ok state))))
+    (if user (xiana/ok (assoc-in state [:deps :session :session-data :user] (purify user)))
+             (xiana/ok state))))
 
 (defn fetch-posts
-  [{{{id :id} :query-params} :http-request
+  [{{{id :id} :query-params} :request
     :as                      state}]
   (if id
     (xiana/flow->
@@ -94,7 +94,7 @@
 
 (defn select-view
   "Inserts view, depends on request-method"
-  [{{method :request-method} :http-request :as state}]
+  [{{method :request-method} :request :as state}]
   (xiana/ok (assoc state :view (view-map method))))
 
 (def query-map
@@ -107,7 +107,7 @@
 
 (defn base-query
   "Inserting SQL query into state"
-  [{{method :request-method} :http-request :as state}]
+  [{{method :request-method} :request :as state}]
   (xiana/ok (assoc state :query (query-map method))))
 
 (defn handle-id-map
@@ -121,7 +121,7 @@
 (defn handle-id
   "Add where clause to SQL query if it's necessary"
   [{{{id :id} :query-params
-     method   :request-method} :http-request
+     method   :request-method} :request
     query                      :query
     :as                        state}]
   (if-let [new-query (handle-id-map query id method)]
@@ -142,11 +142,11 @@
 
 (defn restriction
   "Extends WHERE clause if necessary, to check data-ownership"
-  [{{restriction :acl}       :response-data
-    query                    :query
-    {{user-id :id} :user}    :session
-    {method :request-method} :http-request
-    :as                      state}]
+  [{{restriction :acl}                               :response-data
+    query                                            :query
+    {{{{user-id :id} :user} :session-data} :session} :deps
+    {method :request-method}                         :request
+    :as                                              state}]
   (if-let [new-query (restriction-map query user-id [restriction method])]
     (xiana/ok (assoc state :query new-query))
     (xiana/ok state)))
@@ -167,10 +167,10 @@
 (defn handle-body
   "Add content from form params"
   [{{form-params :form-params
-     method      :request-method} :http-request
-    {{user-id :id} :user}         :session
-    query                         :query
-    :as                           state}]
+     method      :request-method}                    :request
+    {{{{user-id :id} :user} :session-data} :session} :deps
+    query                                            :query
+    :as                                              state}]
   (if-let [new-query (handle-body-map query form-params user-id method)]
     (xiana/ok (assoc state :query new-query))
     (xiana/ok state)))
