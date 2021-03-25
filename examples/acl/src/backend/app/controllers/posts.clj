@@ -1,61 +1,11 @@
 (ns controllers.posts
   (:require
-    [clojure.string :as str]
-    [clojure.walk :refer [keywordize-keys]]
-    [framework.acl.core :as acl]
-    [honeysql.core :as sql]
     [honeysql.helpers :refer :all :as helpers]
-    [next.jdbc :as jdbc]
-    [ring.middleware.params :as par]
     [views.posts]
     [xiana.core :as xiana])
   (:import
     (java.util
       UUID)))
-
-(defn unauthorized
-  [state]
-  (xiana/error (assoc state :response {:status 401 :body "Unauthorized"})))
-
-(defn guest
-  [state]
-  (xiana/ok (assoc-in state [:deps :session :session-data :user] {:id   (UUID/randomUUID)
-                                                                  :role :guest})))
-
-(defn require-logged-in
-  "Tricky login, session should handle user data"
-  [{req :request :as state}]
-  (if-let [authorization (get-in req [:headers "authorization"])]
-    (try (xiana/ok (-> (assoc-in state [:session-data :authorization] authorization)
-                       (assoc-in [:deps :session :session-data :user :id] (UUID/fromString authorization))))
-         (catch IllegalArgumentException e (guest state)))
-    (guest state)))
-
-(defn add-params
-  "Extract parameters from request, should be middleware, or interceptor"
-  [state]
-  (xiana/ok (clojure.core/update state :request #(keywordize-keys ((par/wrap-params identity) %)))))
-
-(defn execute
-  "Executes db query"
-  [state query]
-  (jdbc/execute! (get-in state [:deps :db :datasource]) query))
-
-(defn purify
-  "Removes namespaces from keywords"
-  [elem]
-  (into {} (map (fn [[k v]] {(keyword (last (str/split (name k) #"/"))) v}) elem)))
-
-(defn fetch-user
-  "Tricky login. Session should handle user data"
-  [{{{{{id :id} :user} :session-data} :session} :deps :as state}]
-  (let [query (-> (select :*)
-                  (from :users)
-                  (where [:= :id id])
-                  sql/format)
-        user (first (execute state query))]
-    (if user (xiana/ok (assoc-in state [:deps :session :session-data :user] (purify user)))
-             (xiana/ok state))))
 
 (defn fetch-posts
   [{{{id :id} :query-params} :request
@@ -94,7 +44,7 @@
 
 (defn select-view
   "Inserts view, depends on request-method"
-  [{{method :request-method} :request :as state}]
+  [{{method :request-method} :request :as state} view-map]
   (xiana/ok (assoc state :view (view-map method))))
 
 (def query-map
@@ -107,7 +57,7 @@
 
 (defn base-query
   "Inserting SQL query into state"
-  [{{method :request-method} :request :as state}]
+  [{{method :request-method} :request :as state} query-map]
   (xiana/ok (assoc state :query (query-map method))))
 
 (defn handle-id-map
@@ -123,39 +73,11 @@
   [{{{id :id} :query-params
      method   :request-method} :request
     query                      :query
-    :as                        state}]
+    :as                        state}
+   handle-id-map]
   (if-let [new-query (handle-id-map query id method)]
     (xiana/ok (assoc state :query new-query))
     (xiana/ok state)))
-
-(defn view
-  "Prepare and run view"
-  [{view :view :as state}]
-  (view state))
-
-(defn restriction-map
-  [query user-id case-v]
-  (get {[:own :get]    (-> query (merge-where [:= :user_id user-id]))
-        [:own :post]   (-> query (merge-where [:= :user_id user-id]))
-        [:own :delete] (-> query (merge-where [:= :user_id user-id]))}
-       case-v))
-
-(defn restriction
-  "Extends WHERE clause if necessary, to check data-ownership"
-  [{{restriction :acl}                               :response-data
-    query                                            :query
-    {{{{user-id :id} :user} :session-data} :session} :deps
-    {method :request-method}                         :request
-    :as                                              state}]
-  (if-let [new-query (restriction-map query user-id [restriction method])]
-    (xiana/ok (assoc state :query new-query))
-    (xiana/ok state)))
-
-(defn db-call
-  "Runs SQL query, inserts result into state"
-  [{query :query :as state}]
-  (let [result (execute state (sql/format query))]
-    (xiana/ok (assoc-in state [:response-data :db-data] result))))
 
 (defn handle-body-map
   [query form-params user-id method]
@@ -170,7 +92,8 @@
      method      :request-method}                    :request
     {{{{user-id :id} :user} :session-data} :session} :deps
     query                                            :query
-    :as                                              state}]
+    :as                                              state}
+   handle-body-map]
   (if-let [new-query (handle-body-map query form-params user-id method)]
     (xiana/ok (assoc state :query new-query))
     (xiana/ok state)))
@@ -180,14 +103,7 @@
   [state]
   (xiana/flow->
     state
-    require-logged-in
-    fetch-user
-    (acl/is-allowed {:or-else views.posts/not-allowed})
-    add-params
-    select-view
-    base-query
-    handle-id
-    handle-body
-    restriction
-    db-call
-    view))
+    (select-view view-map)
+    (base-query query-map)
+    (handle-id handle-id-map)
+    (handle-body handle-body-map)))

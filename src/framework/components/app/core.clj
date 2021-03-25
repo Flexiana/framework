@@ -16,6 +16,11 @@
   (xiana/ok
     (assoc state :deps deps)))
 
+(defn add-session-backend
+  [state session-backend]
+  (xiana/ok
+    (update state :deps assoc :session-backend session-backend)))
+
 (defn add-http-request
   [state http-request]
   (xiana/ok
@@ -71,29 +76,34 @@
   (acl-builder/init this config))
 
 (defrecord App
-  [config acl-cfg router db]
+  [config acl-cfg session-backend router db]
   component/Lifecycle
   (stop [this] this)
   (start [this]
-         (assoc this
-           :handler
-           (fn [http-request]
-             (->
-               (apply m/>>=
+    (assoc this
+      :handler
+      (fn [http-request]
+        (->
+          (apply m/>>=
                  (concat
                    [(xiana.core/ok (create-empty-state))
                     (fn [x] (add-deps x {:router router, :db db}))
+                    (fn [x] (add-session-backend x session-backend))
                     (fn [x] (add-http-request x http-request))
-                    (fn [this] (init-acl this acl-cfg))]
+                    (fn [x] (init-acl x acl-cfg))]
                    (-> this :router-interceptors (select-interceptors :enter identity))
                    [(fn [x] (route x))]
                    (-> this :router-interceptors (select-interceptors :leave reverse))
                    (-> this :controller-interceptors (select-interceptors :enter identity))
                    [(fn [x] (run-controller x))]
                    (-> this :controller-interceptors (select-interceptors :leave reverse))))
-               (xiana/extract)
-               (get :response))))))
+          (xiana/extract)
+          (get :response))))))
 
 (defn make-app
-  [config acl-cfg router-interceptors controller-interceptors]
-  (map->App {:config config :acl-cfg acl-cfg :router-interceptors router-interceptors :controller-interceptors controller-interceptors}))
+  [config acl-cfg session-backend router-interceptors controller-interceptors]
+  (map->App {:config                  config
+             :acl-cfg                 acl-cfg
+             :session-backend         session-backend
+             :router-interceptors     router-interceptors
+             :controller-interceptors controller-interceptors}))

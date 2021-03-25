@@ -1,6 +1,9 @@
 (ns framework.components.session.backend
   (:require
-    [com.stuartsierra.component :as component]))
+    [com.stuartsierra.component :as component])
+  (:import
+    (java.util
+      UUID)))
 
 (defprotocol SessionStore
   (fetch
@@ -18,7 +21,7 @@
      (fetch [_ k]
        (get @store k))
      (add! [_ k v]
-       (let [key (or k (java.util.UUID/randomUUID))]
+       (let [key (or k (UUID/randomUUID))]
          (swap! store assoc key v)))
      (delete! [_ k]
        (swap! store dissoc k))
@@ -34,5 +37,7 @@
     (assoc this :session-backend (init-in-memory-session))))
 
 (defn make-session-store
-  []
-  (map->SessionBackend {}))
+  ([m]
+   (map->SessionBackend m))
+  ([]
+   (map->SessionBackend {})))
