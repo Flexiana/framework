@@ -28,7 +28,11 @@
   |:post   | :update |
   |:put    | :create |
   |:delete | :delete |"
-  ([{{user :user} :session-data roles :acl/roles {method :request-method} :request :as state} {:keys [role privilege resource] :as access}]
+  ([{{user :user}             :session-data
+     roles                    :acl/roles
+     {method :request-method} :request
+     :as                      state}
+    {:keys [role privilege resource] :as access}]
    (let [pr (or privilege (action-mapping method))
          res (or resource (->resource (get-in state [:request :uri])))
          role (or role (:role user))
