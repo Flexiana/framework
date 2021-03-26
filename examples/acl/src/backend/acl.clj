@@ -1,6 +1,7 @@
 (ns acl
   (:require
     [com.stuartsierra.component :as component]
+    [controller-behaviors.posts :as behaviors]
     [controllers.index :as index]
     [controllers.posts :as posts]
     [controllers.re-frame :as re-frame]
@@ -18,13 +19,17 @@
   [["/" {:controller index/handle-index}]
    ["/re-frame" {:controller re-frame/handle-index}]
    ["/posts" {:get    {:handler    xiana.app/default-handler
-                       :controller posts/controller}
+                       :controller posts/controller
+                       :behavior   behaviors/get-map}
               :put    {:handler    xiana.app/default-handler
-                       :controller posts/controller}
+                       :controller posts/controller
+                       :behavior   behaviors/put-map}
               :post   {:handler    xiana.app/default-handler
-                       :controller posts/controller}
+                       :controller posts/controller
+                       :behavior   behaviors/post-map}
               :delete {:handler    xiana.app/default-handler
-                       :controller posts/controller}}]
+                       :controller posts/controller
+                       :behavior   behaviors/delete-map}}]
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defn system
@@ -45,13 +50,14 @@
                                  acl-cfg
                                  session-bcknd
                                  []
-                                 [interceptors/log
+                                 [;interceptors/log
                                   interceptors/params
                                   interceptors/require-logged-in
                                   interceptors/session-interceptor
                                   interceptors/view
                                   interceptors/db-access
-                                  interceptors/acl-restrict])
+                                  interceptors/acl-restrict
+                                  interceptors/query-builder])
         :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using
         {:router     [:db]

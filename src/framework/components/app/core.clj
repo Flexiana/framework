@@ -44,16 +44,19 @@
   (let [match (r/match-by-path (:ring-router router) (:uri request))
         method (:request-method request)
         handler (or (get-in match [:data :handler]) (-> match :result method :handler))
-        controller (or (get-in match [:data :controller]) (-> match :data method :controller))]
+        controller (or (get-in match [:data :controller]) (-> match :data method :controller))
+        behavior (-> match :data method :behavior)]
     (if controller
       (xiana/ok (-> state
                     (?assoc-in [:request-data :match] match)
                     (?assoc-in [:request-data :handler] handler)
+                    (?assoc-in [:behavior] behavior)
                     (assoc-in [:request-data :controller] controller)))
 
       (if handler
         (xiana/ok (-> state
                       (?assoc-in [:request-data :match] match)
+                      (?assoc-in [:behavior] behavior)
                       (assoc-in [:request-data :handler] handler)
                       (assoc-in [:request-data :controller] default-controller)))
         (xiana/error (response state {:status 404 :body "Not Found"}))))))

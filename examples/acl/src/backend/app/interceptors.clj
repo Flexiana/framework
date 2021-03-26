@@ -6,22 +6,11 @@
     [honeysql.core :as sql]
     [honeysql.helpers :refer :all :as helpers]
     [next.jdbc :as jdbc]
-    [potemkin :refer [import-vars]]
     [ring.middleware.params :as par]
     [xiana.core :as xiana])
   (:import
     (java.util
       UUID)))
-
-(comment
-  (import-vars
-    [framework.components.app.interceptors
-     sample-router-interceptor
-     sample-controller-interceptor]))
-
-(def sample-acl-controller-interceptor
-  {:enter (fn [{request :request {:keys [handler controller match]} :request-data :as state}]
-            (xiana/ok state))})
 
 (def log
   {:enter (fn [s]
@@ -100,21 +89,12 @@
                   (xiana/ok state)))
               (xiana/ok state)))
    :leave (fn [{query :query :as state}]
-            (println query)
             (let [result (execute state (sql/format query))]
-              (println result)
               (xiana/ok (assoc-in state [:response-data :db-data] result))))})
 
 (def view
-  {:leave (fn [{view :view :as state}]
+  {:leave (fn [{{view :view} :behavior :as state}]
             (view state))})
-
-(defn restriction-map
-  [query user-id case-v]
-  (get {[:own :get]    (-> query (merge-where [:= :user_id user-id]))
-        [:own :post]   (-> query (merge-where [:= :user_id user-id]))
-        [:own :delete] (-> query (merge-where [:= :user_id user-id]))}
-       case-v))
 
 (def acl-restrict
   {:enter (fn [state]
@@ -122,8 +102,19 @@
    :leave (fn [{{restriction :acl}                               :response-data
                 query                                            :query
                 {{{{user-id :id} :user} :session-data} :session} :deps
-                {method :request-method}                         :request
+                {over :over}                                     :behavior
                 :as                                              state}]
-            (if-let [new-query (restriction-map query user-id [restriction method])]
-              (xiana/ok (assoc state :query new-query))
-              (xiana/ok state)))})
+            (xiana/ok (assoc state :query (over query user-id restriction))))})
+
+(def query-builder
+  {:leave (fn [{behavior                                          :behavior
+                {{{{user-id :id} :user} :session-data} :session}  :deps
+                {{id :id} :query-params form-params :form-params} :request
+                :as                                               state}]
+            (let [{:keys [:basic-query
+                          :add-id
+                          :add-body]} behavior
+                  query (cond-> (basic-query)
+                          id (add-id id)
+                          form-params (add-body form-params user-id))]
+              (xiana/ok (assoc state :query query))))})
