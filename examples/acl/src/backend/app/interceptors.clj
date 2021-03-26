@@ -22,15 +22,15 @@
 
 (defn guest
   [state]
-  (xiana/ok (assoc-in state [:deps :session :session-data :user] {:id   (UUID/randomUUID)
-                                                                  :role :guest})))
+  (xiana/ok (assoc-in state [:session-data :user] {:id   (UUID/randomUUID)
+                                                   :role :guest})))
 
 (def require-logged-in
   "Tricky login, session should handle user data"
   {:enter (fn [{req :request :as state}]
             (if-let [authorization (get-in req [:headers :authorization])]
-              (try (xiana/ok (-> (assoc-in state [:deps :session :session-data :authorization] authorization)
-                                 (assoc-in [:deps :session :session-data :user :id] (UUID/fromString authorization))))
+              (try (xiana/ok (-> (assoc-in state [:session-data :authorization] authorization)
+                                 (assoc-in [:session-data :user :id] (UUID/fromString authorization))))
                    (catch IllegalArgumentException e (guest state)))
               (guest state)))})
 
@@ -43,8 +43,8 @@
         session-id (get-in request [:headers :session-id])
         user (when session-id (fetch sessions-backend session-id))]
     (if user
-      (xiana/ok (assoc-in state [:deps :session :session-data :user] user))
-      (xiana/ok (assoc-in state [:deps :session :session-data :session-id] (UUID/randomUUID))))))
+      (xiana/ok (assoc-in state [:session-data :user] user))
+      (xiana/ok (assoc-in state [:session-data :session-id] (UUID/randomUUID))))))
 
 (def session-interceptor
   {:enter (fn [state] (session-middleware state))
@@ -53,8 +53,8 @@
             (let [sessions-backend (-> state
                                        :deps
                                        :session-backend)
-                  session-id (get-in state [:deps :session :session-data :session-id])]
-              (add! sessions-backend session-id (get-in state [:deps :session :session-data :user])))
+                  session-id (get-in state [:session-data :session-id])]
+              (add! sessions-backend session-id (get-in state [:session-data :user])))
             (xiana/ok state))})
 
 (def params
@@ -77,7 +77,7 @@
         (map (fn [[k v]] {(keyword (name k)) v}) elem)))
 
 (def db-access
-  {:enter (fn [{{{{u :user} :session-data} :session} :deps :as state}]
+  {:enter (fn [{{u :user} :session-data :as state}]
             (if (>= 2 (count (keys u)))
               (let [query (-> (select :*)
                               (from :users)
@@ -85,7 +85,7 @@
                               sql/format)
                     user (first (execute state query))]
                 (if user
-                  (xiana/ok (assoc-in state [:deps :session :session-data :user] (purify user)))
+                  (xiana/ok (assoc-in state [:session-data :user] (purify user)))
                   (xiana/ok state)))
               (xiana/ok state)))
    :leave (fn [{query :query :as state}]
@@ -99,16 +99,16 @@
 (def acl-restrict
   {:enter (fn [state]
             (acl/is-allowed state {:or-else views.posts/not-allowed}))
-   :leave (fn [{{restriction :acl}                               :response-data
-                query                                            :query
-                {{{{user-id :id} :user} :session-data} :session} :deps
-                {over :over}                                     :behavior
-                :as                                              state}]
+   :leave (fn [{{restriction :acl}    :response-data
+                query                 :query
+                {{user-id :id} :user} :session-data
+                {over :over}          :behavior
+                :as                   state}]
             (xiana/ok (assoc state :query (over query user-id restriction))))})
 
 (def query-builder
   {:leave (fn [{behavior                                          :behavior
-                {{{{user-id :id} :user} :session-data} :session}  :deps
+                {{user-id :id} :user}                             :session-data
                 {{id :id} :query-params form-params :form-params} :request
                 :as                                               state}]
             (let [{:keys [:basic-query
