@@ -1,9 +1,9 @@
 (ns acl-test
   (:require
+    [acl]
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
     [com.stuartsierra.component :as component]
-    [acl]
     [framework.config.core :as config]
     [migratus.core :as migratus]
     [next.jdbc :as jdbc])

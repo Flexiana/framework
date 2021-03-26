@@ -41,7 +41,7 @@
         :app (xiana.app/make-app app-cfg
                                  acl-cfg
                                  session-bcknd
-                                 [finterceptors/wrap-path-params]
+                                 []
                                  [interceptors/params
                                   interceptors/require-logged-in
                                   interceptors/session-interceptor

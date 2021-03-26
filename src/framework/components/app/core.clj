@@ -80,11 +80,11 @@
   component/Lifecycle
   (stop [this] this)
   (start [this]
-    (assoc this
-      :handler
-      (fn [http-request]
-        (->
-          (apply m/>>=
+         (assoc this
+           :handler
+           (fn [http-request]
+             (->
+               (apply m/>>=
                  (concat
                    [(xiana.core/ok (create-empty-state))
                     (fn [x] (add-deps x {:router router, :db db}))
@@ -97,8 +97,8 @@
                    (-> this :controller-interceptors (select-interceptors :enter identity))
                    [(fn [x] (run-controller x))]
                    (-> this :controller-interceptors (select-interceptors :leave reverse))))
-          (xiana/extract)
-          (get :response))))))
+               (xiana/extract)
+               (get :response))))))
 
 (defn make-app
   [config acl-cfg session-backend router-interceptors controller-interceptors]

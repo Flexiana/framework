@@ -1,14 +1,14 @@
 (ns interceptors
   (:require
     [clojure.walk :refer [keywordize-keys]]
+    [framework.acl.core :as acl]
     [framework.components.session.backend :refer [fetch add! delete!]]
     [honeysql.core :as sql]
     [honeysql.helpers :refer :all :as helpers]
     [next.jdbc :as jdbc]
     [potemkin :refer [import-vars]]
     [ring.middleware.params :as par]
-    [xiana.core :as xiana]
-    [framework.acl.core :as acl])
+    [xiana.core :as xiana])
   (:import
     (java.util
       UUID)))
@@ -75,7 +75,7 @@
   {:enter (fn [state]
             (xiana/ok
               (clojure.core/update state :request
-                                   #(keywordize-keys ((par/wrap-params identity) %)))))})
+                #(keywordize-keys ((par/wrap-params identity) %)))))})
 
 (defn execute
   "Executes db query"
@@ -97,8 +97,9 @@
                               (where [:= :id (:id u)])
                               sql/format)
                     user (first (execute state query))]
-                (if user (xiana/ok (assoc-in state [:deps :session :session-data :user] (purify user)))
-                         (xiana/ok state)))
+                (if user
+                  (xiana/ok (assoc-in state [:deps :session :session-data :user] (purify user)))
+                  (xiana/ok state)))
               (xiana/ok state)))
    :leave (fn [{query :query :as state}]
             (println query)
