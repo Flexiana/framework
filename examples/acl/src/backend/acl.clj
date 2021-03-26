@@ -5,7 +5,6 @@
     [controllers.posts :as posts]
     [controllers.re-frame :as re-frame]
     [framework.components.app.core :as xiana.app]
-    [framework.components.app.interceptors :as finterceptors]
     [framework.components.router.core :as xiana.router]
     [framework.components.session.backend :as session-backend]
     [framework.components.web-server.core :as xiana.web-server]
@@ -13,15 +12,19 @@
     [framework.db.storage :as db.storage]
     [interceptors]
     [nrepl.server :refer [start-server stop-server]]
-    [reitit.ring :as ring]
-    [reitit.ring.middleware.parameters :as parameters]))
+    [reitit.ring :as ring]))
 
 (def routes
   [["/" {:controller index/handle-index}]
    ["/re-frame" {:controller re-frame/handle-index}]
-   ["/posts" {:controller posts/controller}]
-   #_["/posts" {:controller posts/controller
-                :middleware [parameters/parameters-middleware]}]
+   ["/posts" {:get    {:handler    xiana.app/default-handler
+                       :controller posts/controller}
+              :put    {:handler    xiana.app/default-handler
+                       :controller posts/controller}
+              :post   {:handler    xiana.app/default-handler
+                       :controller posts/controller}
+              :delete {:handler    xiana.app/default-handler
+                       :controller posts/controller}}]
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defn system
@@ -42,7 +45,8 @@
                                  acl-cfg
                                  session-bcknd
                                  []
-                                 [interceptors/params
+                                 [interceptors/log
+                                  interceptors/params
                                   interceptors/require-logged-in
                                   interceptors/session-interceptor
                                   interceptors/view

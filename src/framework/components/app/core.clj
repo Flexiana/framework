@@ -19,7 +19,7 @@
 (defn add-session-backend
   [state session-backend]
   (xiana/ok
-    (update state :deps assoc :session-backend session-backend)))
+    (update state :deps conj session-backend)))
 
 (defn add-http-request
   [state http-request]
@@ -39,12 +39,12 @@
                        (assoc :controller-error e)
                        (assoc :response {:status 500 :body "Internal Server error"}))))))
 
-(defn route
+(defn default-handler
   [{request :request {router :router} :deps :as state}]
   (let [match (r/match-by-path (:ring-router router) (:uri request))
         method (:request-method request)
         handler (or (get-in match [:data :handler]) (-> match :result method :handler))
-        controller (get-in match [:data :controller])]
+        controller (or (get-in match [:data :controller]) (-> match :data method :controller))]
     (if controller
       (xiana/ok (-> state
                     (?assoc-in [:request-data :match] match)
@@ -92,7 +92,7 @@
                     (fn [x] (add-http-request x http-request))
                     (fn [x] (init-acl x acl-cfg))]
                    (-> this :router-interceptors (select-interceptors :enter identity))
-                   [(fn [x] (route x))]
+                   [(fn [x] (default-handler x))]
                    (-> this :router-interceptors (select-interceptors :leave reverse))
                    (-> this :controller-interceptors (select-interceptors :enter identity))
                    [(fn [x] (run-controller x))]

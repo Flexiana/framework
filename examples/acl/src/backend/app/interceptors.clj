@@ -50,7 +50,6 @@
   [{request :request :as state}]
   (let [sessions-backend (-> state
                              :deps
-                             :session-backend
                              :session-backend)
         session-id (get-in request [:headers :session-id])
         user (when session-id (fetch sessions-backend session-id))]
@@ -64,7 +63,6 @@
             [state]
             (let [sessions-backend (-> state
                                        :deps
-                                       :session-backend
                                        :session-backend)
                   session-id (get-in state [:deps :session :session-data :session-id])]
               (add! sessions-backend session-id (get-in state [:deps :session :session-data :user])))
