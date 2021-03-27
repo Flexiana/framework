@@ -20,16 +20,16 @@
    ["/re-frame" {:controller re-frame/handle-index}]
    ["/posts" {:get    {:handler    xiana.app/default-handler
                        :controller posts/controller
-                       :behavior   behaviors/get-map}
+                       :behavior   [behaviors/get-map]}
               :put    {:handler    xiana.app/default-handler
                        :controller posts/controller
-                       :behavior   behaviors/put-map}
+                       :behavior   [behaviors/put-map]}
               :post   {:handler    xiana.app/default-handler
                        :controller posts/controller
-                       :behavior   behaviors/post-map}
+                       :behavior   [behaviors/post-map]}
               :delete {:handler    xiana.app/default-handler
                        :controller posts/controller
-                       :behavior   behaviors/delete-map}}]
+                       :behavior   [behaviors/delete-map]}}]
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defn system

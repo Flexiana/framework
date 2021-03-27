@@ -77,7 +77,8 @@
         (map (fn [[k v]] {(keyword (name k)) v}) elem)))
 
 (def db-access
-  {:enter (fn [{{u :user} :session-data :as state}]
+  {:enter (fn [{{u :user} :session-data
+                :as       state}]
             (if (>= 2 (count (keys u)))
               (let [query (-> (select :*)
                               (from :users)
@@ -88,13 +89,16 @@
                   (xiana/ok (assoc-in state [:session-data :user] (purify user)))
                   (xiana/ok state)))
               (xiana/ok state)))
-   :leave (fn [{query :query :as state}]
-            (let [result (execute state (sql/format query))]
+   :leave (fn [{query                :query
+                {resource :resource} :behavior
+                :as                  state}]
+            (let [result (into {} (map (fn [[resource query]]
+                                         [resource (execute state (sql/format query))]) query))]
               (xiana/ok (assoc-in state [:response-data :db-data] result))))})
 
 (def view
-  {:leave (fn [{{view :view} :behavior :as state}]
-            (view state))})
+  {:leave (fn [{behavior :behavior :as state}]
+            (((:view (first behavior))) state))})
 
 (def acl-restrict
   {:enter (fn [state]
@@ -102,19 +106,20 @@
    :leave (fn [{{restriction :acl}    :response-data
                 query                 :query
                 {{user-id :id} :user} :session-data
-                {over :over}          :behavior
+                behavior          :behavior
                 :as                   state}]
-            (xiana/ok (assoc state :query (over query user-id restriction))))})
+            (xiana/ok (assoc state :query (map (fn [b] ((:over b) query user-id restriction)) behavior))))})
 
 (def query-builder
   {:leave (fn [{behavior                                          :behavior
                 {{user-id :id} :user}                             :session-data
                 {{id :id} :query-params form-params :form-params} :request
                 :as                                               state}]
-            (let [{:keys [:basic-query
-                          :add-id
-                          :add-body]} behavior
-                  query (cond-> (basic-query)
-                          id (add-id id)
-                          form-params (add-body form-params user-id))]
-              (xiana/ok (assoc state :query query))))})
+            (for [b behavior] (let [{:keys [:resource
+                                            :basic-query
+                                            :add-id
+                                            :add-body]} b
+                                    query (cond-> (basic-query)
+                                            id (add-id id)
+                                            form-params (add-body form-params user-id))]
+                                (xiana/ok (assoc-in state [:query resource] query)))))})
