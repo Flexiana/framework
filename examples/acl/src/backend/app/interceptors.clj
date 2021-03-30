@@ -54,8 +54,8 @@
                                        :deps
                                        :session-backend)
                   session-id (get-in state [:session-data :session-id])]
-              (add! sessions-backend session-id (get-in state [:session-data :user])))
-            (xiana/ok state))})
+              (add! sessions-backend session-id (get-in state [:session-data :user]))
+              (xiana/ok (assoc-in state [:response :headers "Session-id"] (str session-id)))))})
 
 (def params
   "Extract parameters from request, should be middleware, or interceptor"
