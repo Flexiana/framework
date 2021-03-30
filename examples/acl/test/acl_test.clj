@@ -3,6 +3,7 @@
     [acl]
     [acl-fixture]
     [clj-http.client :as http]
+    [clojure.data.json :as json]
     [clojure.test :refer [deftest is use-fixtures]]))
 
 (def test_member "611d7f8a-456d-4f3c-802d-4d869dcd89bf")
@@ -72,24 +73,25 @@
        :method               :post}
       http/request))
 
-(def post-id-regex
-  #":posts\/id #uuid \"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12})")
-
 (defn post-ids
   [body]
-  (map last (re-seq post-id-regex body)))
+  (map :id (-> body
+               (json/read-str :key-fn keyword)
+               :data
+               :db-data)))
 
 (defn all-post-ids
   []
-  (-> (fetch-posts)
+  (-> (acl-test/fetch-posts)
       :body
       post-ids))
 
 (defn update-count
   [body]
-  (-> (re-find #"update-count (\d+)" body)
-      last
-      Integer/parseInt))
+  (println "body:" body)
+  (-> body
+      (json/read-str :key-fn clojure.core/keyword)
+      (get-in [:data :db-data 0 :update-count])))
 
 (use-fixtures :once acl-fixture/std-system-fixture)
 

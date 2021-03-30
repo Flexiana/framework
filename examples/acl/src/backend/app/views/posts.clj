@@ -1,24 +1,40 @@
 (ns views.posts
   (:require
-    [xiana.core :as xiana]))
+    [clojure.data.json :as json]
+    [xiana.core :as xiana])
+  (:import
+    (java.sql
+      Timestamp)))
 
 (defn post-view
-  [{response :response-data :as state}]
-  (xiana/ok
-    (assoc state
-      :response
-      {:status  200
-       :headers {"Content-Type" "text/plain"}
-       :body    (str "Place of one post\n" response)})))
+  [{response-data :response-data :as state}]
+  (xiana/ok (->
+              state
+              (assoc-in [:response :status] 200)
+              (assoc-in [:response :headers "Content-type"] "Application/json")
+              (assoc-in [:response :body]
+                (json/write-str {:view-type "all posts"
+                                 :data      response-data}
+                                :value-fn (fn [_ v]
+                                            (cond
+                                              (uuid? v) (str v)
+                                              (= Timestamp (type v)) (str v)
+                                              :else v)))))))
 
 (defn all-posts
-  [{response :response-data :as state}]
-  (xiana/ok
-    (assoc state
-      :response
-      {:status  200
-       :headers {"Content-Type" "text/plain"}
-       :body    (str "Place for all posts, you are able to see: " response)})))
+  [{response-data :response-data :as state}]
+  (xiana/ok (->
+              state
+              (assoc-in [:response :status] 200)
+              (assoc-in [:response :headers "Content-type"] "Application/json")
+              (assoc-in [:response :body]
+                (json/write-str {:view-type "all posts"
+                                 :data      response-data}
+                                :value-fn (fn [_ v]
+                                            (cond
+                                              (uuid? v) (str v)
+                                              (= Timestamp  (type v)) (str v)
+                                              :else v)))))))
 
 (defn not-allowed
   [state]
