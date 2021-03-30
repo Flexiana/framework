@@ -67,6 +67,5 @@
              (-> query (merge-where [:= :user_id user-id]))
              query))})
 
-
 (def get-with-comments
   (assoc get-map :view views/fetch-post-with-comments))

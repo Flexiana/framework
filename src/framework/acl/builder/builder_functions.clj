@@ -48,8 +48,8 @@
 (defn ->permission
   [{a :actions r :over :as p}]
   (cond-> (select-keys p [:resource :actions :over])
-          (not (coll? a)) (assoc :actions [a])
-          (not r) (assoc :over :all)))
+    (not (coll? a)) (assoc :actions [a])
+    (not r) (assoc :over :all)))
 
 (defn allow
   "Allows a permission for a role, inserts it into the :acl/roles map.
