@@ -222,3 +222,19 @@
                update-count)))
   (is (= 1 (count (all-post-ids))))
   (is (.contains (:body (fetch-posts)) "Something to delete")))
+
+(deftest member-can-read-multiple-posts-by-id
+  (init-db-with-two-posts)
+  (new-post "Third test post")
+  (new-post "Fourth test post")
+  (let [ids (all-post-ids)]
+    (is (= (dec (count ids))
+           (-> {:url                  "http://localhost:3000/posts/ids"
+                :headers              {"Authorization" test_admin}
+                :unexceptional-status (constantly true)
+                :form-params          {:ids (butlast ids)}
+                :method               :post}
+               http/request
+               :body
+               post-ids
+               count)))))

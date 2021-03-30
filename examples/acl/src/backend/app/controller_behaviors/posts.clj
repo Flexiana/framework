@@ -51,3 +51,20 @@
                     (-> query (merge-where [:= :user_id user-id]))
                     query))})
 
+(def multi-get-map
+  {:resource    :posts
+   :view        views/all-posts
+   :basic-query (fn []
+                  (-> (select :*)
+                      (from :posts)))
+   :add-id      (fn [query _] query)
+   :add-body    (fn [query form-params _]
+                  (if-let [ids (:ids form-params)]
+                    (-> query (where [:in :id (map #(UUID/fromString %) (if (coll? ids) ids [ids]))]))
+                    query))
+   :over (fn [query user-id over]
+           (if (= :own over)
+             (-> query (merge-where [:= :user_id user-id]))
+             query))})
+
+

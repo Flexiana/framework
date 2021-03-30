@@ -30,6 +30,9 @@
               :delete {:handler    xiana.app/default-handler
                        :controller posts/controller
                        :behavior   [behaviors/delete-map]}}]
+   ["/posts/ids" {:post   {:handler    xiana.app/default-handler
+                           :controller posts/controller
+                           :behavior   [behaviors/multi-get-map]}}]
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defn system
