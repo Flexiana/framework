@@ -89,37 +89,42 @@
                   (xiana/ok (assoc-in state [:session-data :user] (purify user)))
                   (xiana/ok state)))
               (xiana/ok state)))
-   :leave (fn [{query                :query
-                {resource :resource} :behavior
-                :as                  state}]
-            (let [result (into {} (map (fn [[resource query]]
-                                         [resource (execute state (sql/format query))]) query))]
-              (xiana/ok (assoc-in state [:response-data :db-data] result))))})
+   :leave (fn [{query :query
+                :as   state}]
+            (xiana/ok (reduce (fn [state [_ q]]
+                                (let [result (execute state (sql/format q))]
+                                  (assoc-in state [:response-data :db-data] result))) state query)))})
 
 (def view
   {:leave (fn [{behavior :behavior :as state}]
-            (((:view (first behavior))) state))})
+            ((:view (first behavior)) state))})
 
 (def acl-restrict
-  {:enter (fn [state]
-            (acl/is-allowed state {:or-else views.posts/not-allowed}))
+  {:enter (fn [{behavior :behavior
+                :as      state}]
+            (reduce (fn [state {resource :resource}]
+                      (acl/is-allowed state {:resource resource :or-else views.posts/not-allowed}))
+              state behavior))
    :leave (fn [{{restriction :acl}    :response-data
                 query                 :query
                 {{user-id :id} :user} :session-data
-                behavior          :behavior
+                behavior              :behavior
                 :as                   state}]
-            (xiana/ok (assoc state :query (map (fn [b] ((:over b) query user-id restriction)) behavior))))})
+            (xiana/ok (reduce (fn [state b]
+                                (assoc-in state [:query (:resource b)] ((:over b) ((:resource b) query) user-id ((:resource b) restriction))))
+                        state behavior)))})
 
 (def query-builder
   {:leave (fn [{behavior                                          :behavior
                 {{user-id :id} :user}                             :session-data
                 {{id :id} :query-params form-params :form-params} :request
                 :as                                               state}]
-            (for [b behavior] (let [{:keys [:resource
-                                            :basic-query
-                                            :add-id
-                                            :add-body]} b
-                                    query (cond-> (basic-query)
-                                            id (add-id id)
-                                            form-params (add-body form-params user-id))]
-                                (xiana/ok (assoc-in state [:query resource] query)))))})
+            (xiana/ok (reduce (fn [state b]
+                                (let [{:keys [:resource
+                                              :basic-query
+                                              :add-id
+                                              :add-body]} b
+                                      query (cond-> (basic-query)
+                                              id (add-id id)
+                                              form-params (add-body form-params user-id))]
+                                  (assoc-in state [:query resource] query))) state behavior)))})

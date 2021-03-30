@@ -7,7 +7,7 @@
       UUID)))
 
 (def get-map
-  {:resource :posts
+  {:resource    :posts
    :view        views/fetch-posts
    :basic-query (fn []
                   (-> (select :*)
@@ -21,7 +21,7 @@
                     query))})
 
 (def put-map
-  {:resource :posts
+  {:resource    :posts
    :view        views/create-post
    :basic-query (fn [] (insert-into :posts))
    :add-id      (fn [query _] query)
@@ -30,7 +30,7 @@
    :over        (fn [query _ _] query)})
 
 (def post-map
-  {:resource :posts
+  {:resource    :posts
    :view        views/update-post
    :basic-query (fn [] (helpers/update :posts))
    :add-id      (fn [query id] (-> query (where [:= :id (UUID/fromString id)])))
@@ -41,7 +41,7 @@
                     query))})
 
 (def delete-map
-  {:resource :posts
+  {:resource    :posts
    :view        views/delete-post
    :basic-query (fn [] (delete-from :posts))
    :add-id      (fn [query id] (-> query (where [:= :id (UUID/fromString id)])))
