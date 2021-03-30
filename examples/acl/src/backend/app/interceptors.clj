@@ -113,7 +113,8 @@
                 behavior              :behavior
                 :as                   state}]
             (xiana/ok (reduce (fn [state b]
-                                (assoc-in state [:query (:resource b)] ((:over b) ((:resource b) query) user-id ((:resource b) restriction))))
+                                (let [resource (:resource b)]
+                                  (assoc-in state [:query resource] ((:over b) (resource query) user-id (resource restriction)))))
                         state behavior)))})
 
 (def query-builder

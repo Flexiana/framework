@@ -4,56 +4,56 @@
     [framework.acl.core :refer [is-allowed]]))
 
 (def custom-roles
-  {:customer         [{:resource    "items"
-                       :actions     [:read]
-                       :restriction :all}
-                      {:resource    "users"
-                       :actions     [:read :update :delete]
-                       :restriction :own}
-                      {:resource    "addresses"
-                       :actions     [:create :read :update :delete]
-                       :restriction :own}
-                      {:resource    "carts"
-                       :actions     [:create :read :update :delete]
-                       :restriction :own}]
-   :warehouse-worker [{:resource    "items"
-                       :actions     [:read :update]
-                       :restriction :all}]
-   :postal-worker    [{:resource    "carts"
-                       :actions     [:read :update]
-                       :restriction :all}
-                      {:resource    "addresses"
-                       :actions     [:read]
-                       :restriction :all}]
-   :shop-worker      [{:resource    "items"
-                       :actions     [:all]
-                       :restriction :all}]
-   :administrator    [{:resource    :all
-                       :actions     [:all]
-                       :restriction :all}]})
+  {:customer         [{:resource "items"
+                       :actions  [:read]
+                       :over     :all}
+                      {:resource "users"
+                       :actions  [:read :update :delete]
+                       :over     :own}
+                      {:resource "addresses"
+                       :actions  [:create :read :update :delete]
+                       :over     :own}
+                      {:resource "carts"
+                       :actions  [:create :read :update :delete]
+                       :over     :own}]
+   :warehouse-worker [{:resource "items"
+                       :actions  [:read :update]
+                       :over     :all}]
+   :postal-worker    [{:resource "carts"
+                       :actions  [:read :update]
+                       :over     :all}
+                      {:resource "addresses"
+                       :actions  [:read]
+                       :over     :all}]
+   :shop-worker      [{:resource "items"
+                       :actions  [:all]
+                       :over     :all}]
+   :administrator    [{:resource :all
+                       :actions  [:all]
+                       :over     :all}]})
 
 (def default-roles
-  {:guest     [{:resource    "items"
-                :actions     [:read]
-                :restriction :all}]
-   :member    [{:resource    "items"
-                :actions     [:read]
-                :restriction :all}
-               {:resource    "users"
-                :actions     [:read :update :delete]
-                :restriction :own}
-               {:resource    "addresses"
-                :actions     [:create :read :update :delete]
-                :restriction :own}
-               {:resource    "carts"
-                :actions     [:create :read :update :delete]
-                :restriction :own}]
-   :staff     [{:resource    "items"
-                :actions     [:read :update]
-                :restriction :all}]
-   :superuser [{:resource    :all
-                :actions     [:all]
-                :restriction :all}]})
+  {:guest     [{:resource "items"
+                :actions  [:read]
+                :over     :all}]
+   :member    [{:resource "items"
+                :actions  [:read]
+                :over     :all}
+               {:resource "users"
+                :actions  [:read :update :delete]
+                :over     :own}
+               {:resource "addresses"
+                :actions  [:create :read :update :delete]
+                :over     :own}
+               {:resource "carts"
+                :actions  [:create :read :update :delete]
+                :over     :own}]
+   :staff     [{:resource "items"
+                :actions  [:read :update]
+                :over     :all}]
+   :superuser [{:resource :all
+                :actions  [:all]
+                :over     :all}]})
 
 (def guest {})
 (def member {:is_active true})

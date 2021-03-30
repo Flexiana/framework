@@ -15,7 +15,7 @@
 
 (defn is-allowed
   "Checks if the user is able to do an action on a resource.
-  Returns xiana/ok when it is, and extends [:response-data :acl] with the restriction of ownership check.
+  Returns xiana/ok when it is, and extends [:response-data :acl] with the :over of ownership check.
   When the user has no access, returns xiana/error or executes ((:or-else access) state) if it's provided.
   If any key is missing from 'access' it's resolved like:
   - role from user
