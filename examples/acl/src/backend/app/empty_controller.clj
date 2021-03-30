@@ -1,4 +1,4 @@
-(ns controllers.posts
+(ns empty-controller
   (:require
     [xiana.core :as xiana]))
 
