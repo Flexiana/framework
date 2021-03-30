@@ -1,7 +1,8 @@
 (ns acl
   (:require
     [com.stuartsierra.component :as component]
-    [controller-behaviors.posts :as behaviors]
+    [controller-behaviors.comments :as comments-behaviors]
+    [controller-behaviors.posts :as posts-behaviors]
     [controllers.index :as index]
     [controllers.posts :as posts]
     [controllers.re-frame :as re-frame]
@@ -20,19 +21,34 @@
    ["/re-frame" {:controller re-frame/handle-index}]
    ["/posts" {:get    {:handler    xiana.app/default-handler
                        :controller posts/controller
-                       :behavior   [behaviors/get-map]}
+                       :behavior   [posts-behaviors/get-map]}
               :put    {:handler    xiana.app/default-handler
                        :controller posts/controller
-                       :behavior   [behaviors/put-map]}
+                       :behavior   [posts-behaviors/put-map]}
               :post   {:handler    xiana.app/default-handler
                        :controller posts/controller
-                       :behavior   [behaviors/post-map]}
+                       :behavior   [posts-behaviors/post-map]}
               :delete {:handler    xiana.app/default-handler
                        :controller posts/controller
-                       :behavior   [behaviors/delete-map]}}]
+                       :behavior   [posts-behaviors/delete-map]}}]
    ["/posts/ids" {:post   {:handler    xiana.app/default-handler
                            :controller posts/controller
-                           :behavior   [behaviors/multi-get-map]}}]
+                           :behavior   [posts-behaviors/multi-get-map]}}]
+   ["/comments" {:get    {:handler    xiana.app/default-handler
+                          :controller posts/controller
+                          :behavior   [comments-behaviors/get-map]}
+                 :put    {:handler    xiana.app/default-handler
+                          :controller posts/controller
+                          :behavior   [comments-behaviors/put-map]}
+                 :post   {:handler    xiana.app/default-handler
+                          :controller posts/controller
+                          :behavior   [comments-behaviors/post-map]}
+                 :delete {:handler    xiana.app/default-handler
+                          :controller posts/controller
+                          :behavior   [comments-behaviors/delete-map]}}]
+   ["/comments/ids" {:post   {:handler    xiana.app/default-handler
+                              :controller posts/controller
+                              :behavior   [comments-behaviors/multi-get-map]}}]
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defn system
