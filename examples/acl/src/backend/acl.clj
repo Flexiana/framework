@@ -31,9 +31,12 @@
               :delete {:handler    xiana.app/default-handler
                        :controller empty/controller
                        :behavior   [posts-behaviors/delete-map]}}]
-   ["/posts/ids" {:post   {:handler    xiana.app/default-handler
-                           :controller empty/controller
-                           :behavior   [posts-behaviors/multi-get-map]}}]
+   ["/posts/ids" {:post {:handler    xiana.app/default-handler
+                         :controller empty/controller
+                         :behavior   [posts-behaviors/multi-get-map]}}]
+   ["/posts/comments" {:get {:handler    xiana.app/default-handler
+                             :controller empty/controller
+                             :behavior   [posts-behaviors/get-with-comments comments-behaviors/fetch-with-post]}}]
    ["/comments" {:get    {:handler    xiana.app/default-handler
                           :controller empty/controller
                           :behavior   [comments-behaviors/get-map]}
@@ -46,9 +49,9 @@
                  :delete {:handler    xiana.app/default-handler
                           :controller empty/controller
                           :behavior   [comments-behaviors/delete-map]}}]
-   ["/comments/ids" {:post   {:handler    xiana.app/default-handler
-                              :controller empty/controller
-                              :behavior   [comments-behaviors/multi-get-map]}}]
+   ["/comments/ids" {:post {:handler    xiana.app/default-handler
+                            :controller empty/controller
+                            :behavior   [comments-behaviors/multi-get-map]}}]
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defn system
@@ -77,7 +80,7 @@
                                   interceptors/db-access
                                   interceptors/acl-restrict
                                   interceptors/query-builder])
-                                  ;interceptors/log])
+        ;interceptors/log])
         :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using
         {:router     [:db]

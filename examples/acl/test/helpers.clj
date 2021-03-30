@@ -49,14 +49,14 @@
    (-> {:url                  (format "http://localhost:3000/%s" (name uri))
         :headers              {"Authorization" test_admin}
         :unexceptional-status (constantly true)
-        :form-params          {:content content}
+        :form-params          content
         :method               :put}
        http/request))
   ([uri user content]
    (-> {:url                  (format "http://localhost:3000/%s" (name uri))
         :headers              {"Authorization" user}
         :unexceptional-status (constantly true)
-        :form-params          {:content content}
+        :form-params          content
         :method               :put}
        http/request)))
 
@@ -65,7 +65,7 @@
   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
        :headers              {"Authorization" user}
        :unexceptional-status (constantly true)
-       :form-params          {:content content}
+       :form-params          content
        :query-params         {:id id}
        :method               :post}
       http/request))

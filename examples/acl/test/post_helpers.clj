@@ -6,15 +6,16 @@
 (defn init-db-with-two-posts
   []
   (helpers/delete :posts)
-  (helpers/put :posts "Test post")
-  (helpers/put :posts "Second Test post"))
+  (helpers/put :posts {:content "Test post"})
+  (helpers/put :posts {:content "Second Test post"}))
 
 (defn post-ids
   [body]
   (map :id (-> body
                (json/read-str :key-fn keyword)
                :data
-               :db-data)))
+               :db-data
+               :posts)))
 
 (defn all-post-ids
   []
@@ -26,4 +27,4 @@
   [body]
   (-> body
       (json/read-str :key-fn clojure.core/keyword)
-      (get-in [:data :db-data 0 :update-count])))
+      (get-in [:data :db-data :posts 0 :update-count])))

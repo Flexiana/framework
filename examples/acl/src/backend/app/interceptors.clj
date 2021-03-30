@@ -89,11 +89,13 @@
                   (xiana/ok (assoc-in state [:session-data :user] (purify user)))
                   (xiana/ok state)))
               (xiana/ok state)))
-   :leave (fn [{query :query
-                :as   state}]
-            (xiana/ok (reduce (fn [state [_ q]]
-                                (let [result (execute state (sql/format q))]
-                                  (assoc-in state [:response-data :db-data] result))) state query)))})
+   :leave (fn [{query    :query
+                behavior :behavior
+                :as      state}]
+            (xiana/ok (reduce (fn [state b]
+                                (let [resource (:resource b)
+                                      result (execute state (sql/format (resource query)))]
+                                  (assoc-in state [:response-data :db-data resource] result))) state behavior)))})
 
 (def view
   {:leave (fn [{behavior :behavior :as state}]
@@ -102,8 +104,8 @@
 (def acl-restrict
   {:enter (fn [{behavior :behavior
                 :as      state}]
-            (reduce (fn [state {resource :resource}]
-                      (acl/is-allowed state {:resource resource :or-else views.posts/not-allowed}))
+            (reduce (fn [st {resource :resource}]
+                      (acl/is-allowed (or (:right st) st) {:resource resource :or-else views.posts/not-allowed}))
               state behavior))
    :leave (fn [{{restriction :acl}    :response-data
                 query                 :query

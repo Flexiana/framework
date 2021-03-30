@@ -52,7 +52,7 @@
                                                 :actions     [:create :update :delete]
                                                 :restriction :own}
                                                {:resource    "comments"
-                                                :actions     [:read :reply :react]
+                                                :actions     [:reply :react]
                                                 :restriction :friend}
                                                {:resource    "comments"
                                                 :actions     [:read]
