@@ -1,40 +1,18 @@
 (ns views.posts
   (:require
-    [clojure.data.json :as json]
     [views.comments :as comments]
-    [xiana.core :as xiana])
-  (:import
-    (java.sql
-      Timestamp)))
-
-(defn jasonize
-  [m]
-  (json/write-str m
-                  :value-fn (fn [_ v]
-                              (cond
-                                (uuid? v) (str v)
-                                (= Timestamp (type v)) (str v)
-                                :else v))))
+    [views.common :as c]
+    [xiana.core :as xiana]))
 
 (defn post-view
   [{response-data :response-data :as state}]
-  (xiana/ok (->
-              state
-              (assoc-in [:response :status] 200)
-              (assoc-in [:response :headers "Content-type"] "Application/json")
-              (assoc-in [:response :body]
-                (jasonize {:view-type "single posts"
-                           :data      response-data})))))
+  (xiana/ok (c/response state {:view-type "Single post"
+                               :data      response-data})))
 
 (defn all-posts
   [{response-data :response-data :as state}]
-  (xiana/ok (->
-              state
-              (assoc-in [:response :status] 200)
-              (assoc-in [:response :headers "Content-type"] "Application/json")
-              (assoc-in [:response :body]
-                (jasonize {:view-type "all posts"
-                           :data      response-data})))))
+  (xiana/ok (c/response state {:view-type "All posts"
+                               :data      response-data})))
 
 (defn not-allowed
   [state]
@@ -51,7 +29,7 @@
       state
       all-posts)))
 
-(defn ->post
+(defn ->post-view
   [m]
   (select-keys m [:posts/id
                   :posts/user_id
@@ -62,8 +40,8 @@
   [data]
   (let [posts (:posts data)]
     (->> posts
-         (group-by ->post)
-         (map (fn [[k v]] (assoc k :comments (mapv comments/->comment v))))
+         (group-by ->post-view)
+         (map (fn [[k v]] (assoc k :comments (mapv comments/->comment-view v))))
          (assoc {} :posts))))
 
 (defn fetch-post-with-comments
@@ -71,20 +49,10 @@
     response-data            :response-data
     :as                      state}]
   (if id
-    (xiana/ok (->
-                state
-                (assoc-in [:response :status] 200)
-                (assoc-in [:response :headers "Content-type"] "Application/json")
-                (assoc-in [:response :body]
-                  (jasonize {:view-type "single posts"
-                             :data      (render-posts-with-comments (:db-data response-data))}))))
-    (xiana/ok (->
-                state
-                (assoc-in [:response :status] 200)
-                (assoc-in [:response :headers "Content-type"] "Application/json")
-                (assoc-in [:response :body]
-                  (jasonize {:view-type "Multiple posts"
-                             :data      (render-posts-with-comments (:db-data response-data))}))))))
+    (xiana/ok (c/response state {:view-type "Single post with comments"
+                                 :data      (render-posts-with-comments (:db-data response-data))}))
+    (xiana/ok (c/response state {:view-type "Multiple posts with comments"
+                                 :data      (render-posts-with-comments (:db-data response-data))}))))
 
 (defn create-post
   [state]

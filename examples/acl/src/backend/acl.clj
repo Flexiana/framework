@@ -3,6 +3,7 @@
     [com.stuartsierra.component :as component]
     [controller-behaviors.comments :as comments-behaviors]
     [controller-behaviors.posts :as posts-behaviors]
+    [controller-behaviors.users :as users-behaviors]
     [controllers.index :as index]
     [controllers.re-frame :as re-frame]
     [empty-controller :as empty]
@@ -52,6 +53,27 @@
    ["/comments/ids" {:post {:handler    xiana.app/default-handler
                             :controller empty/controller
                             :behavior   [comments-behaviors/multi-get-map]}}]
+   ["/users" {:get    {:handler    xiana.app/default-handler
+                       :controller empty/controller
+                       :behavior   [users-behaviors/get-map]}
+              :put    {:handler    xiana.app/default-handler
+                       :controller empty/controller
+                       :behavior   [users-behaviors/put-map]}
+              :post   {:handler    xiana.app/default-handler
+                       :controller empty/controller
+                       :behavior   [users-behaviors/post-map]}
+              :delete {:handler    xiana.app/default-handler
+                       :controller empty/controller
+                       :behavior   [users-behaviors/delete-map]}}]
+   ["/users/ids" {:post {:handler    xiana.app/default-handler
+                         :controller empty/controller
+                         :behavior   [users-behaviors/multi-get-map]}}]
+   ["/users/posts" {:get {:handler    xiana.app/default-handler
+                          :controller empty/controller
+                          :behavior   [users-behaviors/fetch-posts]}}]
+   ["/users/posts/comments" {:get {:handler    xiana.app/default-handler
+                                   :controller empty/controller
+                                   :behavior   [users-behaviors/fetch-posts-comments]}}]
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defn system

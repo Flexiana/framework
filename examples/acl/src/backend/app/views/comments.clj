@@ -6,7 +6,7 @@
     (java.sql
       Timestamp)))
 
-(defn ->comment
+(defn ->comment-view
   [m]
   (select-keys m [:comments/id
                   :comments/post_id
