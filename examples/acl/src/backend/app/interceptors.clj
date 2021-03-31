@@ -68,7 +68,7 @@
   "Executes db query"
   [state query]
   (jdbc/execute!
-    (get-in state [:deps :db :datasource]) query))
+    (get-in state [:deps :db :datasource]) query {:return-keys true}))
 
 (defn purify
   "Removes namespaces from keywords"

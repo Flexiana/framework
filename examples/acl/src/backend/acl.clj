@@ -102,7 +102,6 @@
                                   interceptors/db-access
                                   interceptors/acl-restrict
                                   interceptors/query-builder])
-        ;interceptors/log])
         :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using
         {:router     [:db]
