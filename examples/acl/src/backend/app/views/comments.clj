@@ -6,14 +6,13 @@
     (java.sql
       Timestamp)))
 
-(defn comment-view
-  [{{restriction :acl} :response-data :as state}]
-  (xiana/ok
-    (assoc state
-      :response
-      {:status  200
-       :headers {"Content-Type" "text/plain"}
-       :body    (str "Place of one comment, filtered by " restriction)})))
+(defn ->comment
+  [m]
+  (select-keys m [:comments/id
+                  :comments/post_id
+                  :comments/user_id
+                  :comments/content
+                  :comments/creation_time]))
 
 (defn jasonize
   [m]

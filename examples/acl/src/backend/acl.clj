@@ -36,7 +36,7 @@
                          :behavior   [posts-behaviors/multi-get-map]}}]
    ["/posts/comments" {:get {:handler    xiana.app/default-handler
                              :controller empty/controller
-                             :behavior   [posts-behaviors/get-with-comments comments-behaviors/fetch-with-post]}}]
+                             :behavior   [posts-behaviors/get-with-comments]}}]
    ["/comments" {:get    {:handler    xiana.app/default-handler
                           :controller empty/controller
                           :behavior   [comments-behaviors/get-map]}

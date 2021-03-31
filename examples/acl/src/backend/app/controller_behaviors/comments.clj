@@ -9,6 +9,7 @@
 (def get-map
   {:resource    :comments
    :view        views/all-comments
+   :on-deny     views/not-allowed
    :basic-query (fn []
                   (-> (select :*)
                       (from :comments)))
@@ -23,6 +24,7 @@
 (def put-map
   {:resource    :comments
    :view        views/all-comments
+   :on-deny     views/not-allowed
    :basic-query (fn [] (insert-into :comments))
    :add-id      (fn [query _] query)
    :add-body    (fn [query
@@ -35,6 +37,7 @@
 (def post-map
   {:resource    :comments
    :view        views/all-comments
+   :on-deny     views/not-allowed
    :basic-query (fn [] (helpers/update :comments))
    :add-id      (fn [query id] (-> query (where [:= :id (UUID/fromString id)])))
    :add-body    (fn [query form-params _] (-> query (sset {:content (:content form-params)})))
@@ -46,6 +49,7 @@
 (def delete-map
   {:resource    :comments
    :view        views/all-comments
+   :on-deny     views/not-allowed
    :basic-query (fn [] (delete-from :comments))
    :add-id      (fn [query id] (-> query (where [:= :id (UUID/fromString id)])))
    :add-body    (fn [query _ _] query)
@@ -57,6 +61,7 @@
 (def multi-get-map
   {:resource    :comments
    :view        views/all-comments
+   :on-deny     views/not-allowed
    :basic-query (fn []
                   (-> (select :*)
                       (from :comments)))
@@ -65,20 +70,8 @@
                   (if-let [ids (:ids form-params)]
                     (-> query (where [:in :id (map #(UUID/fromString %) (if (coll? ids) ids [ids]))]))
                     query))
-   :over (fn [query user-id over]
-           (if (= :own over)
-             (-> query (merge-where [:= :user_id user-id]))
-             query))})
-
-(def fetch-with-post
-  {:resource    :comments
-   :view        views/not-allowed
-   :basic-query (fn []
-                  (-> (select :*)
-                      (from :comments)))
-   :add-id      (fn [query id] (-> query (where [:= :post_id (UUID/fromString id)])))
-   :add-body    (fn [query _ _] query)
    :over        (fn [query user-id over]
                   (if (= :own over)
                     (-> query (merge-where [:= :user_id user-id]))
                     query))})
+

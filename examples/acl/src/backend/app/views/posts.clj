@@ -1,6 +1,7 @@
 (ns views.posts
   (:require
     [clojure.data.json :as json]
+    [views.comments :as comments]
     [xiana.core :as xiana])
   (:import
     (java.sql
@@ -50,16 +51,24 @@
       state
       all-posts)))
 
+(defn ->post
+  [m]
+  (select-keys m [:posts/id
+                  :posts/user_id
+                  :posts/content
+                  :posts/creation_time]))
+
 (defn render-posts-with-comments
   [data]
-  (let [comments (:comments data)
-        posts (:posts data)
-        group-comments (group-by :comments/post_id comments)]
-    {:posts (map (fn [p] (assoc p :comments (filter #(= (:comments/post_id %) (:posts/id p)) comments))) posts)}))
+  (let [posts (:posts data)]
+    (->> posts
+         (group-by ->post)
+         (map (fn [[k v]] (assoc k :comments (mapv comments/->comment v))))
+         (assoc {} :posts))))
 
 (defn fetch-post-with-comments
   [{{{id :id} :query-params} :request
-    response-data :response-data
+    response-data            :response-data
     :as                      state}]
   (if id
     (xiana/ok (->

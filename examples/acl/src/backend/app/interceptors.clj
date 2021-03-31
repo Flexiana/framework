@@ -104,8 +104,8 @@
 (def acl-restrict
   {:enter (fn [{behavior :behavior
                 :as      state}]
-            (reduce (fn [st {resource :resource}]
-                      (acl/is-allowed (or (:right st) st) {:resource resource :or-else views.posts/not-allowed}))
+            (reduce (fn [st {resource :resource na :on-deny}]
+                      (acl/is-allowed (or (:right st) st) {:resource resource :or-else na}))
               state behavior))
    :leave (fn [{{restriction :acl}    :response-data
                 query                 :query

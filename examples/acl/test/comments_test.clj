@@ -21,8 +21,8 @@
   (init-db-with-two-posts)
   (let [post-ids (all-post-ids)
         first-id (first post-ids)]
-    (helpers/put :comments {:post_id first-id
-                            :content "Test comment on first post"})
+    (helpers/put :comments test_admin {:post_id first-id
+                                       :content "Test comment on first post"})
     (let [new-posts (-> (helpers/fetch "posts/comments" test_admin first-id)
                         :body
                         (json/read-str :key-fn keyword)
@@ -41,3 +41,10 @@
            (= 0)
            is))))
 
+;(def first-id (first (all-post-ids)))
+;
+;(-> (helpers/fetch "posts/comments" test_admin first-id)
+;    :body
+;    (json/read-str :key-fn keyword)
+;    :data
+;    :posts)
