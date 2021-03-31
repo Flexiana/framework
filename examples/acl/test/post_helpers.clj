@@ -25,7 +25,6 @@
 
 (defn update-count
   [body]
-  (println :body body)
   (-> body
       (json/read-str :key-fn clojure.core/keyword)
       (get-in [:data :db-data :posts])

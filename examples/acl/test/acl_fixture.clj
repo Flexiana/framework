@@ -1,5 +1,6 @@
 (ns acl-fixture
   (:require
+    [acl]
     [com.stuartsierra.component :as component]
     [framework.config.core :as config]
     [migratus.core :as migratus]

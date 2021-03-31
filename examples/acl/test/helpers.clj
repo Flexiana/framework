@@ -60,7 +60,7 @@
         :method               :put}
        http/request)))
 
-(defn push
+(defn post
   [uri user id content]
   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
        :headers              {"Authorization" user}

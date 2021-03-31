@@ -85,5 +85,5 @@
    :add-body    (fn [query _ _] query)
    :over        (fn [query user-id over]
                   (if (= :own over)
-                    (-> query (merge-where [:= :user_id user-id]))
+                    (-> query (merge-where [:= :posts.user_id user-id]))
                     query))})

@@ -7,7 +7,7 @@
     [helpers :refer [delete
                      put
                      fetch
-                     push
+                     post
                      test_member
                      test_admin
                      test_suspended_admin
@@ -124,7 +124,7 @@
   (is (= 1 (-> (put :posts test_member {:content "Something to delete"})
                :body
                update-count)))
-  (is (= 1 (-> (push :posts test_member (first (all-post-ids)) {:content "Or update instead"})
+  (is (= 1 (-> (post :posts test_member (first (all-post-ids)) {:content "Or update instead"})
                :body
                update-count)))
   (is (= 1 (count (all-post-ids))))
@@ -135,7 +135,7 @@
   (is (= 1 (-> (put :posts test_staff {:content "Something to delete"})
                :body
                update-count)))
-  (is (= 0 (-> (push :posts test_member (first (all-post-ids)) {:content "Or update instead"})
+  (is (= 0 (-> (post :posts test_member (first (all-post-ids)) {:content "Or update instead"})
                :body
                update-count)))
   (is (= 1 (count (all-post-ids))))

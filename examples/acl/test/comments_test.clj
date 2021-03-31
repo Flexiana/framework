@@ -7,7 +7,7 @@
     [helpers :refer [delete
                      put
                      fetch
-                     push
+                     post
                      test_member
                      test_admin
                      test_suspended_admin
