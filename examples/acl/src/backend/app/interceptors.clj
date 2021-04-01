@@ -1,10 +1,14 @@
 (ns interceptors
   (:require
+    [clojure.data.xml :as xml]
     [clojure.walk :refer [keywordize-keys]]
     [framework.acl.core :as acl]
     [framework.components.session.backend :refer [fetch add! delete!]]
     [honeysql.core :as sql]
     [honeysql.helpers :refer :all :as helpers]
+    [muuntaja.core]
+    [muuntaja.format.json :as json-format]
+    [muuntaja.interceptor]
     [next.jdbc :as jdbc]
     [ring.middleware.params :as par]
     [xiana.core :as xiana])
@@ -120,7 +124,7 @@
 (def query-builder
   {:leave (fn [{behavior                                          :behavior
                 {{user-id :id} :user}                             :session-data
-                {{id :id} :query-params form-params :form-params} :request
+                {{id :id} :query-params form-params :body-params} :request
                 :as                                               state}]
             (xiana/ok (reduce (fn [state b]
                                 (let [{:keys [:resource
@@ -131,3 +135,35 @@
                                               id (add-id id)
                                               form-params (add-body form-params user-id))]
                                   (assoc-in state [:query resource] query))) state behavior)))})
+
+(defn xml-encoder
+  [_options]
+  (let [helper #(xml/emit-str
+                  (mapv (fn make-node
+                          [[f s]]
+                          (if (map? s)
+                            (xml/element f {} (map make-node (seq s)))
+                            (xml/element f {} s)))
+                    (seq %)))]
+    (reify
+      muuntaja.format.core/EncodeToBytes
+      (encode-to-bytes [_ data charset]
+        (.getBytes ^String (helper data) ^String charset)))))
+
+(def minun-muuntajani
+  (muuntaja.core/create
+    (-> muuntaja.core/default-options
+        (assoc-in [:formats "application/upper-json"]
+          {:decoder [json-format/decoder]
+           :encoder [json-format/encoder {:encode-key-fn (comp clojure.string/upper-case name)}]})
+        (assoc-in [:formats "application/xml"] {:encoder [xml-encoder]})
+        (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)
+        (assoc-in [:formats "application/json" :encoder-opts :date-format] "yyyy-MM-dd"))))
+
+(def munstance (muuntaja.interceptor/format-interceptor minun-muuntajani))
+
+(def muuntaja
+  {:enter (fn [state]
+            (xiana/ok ((:enter munstance) state)))
+   :leave (fn [state]
+            (xiana/ok ((:leave munstance) state)))})
