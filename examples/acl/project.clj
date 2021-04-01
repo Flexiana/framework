@@ -8,9 +8,11 @@
                  [clj-http "3.12.0"]
                  [reagent "0.10.0"]
                  [re-frame "1.1.2"]
+                 [org.clojure/data.xml "0.0.8"]
                  [com.opentable.components/otj-pg-embedded "0.13.3"]]
   :plugins [[lein-shadow "0.3.1"]
             [migratus-lein "0.7.3"]]
+  :jvm-opts ["-Dmalli.registry/type=custom"]
   :main ^:skip-aot acl
   :uberjar-name "acl.jar"
   :source-paths ["src/backend" "src/backend/app" "src/frontend" "src/shared"]

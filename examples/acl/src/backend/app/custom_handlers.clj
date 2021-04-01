@@ -3,6 +3,6 @@
     [framework.components.app.core :as xiana-app]))
 
 (defn post-handler
-  [state behavior]
-  (xiana-app/default-handler
-    (assoc state :behavior behavior)))
+  [state]
+  (println "custom handler:" state)
+  (xiana-app/default-handler state))
