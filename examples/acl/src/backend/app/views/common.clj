@@ -19,4 +19,4 @@
     state
     (assoc-in [:response :status] 200)
     (assoc-in [:response :headers "Content-type"] "Application/json")
-    (assoc-in [:response :body] (jasonize body))))
+    (assoc-in [:response :body] body)))

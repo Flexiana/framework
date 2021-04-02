@@ -101,10 +101,7 @@
         :app (xiana.app/make-app app-cfg
                                  acl-cfg
                                  session-bcknd
-                                 [parameters/parameters-middleware
-                                  rm/format-middleware
-                                  rrc/coerce-request-middleware
-                                  rrc/coerce-response-middleware]
+                                 []
                                  [;interceptors/log
                                   interceptors/muuntaja
                                   interceptors/params

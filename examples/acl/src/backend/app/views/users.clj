@@ -33,8 +33,8 @@
               (assoc-in [:response :status] 200)
               (assoc-in [:response :headers "Content-type"] "Application/json")
               (assoc-in [:response :body]
-                (jasonize {:view-type "all posts"
-                           :data      response-data})))))
+                {:view-type "all posts"
+                 :data      response-data}))))
 
 (defn not-allowed
   [state]

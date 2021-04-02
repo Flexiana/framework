@@ -6,6 +6,7 @@
     [framework.components.session.backend :refer [fetch add! delete!]]
     [honeysql.core :as sql]
     [honeysql.helpers :refer :all :as helpers]
+    [interceptors.wrap :as wrap]
     [muuntaja.core]
     [muuntaja.format.json :as json-format]
     [muuntaja.interceptor]
@@ -122,10 +123,11 @@
                         state behavior)))})
 
 (def query-builder
-  {:leave (fn [{behavior                                          :behavior
-                {{user-id :id} :user}                             :session-data
-                {{id :id} :query-params form-params :body-params} :request
-                :as                                               state}]
+  {:leave (fn [{behavior                   :behavior
+                {{user-id :id} :user}      :session-data
+                {{id :id}    :query-params
+                 body-params :body-params} :request
+                :as                        state}]
             (xiana/ok (reduce (fn [state b]
                                 (let [{:keys [:resource
                                               :basic-query
@@ -133,7 +135,7 @@
                                               :add-body]} b
                                       query (cond-> (basic-query)
                                               id (add-id id)
-                                              form-params (add-body form-params user-id))]
+                                              body-params (add-body body-params user-id))]
                                   (assoc-in state [:query resource] query))) state behavior)))})
 
 (defn xml-encoder
@@ -160,10 +162,7 @@
         (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)
         (assoc-in [:formats "application/json" :encoder-opts :date-format] "yyyy-MM-dd"))))
 
-(def munstance (muuntaja.interceptor/format-interceptor minun-muuntajani))
+(def muun-instance (muuntaja.interceptor/format-interceptor minun-muuntajani))
 
 (def muuntaja
-  {:enter (fn [state]
-            (xiana/ok ((:enter munstance) state)))
-   :leave (fn [state]
-            (xiana/ok ((:leave munstance) state)))})
+  (wrap/interceptor muun-instance))
