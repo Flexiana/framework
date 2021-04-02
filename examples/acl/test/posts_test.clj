@@ -3,6 +3,7 @@
     [acl]
     [acl-fixture]
     [clj-http.client :as http]
+    [clojure.data.json :as json]
     [clojure.test :refer [deftest is use-fixtures]]
     [helpers :refer [delete
                      put
@@ -148,9 +149,10 @@
   (let [ids (all-post-ids)]
     (is (= (dec (count ids))
            (-> {:url                  "http://localhost:3000/posts/ids"
-                :headers              {"Authorization" test_admin}
+                :headers              {"Authorization" test_admin
+                                       "Content-Type" "application/json;charset=utf-8"}
                 :unexceptional-status (constantly true)
-                :form-params          {:ids (butlast ids)}
+                :body                 (json/write-str {:ids (butlast ids)})
                 :method               :post}
                http/request
                :body

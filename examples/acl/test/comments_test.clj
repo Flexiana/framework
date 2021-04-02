@@ -28,23 +28,16 @@
                         (json/read-str :key-fn keyword)
                         :data
                         :posts)]
-      (->> (filter #(#{first-id} (:id %)) new-posts)
+      (->> (filter #(#{first-id} (:posts/id %)) new-posts)
            first
            :comments
            count
            (= 1)
            is)
-      (->> (remove #(#{first-id} (:id %)) new-posts)
+      (->> (remove #(#{first-id} (:posts/id %)) new-posts)
            first
            :comments
            count
            (= 0)
            is))))
 
-;(def first-id (first (all-post-ids)))
-;
-;(-> (helpers/fetch "posts/comments" test_admin first-id)
-;    :body
-;    (json/read-str :key-fn keyword)
-;    :data
-;    :posts)

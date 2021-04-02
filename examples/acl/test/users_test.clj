@@ -14,6 +14,10 @@
 
 (use-fixtures :once acl-fixture/std-system-fixture)
 
+(defn strip-kw
+  [m]
+  (into {} (map (fn [[k v]] [(keyword (name k)) v]) m)))
+
 (deftest create-user
   (let [expected {:password   "not null"
                   :username   "Additional member"
@@ -29,7 +33,10 @@
                    :data
                    :db-data
                    :users
-                   first)]
+                   first
+                   strip-kw)]
+
+
     (is (= expected (select-keys actual [:password
                                          :username
                                          :first_name
@@ -52,7 +59,7 @@
                      :db-data
                      :users
                      first)
-        user-id (:id original)
+        user-id (:users/id original)
         updated (-> (post :users
                           test_admin
                           user-id
@@ -69,7 +76,7 @@
                     :db-data
                     :users
                     first)]
-    (is (= "Modified member" (:username updated)) "Admin is able to update a member"))
+    (is (= "Modified member" (:users/username updated)) "Admin is able to update a member"))
   (let [original (-> (put :users
                           test_admin
                           {:password   "not null"
@@ -84,7 +91,7 @@
                      :db-data
                      :users
                      first)
-        user-id (:id original)
+        user-id (:users/id original)
         updated (-> (post :users
                           test_member
                           user-id
@@ -101,4 +108,3 @@
                     :db-data
                     :users)]
     (is (empty? updated) "A member cannot update another member")))
-

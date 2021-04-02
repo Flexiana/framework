@@ -10,7 +10,7 @@
                  [re-frame "1.1.2"]
                  [org.clojure/data.xml "0.0.8"]
                  [com.fzakaria/slf4j-timbre "0.3.21"]
-                 [com.opentable.components/otj-pg-embedded "0.7.1"]]
+                 [com.opentable.components/otj-pg-embedded "0.13.3"]]
   :plugins [[lein-shadow "0.3.1"]
             [migratus-lein "0.7.3"]]
   :jvm-opts ["-Dmalli.registry/type=custom"]

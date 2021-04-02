@@ -1,6 +1,7 @@
 (ns helpers
   (:require
     [clj-http.client :as http]
+    [clojure.data.json :as json]
     [clojure.test :refer :all]))
 
 (def test_member "611d7f8a-456d-4f3c-802d-4d869dcd89bf")
@@ -47,25 +48,28 @@
 (defn put
   ([uri content]
    (-> {:url                  (format "http://localhost:3000/%s" (name uri))
-        :headers              {"Authorization" test_admin}
+        :headers              {"Authorization" test_admin
+                               "Content-Type" "application/json;charset=utf-8"}
         :unexceptional-status (constantly true)
-        :form-params          content
+        :body                 (json/write-str content)
         :method               :put}
        http/request))
   ([uri user content]
    (-> {:url                  (format "http://localhost:3000/%s" (name uri))
-        :headers              {"Authorization" user}
+        :headers              {"Authorization" user
+                               "Content-Type" "application/json;charset=utf-8"}
         :unexceptional-status (constantly true)
-        :form-params          content
+        :body                 (json/write-str content)
         :method               :put}
        http/request)))
 
 (defn post
   [uri user id content]
   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
-       :headers              {"Authorization" user}
+       :headers              {"Authorization" user
+                              "Content-Type" "application/json;charset=utf-8"}
        :unexceptional-status (constantly true)
-       :form-params          content
+       :body                 (json/write-str content)
        :query-params         {:id id}
        :method               :post}
       http/request))

@@ -11,11 +11,11 @@
 
 (defn post-ids
   [body]
-  (map :id (-> body
-               (json/read-str :key-fn keyword)
-               :data
-               :db-data
-               :posts)))
+  (map :posts/id (-> body
+                     (json/read-str :key-fn keyword)
+                     :data
+                     :db-data
+                     :posts)))
 
 (defn all-post-ids
   []
