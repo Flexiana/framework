@@ -25,13 +25,14 @@
 
   :source-paths ["src"]
   :target "target/%s/"
-  :profiles {:dev      {:resource-paths ["config/dev"]
+  :profiles {:dev      {:resource-paths         ["config/dev"]
                         :lein-tools-deps/config {:config-files [:install :user :project]}}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
              :test     {:source-paths ["test"]
                         :dependencies [[lambdaisland/kaocha "1.0.732"]
+                                       [lambdaisland/kaocha-cloverage "1.0.75"]
                                        [mvxcvi/cljstyle "0.14.0"
                                         :exclusions [org.clojure/clojure]]
                                        [clj-kondo "2021.01.20"]
@@ -45,5 +46,6 @@
                         "+test"
                         "run"
                         "-m"
-                        "kaocha.runner"]}
+                        "kaocha.runner"
+                        "--plugin" "cloverage"]}
   :main framework.components.core)
