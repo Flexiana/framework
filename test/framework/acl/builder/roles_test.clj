@@ -50,14 +50,14 @@
                :member [{:resource "posts", :actions [:delete :read], :restriction :own}]}
               (xiana/flow->
                 {}
-                ;(p/init {"posts" [:read :delete :blow :blow-up]})
+                ;; (p/init {"posts" [:read :delete :blow :blow-up]})
                 (init {:guest  [{:resource "posts", :actions [:delete :read], :restriction :own}]
                        :member [{:resource "posts", :actions [:delete :read], :restriction :own}]})
                 (deny {:role :guest :resource "posts" :actions :delete})))
   (test-roles {:member [{:resource "posts", :actions [:delete :read], :restriction :own}]}
               (xiana/flow->
                 {}
-                ;(p/init {"posts" [:read :delete :blow :blow-up]})
+                ;; (p/init {"posts" [:read :delete :blow :blow-up]})
                 (init {:guest  [{:resource "posts", :actions [:all], :restriction :own}]
                        :member [{:resource "posts", :actions [:delete :read], :restriction :own}]})
                 (deny {:role :guest :resource "posts" :actions :delete})))

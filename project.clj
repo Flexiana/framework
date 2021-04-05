@@ -18,7 +18,8 @@
                  [crypto-password "0.2.1"]
                  [garden "1.3.10"]
                  [hickory "0.7.1"]
-                 [hiccup "1.0.5"]]
+                 [hiccup "1.0.5"]
+                 [funcool/cuerdas "RELEASE"]]
   :plugins [[lein-tools-deps "0.4.5"]]
   :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
   :lein-tools-deps/config {:config-files [:install :user :project]}
