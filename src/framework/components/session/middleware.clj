@@ -1,6 +1,6 @@
 (ns framework.components.session.middleware
   (:require
-    [sessions.backend :refer [fetch add! delete!]]
+    [framework.components.session.backend :refer [fetch add! delete!]]
     [xiana.core :as xiana]))
 
 (defn session-middleware
