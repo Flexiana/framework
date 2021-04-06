@@ -14,20 +14,20 @@
 (defn add
   [state]
   (xiana/flow->
-    (assoc state :view views/update-post)
+    (assoc state :view views/fetch-posts)
     model/add-query))
 
 (defn update-post
   [state]
   (xiana/flow->
-    (assoc state :view views/update-post)
+    (assoc state :view views/fetch-posts)
     model/update-query
     model/update-over-fn))
 
 (defn delete-post
   [state]
   (xiana/flow->
-    (assoc state :view views/delete-post)
+    (assoc state :view views/fetch-posts)
     model/delete-query
     model/delete-over-fn))
 
