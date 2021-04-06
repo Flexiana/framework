@@ -14,8 +14,7 @@
   (map :posts/id (-> body
                      (json/read-str :key-fn keyword)
                      :data
-                     :db-data
-                     :posts)))
+                     :db-data)))
 
 (defn all-post-ids
   []
@@ -27,5 +26,5 @@
   [body]
   (-> body
       (json/read-str :key-fn clojure.core/keyword)
-      (get-in [:data :db-data :posts])
+      (get-in [:data :db-data])
       count))

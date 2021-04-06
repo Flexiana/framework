@@ -1,10 +1,8 @@
 (ns acl
   (:require
     [com.stuartsierra.component :as component]
-    [controller-behaviors.comments :as comments-behaviors]
-    [controller-behaviors.posts :as posts-behaviors]
-    [controller-behaviors.users :as users-behaviors]
     [controllers.index :as index]
+    [controllers.posts :as posts-controllers]
     [controllers.re-frame :as re-frame]
     [custom-handlers]
     [empty-controller :as empty]
@@ -24,12 +22,12 @@
    ["/re-frame" {:controller re-frame/handle-index}]
    ["/assets/*" (ring/create-resource-handler)]
    ["" {:handler xiana.app/default-handler}
-    ["/posts" {:get    {:controller empty/controller}
-               :put    {:controller empty/controller}
-               :post   {:controller empty/controller}
-               :delete {:controller empty/controller}}]
-    ["/posts/ids" {:post {:controller empty/controller}}]
-    ["/posts/comments" {:get {:controller empty/controller}}]
+    ["/posts" {:get    {:controller posts-controllers/fetch}
+               :put    {:controller posts-controllers/add}
+               :post   {:controller posts-controllers/update-post}
+               :delete {:controller posts-controllers/delete-post}}]
+    ["/posts/ids" {:post {:controller posts-controllers/fetch-by-ids}}]
+    ["/posts/comments" {:get {:controller posts-controllers/fetch-with-comments}}]
     ["/comments" {:get    {:controller empty/controller}
                   :put    {:controller empty/controller}
                   :post   {:controller empty/controller}
@@ -68,8 +66,8 @@
                                   interceptors/session-interceptor
                                   interceptors/view
                                   interceptors/db-access
-                                  interceptors/acl-restrict
-                                  interceptors/query-builder])
+                                  interceptors/acl-restrict])
+                                  ;interceptors/query-builder])
         :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using
         {:router     [:db]

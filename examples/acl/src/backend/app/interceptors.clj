@@ -91,14 +91,14 @@
                   (xiana/ok (assoc-in state [:session-data :user] (purify user)))
                   (xiana/ok state)))
               (xiana/ok state)))
-   :leave (fn [{query    :query
-                :as      state}]
+   :leave (fn [{query :query
+                :as   state}]
             (xiana/ok (let [result (execute state (sql/format query))]
                         (assoc-in state [:response-data :db-data] result))))})
 
 (def view
   {:leave (fn [state]
-            ((:view state)))})
+            ((:view state) state))})
 
 (def acl-restrict
   {:enter (fn [{na :on-deny :as state}]
@@ -106,8 +106,11 @@
    :leave (fn [{{restriction :acl}    :response-data
                 query                 :query
                 {{user-id :id} :user} :session-data
+                over                  :over
                 :as                   state}]
-            (xiana/ok (assoc state :query ((:over state) query user-id restriction))))})
+            (xiana/ok (if over
+                        (assoc state :query (over query user-id restriction))
+                        state)))})
 
 (def query-builder
   {:leave (fn [{behavior                   :behavior
