@@ -100,9 +100,9 @@
   {:leave (fn [state]
             ((:view state) state))})
 
-(def acl-restrict
-  {:enter (fn [{na :on-deny :as state}]
-            (acl/is-allowed state {:or-else na}))
+(defn acl-restrict [or-else]
+  {:enter (fn [state]
+            (acl/is-allowed state {:or-else or-else}))
    :leave (fn [{{restriction :acl}    :response-data
                 query                 :query
                 {{user-id :id} :user} :session-data

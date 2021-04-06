@@ -66,7 +66,7 @@
                                   interceptors/session-interceptor
                                   interceptors/view
                                   interceptors/db-access
-                                  interceptors/acl-restrict])
+                                  (interceptors/acl-restrict views.common/not-allowed)])
                                   ;interceptors/query-builder])
         :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using
