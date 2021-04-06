@@ -1,5 +1,6 @@
 (ns post-helpers
   (:require
+    [helpers]
     [clojure.data.json :as json]
     [clojure.test :refer :all]))
 

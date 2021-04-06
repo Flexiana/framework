@@ -11,7 +11,9 @@
                   :comments/content
                   :comments/creation_time]))
 
-(defn all-comments
+(defn comments
   [{response-data :response-data :as state}]
   (xiana/ok (common/response state {:view-type "comments"
-                                    :data      response-data})))
+                                    :data      {:comments (->> response-data
+                                                               :db-data
+                                                               (map ->comment-view))}})))

@@ -37,4 +37,39 @@
                     :comments
                     count))))))
 
+(defn ->comments
+  [response]
+  (-> response
+      :body
+      (json/read-str :key-fn keyword)
+      :data
+      :comments))
 
+(deftest update-comment
+  (init-db-with-two-posts)
+  (let [post-ids (all-post-ids)
+        first-id (first post-ids)
+        comment (-> (helpers/put :comments test_member {:post_id first-id
+                                                        :content "Comment to update"})
+                    ->comments
+                    first)
+        new-comment (-> (helpers/post :comments test_member (:comments/id comment) {:content "Updated comment"})
+                        ->comments
+                        first)]
+    (is (= "Updated comment" (:comments/content new-comment)))))
+
+(deftest delete-comment
+  (init-db-with-two-posts)
+  (let [post-ids (all-post-ids)
+        first-id (first post-ids)
+        comment (-> (helpers/put :comments test_member {:post_id first-id
+                                                        :content "Comment to update"})
+                    ->comments
+                    first)
+        comment-id (:comments/id comment)
+        deleted (-> (helpers/delete :comments test_member comment-id)
+                    ->comments
+                    first)]
+    (is (= comment deleted))
+    (is (empty? (-> (helpers/fetch :comments test_member comment-id)
+                    ->comments)))))
