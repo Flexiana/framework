@@ -1,6 +1,5 @@
 (ns acl
   (:require
-    [clojure.data.xml :as xml]
     [com.stuartsierra.component :as component]
     [controller-behaviors.comments :as comments-behaviors]
     [controller-behaviors.posts :as posts-behaviors]
@@ -16,14 +15,9 @@
     [framework.config.core :as config]
     [framework.db.storage :as db.storage]
     [interceptors]
-    [muuntaja.format.json :as json-format]
     [muuntaja.interceptor]
     [nrepl.server :refer [start-server stop-server]]
-    [reitit.ring :as ring]
-    [reitit.ring.coercion :as rrc]
-    [reitit.ring.middleware.muuntaja :as rm]
-    [reitit.ring.middleware.parameters :as parameters]
-    [xiana.core :as xiana]))
+    [reitit.ring :as ring]))
 
 (def routes
   [["/" {:controller index/handle-index}]
