@@ -32,7 +32,6 @@
                    (json/read-str :key-fn keyword)
                    :data
                    :db-data
-                   :users
                    first
                    strip-kw)]
 
@@ -57,7 +56,6 @@
                      (json/read-str :key-fn keyword)
                      :data
                      :db-data
-                     :users
                      first)
         user-id (:users/id original)
         updated (-> (post :users
@@ -74,7 +72,6 @@
                     (json/read-str :key-fn keyword)
                     :data
                     :db-data
-                    :users
                     first)]
     (is (= "Modified member" (:users/username updated)) "Admin is able to update a member"))
   (let [original (-> (put :users
@@ -89,7 +86,6 @@
                      (json/read-str :key-fn keyword)
                      :data
                      :db-data
-                     :users
                      first)
         user-id (:users/id original)
         updated (-> (post :users
@@ -105,6 +101,5 @@
                     :body
                     (json/read-str :key-fn keyword)
                     :data
-                    :db-data
-                    :users)]
+                    :db-data)]
     (is (empty? updated) "A member cannot update another member")))

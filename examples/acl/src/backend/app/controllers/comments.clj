@@ -12,7 +12,7 @@
     :as                      state}]
   (let [query (cond-> (-> (select :*)
                           (from :comments))
-                      id (where [:= :id (UUID/fromString id)]))
+                id (where [:= :id (UUID/fromString id)]))
         over-fn (fn [query user-id over]
                   (if (= :own over)
                     (-> query (merge-where [:= :user_id user-id]))
@@ -49,7 +49,7 @@
     :as                      state}]
   (let [view views/all-comments
         query (cond-> (delete-from :comments)
-                      id (where [:= :id (UUID/fromString id)]))
+                id (where [:= :id (UUID/fromString id)]))
         over-fn (fn [query user-id over]
                   (if (= :own over)
                     (-> query (merge-where [:= :user_id user-id]))

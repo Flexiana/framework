@@ -100,17 +100,29 @@
   {:leave (fn [state]
             ((:view state) state))})
 
-(defn acl-restrict [or-else]
-  {:enter (fn [state]
-            (acl/is-allowed state {:or-else or-else}))
-   :leave (fn [{{restriction :acl}    :response-data
-                query                 :query
-                {{user-id :id} :user} :session-data
-                over                  :over
-                :as                   state}]
-            (xiana/ok (if over
-                        (assoc state :query (over query user-id restriction))
-                        state)))})
+(defn acl-restrict
+  ([or-else]
+   {:enter (fn [state]
+             (acl/is-allowed state {:or-else or-else}))
+    :leave (fn [{{restriction :acl}    :response-data
+                 query                 :query
+                 {{user-id :id} :user} :session-data
+                 over                  :over
+                 :as                   state}]
+             (xiana/ok (if over
+                         (assoc state :query (over query user-id restriction))
+                         state)))})
+  ([]
+   {:enter (fn [state]
+             (acl/is-allowed state))
+    :leave (fn [{{restriction :acl}    :response-data
+                 query                 :query
+                 {{user-id :id} :user} :session-data
+                 over                  :over
+                 :as                   state}]
+             (xiana/ok (if over
+                         (assoc state :query (over query user-id restriction))
+                         state)))}))
 
 (def muuntaja
   (wrap/interceptor m-int/muun-instance))

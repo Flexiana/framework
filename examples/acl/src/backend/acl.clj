@@ -5,6 +5,7 @@
     [controllers.index :as index]
     [controllers.posts :as posts-controllers]
     [controllers.re-frame :as re-frame]
+    [controllers.users :as users-controllers]
     [custom-handlers]
     [empty-controller :as empty]
     [framework.components.app.core :as xiana.app]
@@ -33,13 +34,12 @@
                   :put    {:controller comments-controllers/add}
                   :post   {:controller comments-controllers/update-comment}
                   :delete {:controller comments-controllers/delete-comment}}]
-    ["/users" {:get    {:controller empty/controller}
-               :put    {:controller empty/controller}
-               :post   {:controller empty/controller}
-               :delete {:controller empty/controller}}]
-    ["/users/ids" {:post {:controller empty/controller}}]
-    ["/users/posts" {:get {:controller empty/controller}}]
-    ["/users/posts/comments" {:get {:controller empty/controller}}]]])
+    ["/users" {:get    {:controller users-controllers/fetch}
+               :put    {:controller users-controllers/add}
+               :post   {:controller users-controllers/update-user}
+               :delete {:controller users-controllers/delete-user}}]
+    ["/users/posts" {:get {:controller users-controllers/fetch-with-posts}}]
+    ["/users/posts/comments" {:get {:controller users-controllers/fetch-with-posts-comments}}]]])
 
 (defn system
   [config]
@@ -67,7 +67,7 @@
                                   interceptors/view
                                   interceptors/db-access
                                   (interceptors/acl-restrict views.common/not-allowed)])
-                                  ;interceptors/query-builder])
+        ;interceptors/query-builder])
         :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using
         {:router     [:db]
