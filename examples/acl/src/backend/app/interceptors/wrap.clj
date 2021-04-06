@@ -19,6 +19,6 @@
   ([middleware]
    (middleware->leave {} middleware))
   ([interceptor middleware]
-   (assoc interceptor :leave (fn [{req :request :as state}]
-                               (xiana/ok (assoc state :request ((middleware identity) req)))))))
+   (assoc interceptor :leave (fn [{res :response :as state}]
+                               (xiana/ok (assoc state :response ((middleware identity) res)))))))
 
