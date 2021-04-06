@@ -32,7 +32,6 @@
       state
       all-posts)))
 
-
 (defn render-posts-with-comments
   [data]
   (->> data

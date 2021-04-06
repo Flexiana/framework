@@ -14,6 +14,14 @@
 
 (use-fixtures :once acl-fixture/std-system-fixture)
 
+(defn ->users
+  [response]
+  (-> response
+      :body
+      (json/read-str :key-fn keyword)
+      :data
+      :users))
+
 (defn strip-kw
   [m]
   (into {} (map (fn [[k v]] [(keyword (name k)) v]) m)))
@@ -28,20 +36,19 @@
         actual (-> (put :users
                         test_admin
                         expected)
-                   :body
-                   (json/read-str :key-fn keyword)
-                   :data
-                   :db-data
+                   ->users
                    first
                    strip-kw)]
-
-
-    (is (= expected (select-keys actual [:password
-                                         :username
-                                         :first_name
-                                         :last_name
-                                         :email
-                                         :is_active])))))
+    (is (= (select-keys expected [:username
+                                  :first_name
+                                  :last_name
+                                  :email
+                                  :is_active])
+           (select-keys actual [:username
+                                :first_name
+                                :last_name
+                                :email
+                                :is_active])))))
 
 (deftest update-user
   (let [original (-> (put :users
@@ -52,26 +59,20 @@
                            :last_name  "Smith"
                            :email      "josm@test.com"
                            :is_active  true})
-                     :body
-                     (json/read-str :key-fn keyword)
-                     :data
-                     :db-data
+                     ->users
                      first)
         user-id (:users/id original)
         updated (-> (post :users
                           test_admin
                           user-id
-                          {:id user-id
+                          {:id         user-id
                            :password   "not null"
                            :username   "Modified member"
                            :first_name "John"
                            :last_name  "Smith"
                            :email      "josm@test.com"
                            :is_active  true})
-                    :body
-                    (json/read-str :key-fn keyword)
-                    :data
-                    :db-data
+                    ->users
                     first)]
     (is (= "Modified member" (:users/username updated)) "Admin is able to update a member"))
   (let [original (-> (put :users
@@ -82,10 +83,7 @@
                            :last_name  "Smith"
                            :email      "josm@test.com"
                            :is_active  true})
-                     :body
-                     (json/read-str :key-fn keyword)
-                     :data
-                     :db-data
+                     ->users
                      first)
         user-id (:users/id original)
         updated (-> (post :users
@@ -98,8 +96,5 @@
                            :last_name  "Smith"
                            :email      "josm@test.com"
                            :is_active  true})
-                    :body
-                    (json/read-str :key-fn keyword)
-                    :data
-                    :db-data)]
+                    ->users)]
     (is (empty? updated) "A member cannot update another member")))

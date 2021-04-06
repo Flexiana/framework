@@ -12,17 +12,22 @@
                   :users/first_name
                   :users/last_name
                   :users/email
-                  :users/date_joined]))
+                  :users/date_joined
+                  :users/is_active]))
 
 (defn one-user
   [{response-data :response-data :as state}]
   (xiana/ok (c/response state {:view-type "single user"
-                               :data      response-data})))
+                               :data      {:users (->> response-data
+                                                       :db-data
+                                                       (map ->user))}})))
 
 (defn multi-user
   [{response-data :response-data :as state}]
   (xiana/ok (c/response state {:view-type "multiple users"
-                               :data      response-data})))
+                               :data      {:users (->> response-data
+                                                       :db-data
+                                                       (map ->user))}})))
 
 (defn fetch-users
   [{{{id :id} :query-params} :request
