@@ -1,8 +1,8 @@
 (ns post-helpers
   (:require
-    [helpers]
     [clojure.data.json :as json]
-    [clojure.test :refer :all]))
+    [clojure.test :refer :all]
+    [helpers]))
 
 (defn init-db-with-two-posts
   []
