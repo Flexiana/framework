@@ -22,61 +22,44 @@
 (def routes
   [["/" {:controller index/handle-index}]
    ["/re-frame" {:controller re-frame/handle-index}]
-   ["/posts" {:get    {:handler    xiana.app/default-handler
-                       :controller empty/controller
-                       :behavior   [posts-behaviors/get-map]}
-              :put    {:handler    custom-handlers/post-handler
-                       :controller empty/controller
-                       :behavior   [posts-behaviors/put-map]}
-              :post   {:handler    xiana.app/default-handler
-                       :controller empty/controller
-                       :behavior   [posts-behaviors/post-map]}
-              :delete {:handler    xiana.app/default-handler
-                       :controller empty/controller
-                       :behavior   [posts-behaviors/delete-map]}}]
-   ["/posts/ids" {:post {:handler    xiana.app/default-handler
-                         :controller empty/controller
-                         :behavior   [posts-behaviors/multi-get-map]}}]
-   ["/posts/comments" {:get {:handler    xiana.app/default-handler
-                             :controller empty/controller
-                             :behavior   [posts-behaviors/get-with-comments]}}]
-   ["/comments" {:get    {:handler    xiana.app/default-handler
-                          :controller empty/controller
-                          :behavior   [comments-behaviors/get-map]}
-                 :put    {:handler    xiana.app/default-handler
-                          :controller empty/controller
-                          :behavior   [comments-behaviors/put-map]}
-                 :post   {:handler    xiana.app/default-handler
-                          :controller empty/controller
-                          :behavior   [comments-behaviors/post-map]}
-                 :delete {:handler    xiana.app/default-handler
-                          :controller empty/controller
-                          :behavior   [comments-behaviors/delete-map]}}]
-   ["/comments/ids" {:post {:handler    xiana.app/default-handler
-                            :controller empty/controller
-                            :behavior   [comments-behaviors/multi-get-map]}}]
-   ["/users" {:get    {:handler    xiana.app/default-handler
-                       :controller empty/controller
-                       :behavior   [users-behaviors/get-map]}
-              :put    {:handler    xiana.app/default-handler
-                       :controller empty/controller
-                       :behavior   [users-behaviors/put-map]}
-              :post   {:handler    xiana.app/default-handler
-                       :controller empty/controller
-                       :behavior   [users-behaviors/post-map]}
-              :delete {:handler    xiana.app/default-handler
-                       :controller empty/controller
-                       :behavior   [users-behaviors/delete-map]}}]
-   ["/users/ids" {:post {:handler    xiana.app/default-handler
-                         :controller empty/controller
-                         :behavior   [users-behaviors/multi-get-map]}}]
-   ["/users/posts" {:get {:handler    xiana.app/default-handler
-                          :controller empty/controller
-                          :behavior   [users-behaviors/fetch-posts]}}]
-   ["/users/posts/comments" {:get {:handler    xiana.app/default-handler
-                                   :controller empty/controller
-                                   :behavior   [users-behaviors/fetch-posts-comments]}}]
-   ["/assets/*" (ring/create-resource-handler)]])
+   ["/assets/*" (ring/create-resource-handler)]
+   ["" {:handler xiana.app/default-handler}
+    ["/posts" {:get    {:controller empty/controller
+                        :behavior   [posts-behaviors/get-map]}
+               :put    {:controller empty/controller
+                        :behavior   [posts-behaviors/put-map]}
+               :post   {:controller empty/controller
+                        :behavior   [posts-behaviors/post-map]}
+               :delete {:controller empty/controller
+                        :behavior   [posts-behaviors/delete-map]}}]
+    ["/posts/ids" {:post {:controller empty/controller
+                          :behavior   [posts-behaviors/multi-get-map]}}]
+    ["/posts/comments" {:get {:controller empty/controller
+                              :behavior   [posts-behaviors/get-with-comments]}}]
+    ["/comments" {:get    {:controller empty/controller
+                           :behavior   [comments-behaviors/get-map]}
+                  :put    {:controller empty/controller
+                           :behavior   [comments-behaviors/put-map]}
+                  :post   {:controller empty/controller
+                           :behavior   [comments-behaviors/post-map]}
+                  :delete {:controller empty/controller
+                           :behavior   [comments-behaviors/delete-map]}}]
+    ["/comments/ids" {:post {:controller empty/controller
+                             :behavior   [comments-behaviors/multi-get-map]}}]
+    ["/users" {:get    {:controller empty/controller
+                        :behavior   [users-behaviors/get-map]}
+               :put    {:controller empty/controller
+                        :behavior   [users-behaviors/put-map]}
+               :post   {:controller empty/controller
+                        :behavior   [users-behaviors/post-map]}
+               :delete {:controller empty/controller
+                        :behavior   [users-behaviors/delete-map]}}]
+    ["/users/ids" {:post {:controller empty/controller
+                          :behavior   [users-behaviors/multi-get-map]}}]
+    ["/users/posts" {:get {:controller empty/controller
+                           :behavior   [users-behaviors/fetch-posts]}}]
+    ["/users/posts/comments" {:get {:controller empty/controller
+                                    :behavior   [users-behaviors/fetch-posts-comments]}}]]])
 
 (defn system
   [config]
