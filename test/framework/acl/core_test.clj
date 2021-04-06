@@ -81,17 +81,17 @@
          (get-error (is-allowed (state-with-user guest) {:resource "items" :privilege :create}))))
   (is (= "Not ok 401"
          (is-allowed (state-with-user guest) {:resource "items" :privilege :create :or-else (fn [_] (str "Not ok " 401))})))
-  (is (= {:items :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user guest) {:resource "items" :privilege :read}))))
   (is (= {:status 401 :body "Authorization error"}
          (get-error (is-allowed (state-with-user guest) {:resource "items" :privilege :update}))))
-  (is (= {:users :own}
+  (is (= :own
          (get-ok (is-allowed (state-with-user member) {:resource "users" :privilege :update}))))
-  (is (= {:users :own}
+  (is (= :own
          (get-ok (is-allowed (state-with-user :customer) {:resource "users" :privilege :update}))))
-  (is (= {:users :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user :administrator) {:resource "users" :privilege :create}))))
-  (is (= {:users :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user :administrator) {:resource "users" :privilege :delete})))))
 
 (defn state-with-user-request
@@ -107,31 +107,31 @@
                     :request-method method}}))
 
 (deftest xiana-flow-from-request-only
-  (is (= {:items :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user-request guest "/items/" :get)))))
   (is (= {:status 401, :body "Authorization error"}
          (get-error (is-allowed (state-with-user-request guest "/items/" :post)))))
-  (is (= {:addresses :own}
+  (is (= :own
          (get-ok (is-allowed (state-with-user-request member "/addresses/" :post)))))
-  (is (= {:items :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user-request admin "/items/" :get)))))
-  (is (= {:items :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user-request admin "/items/" :put)))))
-  (is (= {:items :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user-request admin "/items/" :post)))))
-  (is (= {:items :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user-request suspended-admin "/items/" :get)))))
   (is (= {:status 401, :body "Authorization error"}
          (get-error (is-allowed (state-with-user-request suspended-admin "/items/" :put)))))
-  (is (= {:items :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user-request :customer "/items/" :get)))))
   (is (= {:status 401, :body "Authorization error"}
          (get-error (is-allowed (state-with-user-request :customer "/items/" :post)))))
-  (is (= {:addresses :own}
+  (is (= :own
          (get-ok (is-allowed (state-with-user-request :customer "/addresses/" :post)))))
-  (is (= {:items :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user-request :administrator "/items/" :get)))))
-  (is (= {:items :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user-request :administrator "/items/" :put)))))
-  (is (= {:items :all}
+  (is (= :all
          (get-ok (is-allowed (state-with-user-request :administrator "/items/" :post))))))
