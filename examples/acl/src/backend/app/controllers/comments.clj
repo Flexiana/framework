@@ -1,6 +1,5 @@
 (ns controllers.comments
   (:require
-    [honeysql.helpers :refer :all :as helpers]
     [models.comments :as model]
     [views.comments :as views]
     [xiana.core :as xiana]))
