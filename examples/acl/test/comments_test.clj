@@ -23,21 +23,18 @@
         first-id (first post-ids)]
     (helpers/put :comments test_admin {:post_id first-id
                                        :content "Test comment on first post"})
-    (let [new-posts (-> (helpers/fetch "posts/comments" test_admin first-id)
+    (let [new-posts (-> (helpers/fetch "posts/comments" test_admin)
                         :body
                         (json/read-str :key-fn keyword)
                         :data
                         :posts)]
-      (->> (filter #(#{first-id} (:posts/id %)) new-posts)
-           first
-           :comments
-           count
-           (= 1)
-           is)
-      (->> (remove #(#{first-id} (:posts/id %)) new-posts)
-           first
-           :comments
-           count
-           (= 0)
-           is))))
+      (is (= 1 (->> (filter #(#{first-id} (:posts/id %)) new-posts)
+                    first
+                    :comments
+                    count)))
+      (is (= 0 (->> (remove #(#{first-id} (:posts/id %)) new-posts)
+                    first
+                    :comments
+                    count))))))
+
 

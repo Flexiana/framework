@@ -1,6 +1,7 @@
 (ns acl
   (:require
     [com.stuartsierra.component :as component]
+    [controllers.comments :as comments-controllers]
     [controllers.index :as index]
     [controllers.posts :as posts-controllers]
     [controllers.re-frame :as re-frame]
@@ -28,11 +29,10 @@
                :delete {:controller posts-controllers/delete-post}}]
     ["/posts/ids" {:post {:controller posts-controllers/fetch-by-ids}}]
     ["/posts/comments" {:get {:controller posts-controllers/fetch-with-comments}}]
-    ["/comments" {:get    {:controller empty/controller}
-                  :put    {:controller empty/controller}
-                  :post   {:controller empty/controller}
-                  :delete {:controller empty/controller}}]
-    ["/comments/ids" {:post {:controller empty/controller}}]
+    ["/comments" {:get    {:controller comments-controllers/fetch}
+                  :put    {:controller comments-controllers/add}
+                  :post   {:controller comments-controllers/update-comment}
+                  :delete {:controller comments-controllers/delete-comment}}]
     ["/users" {:get    {:controller empty/controller}
                :put    {:controller empty/controller}
                :post   {:controller empty/controller}

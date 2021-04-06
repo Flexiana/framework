@@ -1,18 +1,6 @@
 (ns views.common
   (:require
-    [clojure.data.json :as json]
-    [xiana.core :as xiana])
-  (:import
-    (java.sql
-      Timestamp)))
-
-(defn jasonize
-  [m]
-  (json/write-str m :value-fn (fn [_ v]
-                                (cond
-                                  (uuid? v) (str v)
-                                  (= Timestamp (type v)) (str v)
-                                  :else v))))
+    [xiana.core :as xiana]))
 
 (defn response
   [state body]

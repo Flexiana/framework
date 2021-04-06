@@ -38,11 +38,12 @@
 
 (defn render-posts-with-comments
   [data]
-  (let [posts (:posts data)]
-    (->> posts
-         (group-by ->post-view)
-         (map (fn [[k v]] (assoc k :comments (mapv comments/->comment-view v))))
-         (assoc {} :posts))))
+  (->> data
+       (group-by ->post-view)
+       (map (fn [[k v]]
+              (assoc k :comments (->> v (mapv comments/->comment-view)
+                                      (remove #(every? nil? (vals %)))))))
+       (assoc {} :posts)))
 
 (defn fetch-post-with-comments
   [{{{id :id} :query-params} :request

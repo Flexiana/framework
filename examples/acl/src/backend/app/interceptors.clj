@@ -112,21 +112,5 @@
                         (assoc state :query (over query user-id restriction))
                         state)))})
 
-(def query-builder
-  {:leave (fn [{behavior                   :behavior
-                {{user-id :id} :user}      :session-data
-                {{id :id}    :query-params
-                 body-params :body-params} :request
-                :as                        state}]
-            (xiana/ok (reduce (fn [state b]
-                                (let [{:keys [:resource
-                                              :basic-query
-                                              :add-id
-                                              :add-body]} b
-                                      query (cond-> (basic-query)
-                                              id (add-id id)
-                                              body-params (add-body body-params user-id))]
-                                  (assoc-in state [:query resource] query))) state behavior)))})
-
 (def muuntaja
   (wrap/interceptor m-int/muun-instance))
