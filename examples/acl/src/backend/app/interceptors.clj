@@ -4,12 +4,12 @@
     [framework.acl.core :as acl]
     [framework.components.session.backend :refer [fetch add! delete!]]
     [honeysql.core :as sql]
-    [interceptors.muuntaja :as m-int]
     [honeysql.helpers :refer :all :as helpers]
+    [interceptors.muuntaja :as m-int]
+    [interceptors.wrap :as wrap]
     [next.jdbc :as jdbc]
     [ring.middleware.params :as par]
-    [xiana.core :as xiana]
-    [interceptors.wrap :as wrap])
+    [xiana.core :as xiana])
   (:import
     (java.util
       UUID)))
@@ -92,32 +92,22 @@
                   (xiana/ok state)))
               (xiana/ok state)))
    :leave (fn [{query    :query
-                behavior :behavior
                 :as      state}]
-            (xiana/ok (reduce (fn [state b]
-                                (let [resource (:resource b)
-                                      result (execute state (sql/format (resource query)))]
-                                  (assoc-in state [:response-data :db-data resource] result))) state behavior)))})
+            (xiana/ok (let [result (execute state (sql/format query))]
+                        (assoc-in state [:response-data :db-data] result))))})
 
 (def view
-  {:leave (fn [{behavior :behavior :as state}]
-            ((:view (first behavior)) state))})
+  {:leave (fn [state]
+            ((:view state)))})
 
 (def acl-restrict
-  {:enter (fn [{behavior :behavior
-                :as      state}]
-            (reduce (fn [st {resource :resource na :on-deny}]
-                      (acl/is-allowed (or (:right st) st) {:resource resource :or-else na}))
-              state behavior))
+  {:enter (fn [{na :on-deny :as state}]
+            (acl/is-allowed state {:or-else na}))
    :leave (fn [{{restriction :acl}    :response-data
                 query                 :query
                 {{user-id :id} :user} :session-data
-                behavior              :behavior
                 :as                   state}]
-            (xiana/ok (reduce (fn [state b]
-                                (let [resource (:resource b)]
-                                  (assoc-in state [:query resource] ((:over b) (resource query) user-id (resource restriction)))))
-                        state behavior)))})
+            (xiana/ok (assoc state :query ((:over state) query user-id restriction))))})
 
 (def query-builder
   {:leave (fn [{behavior                   :behavior
