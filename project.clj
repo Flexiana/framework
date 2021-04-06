@@ -1,4 +1,4 @@
-(defproject com.flexiana/framework "0.1.4"
+(defproject com.flexiana/framework "0.1.5"
   :description "Framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
@@ -18,20 +18,22 @@
                  [crypto-password "0.2.1"]
                  [garden "1.3.10"]
                  [hickory "0.7.1"]
-                 [hiccup "1.0.5"]]
+                 [hiccup "1.0.5"]
+                 [funcool/cuerdas "RELEASE"]]
   :plugins [[lein-tools-deps "0.4.5"]]
   :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
   :lein-tools-deps/config {:config-files [:install :user :project]}
 
   :source-paths ["src"]
   :target "target/%s/"
-  :profiles {:dev      {:resource-paths ["config/dev"]
+  :profiles {:dev      {:resource-paths         ["config/dev"]
                         :lein-tools-deps/config {:config-files [:install :user :project]}}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
              :test     {:source-paths ["test"]
                         :dependencies [[lambdaisland/kaocha "1.0.732"]
+                                       [lambdaisland/kaocha-cloverage "1.0.75"]
                                        [mvxcvi/cljstyle "0.14.0"
                                         :exclusions [org.clojure/clojure]]
                                        [clj-kondo "2021.01.20"]
@@ -45,5 +47,6 @@
                         "+test"
                         "run"
                         "-m"
-                        "kaocha.runner"]}
+                        "kaocha.runner"
+                        "--plugin" "cloverage"]}
   :main framework.components.core)
