@@ -10,7 +10,8 @@
                      test_member
                      test_admin
                      test_suspended_admin
-                     test_staff]]))
+                     test_staff]]
+    [post-helpers]))
 
 (use-fixtures :once acl-fixture/std-system-fixture)
 
@@ -98,3 +99,29 @@
                            :is_active  true})
                     ->users)]
     (is (empty? updated) "A member cannot update another member")))
+
+(deftest get-user-posts-with-comment
+  (delete :posts)
+  (let [post-id (-> (put :posts test_member {:content "This is a post"})
+                    :body
+                    post-helpers/post-ids
+                    first)
+        comment (put :comments test_member {:post_id post-id :content "Test comment on test post"})
+        result (-> (fetch  "users/posts/comments" test_member test_member)
+                   ->users
+                   first)]
+    (is (= "This is a post" (get-in result [:posts 0 :posts/content])))
+    (is (= "Test comment on test post" (get-in result [:posts 0 :comments 0 :comments/content])))))
+
+(deftest get-user-posts
+  (delete :posts)
+  (let [post-id (-> (put :posts test_member {:content "This is a test post"})
+                    :body
+                    post-helpers/post-ids
+                    first)
+        comment (put :comments test_member {:post_id post-id :content "Test comment on test post"})
+        result (-> (fetch  "users/posts" test_member test_member)
+                   ->users
+                   first)]
+    (is (= "This is a test post" (get-in result [:posts 0 :posts/content])))
+    (is (nil? (get-in result [:posts 0 :comments 0 :comments/content])))))

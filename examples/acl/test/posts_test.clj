@@ -158,3 +158,18 @@
                :body
                post-ids
                count)))))
+
+(def post-id
+  (-> (put :posts test_member {:content "test post"})
+      :body
+      post-ids
+      first))
+
+(put :comments test_member {:post_id post-id
+                            :content "test comment on test post"})
+
+(-> (fetch "posts/comments" test_member)
+    :body
+    (json/read-str :key-fn keyword)
+    :data
+    :posts)

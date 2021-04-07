@@ -37,9 +37,8 @@
   (->> data
        (group-by ->post-view)
        (map (fn [[k v]]
-              (assoc k :comments (->> v (mapv comments/->comment-view)
-                                      (remove #(every? nil? (vals %)))))))
-       (assoc {} :posts)))
+              [k (->> v (mapv comments/->comment-view))]))
+       (map (fn [[k v]] (assoc k :comments v)))))
 
 (defn fetch-post-with-comments
   [{{{id :id} :query-params} :request
@@ -47,8 +46,8 @@
     :as                      state}]
   (if id
     (xiana/ok (c/response state {:view-type "Single post with comments"
-                                 :data      (render-posts-with-comments (:db-data response-data))}))
+                                 :data      {:posts (render-posts-with-comments (:db-data response-data))}}))
     (xiana/ok (c/response state {:view-type "Multiple posts with comments"
-                                 :data      (render-posts-with-comments (:db-data response-data))}))))
+                                 :data      {:posts (render-posts-with-comments (:db-data response-data))}}))))
 
 

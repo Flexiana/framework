@@ -44,8 +44,8 @@
   [data]
   (->> data
        (group-by ->user-view)
-       (map (fn [[k v]] (assoc k :posts (mapv posts/render-posts-with-comments v))))
-       (assoc {} :users)))
+       (map (fn [[k v]] [k (posts/render-posts-with-comments v)]))
+       (map (fn [[k v]] (assoc k :posts v)))))
 
 (defn fetch-posts-comments
   [{{{id :id} :query-params} :request
@@ -53,16 +53,15 @@
     :as                      state}]
   (if id
     (xiana/ok (c/response state {:view-type "single user with posts and comments"
-                                 :data      (render-posts-with-comments (:db-data response-data))}))
+                                 :data      {:users (render-posts-with-comments (:db-data response-data))}}))
     (xiana/ok (c/response state {:view-type "multiple users with posts and comments"
-                                 :data      (render-posts-with-comments (:db-data response-data))}))))
+                                 :data      {:users (render-posts-with-comments (:db-data response-data))}}))))
 
 (defn render-posts
   [data]
   (->> data
        (group-by ->user-view)
-       (map (fn [[k v]] (assoc k :posts (mapv posts/->post-view v))))
-       (assoc {} :users)))
+       (map (fn [[k v]] (assoc k :posts (map posts/->post-view v))))))
 
 (defn fetch-posts
   [{{{id :id} :query-params} :request
@@ -70,6 +69,6 @@
     :as                      state}]
   (if id
     (xiana/ok (c/response state {:view-type "single user with posts"
-                                 :data      (render-posts (:db-data response-data))}))
+                                 :data      {:users (render-posts (:db-data response-data))}}))
     (xiana/ok (c/response state {:view-type "multiple users with posts"
-                                 :data      (render-posts (:db-data response-data))}))))
+                                 :data      {:users (render-posts (:db-data response-data))}}))))

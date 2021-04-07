@@ -10,7 +10,7 @@
   (xiana/flow->
     (assoc state :view views/comments)
     model/fetch-query
-    owner/fetch-owner-fn))
+    owner/owner-fn))
 
 (defn add
   [state]
@@ -23,12 +23,11 @@
   (xiana/flow->
     (assoc state :view views/comments)
     model/update-query
-    owner/update-owner-fn))
+    owner/owner-fn))
 
 (defn delete-comment
   [state]
   (xiana/flow->
     (assoc state :view views/comments)
     model/delete-query
-    owner/delete-owner-fn))
-
+    owner/owner-fn))

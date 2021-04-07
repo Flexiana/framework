@@ -18,7 +18,7 @@
               :owner-fn
               (fn [query user-id over]
                 (if (= :own over)
-                  (-> query (merge-where [:= :user_id user-id]))
+                  (-> query (merge-where [:= :id user-id]))
                   query)))))
 
 (defn fetch-with-post-comments-owner-fn
@@ -27,7 +27,7 @@
               :owner-fn
               (fn [query user-id over]
                 (if (= :own over)
-                  (-> query (merge-where [:= :users.user_id user-id]))
+                  (-> query (merge-where [:= :users.id user-id]))
                   query)))))
 
 (defn fetch-with-post-owner-fn
@@ -36,5 +36,5 @@
               :owner-fn
               (fn [query user-id over]
                 (if (= :own over)
-                  (-> query (merge-where [:= :users.user_id user-id]))
+                  (-> query (merge-where [:= :users.id user-id]))
                   query)))))

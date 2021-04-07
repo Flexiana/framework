@@ -40,7 +40,7 @@
 
 (defn fetch-with-posts
   [state]
-  (xiana/ok
+  (xiana/flow->
     (assoc state :view views/fetch-posts)
     model/fetch-with-post-query
     owner/fetch-with-post-owner-fn))
