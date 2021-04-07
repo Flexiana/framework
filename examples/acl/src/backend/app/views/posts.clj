@@ -38,7 +38,7 @@
        (group-by ->post-view)
        (map (fn [[k v]]
               [k (->> v (mapv comments/->comment-view))]))
-       (map (fn [[k v]] (assoc k :comments v)))))
+       (map (fn [[k v]] (assoc k :comments (remove #(every? nil? (vals %)) v))))))
 
 (defn fetch-post-with-comments
   [{{{id :id} :query-params} :request
