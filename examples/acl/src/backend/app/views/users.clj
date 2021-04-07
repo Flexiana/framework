@@ -4,7 +4,7 @@
     [views.posts :as posts]
     [xiana.core :as xiana]))
 
-(defn ->user
+(defn ->user-view
   [m]
   (select-keys m [:users/id
                   :users/last_login
@@ -20,14 +20,14 @@
   (xiana/ok (c/response state {:view-type "single user"
                                :data      {:users (->> response-data
                                                        :db-data
-                                                       (map ->user))}})))
+                                                       (map ->user-view))}})))
 
 (defn multi-user
   [{response-data :response-data :as state}]
   (xiana/ok (c/response state {:view-type "multiple users"
                                :data      {:users (->> response-data
                                                        :db-data
-                                                       (map ->user))}})))
+                                                       (map ->user-view))}})))
 
 (defn fetch-users
   [{{{id :id} :query-params} :request
@@ -43,7 +43,7 @@
 (defn render-posts-with-comments
   [data]
   (->> data
-       (group-by ->user)
+       (group-by ->user-view)
        (map (fn [[k v]] (assoc k :posts (mapv posts/render-posts-with-comments v))))
        (assoc {} :users)))
 
@@ -52,15 +52,15 @@
     response-data            :response-data
     :as                      state}]
   (if id
-    (xiana/ok (c/response state {:view-type "single user with posts"
+    (xiana/ok (c/response state {:view-type "single user with posts and comments"
                                  :data      (render-posts-with-comments (:db-data response-data))}))
-    (xiana/ok (c/response state {:view-type "multiple users with posts"
+    (xiana/ok (c/response state {:view-type "multiple users with posts and comments"
                                  :data      (render-posts-with-comments (:db-data response-data))}))))
 
 (defn render-posts
   [data]
   (->> data
-       (group-by ->user)
+       (group-by ->user-view)
        (map (fn [[k v]] (assoc k :posts (mapv posts/->post-view v))))
        (assoc {} :users)))
 
