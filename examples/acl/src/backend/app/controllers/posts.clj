@@ -1,5 +1,6 @@
 (ns controllers.posts
   (:require
+    [data-ownership.posts :as owner]
     [models.posts :as model]
     [views.posts :as views]
     [xiana.core :as xiana]))
@@ -9,7 +10,7 @@
   (xiana/flow->
     (assoc state :view views/fetch-posts)
     model/fetch-query
-    model/fetch-over-fn))
+    owner/fetch-owner-fn))
 
 (defn add
   [state]
@@ -22,25 +23,25 @@
   (xiana/flow->
     (assoc state :view views/fetch-posts)
     model/update-query
-    model/update-over-fn))
+    owner/update-owner-fn))
 
 (defn delete-post
   [state]
   (xiana/flow->
     (assoc state :view views/fetch-posts)
     model/delete-query
-    model/delete-over-fn))
+    owner/delete-owner-fn))
 
 (defn fetch-by-ids
   [state]
   (xiana/flow->
     (assoc state :view views/all-posts)
     model/fetch-by-ids-query
-    model/fetch-by-ids-over-fn))
+    owner/fetch-by-ids-owner-fn))
 
 (defn fetch-with-comments
   [state]
   (xiana/flow->
     (assoc state :view views/fetch-post-with-comments)
     model/fetch-with-comments-query
-    model/fetch-with-comments-over-fn))
+    owner/fetch-with-comments-owner-fn))

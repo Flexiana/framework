@@ -1,5 +1,6 @@
 (ns controllers.comments
   (:require
+    [data-ownership.comments :as owner]
     [models.comments :as model]
     [views.comments :as views]
     [xiana.core :as xiana]))
@@ -9,7 +10,7 @@
   (xiana/flow->
     (assoc state :view views/comments)
     model/fetch-query
-    model/fetch-over-fn))
+    owner/fetch-owner-fn))
 
 (defn add
   [state]
@@ -22,12 +23,12 @@
   (xiana/flow->
     (assoc state :view views/comments)
     model/update-query
-    model/update-over-fn))
+    owner/update-owner-fn))
 
 (defn delete-comment
   [state]
   (xiana/flow->
     (assoc state :view views/comments)
     model/delete-query
-    model/delete-over-fn))
+    owner/delete-owner-fn))
 
