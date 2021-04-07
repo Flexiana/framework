@@ -30,7 +30,7 @@
   [state response]
   (assoc state :response response))
 
-(defn default-controller
+(defn default-action
   [{request :request {handler :handler} :request-data :as state}]
   (try
     (xiana/ok (assoc state :response (handler request)))
@@ -44,26 +44,23 @@
   (let [match (r/match-by-path (:ring-router router) (:uri request))
         method (:request-method request)
         handler (or (get-in match [:data :handler]) (-> match :result method :handler))
-        controller (or (get-in match [:data :controller]) (-> match :data method :controller))
-        behavior (-> match :data method :behavior)]
+        controller (or (get-in match [:data :action]) (-> match :data method :action))]
     (if controller
       (xiana/ok (-> state
                     (?assoc-in [:request-data :match] match)
                     (?assoc-in [:request-data :handler] handler)
-                    (?assoc-in [:behavior] behavior)
-                    (assoc-in [:request-data :controller] controller)))
+                    (assoc-in [:request-data :action] controller)))
 
       (if handler
         (xiana/ok (-> state
                       (?assoc-in [:request-data :match] match)
-                      (?assoc-in [:behavior] behavior)
                       (assoc-in [:request-data :handler] handler)
-                      (assoc-in [:request-data :controller] default-controller)))
+                      (assoc-in [:request-data :action] default-action)))
         (xiana/error (response state {:status 404 :body "Not Found"}))))))
 
 (defn run-controller
   [state]
-  (let [controller (get-in state [:request-data :controller])]
+  (let [controller (get-in state [:request-data :action])]
     (controller state)))
 
 (defn select-interceptors

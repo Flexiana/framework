@@ -7,11 +7,11 @@
   (def sample-router-interceptor
     {:enter (fn [{request :request :as state}]
               (xiana/ok state))
-     :leave (fn [{request :request {:keys [handler controller match]} :request-data :as state}]
+     :leave (fn [{request :request {:keys [handler action match]} :request-data :as state}]
               (xiana/ok state))})
 
   (def sample-controller-interceptor
-    {:enter (fn [{request :request {:keys [handler controller match]} :request-data :as state}]
+    {:enter (fn [{request :request {:keys [handler action match]} :request-data :as state}]
               (xiana/ok state))
      :leave (fn [{request :request response :response :as state}]
               (xiana/ok state))}))

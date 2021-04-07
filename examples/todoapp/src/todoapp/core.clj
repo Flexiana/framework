@@ -39,11 +39,11 @@
     :as   state}]
   (let [ring-router                  (-> deps :router :ring-router)
         {:keys [uri]}                http-request
-        {:keys [handler controller]} (-> ring-router
-                                         (r/match-by-path uri)
-                                         :data)]
+        {:keys [handler action]} (-> ring-router
+                                     (r/match-by-path uri)
+                                     :data)]
     (cond  controller (-> state
-                          (assoc-in [:request-data :controller] controller)
+                          (assoc-in [:request-data :action] controller)
                           xiana/ok)
            handler    (-> ring-router
                           ring/ring-handler
@@ -58,7 +58,7 @@
   [{:keys [request-data]
     :as   state}]
   (-> request-data
-      :controller
+      :action
       (apply [state])))
 
 (defn state->handler
@@ -113,8 +113,8 @@
 
 (defn make-router
   []
-  (let [routes [["/" {:controller controller:index-view}]
-                ["/hello" {:controller controller:hello}]]]
+  (let [routes [["/" {:action controller:index-view}]
+                ["/hello" {:action controller:hello}]]]
     (-> {:provides [:ring-router]}
         (with-meta `{component/stop  ~(fn [this]
                                         (dissoc this :ring-router))

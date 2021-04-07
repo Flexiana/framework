@@ -7,7 +7,6 @@
     [controllers.re-frame :as re-frame]
     [controllers.users :as users-controllers]
     [custom-handlers]
-    [empty-controller :as empty]
     [framework.components.app.core :as xiana.app]
     [framework.components.router.core :as xiana.router]
     [framework.components.session.backend :as session-backend]
@@ -20,26 +19,26 @@
     [reitit.ring :as ring]))
 
 (def routes
-  [["/" {:controller index/handle-index}]
-   ["/re-frame" {:controller re-frame/handle-index}]
+  [["/" {:action index/handle-index}]
+   ["/re-frame" {:action re-frame/handle-index}]
    ["/assets/*" (ring/create-resource-handler)]
    ["" {:handler xiana.app/default-handler}
-    ["/posts" {:get    {:controller posts-controllers/fetch}
-               :put    {:controller posts-controllers/add}
-               :post   {:controller posts-controllers/update-post}
-               :delete {:controller posts-controllers/delete-post}}]
-    ["/posts/ids" {:post {:controller posts-controllers/fetch-by-ids}}]
-    ["/posts/comments" {:get {:controller posts-controllers/fetch-with-comments}}]
-    ["/comments" {:get    {:controller comments-controllers/fetch}
-                  :put    {:controller comments-controllers/add}
-                  :post   {:controller comments-controllers/update-comment}
-                  :delete {:controller comments-controllers/delete-comment}}]
-    ["/users" {:get    {:controller users-controllers/fetch}
-               :put    {:controller users-controllers/add}
-               :post   {:controller users-controllers/update-user}
-               :delete {:controller users-controllers/delete-user}}]
-    ["/users/posts" {:get {:controller users-controllers/fetch-with-posts}}]
-    ["/users/posts/comments" {:get {:controller users-controllers/fetch-with-posts-comments}}]]])
+    ["/posts" {:get    {:action posts-controllers/fetch}
+               :put    {:action posts-controllers/add}
+               :post   {:action posts-controllers/update-post}
+               :delete {:action posts-controllers/delete-post}}]
+    ["/posts/ids" {:post {:action posts-controllers/fetch-by-ids}}]
+    ["/posts/comments" {:get {:action posts-controllers/fetch-with-comments}}]
+    ["/comments" {:get    {:action comments-controllers/fetch}
+                  :put    {:action comments-controllers/add}
+                  :post   {:action comments-controllers/update-comment}
+                  :delete {:action comments-controllers/delete-comment}}]
+    ["/users" {:get    {:action users-controllers/fetch}
+               :put    {:action users-controllers/add}
+               :post   {:action users-controllers/update-user}
+               :delete {:action users-controllers/delete-user}}]
+    ["/users/posts" {:get {:action users-controllers/fetch-with-posts}}]
+    ["/users/posts/comments" {:get {:action users-controllers/fetch-with-posts-comments}}]]])
 
 (defn system
   [config]
@@ -67,7 +66,6 @@
                                   interceptors/view
                                   interceptors/db-access
                                   (interceptors/acl-restrict views.common/not-allowed)])
-        ;interceptors/query-builder])
         :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using
         {:router     [:db]
