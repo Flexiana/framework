@@ -63,7 +63,7 @@
   {:enter (fn [state]
             (xiana/ok
               (clojure.core/update state :request
-                                   #(keywordize-keys ((par/wrap-params identity) %)))))})
+                #(keywordize-keys ((par/wrap-params identity) %)))))})
 
 (defn execute
   "Executes db query"
