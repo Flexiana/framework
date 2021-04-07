@@ -28,7 +28,6 @@
                                                    :role :guest})))
 
 (def require-logged-in
-  "Tricky login, session should handle user data"
   {:enter (fn [{req :request :as state}]
             (if-let [authorization (get-in req [:headers :authorization])]
               (try (xiana/ok (-> (assoc-in state [:session-data :authorization] authorization)

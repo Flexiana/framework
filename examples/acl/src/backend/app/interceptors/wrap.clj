@@ -6,7 +6,8 @@
   [in]
   (cond-> {}
     (:enter in) (assoc :enter (fn [state] (xiana/ok ((:enter in) state))))
-    (:leave in) (assoc :leave (fn [state] (xiana/ok ((:leave in) state))))))
+    (:leave in) (assoc :leave (fn [state] (xiana/ok ((:leave in) state))))
+    (:error in) (assoc :error (fn [state] (xiana/error ((:error in) state))))))
 
 (defn middleware->enter
   ([middleware]
