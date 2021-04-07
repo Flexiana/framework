@@ -64,7 +64,7 @@
   {:enter (fn [state]
             (xiana/ok
               (clojure.core/update state :request
-                #(keywordize-keys ((par/wrap-params identity) %)))))})
+                                   #(keywordize-keys ((par/wrap-params identity) %)))))})
 
 (defn execute
   "Executes db query"
@@ -107,10 +107,10 @@
     :leave (fn [{{restriction :acl}    :response-data
                  query                 :query
                  {{user-id :id} :user} :session-data
-                 over                  :over
+                 owner-fn              :owner-fn
                  :as                   state}]
-             (xiana/ok (if over
-                         (assoc state :query (over query user-id restriction))
+             (xiana/ok (if owner-fn
+                         (assoc state :query (owner-fn query user-id restriction))
                          state)))})
   ([]
    {:enter (fn [state]
@@ -118,10 +118,10 @@
     :leave (fn [{{restriction :acl}    :response-data
                  query                 :query
                  {{user-id :id} :user} :session-data
-                 over                  :over
+                 owner-fn              :owner-fn
                  :as                   state}]
-             (xiana/ok (if over
-                         (assoc state :query (over query user-id restriction))
+             (xiana/ok (if owner-fn
+                         (assoc state :query (owner-fn query user-id restriction))
                          state)))}))
 
 (def muuntaja
