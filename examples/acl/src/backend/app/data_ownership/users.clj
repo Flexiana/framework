@@ -3,38 +3,12 @@
     [honeysql.helpers :refer :all :as helpers]
     [xiana.core :as xiana]))
 
-(defn update-owner-fn
-  [state]
-  (xiana/ok (assoc state
-              :owner-fn
-              (fn [query user-id over]
-                (if (= :own over)
-                  (-> query (merge-where [:= :users.id user-id]))
-                  query)))))
+(def ownership
+  {:own (fn [query user-id over]
+          (-> query (merge-where [:= :users.id user-id])))})
 
-(defn delete-owner-fn
+(defn owner-fn
   [state]
   (xiana/ok (assoc state
               :owner-fn
-              (fn [query user-id over]
-                (if (= :own over)
-                  (-> query (merge-where [:= :users.id user-id]))
-                  query)))))
-
-(defn fetch-with-post-comments-owner-fn
-  [state]
-  (xiana/ok (assoc state
-              :owner-fn
-              (fn [query user-id over]
-                (if (= :own over)
-                  (-> query (merge-where [:= :users.id user-id]))
-                  query)))))
-
-(defn fetch-with-post-owner-fn
-  [state]
-  (xiana/ok (assoc state
-              :owner-fn
-              (fn [query user-id over]
-                (if (= :own over)
-                  (-> query (merge-where [:= :users.id user-id]))
-                  query)))))
+              (ownership (get-in state [:response-data :acl])))))

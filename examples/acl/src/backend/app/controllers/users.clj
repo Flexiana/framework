@@ -22,25 +22,25 @@
   (xiana/flow->
     (assoc state :view views/fetch-users)
     model/update-query
-    owner/update-owner-fn))
+    owner/owner-fn))
 
 (defn delete-user
   [state]
   (xiana/flow->
     (assoc state :view views/fetch-users)
     model/delete-query
-    owner/delete-owner-fn))
+    owner/owner-fn))
 
 (defn fetch-with-posts-comments
   [state]
   (xiana/flow->
     (assoc state :view views/fetch-posts-comments)
     model/fetch-with-post-comments-query
-    owner/fetch-with-post-comments-owner-fn))
+    owner/owner-fn))
 
 (defn fetch-with-posts
   [state]
   (xiana/flow->
     (assoc state :view views/fetch-posts)
     model/fetch-with-post-query
-    owner/fetch-with-post-owner-fn))
+    owner/owner-fn))
