@@ -107,7 +107,7 @@
                     post-helpers/post-ids
                     first)
         comment (put :comments test_member {:post_id post-id :content "Test comment on test post"})
-        result (-> (fetch  "users/posts/comments" test_member test_member)
+        result (-> (fetch "users/posts/comments" test_member test_member)
                    ->users
                    first)]
     (is (= "This is a post" (get-in result [:posts 0 :posts/content])))
@@ -120,8 +120,75 @@
                     post-helpers/post-ids
                     first)
         comment (put :comments test_member {:post_id post-id :content "Test comment on test post"})
-        result (-> (fetch  "users/posts" test_member test_member)
+        result (-> (fetch "users/posts" test_member test_member)
                    ->users
                    first)]
     (is (= "This is a test post" (get-in result [:posts 0 :posts/content])))
     (is (nil? (get-in result [:posts 0 :comments 0 :comments/content])))))
+
+(deftest member-cannot-delete-others
+  (let [new-user-id (-> (put :users
+                             test_admin
+                             {:password   "not null"
+                              :username   "Additional member"
+                              :first_name "John"
+                              :last_name  "Smith"
+                              :email      "josm@test.com"
+                              :is_active  true})
+                        ->users
+                        first
+                        :users/id)]
+    (is (empty? (-> (delete :users test_member new-user-id)
+                    ->users)))))
+
+(deftest member-can-delete-itself
+  (let [new-user-id (-> (put :users
+                             test_admin
+                             {:password   "not null"
+                              :username   "Additional member"
+                              :first_name "John"
+                              :last_name  "Smith"
+                              :email      "josm@test.com"
+                              :is_active  true})
+                        ->users
+                        first
+                        :users/id)]
+    (is (= new-user-id (-> (delete :users new-user-id new-user-id)
+                           ->users
+                           first
+                           :users/id)))))
+
+(deftest admin-can-delete-others
+  (let [new-user-id (-> (put :users
+                             test_admin
+                             {:password   "not null"
+                              :username   "Additional member"
+                              :first_name "John"
+                              :last_name  "Smith"
+                              :email      "josm@test.com"
+                              :is_active  true})
+                        ->users
+                        first
+                        :users/id)]
+    (is (= new-user-id (-> (delete :users test_admin new-user-id)
+                           ->users
+                           first
+                           :users/id)))))
+
+(deftest admin-can-delete-itself
+  (let [new-user-id (-> (put :users
+                             test_admin
+                             {:password     "not null"
+                              :username     "Additional member"
+                              :first_name   "John"
+                              :last_name    "Smith"
+                              :email        "josm@test.com"
+                              :is_superuser true
+                              :is_active    true})
+                        ->users
+                        first
+                        :users/id)]
+    (is (= new-user-id (-> (delete :users new-user-id new-user-id)
+                           ->users
+                           first
+                           :users/id)))))
