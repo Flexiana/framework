@@ -35,22 +35,17 @@
                    (catch IllegalArgumentException e (guest state)))
               (guest state)))})
 
-(defn session-middleware
-  "Copied from framework, for POC"
-  [{request :request :as state}]
-  (let [sessions-backend (-> state
-                             :deps
-                             :session-backend)
-        session-id (get-in request [:headers :session-id])
-        user (when session-id (fetch sessions-backend session-id))]
-    (if user
-      (xiana/ok (assoc-in state [:session-data :user] user))
-      (xiana/ok (assoc-in state [:session-data :session-id] (UUID/randomUUID))))))
-
 (def session-interceptor
-  {:enter (fn [state] (session-middleware state))
-   :leave (fn update-session
-            [state]
+  {:enter (fn [{request :request :as state}]
+            (let [sessions-backend (-> state
+                                       :deps
+                                       :session-backend)
+                  session-id (get-in request [:headers :session-id])
+                  user (when session-id (fetch sessions-backend session-id))]
+              (if user
+                (xiana/ok (assoc-in state [:session-data :user] user))
+                (xiana/ok (assoc-in state [:session-data :session-id] (UUID/randomUUID))))))
+   :leave (fn [state]
             (let [sessions-backend (-> state
                                        :deps
                                        :session-backend)
@@ -100,27 +95,17 @@
             ((:view state) state))})
 
 (defn acl-restrict
+  ([]
+   (acl-restrict nil))
   ([or-else]
    {:enter (fn [state]
              (acl/is-allowed state {:or-else or-else}))
-    :leave (fn [{{restriction :acl}    :response-data
-                 query                 :query
+    :leave (fn [{query                 :query
                  {{user-id :id} :user} :session-data
                  owner-fn              :owner-fn
                  :as                   state}]
              (xiana/ok (if owner-fn
-                         (assoc state :query (owner-fn query user-id restriction))
-                         state)))})
-  ([]
-   {:enter (fn [state]
-             (acl/is-allowed state))
-    :leave (fn [{{restriction :acl}    :response-data
-                 query                 :query
-                 {{user-id :id} :user} :session-data
-                 owner-fn              :owner-fn
-                 :as                   state}]
-             (xiana/ok (if owner-fn
-                         (assoc state :query (owner-fn query user-id restriction))
+                         (assoc state :query (owner-fn query user-id))
                          state)))}))
 
 (def muuntaja
