@@ -1,6 +1,6 @@
 (ns controllers.comments
   (:require
-    [data-ownership.comments :as owner]
+    [models.data-ownership :as owner]
     [models.comments :as model]
     [views.comments :as views]
     [xiana.core :as xiana]))

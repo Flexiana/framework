@@ -1,6 +1,6 @@
 (ns controllers.users
   (:require
-    [data-ownership.users :as owner]
+    [models.data-ownership :as owner]
     [models.users :as model]
     [views.users :as views]
     [xiana.core :as xiana]))

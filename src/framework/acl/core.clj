@@ -39,12 +39,11 @@
          result (has-access roles user {:resource  res
                                         :role      role
                                         :privilege pr})]
-     (cond result (xiana/ok (assoc-in state [:response-data :acl] result))
+     (cond result (xiana/ok (-> (assoc-in state [:response-data :acl] result)
+                                (assoc-in [:response-data :acl-resource] (keyword res))))
            (:or-else access) ((:or-else access) state)
            :else (xiana/error (assoc state :response {:status 401 :body "Authorization error"})))))
   ([{{user :user} :session-data http-request :request :as state}]
    (let [resource (->resource (:uri http-request))
          privilege (action-mapping (:request-method http-request))]
      (is-allowed state {:resource resource :privilege privilege :role (:role user)}))))
-
-

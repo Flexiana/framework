@@ -1,6 +1,6 @@
 (ns controllers.posts
   (:require
-    [data-ownership.posts :as owner]
+    [models.data-ownership :as owner]
     [models.posts :as model]
     [views.posts :as views]
     [xiana.core :as xiana]))
