@@ -43,14 +43,8 @@
            (:or-else access) ((:or-else access) state)
            :else (xiana/error (assoc state :response {:status 401 :body "Authorization error"})))))
   ([{{user :user} :session-data http-request :request :as state}]
-   (let [permissions (:acl/roles state)
-         resource (->resource (:uri http-request))
-         privilege (action-mapping (:request-method http-request))
-         result (if (:role user)
-                  (has-access permissions {:resource resource :privilege privilege :role (:role user)})
-                  (has-access permissions user {:resource resource :privilege privilege}))]
-     (if result
-       (xiana/ok (assoc-in state [:response-data :acl] result))
-       (xiana/error (assoc state :response {:status 401 :body "Authorization error"}))))))
+   (let [resource (->resource (:uri http-request))
+         privilege (action-mapping (:request-method http-request))]
+     (is-allowed state {:resource resource :privilege privilege :role (:role user)}))))
 
 
