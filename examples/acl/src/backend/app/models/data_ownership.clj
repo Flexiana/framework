@@ -1,6 +1,6 @@
 (ns models.data-ownership
   (:require
-    [honeysql.helpers :refer :all :as helpers]
+    [honeysql.helpers :refer [merge-where] :as helpers]
     [xiana.core :as xiana]))
 
 (def ownership

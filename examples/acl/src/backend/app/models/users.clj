@@ -1,7 +1,16 @@
 (ns models.users
   (:require
     [clojure.core :as core]
-    [honeysql.helpers :refer :all :as helpers]
+    [honeysql.helpers :refer [select
+                              from
+                              where
+                              insert-into
+                              delete-from
+                              merge-left-join
+                              left-join
+                              values
+                              sset]
+     :as helpers]
     [xiana.core :as xiana])
   (:import
     (java.util

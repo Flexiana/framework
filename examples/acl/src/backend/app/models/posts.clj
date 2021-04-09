@@ -1,6 +1,14 @@
 (ns models.posts
   (:require
-    [honeysql.helpers :refer :all :as helpers]
+    [honeysql.helpers :refer [select
+                              from
+                              where
+                              insert-into
+                              values
+                              left-join
+                              sset
+                              delete-from]
+     :as helpers]
     [xiana.core :as xiana])
   (:import
     (java.util
@@ -49,5 +57,3 @@
                                             (from :posts)
                                             (left-join :comments [:= :posts.id :comments.post_id]))
                                   id (where [:= :posts.id (UUID/fromString id)])))))
-
-

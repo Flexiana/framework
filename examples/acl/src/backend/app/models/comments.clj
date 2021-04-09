@@ -1,6 +1,14 @@
 (ns models.comments
   (:require
-    [honeysql.helpers :refer :all :as helpers]
+    [honeysql.helpers :refer [select
+                              from
+                              where
+                              insert-into
+                              delete-from
+                              columns
+                              values
+                              sset]
+     :as helpers]
     [xiana.core :as xiana])
   (:import
     (java.util
