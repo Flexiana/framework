@@ -81,8 +81,8 @@
                   sql/format)
         user (first (db/execute state query))]
     (if user
-      (-> (xiana/ok (assoc-in state [:session-data :user] (purify user)))
-          (xiana/ok (core/update :session-data dissoc :new-session)))
+      (xiana/ok (-> (assoc-in state [:session-data :user] (purify user))
+                    (core/update :session-data dissoc :new-session)))
       state)))
 
 (defn db-access
