@@ -1,5 +1,6 @@
 (ns sessions.auth
-  (:require [xiana.core :as xiana]))
+  (:require
+    [xiana.core :as xiana]))
 
 (defn require-logged-in
   [state]
