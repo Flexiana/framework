@@ -47,6 +47,12 @@
               (rest qry-raw))]
     [qry]))
 
+(defn execute
+  "Executes db query"
+  [state query]
+  (jdbc/execute!
+    (get-in state [:deps :db :datasource]) query {:return-keys true}))
+
 (defn execute!
   [hsql config]
   (let [query (if (:create-table hsql)

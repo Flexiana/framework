@@ -1,8 +1,9 @@
-(ns interceptors.muuntaja
+(ns framework.components.interceptors.muuntaja
   (:require
     [clojure.data.xml :as xml]
-    [interceptors.wrap :as wrap]
+    [clojure.string]
     [muuntaja.core]
+    [muuntaja.format.core]
     [muuntaja.format.json :as json-format]
     [muuntaja.interceptor]))
 

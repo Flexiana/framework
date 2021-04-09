@@ -1,8 +1,8 @@
-(ns interceptors.wrap-test
+(ns framework.components.interceptors.wrap-test
   (:require
     [clojure.test :refer :all]
-    [interceptors.wrap :refer [middleware->leave
-                               middleware->enter]]
+    [framework.components.interceptors.wrap :refer [middleware->leave
+                                                    middleware->enter]]
     [muuntaja.middleware :as m])
   (:import
     (java.io

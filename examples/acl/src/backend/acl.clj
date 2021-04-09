@@ -6,15 +6,13 @@
     [controllers.posts :as posts-controllers]
     [controllers.re-frame :as re-frame]
     [controllers.users :as users-controllers]
-    [custom-handlers]
     [framework.components.app.core :as xiana.app]
+    [framework.components.interceptors :as interceptors]
     [framework.components.router.core :as xiana.router]
     [framework.components.session.backend :as session-backend]
     [framework.components.web-server.core :as xiana.web-server]
     [framework.config.core :as config]
     [framework.db.storage :as db.storage]
-    [interceptors]
-    [muuntaja.interceptor]
     [nrepl.server :refer [start-server stop-server]]
     [reitit.ring :as ring]))
 
@@ -59,12 +57,12 @@
                                  session-bcknd
                                  []
                                  [;interceptors/log
-                                  interceptors/muuntaja
+                                  (interceptors/muuntaja)
                                   interceptors/params
-                                  interceptors/require-logged-in
+                                  (interceptors/require-logged-in)
                                   interceptors/session-interceptor
                                   interceptors/view
-                                  interceptors/db-access
+                                  (interceptors/db-access)
                                   (interceptors/acl-restrict views.common/not-allowed)])
         :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using

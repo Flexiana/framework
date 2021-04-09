@@ -1,4 +1,4 @@
-(ns interceptors.wrap
+(ns framework.components.interceptors.wrap
   (:require
     [xiana.core :as xiana]))
 
@@ -22,4 +22,3 @@
   ([interceptor middleware]
    (assoc interceptor :leave (fn [{res :response :as state}]
                                (xiana/ok (assoc state :response ((middleware identity) res)))))))
-

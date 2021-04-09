@@ -1,13 +1,14 @@
-(ns interceptors
+(ns framework.components.interceptors
   (:require
+    [clojure.core :as core]
     [clojure.walk :refer [keywordize-keys]]
     [framework.acl.core :as acl]
-    [framework.components.session.backend :refer [fetch add! delete!]]
+    [framework.components.interceptors.muuntaja :as m-int]
+    [framework.components.interceptors.wrap :as wrap]
+    [framework.components.session.backend :refer [fetch add!]]
+    [framework.db.sql :as db]
     [honeysql.core :as sql]
-    [honeysql.helpers :refer :all :as helpers]
-    [interceptors.muuntaja :as m-int]
-    [interceptors.wrap :as wrap]
-    [next.jdbc :as jdbc]
+    [honeysql.helpers :as helpers]
     [ring.middleware.params :as par]
     [xiana.core :as xiana])
   (:import
@@ -22,18 +23,21 @@
             (println "Leave from controller" s)
             (xiana/ok s))})
 
-(defn guest
+(defn- guest
   [state]
   (xiana/ok (assoc-in state [:session-data :user] {:id   (UUID/randomUUID)
                                                    :role :guest})))
 
-(def require-logged-in
-  {:enter (fn [{req :request :as state}]
-            (if-let [authorization (get-in req [:headers :authorization])]
-              (try (xiana/ok (-> (assoc-in state [:session-data :authorization] authorization)
-                                 (assoc-in [:session-data :user :id] (UUID/fromString authorization))))
-                   (catch IllegalArgumentException e (guest state)))
-              (guest state)))})
+(defn require-logged-in
+  ([]
+   (require-logged-in guest))
+  ([or-else]
+   {:enter (fn [{req :request :as state}]
+             (if-let [authorization (get-in req [:headers :authorization])]
+               (try (xiana/ok (-> (assoc-in state [:session-data :authorization] authorization)
+                                  (assoc-in [:session-data :user :id] (UUID/fromString authorization))))
+                    (catch IllegalArgumentException _ (or-else state)))
+               (or-else state)))}))
 
 (def session-interceptor
   {:enter (fn [{request :request :as state}]
@@ -44,7 +48,9 @@
                   user (when session-id (fetch sessions-backend session-id))]
               (if user
                 (xiana/ok (assoc-in state [:session-data :user] user))
-                (xiana/ok (assoc-in state [:session-data :session-id] (UUID/randomUUID))))))
+                (xiana/ok (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
+                              (assoc-in [:session-data :new-session] true))))))
+
    :leave (fn [state]
             (let [sessions-backend (-> state
                                        :deps
@@ -60,39 +66,48 @@
               (clojure.core/update state :request
                 #(keywordize-keys ((par/wrap-params identity) %)))))})
 
-(defn execute
-  "Executes db query"
-  [state query]
-  (jdbc/execute!
-    (get-in state [:deps :db :datasource]) query {:return-keys true}))
-
-(defn purify
+(defn- purify
   "Removes namespaces from keywords"
   [elem]
   (into {}
         (map (fn [[k v]] {(keyword (name k)) v}) elem)))
 
-(def db-access
-  {:enter (fn [{{u :user} :session-data
-                :as       state}]
-            (if (>= 2 (count (keys u)))
-              (let [query (-> (select :*)
-                              (from :users)
-                              (where [:= :id (:id u)])
-                              sql/format)
-                    user (first (execute state query))]
-                (if user
-                  (xiana/ok (assoc-in state [:session-data :user] (purify user)))
-                  (xiana/ok state)))
-              (xiana/ok state)))
-   :leave (fn [{query :query
-                :as   state}]
-            (xiana/ok (let [result (execute state (sql/format query))]
-                        (assoc-in state [:response-data :db-data] result))))})
+(defn- load-user
+  [{{{user-id :id} :user} :session-data
+    :as                   state}]
+  (let [query (-> (helpers/select :*)
+                  (helpers/from :users)
+                  (helpers/where [:= :id user-id])
+                  sql/format)
+        user (first (db/execute state query))]
+    (if user
+      (-> (assoc-in state [:session-data :user] (purify user))
+          (core/update :session-data dissoc :new-session))
+      state)))
+
+(defn db-access
+  ([]
+   (db-access load-user))
+  ([on-new-session]
+   {:enter (fn [{{new-session :new-session} :session-data
+                 :as                        state}]
+             (if new-session
+               (xiana/ok (on-new-session state))
+               (xiana/ok state)))
+    :leave (fn [{query :query
+                 :as   state}]
+             (xiana/ok (let [result (db/execute state (sql/format query))]
+                         (assoc-in state [:response-data :db-data] result))))}))
 
 (def view
   {:leave (fn [state]
             ((:view state) state))})
+
+(defn muuntaja
+  ([]
+   (muuntaja m-int/muun-instance))
+  ([instance]
+   (wrap/interceptor instance)))
 
 (defn acl-restrict
   ([]
@@ -107,6 +122,3 @@
              (xiana/ok (if owner-fn
                          (assoc state :query (owner-fn query user-id))
                          state)))}))
-
-(def muuntaja
-  (wrap/interceptor m-int/muun-instance))
