@@ -11,4 +11,4 @@
               enter enter
               :default (run (rest interceptors) action)
               leave leave)
-            (catch Exception e (error state)))))))
+            (catch Exception _ (error state)))))))
