@@ -13,6 +13,7 @@
     [framework.components.web-server.core :as xiana.web-server]
     [framework.config.core :as config]
     [framework.db.storage :as db.storage]
+    [interceptors.load-user :as user]
     [nrepl.server :refer [start-server stop-server]]
     [reitit.ring :as ring]))
 
@@ -62,7 +63,7 @@
                                   (interceptors/require-logged-in)
                                   interceptors/session-interceptor
                                   interceptors/view
-                                  (interceptors/db-access)
+                                  (interceptors/db-access user/load-user)
                                   (interceptors/acl-restrict views.common/not-allowed)])
         :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using

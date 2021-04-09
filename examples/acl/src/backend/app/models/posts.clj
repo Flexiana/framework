@@ -39,8 +39,8 @@
     :as                       state}]
   (xiana/ok (assoc state :query (cond-> (-> (select :*)
                                             (from :posts))
-                                  (coll? ids) (where [:in :id (map #(UUID/fromString %) ids)])
-                                  ids (where [:in :id (map #(UUID/fromString %) [ids])])))))
+                                  ids (where [:in :id (map #(UUID/fromString %) [ids])])
+                                  (coll? ids) (where [:in :id (map #(UUID/fromString %) ids)])))))
 
 (defn fetch-with-comments-query
   [{{{id :id} :query-params} :request

@@ -66,28 +66,12 @@
               (clojure.core/update state :request
                 #(keywordize-keys ((par/wrap-params identity) %)))))})
 
-(defn- purify
-  "Removes namespaces from keywords"
-  [elem]
-  (into {}
-        (map (fn [[k v]] {(keyword (name k)) v}) elem)))
-
-(defn- load-user
-  [{{{user-id :id} :user} :session-data
-    :as                   state}]
-  (let [query (-> (helpers/select :*)
-                  (helpers/from :users)
-                  (helpers/where [:= :id user-id])
-                  sql/format)
-        user (first (db/execute state query))]
-    (if user
-      (xiana/ok (-> (assoc-in state [:session-data :user] (purify user))
-                    (core/update :session-data dissoc :new-session)))
-      state)))
-
 (defn db-access
   ([]
-   (db-access load-user))
+   {:leave (fn [{query :query
+                 :as   state}]
+             (xiana/ok (let [result (db/execute state (sql/format query))]
+                         (assoc-in state [:response-data :db-data] result))))})
   ([on-new-session]
    {:enter (fn [{{new-session :new-session} :session-data
                  :as                        state}]
