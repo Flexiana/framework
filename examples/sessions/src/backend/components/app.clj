@@ -4,11 +4,8 @@
     [reitit.core :as r]
     [reitit.ring :as ring]
     [sessions.backend :refer [add! fetch delete!]]
-   [sessions.middleware :refer [session-middleware auth-middleware]]
+    [sessions.middleware :refer [session-middleware auth-middleware]]
     [xiana.core :as xiana]))
-
-
-
 
 (defn create-empty-state
   []
@@ -32,9 +29,9 @@
   [{request :http-request {router :router} :deps :as state}]
   (let [match (r/match-by-path (:ring-router router) (:uri request))
         handler (get-in match [:data :handler])
-        controller (get-in match [:data :controller])]
+        controller (get-in match [:data :action])]
     (if controller
-      (xiana/ok (assoc-in state [:request-data :controller] controller))
+      (xiana/ok (assoc-in state [:request-data :action] controller))
       (if handler
         ;; short-circuit
         ;; TODO: refactor it
@@ -47,25 +44,20 @@
   (xiana/flow-> state
                 xiana/ok))
 
-
 (defn pre-controller-middlewares
   [state]
   (xiana/flow-> state
                 session-middleware))
-
-
 
 (defn post-controller-middlewares
   [state]
   (xiana/flow-> state
                 auth-middleware))
 
-
 (defn run-controller
   [state]
-  (let [controller (get-in state [:request-data :controller])]
+  (let [controller (get-in state [:request-data :action])]
     (controller state)))
-
 
 (defrecord App
   [config router db session]
@@ -87,7 +79,6 @@
                  (post-controller-middlewares))
                (xiana/extract)
                (get :response))))))
-
 
 (defn make-app
   [config]

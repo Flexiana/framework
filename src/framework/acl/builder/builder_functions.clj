@@ -46,10 +46,10 @@
     (assoc permission :actions new-actions)))
 
 (defn ->permission
-  [{a :actions r :restriction :as p}]
-  (cond-> (select-keys p [:resource :actions :restriction])
+  [{a :actions r :over :as p}]
+  (cond-> (select-keys p [:resource :actions :over])
     (not (coll? a)) (assoc :actions [a])
-    (not r) (assoc :restriction :all)))
+    (not r) (assoc :over :all)))
 
 (defn allow
   "Allows a permission for a role, inserts it into the :acl/roles map.
@@ -63,7 +63,7 @@
                             (assoc v :actions [:all])
                             v))])
                    new-roles))))
-  ([roles {:keys [role resource actions restriction] :or {restriction :all} :as permission}]
+  ([roles {:keys [role resource actions over] :or {over :all} :as permission}]
    (let [new-permission (->permission permission)
          actions-vec (collify actions)
          permissions-by-resource (->> (get roles role)
@@ -73,7 +73,7 @@
                                                     (filter #(some (hash-set action :all) (:actions %)))
                                                     first)
                                    same-restricted (->> permissions
-                                                        (filter #(#{restriction} (:restriction %)))
+                                                        (filter #(#{over} (:over %)))
                                                         first)]
                                (cond
                                  (and same-action same-restricted) permissions

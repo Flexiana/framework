@@ -4,14 +4,14 @@
     [xiana.core :as xiana]))
 
 (defn session-middleware
-  [{request :http-request :as state}]
+  [{request :request :as state}]
   (let [sessions-backend (-> state
                              :deps
                              :session
                              :session-backend)
         session-id (get-in request [:headers "session-id"])
-        user  (fetch sessions-backend session-id)]
-    (xiana/ok (assoc-in state [:deps :session :session-data :user] user))))
+        user (fetch sessions-backend session-id)]
+    (xiana/ok (assoc-in state [:session-data :user] user))))
 
 (defn auth-middleware
   [state]

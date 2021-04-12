@@ -23,8 +23,7 @@
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [
-                                      [kerodon "0.9.1"]]}}
+                     :dependencies   [[kerodon "0.9.1"]]}}
   :jvm-opts ["-Dmalli.registry/type=custom"]
   :shadow-cljs {:nrepl {:port 8777}
 

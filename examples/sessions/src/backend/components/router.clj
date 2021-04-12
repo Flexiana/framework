@@ -17,11 +17,11 @@
 
 
 (def routes
-  [["/" {:controller index/index}]
-   ["/login" {:controller login/login-controller}]
-   ["/logout" {:controller logout/logout-controller}]
-   ["/secret" {:controller secret/protected-controller}]
-   ["/re-frame" {:controller re-frame/index}]
+  [["/" {:action index/index}]
+   ["/login" {:action login/login-controller}]
+   ["/logout" {:action logout/logout-controller}]
+   ["/secret" {:action secret/protected-controller}]
+   ["/re-frame" {:action re-frame/index}]
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defrecord Router

@@ -1,43 +1,43 @@
 ;TODO rename to routes
 (ns router
   (:require
+    [clojure.data.xml :as xml]
+    [clojure.spec.alpha :as s]
     [com.stuartsierra.component :as component]
     [controllers.index :as index]
     [controllers.re-frame :as re-frame]
     [framework.components.app.core :as xiana.app]
-    ;TODO do we want to require every part of domain logic here?
-    [my-domain-logic.siege-machines :as mydomain.siege-machines]
-    [reitit.ring :as ring]
-    [reitit.ring.coercion :as rrc]
-    [ring.middleware.params :as params]
-    [reitit.ring.middleware.parameters :as parameters]
-    [reitit.ring.middleware.muuntaja :as rm]
-    [muuntaja.format.json :as json-format]
-    [clojure.data.xml :as xml]
-    [reitit.coercion.spec :as rcs]
-    [reitit.coercion.malli :as rcm]
     [malli.core :as m]
     [malli.registry :as mr]
-    [clojure.spec.alpha :as s]))
+    [muuntaja.format.json :as json-format]
+    ;TODO do we want to require every part of domain logic here?
+    [my-domain-logic.siege-machines :as mydomain.siege-machines]
+    [reitit.coercion.malli :as rcm]
+    [reitit.coercion.spec :as rcs]
+    [reitit.ring :as ring]
+    [reitit.ring.coercion :as rrc]
+    [reitit.ring.middleware.muuntaja :as rm]
+    [reitit.ring.middleware.parameters :as parameters]
+    [ring.middleware.params :as params]))
 
-(def registry (merge
-                (m/default-schemas)
-                (malli.util/schemas)
-                {:mydomain/SiegeMachine [:map
-                                         [:id int?]
-                                         [:name keyword?]
-                                         [:range {:optional true} int?]
-                                         [:created {:optional true} inst?]]
-                 :mydomain/Infantry [:map
-                                     [:id int?]
-                                     [:name keyword?]
-                                     [:attack {:optional true} int?]]}))
+(def registry
+  (merge
+    (m/default-schemas)
+    (malli.util/schemas)
+    {:mydomain/SiegeMachine [:map
+                             [:id int?]
+                             [:name keyword?]
+                             [:range {:optional true} int?]
+                             [:created {:optional true} inst?]]
+     :mydomain/Infantry [:map
+                         [:id int?]
+                         [:name keyword?]
+                         [:attack {:optional true} int?]]}))
 
 (mr/set-default-registry! registry)
 
 (m/validate :mydomain/SiegeMachine {:id 1 :name :asd} {:registry registry})
 (m/validate :mydomain/SiegeMachine {:id 1 :name :asd})
-
 
 (extend-protocol xml/EventGeneration
   clojure.lang.Keyword
@@ -46,34 +46,36 @@
   (next-events [_ next-items]
     next-items))
 
-(defn xml-encoder [_options]
+(defn xml-encoder
+  [_options]
   (let [helper #(xml/emit-str
-                  (mapv (fn make-node [[f s]]
+                  (mapv (fn make-node
+                          [[f s]]
                           (if (map? s)
                             (xml/element f {} (map make-node (seq s)))
                             (xml/element f {} s)))
-                        (seq %)))]
+                    (seq %)))]
     (reify
       muuntaja.format.core/EncodeToBytes
       (encode-to-bytes [_ data charset]
-        (.getBytes ^String (helper data ) ^String charset)))))
+        (.getBytes ^String (helper data) ^String charset)))))
 
 (def minun-muuntajani
   (muuntaja.core/create
     (-> muuntaja.core/default-options
         (assoc-in [:formats "application/upper-json"]
-                  {;:decoder [json-format/decoder]
-                   :encoder [json-format/encoder {:encode-key-fn (comp clojure.string/upper-case name)}]})
+          {;:decoder [json-format/decoder]
+           :encoder [json-format/encoder {:encode-key-fn (comp clojure.string/upper-case name)}]})
         (assoc-in [:formats "application/xml"] {:encoder [xml-encoder]})
         (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)
         (assoc-in [:formats "application/json" :encoder-opts :date-format] "yyyy-MM-dd"))))
 
 (def routes
-  [["/" {:controller index/index}]
-   ["/re-frame" {:controller re-frame/index}]
-   ["" {:controller xiana.app/default-controller
-        :coercion (rcm/create {:registry registry})
-        :muuntaja minun-muuntajani
+  [["/" {:action index/index}]
+   ["/re-frame" {:action re-frame/index}]
+   ["" {:action     xiana.app/default-action
+        :coercion   (rcm/create {:registry registry})
+        :muuntaja   minun-muuntajani
         :middleware [parameters/parameters-middleware
                      rm/format-middleware
                      rrc/coerce-request-middleware

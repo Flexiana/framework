@@ -11,8 +11,8 @@
 ;  :dynamic-content (dynamic "/:content-type/:url" (somefunction)))
 ;:static-content ["/assets/*" (ring/create-resource-handler)]
 (def routes
-  [["/" {:controller index/index}]
-   ["/re-frame" {:controller re-frame/index}]
+  [["/" {:action index/index}]
+   ["/re-frame" {:action re-frame/index}]
    ["/assets/*" (ring/create-resource-handler)]])
 
 (defrecord Router

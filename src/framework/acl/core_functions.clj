@@ -9,7 +9,7 @@
 
 (defn has-access
   "Examine if the user is has access to a resource with the provided action.
-  If it has, returns anything what is provided in ':acl/roles' corresponding :restriction field.
+  If it has, returns anything what is provided in ':acl/roles' corresponding ::over field.
   If isn't then returns \"false\"
   ':acl/roles' is a map keyed by name of :acl/roles.
   'user' is optional, but if it missing you must provide the 'role' field in action.
@@ -25,5 +25,5 @@
      (:is_active user) (has-access permissions (assoc access :role :member))))
   ([permissions access]
    (if-let [granted (grantee permissions access)]
-     (:restriction granted)
+     (:over granted)
      false)))

@@ -8,6 +8,7 @@
                  [honeysql "1.0.444"]
                  [nilenso/honeysql-postgres "0.2.6"]
                  [org.postgresql/postgresql "42.2.2"]
+                 [org.clojure/data.xml "0.0.8"]
                  [seancorfield/next.jdbc "1.1.613"]
                  [duct/server.http.jetty "0.2.1"]
                  [migratus "1.3.3"]

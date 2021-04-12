@@ -72,13 +72,13 @@
              (select-keys [:status :body]))))
   (is (= {:body   "{\"ID\":1,\"NAME\":\"trebuchet\"}"
           :status 200}
-       (-> {:url                  "http://localhost:3000/api/siege-machines/1"
-            :unexceptional-status (constantly true)
-            :basic-auth           ["aladdin" "opensesame"]
-            :accept               :application/upper-json
-            :method               :get}
-           http/request
-           (select-keys [:status :body]))))
+         (-> {:url                  "http://localhost:3000/api/siege-machines/1"
+              :unexceptional-status (constantly true)
+              :basic-auth           ["aladdin" "opensesame"]
+              :accept               :application/upper-json
+              :method               :get}
+             http/request
+             (select-keys [:status :body]))))
   ;TODO here I would like to have 400 and some reasonable explanation
   (is (= {:body   "Internal Server error"
           :status 500}
