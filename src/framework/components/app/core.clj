@@ -19,7 +19,9 @@
 (defn add-session-backend
   [state session-backend]
   (xiana/ok
-    (update state :deps conj session-backend)))
+    (if session-backend
+      (update state :deps conj session-backend)
+      state)))
 
 (defn add-http-request
   [state http-request]
@@ -73,7 +75,9 @@
 
 (defn init-acl
   [this config]
-  (acl-builder/init this config))
+  (if config
+    (acl-builder/init this config)
+    this))
 
 (defrecord App
   [config acl-cfg session-backend router db]
@@ -101,7 +105,11 @@
                (get :response))))))
 
 (defn make-app
-  [config acl-cfg session-backend router-interceptors controller-interceptors]
+  [{config :config
+    acl-cfg :acl-cfg
+    session-backend :session-backend
+    router-interceptors :router-interceptors
+    controller-interceptors :controller-interceptors}]
   (map->App {:config                  config
              :acl-cfg                 acl-cfg
              :session-backend         session-backend
