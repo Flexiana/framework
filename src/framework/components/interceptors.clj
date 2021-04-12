@@ -81,7 +81,6 @@
                 (on-new-session state)
                 (xiana/ok state))))))
 
-
 (def view
   {:leave (fn [{view :view :as state}]
             (view state))})
