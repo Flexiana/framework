@@ -53,18 +53,18 @@
         :router (xiana.router/make-router routes)
         :session-backend session-bcknd
         :acl-cfg acl-cfg
-        :app (xiana.app/make-app app-cfg
-                                 acl-cfg
-                                 session-bcknd
-                                 []
-                                 [;interceptors/log
-                                  (interceptors/muuntaja)
-                                  interceptors/params
-                                  (interceptors/require-logged-in)
-                                  interceptors/session-interceptor
-                                  interceptors/view
-                                  (interceptors/db-access user/load-user)
-                                  (interceptors/acl-restrict views.common/not-allowed)])
+        :app (xiana.app/make-app {:config app-cfg
+                                  :acl-cfg acl-cfg
+                                  :session-backend session-bcknd
+                                  :router-interceptors []
+                                  :controller-interceptors [;; interceptors/log
+                                                            (interceptors/muuntaja)
+                                                            interceptors/params
+                                                            (interceptors/require-logged-in)
+                                                            interceptors/session-interceptor
+                                                            interceptors/view
+                                                            (interceptors/db-access user/load-user)
+                                                            (interceptors/acl-restrict views.common/not-allowed)]})
         :web-server (xiana.web-server/make-web-server web-server-cfg))
       (component/system-using
         {:router     [:db]

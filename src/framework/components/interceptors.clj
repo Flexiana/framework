@@ -69,22 +69,21 @@
   ([]
    {:leave (fn [{query :query
                  :as   state}]
-             (xiana/ok (let [result (db/execute state (sql/format query))]
-                         (assoc-in state [:response-data :db-data] result))))})
+             (if query
+               (xiana/ok (let [result (db/execute state (sql/format query))]
+                           (assoc-in state [:response-data :db-data] result)))
+               (xiana/ok state)))})
   ([on-new-session]
-   {:enter (fn [{{new-session :new-session} :session-data
-                 :as                        state}]
-             (if new-session
-               (on-new-session state)
-               (xiana/ok state)))
-    :leave (fn [{query :query
-                 :as   state}]
-             (xiana/ok (let [result (db/execute state (sql/format query))]
-                         (assoc-in state [:response-data :db-data] result))))}))
+   (assoc (db-access)
+     :enter (fn [{{new-session :new-session} :session-data
+                  :as                        state}]
+              (if new-session
+                (on-new-session state)
+                (xiana/ok state))))))
 
 (def view
-  {:leave (fn [state]
-            ((:view state) state))})
+  {:leave (fn [{view :view :as state}]
+            (view state))})
 
 (defn muuntaja
   ([]
