@@ -57,7 +57,7 @@
                                   :acl-cfg acl-cfg
                                   :session-backend session-bcknd
                                   :router-interceptors []
-                                  :controller-interceptors [;interceptors/log
+                                  :controller-interceptors [;; interceptors/log
                                                             (interceptors/muuntaja)
                                                             interceptors/params
                                                             (interceptors/require-logged-in)
