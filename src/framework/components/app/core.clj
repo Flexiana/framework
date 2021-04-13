@@ -14,8 +14,7 @@
 (defn add-deps
   [state deps]
   (xiana/ok
-    (assoc state :deps deps)))
-
+   (assoc state :deps deps)))
 
 (defn add-session-backend
   [state session-backend]

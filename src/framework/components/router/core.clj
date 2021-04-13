@@ -1,7 +1,7 @@
 (ns framework.components.router.core
   (:require
-   [com.stuartsierra.component :as component]
-   [reitit.ring :as ring]))
+    [com.stuartsierra.component :as component]
+    [reitit.ring :as ring]))
 
 (defrecord Router
   [db]
@@ -22,8 +22,8 @@
   (with-meta {:custom-routes routes}
     `{component/start ~(fn [this]
                          (assoc this :router
-                                (ring/router (concat
-                                              (-> this :specific-component :routes)
-                                              (-> this :custom-routes)))))
+                           (ring/router (concat
+                                          (-> this :specific-component :routes)
+                                          (-> this :custom-routes)))))
       component/stop  ~(fn [this]
                          (dissoc this :router))}))
