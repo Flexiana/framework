@@ -43,10 +43,10 @@
             (let [sessions-backend (-> state
                                        :deps
                                        :session-backend)
-                  session-id (get-in request [:headers :session-id])
-                  user (when session-id (fetch sessions-backend session-id))]
-              (if user
-                (xiana/ok (assoc-in state [:session-data :user] user))
+                  session-id (UUID/fromString (get-in request [:headers :session-id]))
+                  session (when session-id (fetch sessions-backend session-id))]
+              (if session
+                (xiana/ok (assoc state :session-data session))
                 (xiana/ok (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
                               (assoc-in [:session-data :new-session] true))))))
 
@@ -55,7 +55,7 @@
                                        :deps
                                        :session-backend)
                   session-id (get-in state [:session-data :session-id])]
-              (add! sessions-backend session-id (get-in state [:session-data :user]))
+              (add! sessions-backend session-id (dissoc (:session-data state) :new-session))
               (xiana/ok (assoc-in state [:response :headers "Session-id"] (str session-id)))))})
 
 (def params
