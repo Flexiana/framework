@@ -44,10 +44,9 @@
                                        :deps
                                        :session-backend)
                   session-id (UUID/fromString (get-in request [:headers :session-id]))
-                  user (when session-id (:user (fetch sessions-backend session-id)))]
-              (if user
-                (xiana/ok (assoc state :session-data {:user user
-                                                      :session-id session-id}))
+                  session (when session-id (fetch sessions-backend session-id))]
+              (if session
+                (xiana/ok (assoc state :session-data session))
                 (xiana/ok (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
                               (assoc-in [:session-data :new-session] true))))))
 
@@ -56,7 +55,7 @@
                                        :deps
                                        :session-backend)
                   session-id (get-in state [:session-data :session-id])]
-              (add! sessions-backend session-id (:session-data state))
+              (add! sessions-backend session-id (dissoc (:session-data state) :new-session))
               (xiana/ok (assoc-in state [:response :headers "Session-id"] (str session-id)))))})
 
 (def params

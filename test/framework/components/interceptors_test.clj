@@ -2,7 +2,6 @@
   (:require
     [clojure.test :refer :all]
     [framework.components.interceptors :as interceptors]
-    [framework.components.session.backend :refer [dump]]
     [framework.components.session.backend :as session-backend]))
 
 (def session-id #uuid"21f0d6e6-3782-465a-b903-ca84f6f581a0")
