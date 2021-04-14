@@ -1,0 +1,3 @@
+{:lint-as {nubank.workspaces.core/defcard clojure.core/def
+           nubank.workspaces.core/deftest clojure.test/deftest
+           xiana.core/flow-> clojure.core/->}}
