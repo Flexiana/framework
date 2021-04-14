@@ -45,15 +45,15 @@
   [{request          :request
     {router :router} :deps
     :as              state}]
-  (let [match      (r/match-by-path router (:uri request))
-        method     (:request-method request)
-        handler    (or (get-in match [:data :handler]) (-> match :result method :handler))
-        controller (or (get-in match [:data :action]) (-> match :data method :action))]
-    (if controller
+  (let [match (r/match-by-path router (:uri request))
+        method (:request-method request)
+        handler (or (get-in match [:data :handler]) (-> match :result method :handler))
+        action (or (get-in match [:data :action]) (-> match :data method :action))]
+    (if action
       (xiana/ok (-> state
                     (?assoc-in [:request-data :match] match)
                     (?assoc-in [:request-data :handler] handler)
-                    (assoc-in [:request-data :action] controller)))
+                    (assoc-in [:request-data :action] action)))
 
       (if handler
         (xiana/ok (-> state
