@@ -41,17 +41,19 @@
                        (assoc :controller-error e)
                        (assoc :response {:status 500 :body "Internal Server error"}))))))
 
-(defn default-handler
-  [{request :request {router :router} :deps :as state}]
-  (let [match (r/match-by-path (:ring-router router) (:uri request))
+(defn route
+  [{request          :request
+    {router :router} :deps
+    :as              state}]
+  (let [match (r/match-by-path router (:uri request))
         method (:request-method request)
         handler (or (get-in match [:data :handler]) (-> match :result method :handler))
-        controller (or (get-in match [:data :action]) (-> match :data method :action))]
-    (if controller
+        action (or (get-in match [:data :action]) (-> match :data method :action))]
+    (if action
       (xiana/ok (-> state
                     (?assoc-in [:request-data :match] match)
                     (?assoc-in [:request-data :handler] handler)
-                    (assoc-in [:request-data :action] controller)))
+                    (assoc-in [:request-data :action] action)))
 
       (if handler
         (xiana/ok (-> state
@@ -96,8 +98,9 @@
                     (fn [x] (add-http-request x http-request))
                     (fn [x] (init-acl x acl-cfg))]
                    (-> this :router-interceptors (select-interceptors :enter identity))
-                   [(fn [x] (default-handler x))]
+                   [(fn [x] (route x))]
                    (-> this :router-interceptors (select-interceptors :leave reverse))
+
                    (-> this :controller-interceptors (select-interceptors :enter identity))
                    [(fn [x] (run-controller x))]
                    (-> this :controller-interceptors (select-interceptors :leave reverse))))
@@ -105,13 +108,44 @@
                (get :response))))))
 
 (defn make-app
-  [{config :config
-    acl-cfg :acl-cfg
-    session-backend :session-backend
-    router-interceptors :router-interceptors
+  "DEPRECATED"
+  [{config                  :config
+    acl-cfg                 :acl-cfg
+    session-backend         :session-backend
+    router-interceptors     :router-interceptors
     controller-interceptors :controller-interceptors}]
   (map->App {:config                  config
              :acl-cfg                 acl-cfg
              :session-backend         session-backend
              :router-interceptors     router-interceptors
              :controller-interceptors controller-interceptors}))
+
+(defn ->app
+  [{acl-cfg         :acl-cfg
+    session-backend :session-backend
+    :as             config}]
+  (with-meta config
+    `{component/start ~(fn [{:keys [router db]
+                             :as   this}]
+                         (let [state (xiana.core/flow->
+                                       (create-empty-state)
+                                       (add-deps {:router router, :db db})
+                                       (add-session-backend session-backend)
+                                       (init-acl acl-cfg))]
+                           (assoc this
+                             :handler
+                             (fn [http-request]
+                               (xiana/flow->
+                                 state
+                                 (add-http-request http-request)
+                                 (-> this :router-interceptors (select-interceptors :enter identity))
+                                 [(fn [x] (route x))]
+                                 (-> this :router-interceptors (select-interceptors :leave reverse))
+
+                                 (-> this :controller-interceptors (select-interceptors :enter identity))
+                                 [(fn [x] (run-controller x))]
+                                 (-> this :controller-interceptors (select-interceptors :leave reverse))
+                                 (xiana/extract)
+                                 (get :response))))))
+      component/stop  ~(fn [this]
+                         (dissoc this :handler))}))
