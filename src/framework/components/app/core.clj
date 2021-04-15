@@ -120,6 +120,7 @@
 (defn ->app
   [{acl-cfg         :acl-cfg
     session-backend :session-backend
+    auth            :auth
     :as             config}]
   (with-meta config
     `{component/start ~(fn [{:keys [router db]
@@ -133,6 +134,7 @@
                                    [(xiana.core/ok (create-empty-state))
                                     (fn [x] (add-deps x {:router          (:router router)
                                                          :db              db
+                                                         :auth auth
                                                          :session-backend session-backend}))
                                     (fn [x] (add-http-request x http-request))
                                     (fn [x] (init-acl x acl-cfg))]
