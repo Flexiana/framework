@@ -105,3 +105,9 @@
              (xiana/ok (if owner-fn
                          (assoc state :query (owner-fn query user-id))
                          state)))}))
+
+(def side-effect
+  {:leave (fn [{f :side-effect :as state}]
+            (if f
+              (f state)
+              (xiana/ok state)))})
