@@ -117,34 +117,52 @@
              :router-interceptors     router-interceptors
              :controller-interceptors controller-interceptors}))
 
+(defn mbuild-state
+  [{:keys [deps
+           http-request
+           config]}]
+  (m/>>=  (xiana/ok (create-empty-state))
+          (comp xiana/ok
+                #(assoc %
+                   :deps deps
+                   :request http-request))
+          #(if config
+             (acl-builder/init % config)
+             %)))
+
 (defn ->app
-  [{acl-cfg         :acl-cfg
+  [{_acl-cfg        :acl-cfg
     session-backend :session-backend
-    auth            :auth
+    _auth           :auth
     :as             config}]
   (with-meta config
-    `{component/start ~(fn [{:keys [router db]
+    `{component/start ~(fn [{:keys [router db
+                                    router-interceptors
+                                    controller-interceptors]
                              :as   this}]
                          (assoc this
                            :handler
                            (fn [http-request]
-                             (->
-                               (apply m/>>=
-                                 (concat
-                                   [(xiana.core/ok (create-empty-state))
-                                    (fn [x] (add-deps x {:router          (:router router)
-                                                         :db              db
-                                                         :auth auth
-                                                         :session-backend session-backend}))
-                                    (fn [x] (add-http-request x http-request))
-                                    (fn [x] (init-acl x acl-cfg))]
-                                   (-> this :router-interceptors (select-interceptors :enter identity))
-                                   [(fn [x] (route x))]
-                                   (-> this :router-interceptors (select-interceptors :leave reverse))
-                                   (-> this :controller-interceptors (select-interceptors :enter identity))
-                                   [(fn [x] (run-controller x))]
-                                   (-> this :controller-interceptors (select-interceptors :leave reverse))))
-                               (xiana/extract)
-                               (get :response)))))
+                             (let [deps             {:router          (:router router)
+                                                     :db              db
+                                                     :session-backend session-backend}
+                                   state-built      (mbuild-state {:deps         deps
+                                                                   :http-request http-request
+                                                                   :config       config})
+                                   router-enter     (select-interceptors router-interceptors :enter identity)
+                                   router-leave     (select-interceptors router-interceptors :leave reverse)
+                                   controller-enter (select-interceptors controller-interceptors :enter identity)
+                                   controller-leave (select-interceptors controller-interceptors :leave reverse)]
+                               (->> [[state-built]
+                                     router-enter
+                                     [route]
+                                     router-leave
+                                     controller-enter
+                                     [run-controller]
+                                     controller-leave]
+                                    (mapcat identity)
+                                    (apply m/>>=)
+                                    xiana/extract
+                                    :response)))))
       component/stop  ~(fn [this]
                          (dissoc this :handler))}))
