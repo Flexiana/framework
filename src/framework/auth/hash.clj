@@ -9,7 +9,7 @@
 (defn- dispatch
   ([state password]
    (dispatch state password nil))
-  ([{{:keys [hash-algorithm]} :framework.app/auth} _ _]
+  ([{{{hash-algorithm :hash-algorithm} :auth} :deps} _ _]
    {:pre [(some #(= hash-algorithm %) supported)]}
    hash-algorithm))
 
@@ -17,7 +17,7 @@
 
 (defmethod make :bcrypt
   [{{:keys [bcrypt-settings]
-     :or {bcrypt-settings {:work-factor 11}}} :framework.app/auth}
+     :or {bcrypt-settings {:work-factor 11}}} :deps/auth}
    password]
   (hash-b/encrypt password (:work-factor bcrypt-settings)))
 
@@ -25,7 +25,7 @@
   [{{:keys [scrypt-settings]
      :or {scrypt-settings {:cpu-cost 32768
                            :memory-cost 8
-                           :parallelization 1}}} :framework.app/auth}
+                           :parallelization 1}}} :deps/auth}
    password]
   (hash-s/encrypt
     password
@@ -36,7 +36,7 @@
 (defmethod make :pbkdf2
   [{{:keys [pbkdf2-settings]
      :or {pbkdf2-settings {:type :sha1
-                           :iterations 100000}}} :framework.app/auth}
+                           :iterations 100000}}} :deps/auth}
    password]
   (hash-p/encrypt
     password

@@ -43,7 +43,8 @@
             (let [sessions-backend (-> state
                                        :deps
                                        :session-backend)
-                  session-id (UUID/fromString (get-in request [:headers :session-id]))
+                  session-id (try (UUID/fromString (get-in request [:headers :session-id]))
+                                  (catch Exception _ nil))
                   session (when session-id (fetch sessions-backend session-id))]
               (if session
                 (xiana/ok (assoc state :session-data session))
@@ -94,9 +95,9 @@
 (defn acl-restrict
   ([]
    (acl-restrict nil))
-  ([or-else]
+  ([m]
    {:enter (fn [state]
-             (acl/is-allowed state {:or-else or-else}))
+             (acl/is-allowed state m))
     :leave (fn [{query                 :query
                  {{user-id :id} :user} :session-data
                  owner-fn              :owner-fn
@@ -104,3 +105,9 @@
              (xiana/ok (if owner-fn
                          (assoc state :query (owner-fn query user-id))
                          state)))}))
+
+(def side-effect
+  {:leave (fn [{f :side-effect :as state}]
+            (if f
+              (f state)
+              (xiana/ok state)))})

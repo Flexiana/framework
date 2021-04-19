@@ -18,10 +18,7 @@
 
 (defn add-session-backend
   [state session-backend]
-  (xiana/ok
-    (if session-backend
-      (update state :deps conj session-backend)
-      state)))
+  (xiana/ok (update state :deps conj session-backend)))
 
 (defn add-http-request
   [state http-request]
@@ -123,29 +120,31 @@
 (defn ->app
   [{acl-cfg         :acl-cfg
     session-backend :session-backend
+    auth            :auth
     :as             config}]
   (with-meta config
     `{component/start ~(fn [{:keys [router db]
                              :as   this}]
-                         (let [state (xiana.core/flow->
-                                       (create-empty-state)
-                                       (add-deps {:router router, :db db})
-                                       (add-session-backend session-backend)
-                                       (init-acl acl-cfg))]
-                           (assoc this
-                             :handler
-                             (fn [http-request]
-                               (xiana/flow->
-                                 state
-                                 (add-http-request http-request)
-                                 (-> this :router-interceptors (select-interceptors :enter identity))
-                                 [(fn [x] (route x))]
-                                 (-> this :router-interceptors (select-interceptors :leave reverse))
-
-                                 (-> this :controller-interceptors (select-interceptors :enter identity))
-                                 [(fn [x] (run-controller x))]
-                                 (-> this :controller-interceptors (select-interceptors :leave reverse))
-                                 (xiana/extract)
-                                 (get :response))))))
+                         (assoc this
+                           :handler
+                           (fn [http-request]
+                             (->
+                               (apply m/>>=
+                                 (concat
+                                   [(xiana.core/ok (create-empty-state))
+                                    (fn [x] (add-deps x {:router          (:router router)
+                                                         :db              db
+                                                         :auth auth
+                                                         :session-backend session-backend}))
+                                    (fn [x] (add-http-request x http-request))
+                                    (fn [x] (init-acl x acl-cfg))]
+                                   (-> this :router-interceptors (select-interceptors :enter identity))
+                                   [(fn [x] (route x))]
+                                   (-> this :router-interceptors (select-interceptors :leave reverse))
+                                   (-> this :controller-interceptors (select-interceptors :enter identity))
+                                   [(fn [x] (run-controller x))]
+                                   (-> this :controller-interceptors (select-interceptors :leave reverse))))
+                               (xiana/extract)
+                               (get :response)))))
       component/stop  ~(fn [this]
                          (dissoc this :handler))}))

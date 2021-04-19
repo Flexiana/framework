@@ -1,5 +1,6 @@
 (ns framework.acl.core
   (:require
+    [clojure.string :as str]
     [framework.acl.core-functions :refer [has-access]]
     [xiana.core :as xiana]))
 
@@ -10,8 +11,11 @@
    :delete :delete})
 
 (defn- ->resource
-  [uri]
-  (re-find #"\w+" uri))
+  ([uri prefix]
+   (->> (if prefix (str/replace uri (re-pattern prefix) "") uri)
+        (re-find #"\w+")))
+  ([uri]
+   (re-find #"\w+" uri)))
 
 (defn is-allowed
   "Checks if the user is able to do an action on a resource.
@@ -32,9 +36,9 @@
      roles                    :acl/roles
      {method :request-method} :request
      :as                      state}
-    {:keys [role privilege resource] :as access}]
+    {:keys [role privilege resource prefix] :as access}]
    (let [pr (or privilege (action-mapping method))
-         res (name (or resource (->resource (get-in state [:request :uri]))))
+         res (name (or resource (->resource (get-in state [:request :uri]) prefix)))
          role (or role (:role user))
          result (has-access roles user {:resource  res
                                         :role      role
