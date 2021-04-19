@@ -126,8 +126,8 @@
                 #(assoc %
                    :deps deps
                    :request http-request))
-          #(if config
-             (acl-builder/init % config)
+          #(if (:acl-cfg config)
+             (acl-builder/init % (:acl-cfg config))
              %)))
 
 (defn ->app
@@ -145,6 +145,7 @@
                            (fn [http-request]
                              (let [deps             {:router          (:router router)
                                                      :db              db
+                                                     :auth auth
                                                      :session-backend session-backend}
                                    state-built      (mbuild-state {:deps         deps
                                                                    :http-request http-request
