@@ -120,50 +120,50 @@
 (defn mbuild-state
   [{:keys [deps
            http-request
-           config]}]
+           acl-cfg]}]
   (m/>>=  (xiana/ok (create-empty-state))
           (comp xiana/ok
                 #(assoc %
                    :deps deps
                    :request http-request))
-          #(if (:acl-cfg config)
-             (acl-builder/init % (:acl-cfg config))
+          #(if acl-cfg
+             (acl-builder/init % acl-cfg)
              %)))
 
 (defn ->app
-  [{_acl-cfg        :acl-cfg
+  [{acl-cfg         :acl-cfg
     session-backend :session-backend
-    _auth           :auth
+    auth            :auth
     :as             config}]
   (with-meta config
     `{component/start ~(fn [{:keys [router db
-                                    router-interceptors
-                                    controller-interceptors]
-                             :as   this}]
+                                   router-interceptors
+                                   controller-interceptors]
+                            :as   this}]
                          (assoc this
-                           :handler
-                           (fn [http-request]
-                             (let [deps             {:router          (:router router)
-                                                     :db              db
-                                                     :auth auth
-                                                     :session-backend session-backend}
-                                   state-built      (mbuild-state {:deps         deps
-                                                                   :http-request http-request
-                                                                   :config       config})
-                                   router-enter     (select-interceptors router-interceptors :enter identity)
-                                   router-leave     (select-interceptors router-interceptors :leave reverse)
-                                   controller-enter (select-interceptors controller-interceptors :enter identity)
-                                   controller-leave (select-interceptors controller-interceptors :leave reverse)]
-                               (->> [[state-built]
-                                     router-enter
-                                     [route]
-                                     router-leave
-                                     controller-enter
-                                     [run-controller]
-                                     controller-leave]
-                                    (mapcat identity)
-                                    (apply m/>>=)
-                                    xiana/extract
-                                    :response)))))
+                                :handler
+                                (fn [http-request]
+                                  (let [deps             {:router          (:router router)
+                                                          :db              db
+                                                          :session-backend session-backend}
+                                        state-built      (mbuild-state {:deps         deps
+                                                                        :http-request http-request
+                                                                        :acl-cfg      acl-cfg
+                                                                        :auth         auth})
+                                        router-enter     (select-interceptors router-interceptors :enter identity)
+                                        router-leave     (select-interceptors router-interceptors :leave reverse)
+                                        controller-enter (select-interceptors controller-interceptors :enter identity)
+                                        controller-leave (select-interceptors controller-interceptors :leave reverse)]
+                                    (->> [[state-built]
+                                          router-enter
+                                          [route]
+                                          router-leave
+                                          controller-enter
+                                          [run-controller]
+                                          controller-leave]
+                                         (mapcat identity)
+                                         (apply m/>>=)
+                                         xiana/extract
+                                         :response)))))
       component/stop  ~(fn [this]
                          (dissoc this :handler))}))
