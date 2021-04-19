@@ -120,20 +120,20 @@
 (defn mbuild-state
   [{:keys [deps
            http-request
-           config]}]
+           acl-cfg]}]
   (m/>>=  (xiana/ok (create-empty-state))
           (comp xiana/ok
                 #(assoc %
                    :deps deps
                    :request http-request))
-          #(if config
-             (acl-builder/init % config)
+          #(if acl-cfg
+             (acl-builder/init % acl-cfg)
              %)))
 
 (defn ->app
-  [{_acl-cfg        :acl-cfg
+  [{acl-cfg         :acl-cfg
     session-backend :session-backend
-    auth           :auth
+    auth            :auth
     :as             config}]
   (with-meta config
     `{component/start ~(fn [{:keys [router db
@@ -148,7 +148,7 @@
                                                      :session-backend session-backend}
                                    state-built      (mbuild-state {:deps         deps
                                                                    :http-request http-request
-                                                                   :config       config
+                                                                   :acl-cfg      acl-cfg
                                                                    :auth         auth})
                                    router-enter     (select-interceptors router-interceptors :enter identity)
                                    router-leave     (select-interceptors router-interceptors :leave reverse)
