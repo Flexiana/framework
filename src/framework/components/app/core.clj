@@ -121,14 +121,14 @@
   [{:keys [deps
            http-request
            acl-cfg]}]
-  (m/>>=  (xiana/ok (create-empty-state))
-          (comp xiana/ok
-                #(assoc %
-                   :deps deps
-                   :request http-request))
-          #(if acl-cfg
-             (acl-builder/init % acl-cfg)
-             %)))
+  (m/>>= (xiana/ok (create-empty-state))
+         (comp xiana/ok
+               #(assoc %
+                  :deps deps
+                  :request http-request))
+         #(if acl-cfg
+            (acl-builder/init % acl-cfg)
+            %)))
 
 (defn ->app
   [{acl-cfg         :acl-cfg
@@ -143,15 +143,15 @@
                          (assoc this
                            :handler
                            (fn [http-request]
-                             (let [deps             {:router          (:router router)
-                                                     :db              db
-                                                     :session-backend session-backend}
-                                   state-built      (mbuild-state {:deps         deps
-                                                                   :http-request http-request
-                                                                   :acl-cfg      acl-cfg
-                                                                   :auth         auth})
-                                   router-enter     (select-interceptors router-interceptors :enter identity)
-                                   router-leave     (select-interceptors router-interceptors :leave reverse)
+                             (let [deps {:router          (:router router)
+                                         :db              db
+                                         :auth            auth
+                                         :session-backend session-backend}
+                                   state-built (mbuild-state {:deps         deps
+                                                              :http-request http-request
+                                                              :acl-cfg      acl-cfg})
+                                   router-enter (select-interceptors router-interceptors :enter identity)
+                                   router-leave (select-interceptors router-interceptors :leave reverse)
                                    controller-enter (select-interceptors controller-interceptors :enter identity)
                                    controller-leave (select-interceptors controller-interceptors :leave reverse)]
                                (->> [[state-built]
