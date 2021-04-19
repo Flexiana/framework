@@ -39,7 +39,7 @@
     {:keys [role privilege resource prefix] :as access}]
    (let [pr (or privilege (action-mapping method))
          res (name (or resource (->resource (get-in state [:request :uri]) prefix)))
-         role (or role (:role user))
+         role (keyword (or role (:role user) (:users/role user)))
          result (has-access roles user {:resource  res
                                         :role      role
                                         :privilege pr})]
