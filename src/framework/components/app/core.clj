@@ -133,7 +133,7 @@
 (defn ->app
   [{_acl-cfg        :acl-cfg
     session-backend :session-backend
-    _auth           :auth
+    auth           :auth
     :as             config}]
   (with-meta config
     `{component/start ~(fn [{:keys [router db
@@ -148,7 +148,8 @@
                                                      :session-backend session-backend}
                                    state-built      (mbuild-state {:deps         deps
                                                                    :http-request http-request
-                                                                   :config       config})
+                                                                   :config       config
+                                                                   :auth         auth})
                                    router-enter     (select-interceptors router-interceptors :enter identity)
                                    router-leave     (select-interceptors router-interceptors :leave reverse)
                                    controller-enter (select-interceptors controller-interceptors :enter identity)
