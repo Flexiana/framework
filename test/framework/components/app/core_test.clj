@@ -7,8 +7,8 @@
 
 (deftest components
   (let [handler (get-in @st [:app :handler])]
-    (is (= {:request-method :get, :uri "/users", :response {:status 200, :body "Ok"}}
-           (handler {:request-method :get :uri "/users"})))
+    (is (= {:status 200, :body "Ok"}
+           (:response (handler {:request-method :get :uri "/users"}))))
     (is (not (nil? (get-in @st [:app :router :router]))))
     (is (not (nil? (get-in @st [:app :db]))))
     (is (not (nil? (get-in @st [:app :auth]))))

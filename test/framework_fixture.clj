@@ -31,7 +31,15 @@
                          :auth                    (:framework.app/auth config)
                          :session-backend         session-bcknd
                          :router-interceptors     []
-                         :controller-interceptors []})
+                         :controller-interceptors [;interceptors/log
+                                                   (interceptors/muuntaja)
+                                                   interceptors/params
+                                                   ;(interceptors/require-logged-in)
+                                                   interceptors/session-interceptor
+                                                   ;interceptors/view
+                                                   interceptors/side-effect
+                                                   (interceptors/db-access)]})
+                                                   ;(interceptors/acl-restrict {:prefix "/api"})]})
      :web-server (->web-server config)}))
 
 (defn embedded-postgres!
