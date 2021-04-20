@@ -3,6 +3,7 @@
     [cats.core :as m]
     [com.stuartsierra.component :as component]
     [framework.acl.builder :as acl-builder]
+    [framework.components.runner :as runner]
     [reitit.core :as r]
     [xiana.commons :refer [?assoc-in]]
     [xiana.core :as xiana]))
@@ -143,27 +144,17 @@
                          (assoc this
                            :handler
                            (fn [http-request]
-                             (let [deps {:router          (:router router)
-                                         :db              db
-                                         :auth            auth
-                                         :session-backend session-backend}
-                                   state-built (mbuild-state {:deps         deps
-                                                              :http-request http-request
-                                                              :acl-cfg      acl-cfg})
-                                   router-enter (select-interceptors router-interceptors :enter identity)
-                                   router-leave (select-interceptors router-interceptors :leave reverse)
-                                   controller-enter (select-interceptors controller-interceptors :enter identity)
-                                   controller-leave (select-interceptors controller-interceptors :leave reverse)]
-                               (->> [[state-built]
-                                     router-enter
-                                     [route]
-                                     router-leave
-                                     controller-enter
-                                     [run-controller]
-                                     controller-leave]
-                                    (mapcat identity)
-                                    (apply m/>>=)
-                                    xiana/extract
-                                    :response)))))
+                             (->
+                               (xiana/flow->
+                                 (-> (xiana/map->State {:deps {:router (:router router)
+                                                               :db db
+                                                               :session-backend session-backend
+                                                               :auth auth}
+                                                        :request http-request})
+                                     (assoc :acl-cfg acl-cfg))
+                                 (runner/run router-interceptors route)
+                                 (runner/run controller-interceptors run-controller))
+                               (xiana/extract)
+                               (get :response)))))
       component/stop  ~(fn [this]
                          (dissoc this :handler))}))
