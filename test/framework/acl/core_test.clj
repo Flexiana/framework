@@ -66,7 +66,8 @@
      {:acl/roles    default-roles
       :session-data {:user user}}
      {:acl/roles    custom-roles
-      :session-data {:user {:role user}}})))
+      :session-data {:user {:role user
+                            :is_active true}}})))
 
 (defn get-ok
   [t]
@@ -102,7 +103,8 @@
      :request      {:uri            uri
                     :request-method method}}
     {:acl/roles    custom-roles
-     :session-data {:user {:role user}}
+     :session-data {:user {:role user
+                           :is_active true}}
      :request      {:uri            uri
                     :request-method method}}))
 
