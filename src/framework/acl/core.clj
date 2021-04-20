@@ -17,6 +17,12 @@
   ([uri]
    (re-find #"\w+" uri)))
 
+(defn- user->role
+  [u]
+  (when
+    (or (:users/is_active u) (:is_active u))
+    (or (:role u) (:users/role u))))
+
 (defn is-allowed
   "Checks if the user is able to do an action on a resource.
   Returns xiana/ok when it is, and extends [:response-data :acl] with the :over of ownership check.
@@ -39,7 +45,7 @@
     {:keys [role privilege resource prefix] :as access}]
    (let [pr (or privilege (action-mapping method))
          res (name (or resource (->resource (get-in state [:request :uri]) prefix)))
-         role (keyword (or role (:role user) (:users/role user)))
+         role (keyword (or role (user->role user)))
          result (has-access roles user {:resource  res
                                         :role      role
                                         :privilege pr})]
