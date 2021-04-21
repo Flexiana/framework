@@ -15,8 +15,7 @@
     (is (= req (:request state)))
     (is (= :reitit.core/router
            (type (get-in state [:deps :router]))))
-    (is (= framework.components.session.backend$init_in_memory_session$reify__5151
-           (type (get-in state [:deps :session-backend]))))
+    (is (instance? Object (get-in state [:deps :session-backend])))
     (is (= {:hash-algorithm  :bcrypt,
             :bcrypt-settings {:work-factor 11},
             :scrypt-settings {:cpu-cost        32768,
