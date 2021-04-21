@@ -29,15 +29,18 @@
           {:acl-cfg                 (select-keys config [:acl/permissions :acl/roles])
            :auth                    (:framework.app/auth config)
            :session-backend         (session-backend/init-in-memory-session)
-           :router-interceptors     []
-           :controller-interceptors [;interceptors/log
+           :router-interceptors     [(interceptors/message 0)]
+           :controller-interceptors [(interceptors/message 1)
                                      (interceptors/muuntaja)
+                                     (interceptors/message 2)
                                      interceptors/params
-                                     ;(interceptors/require-logged-in)
+                                     (interceptors/message 3)
                                      interceptors/session-interceptor
-                                     ;interceptors/view
+                                     (interceptors/message 4)
                                      interceptors/side-effect
-                                     (interceptors/db-access)]}))
+                                     (interceptors/message 5)
+                                     (interceptors/db-access)
+                                     (interceptors/message 6)]}))
 
 (defn system
   [config]
