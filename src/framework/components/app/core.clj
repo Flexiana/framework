@@ -132,11 +132,8 @@
             %)))
 
 (defn state-build
-  [{acl-cfg         :acl-cfg
-    session-backend :session-backend
-    auth            :auth}
-   {router :router
-    db     :db}
+  [{:keys [acl-cfg session-backend auth]}
+   {:keys [router db]}
    http-request]
   (-> (xiana/map->State {:deps    {:router          (:router router)
                                    :db              db
