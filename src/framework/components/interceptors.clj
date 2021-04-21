@@ -22,6 +22,14 @@
             (println "Leave from controller" s)
             (xiana/ok s))})
 
+(defn message [m]
+  {:enter (fn [s]
+            (println m s)
+            (xiana/ok s))
+   :leave (fn [s]
+            (println m s)
+            (xiana/ok s))})
+
 (defn- guest
   [state]
   (xiana/ok (assoc-in state [:session-data :user] {:id   (UUID/randomUUID)
