@@ -2,10 +2,10 @@
   (:require
     [xiana.core :as xiana]))
 
-(defn d
-  [st a]
-  (if a (a st)
-      (xiana/ok st)))
+(defn execute
+  [state action]
+  (if action (action state)
+             (xiana/ok state)))
 
 (defn run
   ([state action]
@@ -15,9 +15,9 @@
      (action state)
      (let [{:keys [enter leave error]} (first interceptors)]
        (try (xiana/flow-> state
-                          (d enter)
+                          (execute enter)
                           (run (rest interceptors) action)
-                          (d leave))
+                          (execute leave))
             (catch Exception e
               (if error
                 (error state)
