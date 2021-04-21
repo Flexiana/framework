@@ -131,14 +131,24 @@
             (acl-builder/init % acl-cfg)
             %)))
 
-(defn ->app
+(defn state-build
   [{acl-cfg         :acl-cfg
     session-backend :session-backend
-    auth            :auth
-    :as             config}]
+    auth            :auth}
+   {router :router
+    db     :db}
+   http-request]
+  (-> (xiana/map->State {:deps    {:router          (:router router)
+                                   :db              db
+                                   :session-backend session-backend
+                                   :auth            auth}
+                         :request http-request})
+      (assoc :acl-cfg acl-cfg)))
+
+(defn ->app
+  [config]
   (with-meta config
-    `{component/start ~(fn [{:keys [router db
-                                    router-interceptors
+    `{component/start ~(fn [{:keys [router-interceptors
                                     controller-interceptors]
                              :as   this}]
                          (assoc this
@@ -146,12 +156,7 @@
                            (fn [http-request]
                              (->
                                (xiana/flow->
-                                 (-> (xiana/map->State {:deps {:router (:router router)
-                                                               :db db
-                                                               :session-backend session-backend
-                                                               :auth auth}
-                                                        :request http-request})
-                                     (assoc :acl-cfg acl-cfg))
+                                 (state-build config this http-request)
                                  (runner/run router-interceptors route)
                                  (runner/run controller-interceptors run-controller))
                                (xiana/extract)
