@@ -21,26 +21,30 @@
    :app        [:router :db]
    :web-server [:app]})
 
+(defonce app-config (atom {}))
+
+(defn app-cfg
+  [config]
+  (reset! app-config
+          {:acl-cfg                 (select-keys config [:acl/permissions :acl/roles])
+           :auth                    (:framework.app/auth config)
+           :session-backend         (session-backend/init-in-memory-session)
+           :router-interceptors     []
+           :controller-interceptors [;interceptors/log
+                                     (interceptors/muuntaja)
+                                     interceptors/params
+                                     ;(interceptors/require-logged-in)
+                                     interceptors/session-interceptor
+                                     ;interceptors/view
+                                     interceptors/side-effect
+                                     (interceptors/db-access)]}))
+
 (defn system
   [config]
-  (let [acl-cfg (select-keys config [:acl/permissions :acl/roles])
-        session-bcknd (session-backend/init-in-memory-session)]
-    {:db         (->postgresql config)
-     :router     (->router config routes)
-     :app        (->app {:acl-cfg                 acl-cfg
-                         :auth                    (:framework.app/auth config)
-                         :session-backend         session-bcknd
-                         :router-interceptors     []
-                         :controller-interceptors [;interceptors/log
-                                                   (interceptors/muuntaja)
-                                                   interceptors/params
-                                                   ;(interceptors/require-logged-in)
-                                                   interceptors/session-interceptor
-                                                   ;interceptors/view
-                                                   interceptors/side-effect
-                                                   (interceptors/db-access)]})
-                                                   ;(interceptors/acl-restrict {:prefix "/api"})]})
-     :web-server (->web-server config)}))
+  {:db         (->postgresql config)
+   :router     (->router config routes)
+   :app        (->app (app-cfg config))
+   :web-server (->web-server config)})
 
 (defn embedded-postgres!
   [config]
