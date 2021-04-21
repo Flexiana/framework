@@ -1,16 +1,31 @@
 (ns framework.components.app.core-test
   (:require
-    [clojure.test :refer :all]
-    [framework-fixture :refer [std-system-fixture st]]))
+    [clojure.test :refer [deftest is use-fixtures]]
+    [framework-fixture :refer [std-system-fixture st app-config routes]]
+    [framework.components.web-server.core :as web-server]))
 
 (use-fixtures :once std-system-fixture)
 
 (deftest components
-  (let [handler (get-in @st [:app :handler])]
+  (let [req     {:request-method :get :uri "/users"}
+        handler (web-server/handler-fn app-config @st routes)
+        state   (web-server/state-build app-config @st routes req)]
+    (def _mst state)
     (is (= {:status 200, :body "Ok"}
-           (:response (handler {:request-method :get :uri "/users"}))))
-    (is (not (nil? (get-in @st [:app :router :router]))))
-    (is (not (nil? (get-in @st [:app :db]))))
-    (is (not (nil? (get-in @st [:app :auth]))))
-    (is (not (nil? (get-in @st [:app :session-backend]))))
-    (is (= 2 (count (get-in @st [:app :acl-cfg]))))))
+           (:response (handler req))))
+    (is (= req (:request state)))
+    (is (instance? Object (get-in state [:deps :session-backend])))
+    (is (= {:hash-algorithm  :bcrypt,
+            :bcrypt-settings {:work-factor 11},
+            :scrypt-settings {:cpu-cost        32768,
+                              :memory-cost     8,
+                              :parallelization 1},
+            :pbkdf2-settings {:type       :sha1,
+                              :iterations 100000}}
+           (get-in state [:deps :auth])))
+    (is (= {"users" [:read :create :update :delete]}
+           (:acl/permissions state)))
+    (is (= {:admin [{:resource :all,
+                     :actions  [:all],
+                     :over     :all}]}
+           (:acl/roles state)))))

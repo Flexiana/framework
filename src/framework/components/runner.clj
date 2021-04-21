@@ -1,4 +1,11 @@
-(ns framework.components.runner)
+(ns framework.components.runner
+  (:require
+    [xiana.core :as xiana]))
+
+(defn execute
+  [state action]
+  (if action (action state)
+      (xiana/ok state)))
 
 (defn run
   ([state action]
@@ -7,8 +14,12 @@
    (if (empty? interceptors)
      (action state)
      (let [{:keys [enter leave error]} (first interceptors)]
-       (try (cond-> state
-              enter enter
-              :default (run (rest interceptors) action)
-              leave leave)
-            (catch Exception _ (error state)))))))
+       (try (xiana/flow-> state
+                          (execute enter)
+                          (run (rest interceptors) action)
+                          (execute leave))
+            (catch Exception e
+              (if error
+                (error state)
+                (xiana/error (assoc state :response {:status 500
+                                                     :body   e})))))))))
