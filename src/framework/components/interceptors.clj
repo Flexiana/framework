@@ -22,7 +22,8 @@
             (println "Leave from controller" s)
             (xiana/ok s))})
 
-(defn message [m]
+(defn message
+  [m]
   {:enter (fn [s]
             (println m s)
             (xiana/ok s))

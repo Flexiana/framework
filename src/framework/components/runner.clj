@@ -5,7 +5,7 @@
 (defn execute
   [state action]
   (if action (action state)
-             (xiana/ok state)))
+      (xiana/ok state)))
 
 (defn run
   ([state action]

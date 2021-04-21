@@ -1,20 +1,19 @@
 (ns framework.components.app.core-test
   (:require
-    [clojure.test :refer :all]
-    [framework-fixture :refer [std-system-fixture st app-config]]
-    [framework.components.app.core :as app]))
+   [clojure.test :refer [deftest is use-fixtures]]
+   [framework-fixture :refer [std-system-fixture st app-config routes]]
+   [framework.components.web-server.core :as web-server]))
 
 (use-fixtures :once std-system-fixture)
 
 (deftest components
-  (let [req {:request-method :get :uri "/users"}
-        handler (get-in @st [:app :handler])
-        state (app/state-build @app-config @st req)]
+  (let [req     {:request-method :get :uri "/users"}
+        handler (web-server/handler-fn app-config @st routes)
+        state   (web-server/state-build app-config @st routes req)]
+    (def _mst state)
     (is (= {:status 200, :body "Ok"}
            (:response (handler req))))
     (is (= req (:request state)))
-    (is (= :reitit.core/router
-           (type (get-in state [:deps :router]))))
     (is (instance? Object (get-in state [:deps :session-backend])))
     (is (= {:hash-algorithm  :bcrypt,
             :bcrypt-settings {:work-factor 11},
@@ -28,9 +27,4 @@
                  :roles       {:admin [{:resource :all,
                                         :actions  [:all],
                                         :over     :all}]}}
-           (:acl-cfg state)))
-    (is (not (nil? (get-in @st [:app :router :router]))))
-    (is (not (nil? (get-in @st [:app :db]))))
-    (is (not (nil? (get-in @st [:app :auth]))))
-    (is (not (nil? (get-in @st [:app :session-backend]))))
-    (is (= 2 (count (get-in @st [:app :acl-cfg]))))))
+           (:acl-cfg state)))))
