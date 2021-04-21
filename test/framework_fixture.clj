@@ -1,15 +1,15 @@
 (ns framework-fixture
   (:require
-   [com.stuartsierra.component :as component]
-   [framework.components.interceptors :as interceptors]
-   [framework.components.session.backend :as session-backend]
-   [framework.components.web-server.core :refer [->web-server]]
-   [framework.config.core :as config]
-   [framework.db.storage :refer [->postgresql]]
-   [next.jdbc :as jdbc])
+    [com.stuartsierra.component :as component]
+    [framework.components.interceptors :as interceptors]
+    [framework.components.session.backend :as session-backend]
+    [framework.components.web-server.core :refer [->web-server]]
+    [framework.config.core :as config]
+    [framework.db.storage :refer [->postgresql]]
+    [next.jdbc :as jdbc])
   (:import
-   (com.opentable.db.postgres.embedded
-    EmbeddedPostgres)))
+    (com.opentable.db.postgres.embedded
+      EmbeddedPostgres)))
 
 (def routes
   ["/users" {:get #(assoc % :response {:status 200 :body "Ok"})}])
@@ -35,7 +35,6 @@
                                (interceptors/db-access)
                                (interceptors/message 6)]}))
 
-
 (defn system
   [config app-config routes]
   {:db         (->postgresql config)
@@ -49,9 +48,9 @@
         db-config (-> config
                       :framework.db.storage/postgresql
                       (assoc
-                       :port pg-port
-                       :embedded pg
-                       :subname (str "//localhost:" pg-port "/framework")))]
+                        :port pg-port
+                        :embedded pg
+                        :subname (str "//localhost:" pg-port "/framework")))]
     (jdbc/execute! (dissoc db-config :dbname) [nuke-sql])
     (assoc config :framework.db.storage/postgresql db-config)))
 
