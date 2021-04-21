@@ -63,7 +63,7 @@
                  :auth            auth}
        :request http-request}
       xiana/map->State
-      (assoc :acl-cfg acl-cfg)))
+      (conj acl-cfg)))
 
 (defn handler-fn
   [{:keys [controller-interceptors

@@ -1,8 +1,8 @@
 (ns framework.components.app.core-test
   (:require
-   [clojure.test :refer [deftest is use-fixtures]]
-   [framework-fixture :refer [std-system-fixture st app-config routes]]
-   [framework.components.web-server.core :as web-server]))
+    [clojure.test :refer [deftest is use-fixtures]]
+    [framework-fixture :refer [std-system-fixture st app-config routes]]
+    [framework.components.web-server.core :as web-server]))
 
 (use-fixtures :once std-system-fixture)
 
@@ -23,8 +23,9 @@
             :pbkdf2-settings {:type       :sha1,
                               :iterations 100000}}
            (get-in state [:deps :auth])))
-    (is (= #:acl{:permissions {"users" [:read :create :update :delete]},
-                 :roles       {:admin [{:resource :all,
-                                        :actions  [:all],
-                                        :over     :all}]}}
-           (:acl-cfg state)))))
+    (is (= {"users" [:read :create :update :delete]}
+           (:acl/permissions state)))
+    (is (= {:admin [{:resource :all,
+                     :actions  [:all],
+                     :over     :all}]}
+           (:acl/roles state)))))
