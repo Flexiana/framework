@@ -52,16 +52,36 @@
              (select-keys [:status :body])))))
 
 (deftest same-response
-  (is (= #:users{:last_login nil,
-                 :username   "admin",
-                 :created_at "2021-03-30",
-                 :role       "admin",
-                 :email      "admin@frankie.sw",
-                 :id         "fd5e0d70-506a-45cc-84d5-b12b5e3e99d2",
-                 :password   "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK",
-                 :is_active  true,
-                 :fullname   nil,
-                 :salt       nil}
+  (is (= #{{:users/last_login nil,
+            :users/username   "admin",
+            :users/created_at "2021-03-30",
+            :users/role       "admin",
+            :users/email      "admin@frankie.sw",
+            :users/id         "fd5e0d70-506a-45cc-84d5-b12b5e3e99d2",
+            :users/password   "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK",
+            :users/is_active  true,
+            :users/fullname   nil,
+            :users/salt       nil}
+           {:users/created_at "2021-03-30",
+            :users/email "frankie@frankie.sw",
+            :users/fullname nil,
+            :users/id "31c2c58f-28cb-4013-8765-9240626a18a2",
+            :users/is_active true,
+            :users/last_login nil,
+            :users/password "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK",
+            :users/role "user",
+            :users/salt nil,
+            :users/username "frankie"}
+           {:users/created_at "2021-03-30",
+            :users/email "impostor@frankie.sw",
+            :users/fullname nil,
+            :users/id "8d05b2e1-6463-478a-ba30-35768738af29",
+            :users/is_active false,
+            :users/last_login nil,
+            :users/password "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK",
+            :users/role "interviewer",
+            :users/salt nil,
+            :users/username "impostor"}}
          (-> {:url                  "http://localhost:3000/session"
               :unexceptional-status (constantly true)
               :method               :post
@@ -72,7 +92,8 @@
              :body
              (json/read-str :key-fn keyword)
              :data
-             :users)
+             :users
+             set)
          (-> {:method               :get
               :unexceptional-status (constantly true)
               :headers              {"Content-Type" "application/json;charset=utf-8"}
@@ -81,4 +102,5 @@
              :body
              (json/read-str :key-fn keyword)
              :data
-             :users))))
+             :users
+             set))))

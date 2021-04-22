@@ -15,7 +15,7 @@
       EmbeddedPostgres)))
 
 (def routes
-  [["/users" {:get {:action f-map/user-controller
+  [["/users" {:get {:action  f-map/get-user-controller
                     :handler route}}]
    ["/interceptor" {:get {:handler      route
                           :action       #(xiana/ok (update % :response conj {:status 200 :body "Ok"}))
