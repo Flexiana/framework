@@ -45,29 +45,6 @@
          (-> (http/request {:method :get :url "http://localhost:3000/interceptor"})
              (select-keys [:status :body])))))
 
-(deftest one-endpoint-routing
-  (is (= #:users{:last_login nil,
-                 :username   "admin",
-                 :created_at "2021-03-30",
-                 :role       "admin",
-                 :email      "admin@frankie.sw",
-                 :id         "fd5e0d70-506a-45cc-84d5-b12b5e3e99d2",
-                 :password   "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK",
-                 :is_active  true,
-                 :fullname   nil,
-                 :salt       nil}
-         (-> {:url                  "http://localhost:3000/session"
-              :unexceptional-status (constantly true)
-              :method               :post
-              :headers              {"Content-Type" "application/json;charset=utf-8"}
-              :body                 (json/write-str {:action   "get"
-                                                     :resource "users"})}
-             http/request
-             :body
-             (json/read-str :key-fn keyword)
-             :data
-             :users))))
-
 (deftest same-response
   (is (= #:users{:last_login nil,
                  :username   "admin",
