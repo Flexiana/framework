@@ -69,7 +69,17 @@
              :users))))
 
 (deftest same-response
-  (is (= (-> {:url                  "http://localhost:3000/session"
+  (is (= #:users{:last_login nil,
+                 :username   "admin",
+                 :created_at "2021-03-30",
+                 :role       "admin",
+                 :email      "admin@frankie.sw",
+                 :id         "fd5e0d70-506a-45cc-84d5-b12b5e3e99d2",
+                 :password   "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK",
+                 :is_active  true,
+                 :fullname   nil,
+                 :salt       nil}
+         (-> {:url                  "http://localhost:3000/session"
               :unexceptional-status (constantly true)
               :method               :post
               :headers              {"Content-Type" "application/json;charset=utf-8"}
