@@ -21,20 +21,17 @@
                         (assoc state :query (owner-fn query user-id))
                         state)))))
 
-(defn session-exchange-pre-route
+(defn session-exchange
   [action-map views-map]
   {:enter (fn [{{uri  :uri
                  body :body-params} :request
                 :as                 state}]
             (if (= uri "/session")
-              (let [view (->> body
-                              ((juxt :resource :action))
-                              (map keyword)
-                              views-map)
-                    action (->> body
-                                ((juxt :resource :action))
-                                (map keyword)
-                                action-map)]
+              (let [keywords (->> body
+                                  ((juxt :resource :action))
+                                  (map keyword))
+                    view (get views-map keywords)
+                    action (get action-map keywords)]
                 (xiana/ok (-> (assoc state
                                 :view view
                                 :acl/access-map {:resource  (:resource body)

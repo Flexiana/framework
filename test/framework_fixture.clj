@@ -34,7 +34,7 @@
      :controller-interceptors [(interceptors/muuntaja)
                                interceptors/log
                                interceptors/params
-                               (ti/session-exchange-pre-route f-map/action-map f-map/views-map)
+                               (ti/session-exchange f-map/action-map f-map/views-map)
                                interceptors/session-interceptor
                                interceptors/view
                                interceptors/side-effect
