@@ -10,11 +10,7 @@
 
 (deftest components
   (let [req {:request-method :get :uri "/users"}
-        handler (web-server/handler-fn app-config @st routes)
         state (web-server/state-build app-config @st routes req)]
-    (def _mst state)
-    (is (= {:status 200, :body "Ok"}
-           (:response (handler req))))
     (is (= req (:request state)))
     (is (instance? Object (get-in state [:deps :session-backend])))
     (is (= {:hash-algorithm  :bcrypt,
@@ -66,6 +62,28 @@
               :headers              {"Content-Type" "application/json;charset=utf-8"}
               :body                 (json/write-str {:action   "get"
                                                      :resource "users"})}
+             http/request
+             :body
+             (json/read-str :key-fn keyword)
+             :data
+             :users))))
+
+(deftest same-response
+  (is (= (-> {:url                  "http://localhost:3000/session"
+              :unexceptional-status (constantly true)
+              :method               :post
+              :headers              {"Content-Type" "application/json;charset=utf-8"}
+              :body                 (json/write-str {:action   "get"
+                                                     :resource "users"})}
+             http/request
+             :body
+             (json/read-str :key-fn keyword)
+             :data
+             :users)
+         (-> {:method               :get
+              :unexceptional-status (constantly true)
+              :headers              {"Content-Type" "application/json;charset=utf-8"}
+              :url                  "http://localhost:3000/users"}
              http/request
              :body
              (json/read-str :key-fn keyword)

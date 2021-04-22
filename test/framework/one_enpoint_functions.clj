@@ -11,6 +11,7 @@
 
 (defn get-user
   [{response-data :response-data :as state}]
+  (println "View")
   (xiana/ok (->
               state
               (assoc-in [:response :status] 200)
@@ -34,3 +35,8 @@
 (def action-map
   {[:users :get] get-user-query})
 
+(defn user-controller
+  [state]
+  (xiana/flow->
+    (assoc state :view get-user)
+    get-user-query))
