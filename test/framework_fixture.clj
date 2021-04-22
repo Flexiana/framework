@@ -6,6 +6,7 @@
     [framework.components.web-server.core :refer [->web-server route]]
     [framework.config.core :as config]
     [framework.db.storage :refer [->postgresql]]
+    [framework.one-enpoint-functions :as f-map]
     [framework.test-interceptor :as ti]
     [next.jdbc :as jdbc]
     [xiana.core :as xiana])
@@ -17,7 +18,8 @@
   [["/users" {:get #(assoc % :response {:status 200 :body "Ok"})}]
    ["/interceptor" {:get {:handler      route
                           :action       #(xiana/ok (update % :response conj {:status 200 :body "Ok"}))
-                          :interceptors [ti/test-interceptor]}}]])
+                          :interceptors [ti/test-interceptor]}}]
+   ["/session" {:post {:handler route}}]])
 
 (def sys-deps
   {:web-server [:db]})
@@ -27,18 +29,16 @@
     {:acl-cfg                 (select-keys config [:acl/permissions :acl/roles])
      :auth                    (:framework.app/auth config)
      :session-backend         (session-backend/init-in-memory-session)
-     :router-interceptors     [(interceptors/message 0)]
-     :controller-interceptors [(interceptors/message 1)
-                               (interceptors/muuntaja)
-                               (interceptors/message 2)
+     :router-interceptors     []
+     :controller-interceptors [(interceptors/muuntaja)
+                               interceptors/log
                                interceptors/params
-                               (interceptors/message 3)
+                               (ti/session-exchange-pre-route f-map/action-map f-map/views-map)
                                interceptors/session-interceptor
-                               (interceptors/message 4)
+                               interceptors/view
                                interceptors/side-effect
-                               (interceptors/message 5)
                                (interceptors/db-access)
-                               (interceptors/message 6)]}))
+                               ti/alt-acl]}))
 
 (defn system
   [config app-config routes]
@@ -47,9 +47,10 @@
 
 (defn embedded-postgres!
   [config]
-  (let [pg        (.start (EmbeddedPostgres/builder))
-        pg-port   (.getPort pg)
-        nuke-sql  (slurp "./Docker/init.sql")
+  (let [pg (.start (EmbeddedPostgres/builder))
+        pg-port (.getPort pg)
+        nuke-sql (slurp "./Docker/init.sql")
+        init-sql (slurp "./test/resources/init.sql")
         db-config (-> config
                       :framework.db.storage/postgresql
                       (assoc
@@ -57,6 +58,7 @@
                         :embedded pg
                         :subname (str "//localhost:" pg-port "/framework")))]
     (jdbc/execute! (dissoc db-config :dbname) [nuke-sql])
+    (jdbc/execute! db-config [init-sql])
     (assoc config :framework.db.storage/postgresql db-config)))
 
 (defonce st (atom {}))
@@ -69,10 +71,18 @@
                                      component/map->SystemMap
                                      (component/system-using sys-deps)))))
 
+(defn stop
+  [state]
+  (swap! state component/stop))
+
 (defn std-system-fixture
   [f]
   (start st)
   (try
     (f)
     (finally
-      (swap! st component/stop))))
+      (stop st))))
+
+(comment
+  (stop st)
+  (start st))

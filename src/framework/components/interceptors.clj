@@ -93,7 +93,9 @@
 
 (def view
   {:leave (fn [{view :view :as state}]
-            (view state))})
+            (if view
+              (view state)
+              (xiana/ok state)))})
 
 (defn muuntaja
   ([]
