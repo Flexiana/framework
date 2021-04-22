@@ -31,16 +31,18 @@
   (let [match   (r/match-by-path router (:uri request))
         method  (:request-method request)
         handler (or (get-in match [:data :handler]) (-> match :result method :handler))
-        action  (or (get-in match [:data :action]) (-> match :data method :action))]
+        action  (or (get-in match [:data :action]) (-> match :data method :action))
+        interceptors (-> match :data method :interceptors)]
     (if action
       (xiana/ok (-> state
                     (?assoc-in [:request-data :match] match)
                     (?assoc-in [:request-data :handler] handler)
+                    (?assoc-in [:request-data :interceptors] interceptors)
                     (assoc-in [:request-data :action] action)))
-
       (if handler
         (xiana/ok (-> state
                       (?assoc-in [:request-data :match] match)
+                      (?assoc-in [:request-data :interceptors] interceptors)
                       (assoc-in [:request-data :handler] handler)
                       (assoc-in [:request-data :action] default-action)))
         (xiana/error (response state {:status 404 :body "Not Found"}))))))
@@ -61,9 +63,16 @@
                  :db              db
                  :session-backend session-backend
                  :auth            auth}
-       :request http-request}
+       :request http-request
+       :response {}}
       xiana/map->State
       (conj acl-cfg)))
+
+(defn additional-interceptors
+  [state ci co]
+  (xiana/flow->
+    state
+    (runner/run (concat (get-in state [:request-data :interceptors]) ci) co)))
 
 (defn handler-fn
   [{:keys [controller-interceptors
@@ -76,7 +85,7 @@
       (xiana/flow->
         (state-build app-config system routes http-request)
         (runner/run router-interceptors route)
-        (runner/run controller-interceptors run-controller))
+        (additional-interceptors controller-interceptors run-controller))
       (xiana/extract)
       (get :response))))
 

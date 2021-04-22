@@ -3,16 +3,21 @@
     [com.stuartsierra.component :as component]
     [framework.components.interceptors :as interceptors]
     [framework.components.session.backend :as session-backend]
-    [framework.components.web-server.core :refer [->web-server]]
+    [framework.components.web-server.core :refer [->web-server route]]
     [framework.config.core :as config]
     [framework.db.storage :refer [->postgresql]]
-    [next.jdbc :as jdbc])
+    [framework.test-interceptor :as ti]
+    [next.jdbc :as jdbc]
+    [xiana.core :as xiana])
   (:import
     (com.opentable.db.postgres.embedded
       EmbeddedPostgres)))
 
 (def routes
-  ["/users" {:get #(assoc % :response {:status 200 :body "Ok"})}])
+  [["/users" {:get #(assoc % :response {:status 200 :body "Ok"})}]
+   ["/interceptor" {:get {:handler      route
+                          :action       #(xiana/ok (update % :response conj {:status 200 :body "Ok"}))
+                          :interceptors [ti/test-interceptor]}}]])
 
 (def sys-deps
   {:web-server [:db]})
