@@ -32,9 +32,10 @@
                                   (map keyword))
                     view (get views-map keywords)
                     action (get action-map keywords)]
-                (xiana/ok (-> (assoc state
-                                :view view
-                                :acl/access-map {:resource  (:resource body)
-                                                 :privilege (:action body)})
-                              (assoc-in [:request-data :action] action))))
+                (xiana/ok (cond-> (assoc state
+                                    :acl/access-map {:resource  (:resource body)
+                                                     :privilege (:action body)})
+                                  view (assoc :view view)
+                                  (:id body) (assoc-in [:request :query-params :id] (:id body))
+                                  action (assoc-in [:request-data :action] action))))
               (xiana/ok state)))})
