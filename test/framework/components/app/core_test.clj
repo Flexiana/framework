@@ -29,3 +29,15 @@
                      :actions  [:all],
                      :over     :all}]}
            (:acl/roles state)))))
+
+(deftest add-interceptor
+  (let [req {:request-method :get :uri "/interceptor"}
+        handler (web-server/handler-fn app-config @st routes)
+        response (handler req)]
+    (is (= {:enter true
+            :status 200
+            :body "Ok",
+            :leave true}
+           (dissoc response :headers)))
+    (is (string?
+          (get-in response [:headers "Session-id"])))))
