@@ -28,10 +28,10 @@
   [{request          :request
     {router :router} :deps
     :as              state}]
-  (let [match   (r/match-by-path router (:uri request))
-        method  (:request-method request)
+  (let [match (r/match-by-path router (:uri request))
+        method (:request-method request)
         handler (or (get-in match [:data :handler]) (-> match :result method :handler))
-        action  (or (get-in match [:data :action]) (-> match :data method :action))
+        action (or (get-in match [:data :action]) (-> match :data method :action))
         interceptors (-> match :data method :interceptors)]
     (if action
       (xiana/ok (-> state
@@ -59,20 +59,24 @@
    {:keys [db]}
    routes
    http-request]
-  (-> {:deps    {:router          (ring/router routes)
-                 :db              db
-                 :session-backend session-backend
-                 :auth            auth}
-       :request http-request
+  (-> {:deps     {:router          (ring/router routes)
+                  :db              db
+                  :session-backend session-backend
+                  :auth            auth}
+       :request  http-request
        :response {}}
       xiana/map->State
       (conj acl-cfg)))
 
 (defn additional-interceptors
   [state ci co]
-  (xiana/flow->
-    state
-    (runner/run (concat (get-in state [:request-data :interceptors]) ci) co)))
+  (let [extra (get-in state [:request-data :interceptors])
+        interceptors (if (:override extra)
+                       (:override extra)
+                       (concat extra ci))]
+    (xiana/flow->
+      state
+      (runner/run interceptors co))))
 
 (defn handler-fn
   [{:keys [controller-interceptors
@@ -87,6 +91,9 @@
         (runner/run router-interceptors route)
         (additional-interceptors controller-interceptors run-controller))
       (xiana/extract)
+      ((fn [x]
+         (println x)
+         x))
       (get :response))))
 
 (defn ->web-server

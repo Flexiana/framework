@@ -6,8 +6,8 @@
     [framework.components.web-server.core :refer [->web-server route]]
     [framework.config.core :as config]
     [framework.db.storage :refer [->postgresql]]
-    [framework.one-enpoint-functions :as f-map]
-    [framework.test-interceptor :as ti]
+    [framework.one-endpoint-functions :as f-map]
+    [framework.test-interceptors :as ti]
     [next.jdbc :as jdbc]
     [xiana.core :as xiana])
   (:import
@@ -20,7 +20,21 @@
    ["/interceptor" {:get {:handler      route
                           :action       #(xiana/ok (update % :response conj {:status 200 :body "Ok"}))
                           :interceptors [ti/test-interceptor]}}]
-   ["/session" {:post {:handler route}}]])
+   ["/action" {:post {:handler route}}]
+   ["/test-override" {:post {:handler      route
+                             :action       #(xiana/ok (update % :response conj {:status 200 :body "Ok"}))
+                             :interceptors {:override [ti/test-override]}}}]
+   ["/session" {:post {:handler      route
+                       :interceptors {:override [(interceptors/muuntaja)
+                                                 interceptors/log
+                                                 interceptors/params
+                                                 interceptors/session-interceptor
+                                                 ti/session-diff
+                                                 (ti/single-entry f-map/action-map)
+                                                 interceptors/view
+                                                 interceptors/side-effect
+                                                 (interceptors/db-access)
+                                                 ti/alt-acl]}}}]])
 
 (def sys-deps
   {:web-server [:db]})
@@ -34,8 +48,8 @@
      :controller-interceptors [(interceptors/muuntaja)
                                interceptors/log
                                interceptors/params
-                               (ti/session-exchange f-map/action-map f-map/views-map)
                                interceptors/session-interceptor
+                               (ti/single-entry f-map/action-map)
                                interceptors/view
                                interceptors/side-effect
                                (interceptors/db-access)

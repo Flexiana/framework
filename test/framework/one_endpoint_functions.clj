@@ -1,4 +1,4 @@
-(ns framework.one-enpoint-functions
+(ns framework.one-endpoint-functions
   (:require
     [clojure.test :refer :all]
     [honeysql.helpers :refer [select
@@ -28,14 +28,11 @@
                                             (from :users))
                                   id (where [:= :id (UUID/fromString id)])))))
 
-(def views-map
-  {[:users :get] get-user-view})
-
-(def action-map
-  {[:users :get] get-user-query})
-
 (defn get-user-controller
   [state]
   (xiana/flow->
     (assoc state :view get-user-view)
     get-user-query))
+
+(def action-map
+  {[:users :get] get-user-controller})
