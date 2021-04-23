@@ -1,11 +1,12 @@
 (ns framework.components.app.interceptor-override-test
   (:require
-    [framework-fixture :refer [std-system-fixture]]
-    [clojure.test :refer :all]
+    [clj-http.client :as http]
     [clojure.data.json :as json]
-    [clj-http.client :as http]))
+    [clojure.test :refer :all]
+    [framework-fixture :refer [std-system-fixture]]))
 
 (use-fixtures :once std-system-fixture)
+
 (deftest interceptor-override
   (let [response (-> {:url                  "http://localhost:3000/test-override"
                       :unexceptional-status (constantly true)
