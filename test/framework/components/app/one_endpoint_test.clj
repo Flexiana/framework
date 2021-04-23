@@ -94,3 +94,15 @@
              (json/read-str :key-fn keyword)
              :data
              :users))))
+
+(-> {:url                  "http://localhost:3000/session"
+     :unexceptional-status (constantly true)
+     :method               :post
+     :headers              {"Content-Type" "application/json;charset=utf-8"}
+     :body                 (json/write-str {:action   "get"
+                                            :id       "31c2c58f-28cb-4013-8765-9240626a18a2",
+                                            :resource "users"})}
+    http/request
+    :body
+    (json/read-str :key-fn keyword))
+;    (#(map-commit {} %)))

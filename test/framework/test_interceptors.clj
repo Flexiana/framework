@@ -1,6 +1,5 @@
 (ns framework.test-interceptors
   (:require
-    [framework.acl.core :as acl]
     [xiana.core :as xiana]))
 
 (def test-interceptor
@@ -16,11 +15,11 @@
               (assoc-in state [:response :headers "override-out"] "true")))})
 
 (defn single-entry
-  [action-map]
+  [action-map url]
   {:enter (fn [{{uri  :uri
                  body :body-params} :request
                 :as                 state}]
-            (if (= uri "/action")
+            (if (= uri url)
               (let [keywords (->> body
                                   ((juxt :resource :action))
                                   (map keyword))
@@ -34,6 +33,8 @@
 
 (def session-diff
   {:leave (fn [state]
-            (xiana/ok state))})
-
-
+            (let [old-session (dissoc (get  state :session-data {}) :new-session)
+                  body (get-in state [:response :body])
+                  new-session (-> (assoc old-session :view-type (:view-type body))
+                                  (merge (:data body)))]
+              (xiana/ok (assoc-in state [:response :body] new-session))))})

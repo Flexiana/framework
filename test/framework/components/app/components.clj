@@ -37,3 +37,4 @@
   (is (= {:status 200 :body "Ok"}
          (-> (http/request {:method :get :url "http://localhost:3000/interceptor"})
              (select-keys [:status :body])))))
+
