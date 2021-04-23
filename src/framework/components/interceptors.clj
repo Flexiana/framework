@@ -105,10 +105,10 @@
 
 (defn acl-restrict
   ([]
-   (acl-restrict nil))
+   (acl-restrict {}))
   ([m]
-   {:enter (fn [state]
-             (acl/is-allowed state m))
+   {:enter (fn [{acl :acl/access-map :as state}]
+             (acl/is-allowed state (merge m acl)))
     :leave (fn [{query                 :query
                  {{user-id :id} :user} :session-data
                  owner-fn              :owner-fn

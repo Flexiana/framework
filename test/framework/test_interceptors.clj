@@ -15,20 +15,6 @@
             (xiana/ok
               (assoc-in state [:response :headers "override-out"] "true")))})
 
-(defn alt-acl
-  ([]
-   (alt-acl {}))
-  ([m]
-   :enter (fn [{acl :acl/access-map :as state}]
-            (acl/is-allowed state (merge m acl)))
-   :leave (fn [{query                 :query
-                {{user-id :id} :user} :session-data
-                owner-fn              :owner-fn
-                :as                   state}]
-            (xiana/ok (if owner-fn
-                        (assoc state :query (owner-fn query user-id))
-                        state)))))
-
 (defn single-entry
   [action-map]
   {:enter (fn [{{uri  :uri

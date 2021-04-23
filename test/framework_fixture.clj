@@ -26,7 +26,7 @@
                              :interceptors {:override [ti/test-override]}}}]
    ["/session" {:post {:handler      route
                        :interceptors {:override [(interceptors/muuntaja)
-                                                 interceptors/log
+                                                 ;interceptors/log
                                                  interceptors/params
                                                  interceptors/session-interceptor
                                                  ti/session-diff
@@ -34,7 +34,7 @@
                                                  interceptors/view
                                                  interceptors/side-effect
                                                  (interceptors/db-access)
-                                                 ti/alt-acl]}}}]])
+                                                 (interceptors/acl-restrict)]}}}]])
 
 (def sys-deps
   {:web-server [:db]})
@@ -46,14 +46,14 @@
      :session-backend         (session-backend/init-in-memory-session)
      :router-interceptors     []
      :controller-interceptors [(interceptors/muuntaja)
-                               interceptors/log
+                               ;interceptors/log
                                interceptors/params
                                interceptors/session-interceptor
                                (ti/single-entry f-map/action-map)
                                interceptors/view
                                interceptors/side-effect
                                (interceptors/db-access)
-                               ti/alt-acl]}))
+                               (interceptors/acl-restrict)]}))
 
 (defn system
   [config app-config routes]
