@@ -9,8 +9,8 @@
                              :deps
                              :session
                              :session-backend)
-        session-id (get-in request [:headers "session-id"])
-        user (fetch sessions-backend session-id)]
+        session-id       (get-in request [:headers "session-id"])
+        user             (fetch sessions-backend session-id)]
     (xiana/ok (assoc-in state [:session-data :user] user))))
 
 (defn auth-middleware
@@ -19,10 +19,10 @@
                              :deps
                              :session
                              :session-backend)
-        login-data (-> state
-                       :login-data)
-        logout-data (-> state
-                        :logout-data)]
+        login-data       (-> state
+                             :login-data)
+        logout-data      (-> state
+                             :logout-data)]
     (when login-data
       (add! sessions-backend (:session-id login-data) login-data))
     (when logout-data

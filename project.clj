@@ -35,7 +35,8 @@
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
              :test     {:source-paths ["test"]
-                        :dependencies [[lambdaisland/kaocha "1.0.732"]
+                        :dependencies [[clj-http "3.12.1"]
+                                       [lambdaisland/kaocha "1.0.732"]
                                        [lambdaisland/kaocha-cloverage "1.0.75"]
                                        [mvxcvi/cljstyle "0.14.0"
                                         :exclusions [org.clojure/clojure]]

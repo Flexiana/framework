@@ -3,7 +3,10 @@
     [com.stuartsierra.component :as component]
     [framework.components.runner :as runner]
     [reitit.core :as r]
+    [reitit.http :as http]
+    [reitit.interceptor.sieppari :as sieppari]
     [reitit.ring :as ring]
+    [reitit.swagger-ui :as swagger-ui]
     [ring.adapter.jetty :as jetty]
     [xiana.commons :refer [?assoc-in]]
     [xiana.core :as xiana])
@@ -89,6 +92,41 @@
     `{component/start ~(fn [system]
                          (assoc system :web-server
                            (jetty/run-jetty (handler-fn app-config system routes) web-cfg)))
+      component/stop  ~(fn [{:keys [^Server web-server]
+                             :as   system}]
+                         (.stop web-server)
+                         (dissoc system :web-server))}))
+
+(defn interceptor-router
+  [config app-cfg routes]
+  (http/router
+    (routes config)
+    app-cfg))
+
+(def ring-routes
+  (ring/routes
+    (swagger-ui/create-swagger-ui-handler
+      {:path   "/api-docs"
+       :config {:validatorUrl     nil
+                :operationsSorter "alpha"}})
+    (ring/create-default-handler)))
+
+(defn reitit-handler
+  [config app-cfg routes]
+  (http/ring-handler
+    (interceptor-router config app-cfg routes)
+    ring-routes
+    {:executor sieppari/executor}))
+
+(defn ->reitit-web-server
+  [{web-cfg :framework.app/web-server
+    :as     config}
+   app-cfg
+   routes]
+  (with-meta config
+    `{component/start ~(fn [system]
+                         (assoc system :web-server
+                           (jetty/run-jetty (reitit-handler config app-cfg routes) web-cfg)))
       component/stop  ~(fn [{:keys [^Server web-server]
                              :as   system}]
                          (.stop web-server)
