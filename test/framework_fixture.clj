@@ -1,4 +1,5 @@
 (ns framework-fixture
+  "Sample application to test the framework startup and functions"
   (:require
     [com.stuartsierra.component :as component]
     [framework.components.interceptors :as interceptors]

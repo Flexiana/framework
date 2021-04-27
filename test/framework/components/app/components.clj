@@ -9,6 +9,7 @@
 (use-fixtures :once std-system-fixture)
 
 (deftest components
+  "Test if state-builder injects known dependencies"
   (let [req {:request-method :get :uri "/users"}
         state (web-server/state-build app-config @st routes req)
         session-backend (-> state :deps :session-backend)
@@ -34,6 +35,7 @@
            (:acl/roles state)))))
 
 (deftest via-http-request
+  "Testing if application is running via endpoint"
   (is (= {:status 200 :body "Ok"}
          (-> (http/request {:method :get :url "http://localhost:3000/interceptor"})
              (select-keys [:status :body])))))

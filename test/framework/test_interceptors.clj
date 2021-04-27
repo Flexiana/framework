@@ -3,10 +3,12 @@
     [xiana.core :as xiana]))
 
 (def test-interceptor
+  "test interceptor to see interceptor injection"
   {:enter (fn [state] (xiana/ok (assoc-in state [:response :enter] true)))
    :leave (fn [state] (xiana/ok (assoc-in state [:response :leave] true)))})
 
 (def test-override
+  "test interceptor to see interceptors overriding"
   {:enter (fn [state]
             (xiana/ok
               (assoc-in state [:response :headers "override-in"] "true")))
@@ -15,6 +17,7 @@
               (assoc-in state [:response :headers "override-out"] "true")))})
 
 (defn single-entry
+  "POC for set up the flow/routing from interceptor for one-endpoint"
   [action-map url]
   {:enter (fn [{{uri  :uri
                  body :body-params} :request
@@ -32,6 +35,7 @@
               (xiana/ok state)))})
 
 (def response-session
+  "POC for injecting session into the response"
   {:leave (fn [state]
             (let [old-session (dissoc (get  state :session-data {}) :new-session)
                   body (get-in state [:response :body])

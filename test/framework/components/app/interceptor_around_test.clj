@@ -7,6 +7,7 @@
 (use-fixtures :once std-system-fixture)
 
 (deftest add-interceptor
+  "Tests additional around interceptor"
   (let [req {:request-method :get :uri "/interceptor"}
         handler (web-server/handler-fn app-config @st routes)
         response (handler req)]

@@ -1,4 +1,5 @@
 (ns framework.one-endpoint-functions
+  "collection of strategies for endpoint testing"
   (:require
     [clojure.test :refer :all]
     [honeysql.helpers :refer [select

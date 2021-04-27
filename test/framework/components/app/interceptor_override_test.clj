@@ -8,6 +8,7 @@
 (use-fixtures :once std-system-fixture)
 
 (deftest interceptor-override
+  "Tests interceptors overriding"
   (let [response (-> {:url                  "http://localhost:3000/test-override"
                       :unexceptional-status (constantly true)
                       :method               :post

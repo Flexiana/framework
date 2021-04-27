@@ -8,6 +8,7 @@
 (use-fixtures :once std-system-fixture)
 
 (deftest same-response
+  "Tests if normal REST end-point and single-endpoint response is the same"
   (is (= #{{:users/last_login nil,
             :users/username   "admin",
             :users/created_at "2021-03-30",
@@ -62,6 +63,7 @@
              set))))
 
 (deftest get-by-id
+  "Tests if normal REST end-point and single-endpoint response is the same"
   (is (= [{:users/created_at "2021-03-30",
            :users/email      "frankie@frankie.sw",
            :users/fullname   nil,
@@ -96,6 +98,7 @@
              :users))))
 
 (deftest response-with-session
+  "Check if the session is in the response-body"
   (let [response (-> {:url                  "http://localhost:3000/session"
                       :unexceptional-status (constantly true)
                       :method               :post
