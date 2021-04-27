@@ -1,4 +1,5 @@
 (ns framework.components.interceptors.muuntaja
+  "Prepare default munntaja instance"
   (:require
     [clojure.data.xml :as xml]
     [clojure.string]

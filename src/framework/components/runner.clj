@@ -8,6 +8,8 @@
       (xiana/ok state)))
 
 (defn run
+  "Executes interceptors around a function. Be aware of raw recursion
+  TODO: refactor it to use reduce instead of recursion"
   ([state action]
    (run state [] action))
   ([state interceptors action]
