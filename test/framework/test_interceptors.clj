@@ -31,7 +31,7 @@
                             action (assoc-in [:request-data :action] action))))
               (xiana/ok state)))})
 
-(def session-diff
+(def response-session
   {:leave (fn [state]
             (let [old-session (dissoc (get  state :session-data {}) :new-session)
                   body (get-in state [:response :body])

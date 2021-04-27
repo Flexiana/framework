@@ -95,14 +95,27 @@
              :data
              :users))))
 
-(-> {:url                  "http://localhost:3000/session"
-     :unexceptional-status (constantly true)
-     :method               :post
-     :headers              {"Content-Type" "application/json;charset=utf-8"}
-     :body                 (json/write-str {:action   "get"
-                                            :id       "31c2c58f-28cb-4013-8765-9240626a18a2",
-                                            :resource "users"})}
-    http/request
-    :body
-    (json/read-str :key-fn keyword))
-;    (#(map-commit {} %)))
+(deftest response-with-session
+  (let [response (-> {:url                  "http://localhost:3000/session"
+                      :unexceptional-status (constantly true)
+                      :method               :post
+                      :headers              {"Content-Type" "application/json;charset=utf-8"}
+                      :body                 (json/write-str {:action   "get"
+                                                             :id       "31c2c58f-28cb-4013-8765-9240626a18a2",
+                                                             :resource "users"})}
+                     http/request
+                     :body
+                     (json/read-str :key-fn keyword))]
+    (is (string? (:session-id response)))
+    (is (= "users" (:view-type response)))
+    (is (= [#:users{:last_login nil,
+                    :username "frankie",
+                    :created_at "2021-03-30",
+                    :role "user",
+                    :email "frankie@frankie.sw",
+                    :id "31c2c58f-28cb-4013-8765-9240626a18a2",
+                    :password "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK",
+                    :is_active true,
+                    :fullname nil,
+                    :salt nil}]
+           (:users response)))))

@@ -30,7 +30,7 @@
                                                  ;interceptors/log
                                                  interceptors/params
                                                  interceptors/session-interceptor
-                                                 ti/session-diff
+                                                 ti/response-session
                                                  (ti/single-entry f-map/action-map "/session")
                                                  interceptors/view
                                                  interceptors/side-effect
