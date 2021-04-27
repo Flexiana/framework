@@ -1,50 +1,50 @@
 (ns reitit-fixture
   (:require
-   [clj-http.client :as client]
-   [clojure.java.io :as io]
-   [clojure.test :refer [is deftest testing]]
-   [com.stuartsierra.component :as component]
-   [framework.components.interceptors :as interceptors]
-   [framework.components.session.backend :as session-backend]
-   [framework.components.session.interceptors :refer [init-in-memory-interceptor]]
-   [framework.components.web-server.core :refer [->reitit-web-server
-                                                 reitit-handler]]
-   [framework.config.core :as config]
-   [framework.db.storage :refer [->postgresql]]
-   [matcher-combinators.test :refer [match?]]
-   [muuntaja.core :as m]
-   [muuntaja.interceptor :as minterceptor]
-   [next.jdbc :as jdbc]
-   [reitit.coercion.malli :as rcm]
-   [reitit.dev.pretty :as pretty]
-   [reitit.http :as http]
-   [reitit.http.coercion :as rhc]
-   [reitit.http.interceptors.exception :as exception]
-                                        ; interceptor mode in reitit is called http
-   [reitit.http.interceptors.multipart :as multipart]
-   [reitit.http.interceptors.muuntaja :as muuntaja]
-   [reitit.http.interceptors.parameters :as parameters]
-   [reitit.interceptor.sieppari :as sieppari]
-   [reitit.ring :as ring]
-   [reitit.swagger :as swagger]
-   [reitit.swagger-ui :as swagger-ui]
-   [ring.adapter.jetty :as jetty]
-   [xiana.core :as xiana]
-   [framework.db.sql :as fql]
-   [honeysql.core :as sql]
-   [clojure.set :as set]
-   [clojure.string :as str]
-   #_[hiccup2.core :as h]
-   [com.wsscode.pathom3.connect.built-in.resolvers :as pbir]
-   [com.wsscode.pathom3.interface.smart-map :as psm]
-   [com.wsscode.pathom3.interface.eql :as p.eql]
-   [com.wsscode.pathom3.connect.indexes :as pci]
-   [com.wsscode.pathom3.connect.operation :as pco])
+    [clj-http.client :as client]
+    [clojure.java.io :as io]
+    [clojure.set :as set]
+    [clojure.string :as str]
+    [clojure.test :refer [is deftest testing]]
+    [com.stuartsierra.component :as component]
+    [com.wsscode.pathom3.connect.built-in.resolvers :as pbir]
+    [com.wsscode.pathom3.connect.indexes :as pci]
+    [com.wsscode.pathom3.connect.operation :as pco]
+    [com.wsscode.pathom3.interface.eql :as p.eql]
+    [com.wsscode.pathom3.interface.smart-map :as psm]
+    [framework.components.interceptors :as interceptors]
+    [framework.components.session.backend :as session-backend]
+    [framework.components.session.interceptors :refer [init-in-memory-interceptor]]
+    [framework.components.web-server.core :refer [->reitit-web-server
+                                                  reitit-handler]]
+    [framework.config.core :as config]
+    [framework.db.sql :as fql]
+    [framework.db.storage :refer [->postgresql]]
+    #_[hiccup2.core :as h]
+    [honeysql.core :as sql]
+    [matcher-combinators.test :refer [match?]]
+    [muuntaja.core :as m]
+    [muuntaja.interceptor :as minterceptor]
+    [next.jdbc :as jdbc]
+    [reitit.coercion.malli :as rcm]
+    [reitit.dev.pretty :as pretty]
+    [reitit.http :as http]
+    [reitit.http.coercion :as rhc]
+    [reitit.http.interceptors.exception :as exception]
+    ;; interceptor mode in reitit is called http
+    [reitit.http.interceptors.multipart :as multipart]
+    [reitit.http.interceptors.muuntaja :as muuntaja]
+    [reitit.http.interceptors.parameters :as parameters]
+    [reitit.interceptor.sieppari :as sieppari]
+    [reitit.ring :as ring]
+    [reitit.swagger :as swagger]
+    [reitit.swagger-ui :as swagger-ui]
+    [ring.adapter.jetty :as jetty]
+    [xiana.core :as xiana])
   (:import
-   (com.opentable.db.postgres.embedded
-    EmbeddedPostgres)
-   (java.lang
-    AutoCloseable)))
+    (com.opentable.db.postgres.embedded
+      EmbeddedPostgres)
+    (java.lang
+      AutoCloseable)))
 
 (def sys-deps
   {:web-server [:db]})
@@ -173,28 +173,28 @@
                   sql       (first formatted)
                   r         (rest formatted)]
               (reduce (fn [s v] (str/replace-first s "?" (str "'" v "'"))) sql r)))]
-    [(format-sql {:insert-into :users
-                  :values      [{:id         #uuid "fd5e0d70-506a-45cc-84d5-b12b5e3e99d2"
-                                 :created-at "2021-03-30 12:34:10.358157+02"
-                                 :email      "admin@frankie.sw"
-                                 :role       "admin"
-                                 :password   "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK" ; not_nul
-                                 :username   "admin"
-                                 :is-active  :true}
-                                {:id         #uuid"31c2c58f-28cb-4013-8765-9240626a18a2"
-                                 :created-at "2021-03-30 12:34:10.358157+02"
-                                 :email      "frankie@frankie.sw"
-                                 :role       "user"
-                                 :password   "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK" ; not_nul
-                                 :username   "frankie"
-                                 :is-active  :true}
-                                {:id         #uuid"8d05b2e1-6463-478a-ba30-35768738af29"
-                                 :created-at "2021-03-30 12:34:10.358157+02"
-                                 :email      "impostor@frankie.sw"
-                                 :role       "interviewer"
-                                 :password   "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK" ; not_nul
-                                 :username   "impostor"
-                                 :is-active  :false}]})]))
+         [(format-sql {:insert-into :users
+                       :values      [{:id         #uuid "fd5e0d70-506a-45cc-84d5-b12b5e3e99d2"
+                                      :created-at "2021-03-30 12:34:10.358157+02"
+                                      :email      "admin@frankie.sw"
+                                      :role       "admin"
+                                      :password   "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK" ; not_nul
+                                      :username   "admin"
+                                      :is-active  :true}
+                                     {:id         #uuid"31c2c58f-28cb-4013-8765-9240626a18a2"
+                                      :created-at "2021-03-30 12:34:10.358157+02"
+                                      :email      "frankie@frankie.sw"
+                                      :role       "user"
+                                      :password   "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK" ; not_nul
+                                      :username   "frankie"
+                                      :is-active  :true}
+                                     {:id         #uuid"8d05b2e1-6463-478a-ba30-35768738af29"
+                                      :created-at "2021-03-30 12:34:10.358157+02"
+                                      :email      "impostor@frankie.sw"
+                                      :role       "interviewer"
+                                      :password   "$2a$11$ivfRMKD7dHMfqCWBiEQcaOknsJgDnK9zoSP/cXAVNQVYHc.M9SZJK" ; not_nul
+                                      :username   "impostor"
+                                      :is-active  :false}]})]))
 
 (pco/defresolver users-user-by-id
   [system {:users/keys [id] :as m}]
@@ -231,7 +231,7 @@
 
 (def ->html
   {:leave (fn [{:keys [response route]
-               :as   ctx}]
+                :as   ctx}]
             (if (contains? response :html)
               (-> response
                   (dissoc :html)
@@ -243,13 +243,12 @@
 
 (deftest render-user-test
   (let [routes                   (fn [system]
-                                   [["/api" {:interceptors [;;auth-itx
+                                   [["/api" {:interceptors [;; auth-itx
                                                             ]}
                                      ["/users/:id" {:get {:interceptors [;; authed?
                                                                          ;; query!->hiccup
                                                                          ;; css-enrichment
-                                                                         #_->html
-                                                                         ]
+                                                                         #_->html]
                                                           :handler      (fn [{:keys [path-params]}]
                                                                           (def _s system)
                                                                           (let [{:users/keys [username]} (p.eql/process system [{[:id path-params]
@@ -266,12 +265,12 @@
         {{conn :connection} :db
          :as                sys} (reset! st (merge (component/start system)
                                                    (pci/register
-                                                    [users-user-by-id
-                                                     (pbir/static-attribute-map-resolver
-                                                      :id :users/id
-                                                      {"1" #uuid "fd5e0d70-506a-45cc-84d5-b12b5e3e99d2"
-                                                       "2" #uuid "31c2c58f-28cb-4013-8765-9240626a18a2"
-                                                       "3" #uuid "8d05b2e1-6463-478a-ba30-35768738af29"})])))
+                                                     [users-user-by-id
+                                                      (pbir/static-attribute-map-resolver
+                                                        :id :users/id
+                                                        {"1" #uuid "fd5e0d70-506a-45cc-84d5-b12b5e3e99d2"
+                                                         "2" #uuid "31c2c58f-28cb-4013-8765-9240626a18a2"
+                                                         "3" #uuid "8d05b2e1-6463-478a-ba30-35768738af29"})])))
         _user-table              (jdbc/execute! conn users-table)
         _mock-data               (jdbc/execute! conn mock-users-data)]
     #_(def _eql (p.eql/process sys-with-idx [{[:id "1"]

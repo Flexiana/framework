@@ -100,16 +100,16 @@
 (defn interceptor-router
   [config app-cfg routes]
   (http/router
-   (routes config)
-   app-cfg))
+    (routes config)
+    app-cfg))
 
 (def ring-routes
   (ring/routes
-   (swagger-ui/create-swagger-ui-handler
-    {:path   "/api-docs"
-     :config {:validatorUrl     nil
-              :operationsSorter "alpha"}})
-   (ring/create-default-handler)))
+    (swagger-ui/create-swagger-ui-handler
+      {:path   "/api-docs"
+       :config {:validatorUrl     nil
+                :operationsSorter "alpha"}})
+    (ring/create-default-handler)))
 
 (defn reitit-handler
   [config app-cfg routes]
@@ -126,8 +126,8 @@
   (with-meta config
     `{component/start ~(fn [system]
                          (assoc system :web-server
-                                (jetty/run-jetty (reitit-handler system app-cfg routes) web-cfg)))
+                           (jetty/run-jetty (reitit-handler system app-cfg routes) web-cfg)))
       component/stop  ~(fn [{:keys [^Server web-server]
-                            :as   system}]
+                             :as   system}]
                          (.stop web-server)
                          (dissoc system :web-server))}))
