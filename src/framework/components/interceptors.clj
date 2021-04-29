@@ -1,6 +1,5 @@
 (ns framework.components.interceptors
   (:require
-    [clojure.core :as core]
     [clojure.walk :refer [keywordize-keys]]
     [framework.acl.core :as acl]
     [framework.components.interceptors.muuntaja :as m-int]
@@ -37,6 +36,8 @@
                                                    :role :guest})))
 
 (defn require-logged-in
+  "Tries to extract userId from headers/authorization, and adds it as user/id into session-data.
+  If fails, it executes 'or-else' parameter function. By default it inserts a new guest user"
   ([]
    (require-logged-in guest))
   ([or-else]
@@ -48,6 +49,9 @@
                (or-else state)))}))
 
 (def session-interceptor
+  ":enter Extracts session-id from headers. Tries to get last session with the same id from session backend
+  :leave Stores actual session in session backend
+  TODO session Time To Leave"
   {:enter (fn [{request :request :as state}]
             (let [sessions-backend (-> state
                                        :deps
@@ -76,6 +80,10 @@
                 #(keywordize-keys ((par/wrap-params identity) %)))))})
 
 (defn db-access
+  "Runs HoneySQL query provided in (:query state)
+  Injects the result to (state [:response-data :db-data])
+  Optional parameter function: executed on :enter, if session interceptors creates new-session key in session data
+  for instance fetching user from db by it's id"
   ([]
    {:leave (fn [{query :query
                  :as   state}]
@@ -92,18 +100,22 @@
                 (xiana/ok state))))))
 
 (def view
+  "Executes view function to create response"
   {:leave (fn [{view :view :as state}]
             (if view
               (view state)
               (xiana/ok state)))})
 
 (defn muuntaja
+  "Muuntaja interceptor wrapped into xiana monad"
   ([]
    (muuntaja m-int/muun-instance))
   ([instance]
    (wrap/interceptor instance)))
 
 (defn acl-restrict
+  ":enter checks access control
+  :leave place for tightening db query via provided owner-fn"
   ([]
    (acl-restrict {}))
   ([m]
@@ -118,6 +130,7 @@
                          state)))}))
 
 (def side-effect
+  "Place for business logic based on db-data, before rendering view"
   {:leave (fn [{f :side-effect :as state}]
             (if f
               (f state)

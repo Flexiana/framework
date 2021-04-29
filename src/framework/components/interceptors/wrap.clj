@@ -3,6 +3,7 @@
     [xiana.core :as xiana]))
 
 (defn interceptor
+  "Interceptor wrapper to use xiana monad"
   [in]
   (cond-> {}
     (:enter in) (assoc :enter (fn [state] (xiana/ok ((:enter in) state))))
@@ -10,6 +11,7 @@
     (:error in) (assoc :error (fn [state] (xiana/error ((:error in) state))))))
 
 (defn middleware->enter
+  "add middleware as :enter of interceptor"
   ([middleware]
    (middleware->enter {} middleware))
   ([interceptor middleware]
@@ -17,6 +19,7 @@
                                (xiana/ok (assoc state :request ((middleware identity) req)))))))
 
 (defn middleware->leave
+  "add middleware as :leave of interceptor"
   ([middleware]
    (middleware->leave {} middleware))
   ([interceptor middleware]
