@@ -24,6 +24,6 @@
                                    :pbkdf2-settings {:type       :sha1 ;; Available values: :sha1 and :sha256
                                                      :iterations 100000}}
  :acl/permissions                 {"users"      [:read :create :update :delete]}
- :acl/roles                       {:admin       [{:resource :all
+ :acl/roles                       {:guest       [{:resource :all
                                                   :actions  [:all]
                                                   :over     :all}]}}
