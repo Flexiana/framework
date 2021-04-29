@@ -60,7 +60,6 @@
   {:db         (->postgresql config)
    :web-server (->web-server config app-config routes)})
 
-
 (defn docker-postgres
   [config]
   (let [container (-> (tc/create {:image-name    "postgres:11.5-alpine"
