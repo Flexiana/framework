@@ -11,10 +11,7 @@
     [framework.one-endpoint-functions :as f-map]
     [framework.test-interceptors :as ti]
     [next.jdbc :as jdbc]
-    [xiana.core :as xiana])
-  (:import
-    (com.opentable.db.postgres.embedded
-      EmbeddedPostgres)))
+    [xiana.core :as xiana]))
 
 (def routes
   [["/users" {:get {:action  f-map/get-user-controller
@@ -63,30 +60,11 @@
   {:db         (->postgresql config)
    :web-server (->web-server config app-config routes)})
 
-(defn embedded-postgres!
-  [config]
-  (let [pg (.start (EmbeddedPostgres/builder))
-        pg-port (.getPort pg)
-        nuke-sql (slurp "./Docker/init.sql")
-        init-sql (slurp "./test/resources/init.sql")
-        db-config (-> config
-                      :framework.db.storage/postgresql
-                      (assoc
-                        :port pg-port
-                        :embedded pg
-                        :subname (str "//localhost:" pg-port "/framework")))]
-    (jdbc/execute! (dissoc db-config :dbname) [nuke-sql])
-    (jdbc/execute! db-config [init-sql])
-    (assoc config :framework.db.storage/postgresql db-config)))
 
 (defn docker-postgres
   [config]
   (let [container (-> (tc/create {:image-name    "postgres:11.5-alpine"
                                   :exposed-ports [5432]})
-                      ;:env-vars      {"POSTGRES_PASSWORD" "verysecret"}})
-                      ;(tc/bind-filesystem! {:host-path      "/tmp"
-                      ;                      :container-path "/opt"
-                      ;                      :mode           :read-only})
                       (tc/start!))
         port (get (:mapped-ports container) 5432)
         nuke-sql (slurp "./Docker/init.sql")

@@ -19,7 +19,6 @@
                  [metosin/reitit "0.5.12"]
                  [funcool/cats "2.4.1"]
                  [com.draines/postal "2.0.4"]
-                 [com.opentable.components/otj-pg-embedded "0.7.1"]
                  [crypto-password "0.2.1"]
                  [garden "1.3.10"]
                  [hickory "0.7.1"]
