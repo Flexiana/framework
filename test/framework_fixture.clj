@@ -90,6 +90,7 @@
                       (tc/start!))
         port (get (:mapped-ports container) 5432)
         nuke-sql (slurp "./Docker/init.sql")
+        init-sql (slurp "./test/resources/init.sql")
         db-config (-> config
                       :framework.db.storage/postgresql
                       (assoc
@@ -97,6 +98,7 @@
                         :embedded container
                         :subname (str "//localhost:" port "/framework")))]
     (jdbc/execute! (dissoc db-config :dbname) [nuke-sql])
+    (jdbc/execute! db-config [init-sql])
     (assoc config :framework.db.storage/postgresql db-config)))
 
 (defonce st (atom {}))
