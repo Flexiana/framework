@@ -11,6 +11,7 @@
                  [org.postgresql/postgresql "42.2.2"]
                  [com.fzakaria/slf4j-timbre "0.3.21"]
                  [org.clojure/data.xml "0.0.8"]
+                 [clj-test-containers "0.4.0"]
                  [seancorfield/next.jdbc "1.1.613"]
                  [duct/server.http.jetty "0.2.1"]
                  [migratus "1.3.3"]

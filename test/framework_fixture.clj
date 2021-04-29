@@ -1,6 +1,7 @@
 (ns framework-fixture
   "Sample application to test the framework startup and functions"
   (:require
+    [clj-test-containers.core :as tc]
     [com.stuartsierra.component :as component]
     [framework.components.interceptors :as interceptors]
     [framework.components.session.backend :as session-backend]
@@ -78,12 +79,33 @@
     (jdbc/execute! db-config [init-sql])
     (assoc config :framework.db.storage/postgresql db-config)))
 
+(defn docker-postgres
+  [config]
+  (let [container (-> (tc/create {:image-name    "postgres:11.5-alpine"
+                                  :exposed-ports [5432]})
+                      ;:env-vars      {"POSTGRES_PASSWORD" "verysecret"}})
+                      ;(tc/bind-filesystem! {:host-path      "/tmp"
+                      ;                      :container-path "/opt"
+                      ;                      :mode           :read-only})
+                      (tc/start!))
+        port (get (:mapped-ports container) 5432)
+        nuke-sql (slurp "./Docker/init.sql")
+        db-config (-> config
+                      :framework.db.storage/postgresql
+                      (assoc
+                        :port port
+                        :embedded container
+                        :subname (str "//localhost:" port "/framework")))]
+    (jdbc/execute! (dissoc db-config :dbname) [nuke-sql])
+    (assoc config :framework.db.storage/postgresql db-config)))
+
 (defonce st (atom {}))
 
 (defn start
   [state]
   (reset! state (component/start (-> (config/edn)
-                                     embedded-postgres!
+                                     ;embedded-postgres!
+                                     docker-postgres
                                      (system app-config routes)
                                      component/map->SystemMap
                                      (component/system-using sys-deps)))))
