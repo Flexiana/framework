@@ -12,6 +12,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.head_ref }}
 
     - name: Setup Clojure
       uses: DeLaGuardo/setup-clojure@3.1
