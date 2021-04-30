@@ -30,8 +30,8 @@ jobs:
       run: lein cljstyle fix src test
 
     - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: |
+      with:
+        commit_message: |
             Format Clojure
             Feel free to force-push over me, I'll be back!
 
