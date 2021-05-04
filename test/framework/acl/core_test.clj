@@ -115,6 +115,10 @@
          (get-error (is-allowed (state-with-user-request guest "/items/" :post)))))
   (is (= :own
          (get-ok (is-allowed (state-with-user-request member "/addresses/" :post)))))
+  (is (= :own
+         (get-ok (is-allowed (state-with-user-request member "/users/" :put)))))
+  (is (= {:status 401, :body "Authorization error"}
+         (get-error (is-allowed (state-with-user-request member "/users/" :post)))))
   (is (= :all
          (get-ok (is-allowed (state-with-user-request admin "/items/" :get)))))
   (is (= :all
