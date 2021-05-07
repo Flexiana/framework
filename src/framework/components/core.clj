@@ -1,8 +1,8 @@
 (ns framework.components.core
   (:require
-    [com.stuartsierra.component :as component]
-    [config.core :refer [load-env]]
-    [framework.db.storage :as db.storage]))
+    [framework.config.core :as config]
+    [framework.db.storage :as db.storage]
+    [com.stuartsierra.component :as component]))
 
 (defn system
   [env]
@@ -12,6 +12,6 @@
 
 (defn -main
   [& _args]
-  (-> (load-env)
+  (-> (config/read-edn-file nil)
       system
       component/start))
