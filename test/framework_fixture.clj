@@ -42,7 +42,7 @@
   {:web-server [:db]})
 
 (def app-config
-  (let [config (config/edn)]
+  (let [config (config/read-edn-file nil)]
     {:acl-cfg                 (select-keys config [:acl/permissions :acl/roles])
      :auth                    (:framework.app/auth config)
      :session-backend         (session-backend/init-in-memory-session)
@@ -82,7 +82,7 @@
 
 (defn start
   [state]
-  (reset! state (component/start (-> (config/edn)
+  (reset! state (component/start (-> (config/read-edn-file nil)
                                      embedded-postgres!
                                      (system app-config routes)
                                      component/map->SystemMap
