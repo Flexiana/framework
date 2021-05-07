@@ -48,10 +48,22 @@
     [qry]))
 
 (defn execute
+  [source query]
+  (jdbc/execute! source (sql/format query) {:return-keys true}))
+
+(defn execute-single-query
   "Executes db query"
   [state query]
-  (jdbc/execute!
-    (get-in state [:deps :db :datasource]) query {:return-keys true}))
+  (-> state
+      :deps
+      :db
+      :datasource
+      (execute query)))
+
+(defn with-transaction [state f]
+  (jdbc/with-transaction
+    [trans (-> state :deps :db :datasource)]
+    (f trans)))
 
 (defn execute!
   [hsql config]

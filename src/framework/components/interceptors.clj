@@ -6,7 +6,6 @@
     [framework.components.interceptors.wrap :as wrap]
     [framework.components.session.backend :refer [fetch add!]]
     [framework.db.sql :as db]
-    [honeysql.core :as sql]
     [ring.middleware.params :as par]
     [xiana.core :as xiana])
   (:import
@@ -87,10 +86,26 @@
   ([]
    {:leave (fn [{query :query
                  :as   state}]
-             (if query
-               (xiana/ok (let [result (db/execute state (sql/format query))]
-                           (assoc-in state [:response-data :db-data] result)))
-               (xiana/ok state)))})
+             (cond
+               (nil? query) (xiana/ok state)
+               (map? query) (->> (db/execute-single-query state query)
+                                 (assoc-in state [:response-data :db-data])
+                                 xiana/ok)
+               (sequential? query) (let [[first-query & rest-queries] query]
+                                     (db/with-transaction
+                                       state
+                                       (fn [trans]
+                                         (->> rest-queries
+                                              (reduce
+                                                (fn [acc q]
+                                                  (db/execute
+                                                    trans
+                                                    (if (fn? q)
+                                                      (q acc)
+                                                      q)))
+                                                (db/execute trans first-query))
+                                              (assoc-in state [:response-data :db-data])
+                                              xiana/ok))))))})
   ([on-new-session]
    (assoc (db-access)
      :enter (fn [{{new-session :new-session} :session-data
