@@ -3,9 +3,14 @@
    [clojure.edn :as edn]
    [clojure.java.io :as io]))
 
-;; default edn file
+;; set configuration environment variable name
+(def env-variable "FRAMEWORK_EDN_CONFIG")
+
+;; set default edn file
 (def default-edn-file
-  (.getAbsolutePath (java.io.File. "config/dev/config.edn")))
+  (let [edn-file (System/getenv env-variable)]
+    (and edn-file
+         (.getAbsolutePath (java.io.File. edn-file)))))
 
 ;; default config map: util wrapper/translator
 (def default-config-map
@@ -19,8 +24,10 @@
 (defn read-edn-file
   "Read edn configuration file."
   [edn-file]
-  (with-open [r (io/reader (or edn-file default-edn-file))]
-    (edn/read (java.io.PushbackReader. r))))
+  (let [edn-file (or edn-file default-edn-file)]
+    (and edn-file
+      (with-open [r (io/reader edn-file)]
+        (edn/read (java.io.PushbackReader. r))))))
 
 (defn get-spec
   "Select configuration spec using 'k' identifier."
