@@ -10,7 +10,7 @@
   ;; delete an element (side effect)
   (delete! [_ k])
   ;; erase all elements (side effect)
-  (erase [_]))
+  (erase! [_]))
 
 (defn init-in-memory
   "Initialize session in memory."
@@ -27,4 +27,4 @@
      ;; delete session key:element
      (delete! [_ k] (swap! m dissoc k))
      ;; erase session
-     (erase [_] @m))))
+     (erase! [_] (reset! m {})))))
