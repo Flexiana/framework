@@ -15,14 +15,7 @@ TODO: Seçkin, After everything is done. Fill this header. May be, with a script
 
 # About
 
-Frankie is the best parts of several services. Services like;
-- Odoo,
-- Notion,
-- OneSign?.
-
-# Xiana
-
-A Framework for welcomes newcomers to the Clojure/script world.
+A Framework that welcomes newcomers to the Clojure/script world.
 
 ## What
 
@@ -34,7 +27,7 @@ For newcomers to Clojure/script from various backgrounds; Ruby on Rails, Django,
 
 ## When
 
-For small-to-mid size, monolitic Web Applications.
+While developing small-to-mid size, monolitic Web Applications.
 
 # Rationale
 
@@ -74,9 +67,43 @@ For small-to-mid size, monolitic Web Applications.
               - `router-> ` runs routers with http-request and expects Action+Params or ` Nothing`
                 - First router, that returns Action+Params, will route and the rest is not evaluated.
 
+# Constituent
+
+## Database
+
+## Forms
+
+## Validation
+
+## Auth
+
+### ACL?
+
+Krisztian did it, ask him about the current situation?
+
+## Internationalization and Localization (I18n & L10n)
+
+## Caching
+
+## Logging
+
+## Error Handling?
+
+## API
+
+## Security
+
+## Component Generator?
+
+Panagiotis developed some kind of middleware for component generation. Ask him about the current situation?
+
 # Background
 
 Not confused yet? Explain things we already know!
+
+## MVC
+
+For who do not know what MVC is?
 
 ## Idiomatic Clojure/script
 
@@ -146,10 +173,6 @@ TODO: Seçkin, create a bug reporting template!
 ## Vulnerability Report
 
 TODO: Seçkin, list the team members that responsible to track and hunt the vulnerabilities...
-
-# Constituent
-
-TODO: Seçkin, the components come here...
 
 # Pre-Requirements
 
