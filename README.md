@@ -1,8 +1,8 @@
-<p align="center"><a href="https://github.com/Flexiana/Frankie" target="_blank"><span style="font-size: 250%;">Frankie</span></a></p>
+<p align="center"><a href="https://github.com/Flexiana/framework" target="_blank"><span style="font-size: 250%;">Xiana</span></a></p>
 <p align="center">
 <a href="https://github.com/Flexiana/framework/actions/workflows/test.yml"><img src="https://github.com/Flexiana/framework/actions/workflows/test.yml/badge.svg"></a>
-<a href="https://github.com/Flexiana/Frankie"><img src="https://img.shields.io/badge/downloads-Coming%20Soon-yellow" alt="Total Downloads"></a>
-<a href="https://github.com/Flexiana/Frankie"><img src="https://img.shields.io/badge/license-FIXME-green" alt="License"></a>
+<a href="https://github.com/Flexiana/framework"><img src="https://img.shields.io/badge/downloads-Coming%20Soon-yellow" alt="Total Downloads"></a>
+<a href="https://github.com/Flexiana/framework"><img src="https://img.shields.io/badge/license-FIXME-green" alt="License"></a>
 </p>
 
 <p align="center">
