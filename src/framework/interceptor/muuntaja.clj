@@ -1,15 +1,16 @@
-(ns framework.components.interceptors.muuntaja
-  "Prepare default munntaja instance"
+(ns framework.interceptor.muuntaja
+  "Prepare default munntaja instance."
   (:require
-    [clojure.data.xml :as xml]
     [clojure.string]
+    [clojure.data.xml :as xml]
     [muuntaja.core]
     [muuntaja.format.core]
-    [muuntaja.format.json :as json-format]
-    [muuntaja.interceptor]))
+    [muuntaja.interceptor]
+    [muuntaja.format.json :as json-format]))
 
 (defn xml-encoder
-  [_options]
+  "XML encoder."
+  [_]
   (let [helper #(xml/emit-str
                   (mapv (fn make-node
                           [[f s]]
@@ -22,14 +23,18 @@
       (encode-to-bytes [_ data charset]
         (.getBytes ^String (helper data) ^String charset)))))
 
-(def minun-muuntajani
+;; muuntaja instance
+(defonce instance
   (muuntaja.core/create
     (-> muuntaja.core/default-options
         (assoc-in [:formats "application/upper-json"]
           {:decoder [json-format/decoder]
-           :encoder [json-format/encoder {:encode-key-fn (comp clojure.string/upper-case name)}]})
+           :encoder [json-format/encoder
+                     {:encode-key-fn (comp clojure.string/upper-case name)}]})
         (assoc-in [:formats "application/xml"] {:encoder [xml-encoder]})
         (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)
         (assoc-in [:formats "application/json" :encoder-opts :date-format] "yyyy-MM-dd"))))
 
-(def muun-instance (muuntaja.interceptor/format-interceptor minun-muuntajani))
+;; muuntaja default format interceptor
+(defonce interceptor
+  (muuntaja.interceptor/format-interceptor instance))
