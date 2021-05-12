@@ -29,21 +29,21 @@ For newcomers to Clojure/script from various backgrounds; Ruby on Rails, Django,
 
 While developing small-to-mid size, monolitic Web Applications.
 
-# Rationale
+## Rationale
 
 - Idiomatic Clojure & ClojureScript where possible.
-- Easy to develop monolithic applications (both client & server rendered)
+- Easy to develop monolithic applications. (both client & server rendered)
 - Easy to use & integrated experience of various parts including:
-  - Database
-    - SQL-first approach
-    - Database migrations
-  - Forms
-    - including database-based
-  - Validation
-    - including Form-based
-  - Auth
-    - Authentication - sign in, sign out, password reset, sessions
-    - Authorization - ACL, user roles, administration
+  - Database:
+    - SQL-first approach.
+    - Database migrations.
+  - Forms:
+    - including database-based.
+  - Validation:
+    - including Form-based.
+  - Auth:
+    - Authentication; sign in, sign out, password reset, sessions.
+    - Authorization; ACL, user roles, administration.
   - I18n & L10n
     - Integrated into forms, validations, templates
     - Maybe use some existing locale files to support formattting, etc.
@@ -113,7 +113,11 @@ Are there any source on this?
 
 ### Monads
 
-cats?
+We are using [`Cats`](https://funcool.github.io/cats/latest/), a library of Algebraic Abstractions.
+
+#### Either Monad
+
+[Either monad](https://funcool.github.io/cats/latest/#either), genrally known as [`Disjoint Union`](https://en.wikipedia.org/wiki/Tagged_union).
 
 # Knowledge Pool
 
@@ -202,3 +206,4 @@ TODO: Seçkin, redirect the license badge to here!
 - [CodeIgniter](https://github.com/bcit-ci/CodeIgniter)
 - [CakePHP](https://github.com/cakephp/cakephp)
 - [ASP.NET Core](https://github.com/dotnet/aspnetcore)
+- [Cats](https://github.com/funcool/cats)
