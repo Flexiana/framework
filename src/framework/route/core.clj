@@ -6,12 +6,12 @@
    [framework.route.util :as util]))
 
 ;; routes reference
-(defonce routes (atom []))
+(defonce -routes (atom []))
 
 (defn reset
   "Update routes."
   [routes]
-  (reset! routes routes))
+  (reset! -routes routes))
 
 (defn- -get-action
   "Fetch action from the match template map."
@@ -53,6 +53,6 @@
   Return the wrapped state container."
   [{request :request :as state}]
   ;; bind router match: nil means that is no
-  (let [match (r/match-by-path (r/router @routes) (:uri request))]
+  (let [match (r/match-by-path (r/router @-routes) (:uri request))]
     ;; update state
     (-update match state)))
