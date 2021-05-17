@@ -52,10 +52,9 @@
   (let [{:keys [map rows]} args]
     (helpers/with-columns map rows)))
 
-;; TODO: research!
+;; Question: this functions is used or will be?
 (defn fmt-create-table-stmt
-  "This function should not exist.
-  Research why jdbc cant process create statements with ?."
+  "This function should not exist."
   [sql-map]
   (let [sql-vec (sql/format sql-map)
         query (reduce (fn [s input]
@@ -63,19 +62,40 @@
                       sql-vec)]
     [query]))
 
+(defn ->sql-params
+  "Parse sql-map using honeysql format function with pre-defined
+  options that target postgresql."
+  [sql-map]
+  (sql/format sql-map
+              {:quoting            :ansi
+               :parameterizer      :postgresql
+               :return-param-names false}))
+
+;; Question: What's the benefits to used the sql-map format?
+;; {:select [:*] :from [:users]}
 (defn execute
-  "Get connection and passes the sql-params to `jdbc/execute!`."
-  [sql-params]
+  "Get connection, parse the given sql-map (query) and
+  execute it using `jdbc/execute!`.
+  If some error/exceptions occurs returns an empty map."
+  [sql-map]
   (with-open [connection (db/connection)]
-    (jdbc/execute! connection
-                   sql-params
-                   {:return-keys true})))
+    (let [sql-params (->sql-params sql-map)]
+      (try
+        ;; execute the formatted sql query
+        (jdbc/execute! connection sql-params {:return-keys true})
+        ;; return empty map if any exception occurs (research)
+        (catch Exception _ {})))))
 
 (defn execute!
-  "Get connection and parse the sql-params to `jdbc/execute!`."
-  [sql-params]
+  "Get connection and execute query using `jdbc/execute!`.
+  If some error/exceptions occurs returns an empty map."
+  [sql-vec]
   (with-open [connection (db/connection)]
-    (jdbc/execute! connection sql-params)))
+    (try
+      ;; execute the formatted sql query vector
+      (jdbc/execute! connection sql-vec)
+      ;; return empty map if any exception occurs
+      (catch Exception _ {}))))
 
 (defn create-table
   "Create table specified by its name on the database."
