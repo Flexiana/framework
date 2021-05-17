@@ -52,16 +52,6 @@
   (let [{:keys [map rows]} args]
     (helpers/with-columns map rows)))
 
-;; Question: this functions is used or will be?
-(defn fmt-create-table-stmt
-  "This function should not exist."
-  [sql-map]
-  (let [sql-vec (sql/format sql-map)
-        query (reduce (fn [s input]
-                        (string/replace-first s #"\?" (str input)))
-                      sql-vec)]
-    [query]))
-
 (defn ->sql-params
   "Parse sql-map using honeysql format function with pre-defined
   options that target postgresql."
