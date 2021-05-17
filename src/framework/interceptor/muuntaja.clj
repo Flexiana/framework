@@ -1,40 +1,42 @@
 (ns framework.interceptor.muuntaja
-  "Prepare default munntaja instance."
+  "Muuntaja interceptor encoder/decode.."
   (:require
-    [clojure.string]
-    [clojure.data.xml :as xml]
-    [muuntaja.core]
-    [muuntaja.format.core]
-    [muuntaja.interceptor]
-    [muuntaja.format.json :as json-format]))
+   [clojure.string]
+   [clojure.data.xml :as xml]
+   [muuntaja.core]
+   [muuntaja.format.core]
+   [muuntaja.interceptor]
+   [muuntaja.format.json :as json]))
 
 (defn xml-encoder
   "XML encoder."
   [_]
-  (let [helper #(xml/emit-str
-                  (mapv (fn make-node
-                          [[f s]]
-                          (if (map? s)
-                            (xml/element f {} (map make-node (seq s)))
-                            (xml/element f {} s)))
-                    (seq %)))]
+  (let [helper-fn
+        #(xml/emit-str
+          (mapv
+           (fn make-node [[f s]]
+             (xml/element f {} (if (map? s) (map make-node (seq s)) s)))
+           (seq %)))]
+    ;; implement EncodeToBytes protocol
     (reify
       muuntaja.format.core/EncodeToBytes
       (encode-to-bytes [_ data charset]
-        (.getBytes ^String (helper data) ^String charset)))))
+        (.getBytes ^String (helper-fn data) ^String charset)))))
 
-;; muuntaja instance
-(defonce instance
+(def instance
+  "Define muuntaja's default encoder/decoder instance."
   (muuntaja.core/create
-    (-> muuntaja.core/default-options
-        (assoc-in [:formats "application/upper-json"]
-          {:decoder [json-format/decoder]
-           :encoder [json-format/encoder
-                     {:encode-key-fn (comp clojure.string/upper-case name)}]})
-        (assoc-in [:formats "application/xml"] {:encoder [xml-encoder]})
-        (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)
-        (assoc-in [:formats "application/json" :encoder-opts :date-format] "yyyy-MM-dd"))))
+   (-> muuntaja.core/default-options
+       (assoc-in [:formats "application/upper-json"]
+                 {:decoder [json/decoder]
+                  :encoder [json/encoder
+                            {:encode-key-fn
+                             (comp clojure.string/upper-case name)}]})
+       (assoc-in [:formats "application/xml"] {:encoder [xml-encoder]})
+       (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)
+       (assoc-in [:formats "application/json" :encoder-opts :date-format]
+                 "yyyy-MM-dd"))))
 
-;; muuntaja default format interceptor
-(defonce interceptor
+(def interceptor
+  "Define muuntaja's default interceptor."
   (muuntaja.interceptor/format-interceptor instance))
