@@ -13,7 +13,7 @@
   (let [user-id (UUID/randomUUID)]
     ;; add user id
     (session/add! session-instance :user-id {:id user-id})
-    ;; verify if user ids are eqaul
+    ;; verify if user ids are equal
     (is (= {:id user-id}
            (session/fetch session-instance :user-id)))))
 

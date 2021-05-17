@@ -28,7 +28,7 @@
 (deftest contains-sample-routes
   ;; set sample routes
   (route/reset sample-routes)
-  ;; test if sample routes was correctly registered
+  ;; test if sample routes was registered correctly
   (is (= sample-routes @route/-routes)))
 
 ;; test route match update request-data (state) functionality
@@ -41,7 +41,8 @@
                   (xiana/extract))
         ;; expected request data
         expected  {:method :get :action :action}]
-    ;; compare if updated request-data is equal to the expected value
+    ;; verify if updated request-data
+    ;; is equal to the expected value
     (is (= (:request-data state) expected))))
 
 ;; test if the updated request-data (state) data handles the
@@ -54,9 +55,9 @@
                    (xiana/extract)
                    (:request-data)
                    (:action))
-        ;; expected request data
+        ;; expected action
         expected util/not-found]
-    ;; compare if updated request-data is equal to the expected value
+    ;; verify if action has the expected value
     (is (= action expected))))
 
 ;; test if the updated request-data contains the right action
@@ -69,9 +70,9 @@
                    (xiana/extract)
                    (:request-data)
                    (:action))
-        ;; expected request data
+        ;; expected action
         expected util/action]
-    ;; compare action has the expected value
+    ;; verify if action has the expected value
     (is (= action expected))))
 
 ;; test if the route/match flow handles a route without a handler or action
@@ -84,8 +85,7 @@
                    (xiana/extract)
                    (:request-data)
                    (:action))
-        ;; expected request data
+        ;; expected action? TODO: research
         expected util/not-found]
-    ;; compare action is equal to the expected
+    ;; verify if action has the expected value
     (is (= action expected))))
-
