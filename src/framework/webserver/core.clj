@@ -10,9 +10,9 @@
    (org.eclipse.jetty.server Server)))
 
 ;; web server reference
-(defonce webserver (atom {}))
+(defonce -webserver (atom {}))
 
-(defn- handler-fn
+(defn handler-fn
   "Return jetty server handler function."
   [interceptors]
   (fn [http-request]
@@ -39,8 +39,8 @@
   "Stop web server."
   []
   ;; stop the server if necessary
-  (when (not (empty? @webserver))
-    (.stop (get @webserver :server))))
+  (when (not (empty? @-webserver))
+    (.stop (get @-webserver :server))))
 
 (defn start
   "Start web server."
@@ -51,6 +51,6 @@
   (when-let [options (config/get-spec :webserver)]
     ;; tries to initialize the web-server if we have the
     ;; server specification (its options)
-    (swap! webserver
+    (swap! -webserver
            (fn [m]
              (merge m (make options interceptors))))))
