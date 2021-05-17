@@ -12,31 +12,32 @@
 (defn- -execute
   "Execute interceptors functions (the enter/leave procedures)
   passing the state as its arguments."
-  ([state action] (-execute state [] action))
-  ([state interceptors action]
-   ;; finish the interceptors enter stack? if so, call the action
-   (if (empty? interceptors)
-     (action state)
-     ;; otherwise fetch the enter-fn, leave-fn from the top interceptor
-     (let [{:keys [enter leave error]} (first interceptors)]
-       ;; wrap the interceptor stack execution to our flow (monad/either)
-       (try
-         (xiana/flow-> state
-                       ;; execute enter interceptor function
-                       (-execute-fn enter)
-                       ;; recursive call, implicit: execute all enter-fn first
-                       (-execute (rest interceptors) action)
-                       ;; execute leave interceptors function
-                       (-execute-fn leave))
-         ;; otherwise return the state container with the response
-         ;; wrapped (failure: /monad/either/left)
-         (catch Exception e
-           ;; if we have a error function defined call it
-           (if error
-             (error state)
-             ;; otherwise return the monad/either/right state container
-             (xiana/error
-              (assoc state :response {:status 500 :body e})))))))))
+  [state interceptors action]
+  ;; finish the interceptors enter stack? if so, call the action
+  (if (empty? interceptors)
+    (action state)
+    ;; otherwise fetch the enter-fn, leave-fn from the top interceptor
+    (let [{:keys [enter leave error]} (first interceptors)]
+      ;; wrap the interceptor stack execution to our flow (monad/either)
+      (try
+        (xiana/flow-> state
+                      ;; execute enter interceptor function
+                      (-execute-fn enter)
+                      ;; recursive call, implicit: execute all enter-fn first
+                      (-execute (rest interceptors) action)
+                      ;; execute leave interceptors function
+                      (-execute-fn leave))
+        ;; otherwise return the state container with the response
+        ;; wrapped (failure: /monad/either/left)
+        (catch Exception e
+          ;; if we have a error function defined call it
+          (if error
+            (error state)
+            ;; otherwise return the monad/either/right state container
+            (xiana/error
+             (assoc state
+                    :response
+                    {:status 500 :body (Throwable->map e)}))))))))
 
 (defn- -concat
   "Concatenate routes interceptors with the defaults ones,
