@@ -13,31 +13,19 @@
   [routes]
   (reset! -routes routes))
 
-(defn- -get-action
-  "Fetch action from the match template map."
-  [match method]
-  (or (-> match :data :action)
-      (-> match :data method :action)))
-
-(defn -get-interceptors
-  "Fetch interceptors from the match, route or controllers ones."
-  [match method]
-  (or (-> match :data :interceptors)
-      (-> match :data method :interceptors)))
-
-(defn- -get-handler
-  "Get handler from the match template map."
-  [match method]
-  (or (-> match :data :handler)
-      (-> match :result method :handler)))
+(defmacro -get-in-template
+  "Simple macro to get the values from the match template."
+  [t m k p]
+  `(or (-> ~t :data ~p)
+       (-> ~t ~k ~m ~p)))
 
 (defn- -update
   "Update state with router match template data."
   [match {request :request :as state}]
   (let [method (:request-method request)
-        handler (-get-handler match method)
-        action  (-get-action match method)
-        interceptors (-get-interceptors match method)]
+        handler (-get-in-template match method :result :handler)
+        action  (-get-in-template match method :data :action)
+        interceptors (-get-in-template match method :data :interceptors)]
     ;; associate the necessary route match information
     (xiana/ok
      (-> state
