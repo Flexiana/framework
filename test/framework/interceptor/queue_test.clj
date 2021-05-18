@@ -131,8 +131,9 @@
         error (-> state
                   (queue/execute [])
                   (xiana/extract)
-                  (:error))
-        expected "Error"]
+                  (:response)
+                  (:status))
+        expected 500]
     ;; verify if error is equal to the expected
     (is (= error expected))))
 
