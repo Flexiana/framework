@@ -1,30 +1,29 @@
 (ns framework.interceptor.core
   (:require
+   [clojure.walk :refer [keywordize-keys]]
    [xiana.core :as xiana]
    [honeysql.core :as sql]
+   [ring.middleware.params :as middleware.params]
    [framework.acl.core :as acl]
    [framework.db.sql :as db.sql]
    [framework.session.core :as session]
    [framework.interceptor.wrap :as wrap]
-   [clojure.walk :refer [keywordize-keys]]
-   [framework.interceptor.muuntaja :as muuntaja]
-   [ring.middleware.params :as middleware.params])
+   [framework.interceptor.muuntaja :as muuntaja])
   (:import
    (java.util UUID)))
 
 (def log
   "Log interceptor.
-  Enter: Lambda function that prints the role state to stdout/stderr.
-  Leave: Lambda function that prints the role state to stdout/stderr."
+  Enter: Print 'Enter:' followed by the complete state map.
+  Leave: Print 'Leave:' followed by the complete state map."
   {:enter (fn [state] (println "Enter: " state) (xiana/ok state))
    :leave (fn [state] (println "Leave: " state) (xiana/ok state))})
 
 (def side-effect
   "Side-effect interceptor.
   Enter: nil.
-  Leave: Lambda function that fetches and executes the state registered
-  side-effect procedure, if none is found executes the default one:
-  xiana/ok."
+  Leave: Fetch and execute the state registered
+  side-effect procedure, if none was found execute: `xiana/ok`."
   {:leave
    (fn [{side-effect :side-effect :as state}]
      (let [f (or side-effect xiana/ok)]
@@ -33,8 +32,8 @@
 (def view
   "View interceptor.
   Enter: nil.
-  Leave: Lambda function that fetches and executes the state view registered
-  procedure, if none is found executes the default one: xiana/ok."
+  Leave: Fetch and execute the state view registered
+  procedure, if none was found execute: `xiana/ok`."
   {:leave
    (fn [{view :view :as state}]
      (let [f (or view xiana/ok)]
@@ -49,8 +48,7 @@
   :form-params  - a map of parameters from the body
   :params       - a merged map of all types of parameter
 
-  Enter: Lambda function that defines get parameters function
-  and apply it to the state request.
+  Enter: TODO.
   Leave: nil."
   {:enter (fn [state]
             (let [f #(keywordize-keys
@@ -61,9 +59,10 @@
 (def db-access
   "Database access interceptor.
   Enter: nil.
-  Leave: Lambda function that tries to fetch and database execute a given query,
-  if successes associate its results into state response-data.
-  Remember query must be a sql-map, e.g: {:select [:*] :from [:users]}."
+  Leave: Fetch and execute a given query using the chosen database
+  driver, if succeeds associate its results into state response data.
+  Remember the entry query must be a sql-map, e.g:
+  {:select [:*] :from [:users]}."
   {:leave
    (fn [{query :query :as state}]
      (xiana/ok
@@ -77,20 +76,20 @@
 
 (defn message
   "This interceptor creates a function that prints predefined message.
-  Enter: Lambda function that prints an arbitrary message.
-  Leave: Lambda function that prints an arbitrary message."
+  Enter: Print an arbitrary message.
+  Leave: Print an arbitrary message."
   [msg]
   {:enter (fn [state] (println msg) (xiana/ok state))
    :leave (fn [state] (println msg) (xiana/ok state))})
 
 (defn session-user-id
   "This interceptor handles the session user id management.
-  Enter: Lambda function tries to get the session-id from the request header, if
+  Enter: Get the session id from the request header, if
   that operation doesn't succeeds a new session is created an associated to the
   current state, otherwise the cached session data is used.
-  Leave: Lambda function verifies if the state has a session id, if so add it to
+  Leave: Verify if the state has a session id, if so add it to
   the session instance and remove the new session property of the current state.
-  After all that associate the session id to the response header."
+  The final step is the association of the session id to the response header."
   ([] (session-user-id (session/init-in-memory)))
   ([session-instance]
    {:enter
@@ -123,21 +122,17 @@
                    [:response :headers :session-id]
                    (str session-id)))))}))
 
-;; auxiliary function
 (defn -user-role
   "Update the user role."
   [state role]
   (assoc-in state [:session-data :user] {:role role}))
 
-;; TODO: research: maybe move this interceptor to the session module?
-;; discusses its behaviour with the team and define
-;; better name for this interceptors.
 (defn session-user-role
   "This interceptor updates session data user role:authorization
   from the given request header.
-  Enter: Lambda function tries to fetch the authorization from its request/state
-  if succeeds update the current state with that information, also update
-  the user role (default :guest).
+  Enter: Fetch the authorization from its request/state
+  if succeeds update the current state with that information,
+  also update the user role with a custom value or the default :guest.
   Leave: nil."
   ([]
    (session-user-role -user-role :guest))
