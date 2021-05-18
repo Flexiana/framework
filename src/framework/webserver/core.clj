@@ -16,18 +16,14 @@
   "Return jetty server handler function."
   [interceptors]
   (fn [http-request]
-    (->
-     (xiana/flow->
-      ;; make the initial context
-      (state/make http-request)
-      ;; update context with the route match template
-      (route/match)
-      ;; execute the interceptors queue
-      (interceptor.queue/execute interceptors))
-     ;; unwrap/extract the context container
-     (xiana/extract)
-     ;; get the response
-     (get :response))))
+    (let [state (state/make http-request)
+          queue (list #(route/match %)
+                      #(interceptor.queue/execute % interceptors))]
+      (-> (xiana/apply-flow-> state queue)
+          ;; extract
+          (xiana/extract)
+          ;; get the response
+          (get :response)))))
 
 (defn- make
   "Web server instance."
