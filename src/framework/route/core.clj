@@ -3,7 +3,7 @@
    [reitit.core :as r]
    [xiana.core :as xiana]
    [xiana.commons :refer [?assoc-in]]
-   [framework.route.util :as util]))
+   [framework.route.helpers :as helpers]))
 
 ;; routes reference
 (defonce -routes (atom []))
@@ -38,21 +38,21 @@
         handler (-get-handler match method)
         action  (-get-action match method)
         interceptors (-get-interceptors match method)]
+    ;; associate the necessary route match information
     (xiana/ok
      (-> state
          (?assoc-in [:request-data :method] method)
          (?assoc-in [:request-data :handler] handler)
          (?assoc-in [:request-data :interceptors] interceptors)
          (assoc-in [:request-data :action]
-                   (if action action (if handler
-                                       util/action
-                                       util/not-found)))))))
+                   (or action
+                       (if handler
+                         helpers/action
+                         helpers/not-found)))))))
 
 (defn match
   "Associate router match template data into the state.
   Return the wrapped state container."
   [{request :request :as state}]
-  ;; bind router match: nil means that is no
   (let [match (r/match-by-path (r/router @-routes) (:uri request))]
-    ;; update state
     (-update match state)))

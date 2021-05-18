@@ -1,17 +1,16 @@
-(ns framework.route.util
+(ns framework.route.helpers
   (:require
    [xiana.core :as xiana]))
 
 (defn not-found
-  "Default not-found response handler."
+  "Default not-found response handler helper."
   [state]
   (xiana/error
    (-> state
        (assoc :response {:status 404 :body "Not Found"}))))
 
-;; TODO: research!
 (defn action
-  "Default action response handler."
+  "Default action response handler helper."
   [{request :request {handler :handler} :request-data :as state}]
   (try
     (xiana/ok

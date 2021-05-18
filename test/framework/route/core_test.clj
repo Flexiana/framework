@@ -2,9 +2,9 @@
   (:require
    [xiana.core :as xiana]
    [clojure.test :refer :all]
-   [framework.route.util :as util]
    [framework.state.core :as state]
-   [framework.route.core :as route]))
+   [framework.route.core :as route]
+   [framework.route.helpers :as helpers]))
 
 (def sample-request
   {:uri "/" :request-method :get})
@@ -56,7 +56,7 @@
                    (:request-data)
                    (:action))
         ;; expected action
-        expected util/not-found]
+        expected helpers/not-found]
     ;; verify if action has the expected value
     (is (= action expected))))
 
@@ -71,7 +71,7 @@
                    (:request-data)
                    (:action))
         ;; expected action
-        expected util/action]
+        expected helpers/action]
     ;; verify if action has the expected value
     (is (= action expected))))
 
@@ -86,6 +86,6 @@
                    (:request-data)
                    (:action))
         ;; expected action? TODO: research
-        expected util/not-found]
+        expected helpers/not-found]
     ;; verify if action has the expected value
     (is (= action expected))))
