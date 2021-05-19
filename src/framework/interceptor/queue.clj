@@ -42,7 +42,7 @@
   (let [interceptors (-concat
                       (get-in state [:request-data :interceptors])
                       default-interceptors)
-        action (get-in state [:request-data :action])]
+        action (vector (get-in state [:request-data :action]))]
     ;; execute the interceptors queue calling the action
     ;; between its enter/leave stacks
-    (-execute state interceptors [action])))
+    (-execute state interceptors action)))
