@@ -18,6 +18,6 @@
     (catch Exception e
       (xiana/error
        (-> state
-           (assoc :erorr e)
+           (assoc :error e)
            (assoc :response
                   {:status 500 :body "Internal Server error"}))))))
