@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # auto helper script
 
 # possible actions
-_ACTIONS="help,opts,docker,setup,tests,clean"
+_ACTIONS="help,opts,docker,setup,tests,all,clean"
 
 # colors
 _RED=""
@@ -46,6 +46,7 @@ usage ()
     docker                setup postgres docker instance
     setup                 execute defined sql scripts
     tests                 run the local tests
+    all                   execute docker, setup and tests: shortcut
     clean                 stop the docker instance
 
     OPTIONS:
@@ -255,6 +256,12 @@ _stops ()
     docker-compose -f ${_COMPOSE_FILE} stop
 }
 
+_all ()
+{
+    # execute setup cycle
+    _compose_up && _setup && _tests
+}
+
 # select an action and execute it associated function
 handle_action ()
 {
@@ -264,8 +271,10 @@ handle_action ()
         docker) _compose_up ;;
         # execute the initialization scripts
         setup) _setup ;;
-        # set the environment and call lein test to execute the tests
+        # set the environment and call lein test
         tests) _tests ;;
+        # run all
+        all) _all ;;
         # stops the docker instance
         clean) _stops ;;
         # action not found (probably will never reach this portion of the code)
