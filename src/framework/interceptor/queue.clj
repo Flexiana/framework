@@ -7,8 +7,7 @@
   "Execute interceptors functions (the enter/leave procedures)
   passing the state as its arguments."
   [state interceptors action]
-  (let [state (xiana/ok state)
-        enter (mapv :enter interceptors)
+  (let [enter (mapv :enter interceptors)
         leave (reverse (mapv :leave interceptors))
         queue (apply concat [enter action leave])]
     (try
