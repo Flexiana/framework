@@ -10,22 +10,26 @@
     (:leave in) (assoc :leave (fn [state] (xiana/ok ((:leave in) state))))
     (:error in) (assoc :error (fn [state] (xiana/error ((:error in) state))))))
 
+(defn- middleware-fn
+  "Simple enter/leave middleware function generator."
+  [m k]
+  (fn [{r k :as state}]
+    (xiana/ok (-> state (assoc k (m r))))))
+
 (defn middleware->enter
-  "Add middleware as the :enter function of interceptor."
+  "Parse middleware function to interceptor enter lambda function."
   ([middleware]
    (middleware->enter {} middleware))
   ([interceptor middleware]
-   (assoc interceptor :enter
-          (fn [{request :request :as state}]
-            (xiana/ok
-             (assoc state :request ((middleware identity) request)))))))
+   (let [m (middleware identity)
+         f (middleware-fn m :request)]
+     (-> interceptor (assoc :enter f)))))
 
 (defn middleware->leave
-  "Add middleware as the :leave function of interceptor."
+  "Parse middleware function to interceptor leave lambda function."
   ([middleware]
    (middleware->leave {} middleware))
   ([interceptor middleware]
-   (assoc interceptor :leave
-          (fn [{response :response :as state}]
-            (xiana/ok
-             (assoc state :response ((middleware identity) response)))))))
+   (let [m (middleware identity)
+         f (middleware-fn m :response)]
+     (-> interceptor (assoc :leave f)))))
