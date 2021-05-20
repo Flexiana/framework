@@ -80,15 +80,15 @@
     (is (= (:right result) sample-state))))
 
 (deftest contains-midleware-leave
-(let [leave (->
-             (wrap/middleware->leave middleware/wrap-format-request)
-             (:leave))]
-  (is (function? leave))))
+  (let [leave (->
+               (wrap/middleware->leave middleware/wrap-format-request)
+               (:leave))]
+    (is (function? leave))))
 
 (deftest contains-middleware-formated-response-body
-(is (= ByteArrayInputStream
-       (-> ((:leave middleware-interceptor) sample-state)
-           :right
-           :response
-           :body
-           type))))
+  (is (= ByteArrayInputStream
+         (-> ((:leave middleware-interceptor) sample-state)
+             :right
+             :response
+             :body
+             type))))
