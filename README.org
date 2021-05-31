@@ -1,0 +1,220 @@
+#+TITLE: README
+#+AUTHOR: lambdart
+#+EMAIL: lambdart@protonmail.com
+#+DESCRIPTION: Flexiana WebApp Framework
+#+KEYWORDS: clojure webapp framework
+#+LANGUAGE: en
+#+BABEL: :cache yes
+#+STARTUP: overview
+
+* Introduction
+
+  Xiana is a lightweight web-application framework written in Clojure LISP,
+  its goal is to be simple, a welcome platform for programmers from another
+  dynamic languages/frameworks.
+
+  It's easy to install, fun to experiment and a powerful tool to produce
+  reliable/fast code for the word wild web.
+
+* Dependencies
+** System
+*** Mandatory
+
+    | Name       | Version |
+    | clojure    |    1.10 |
+    | postgresql |    11.5 |
+
+*** Optional
+
+    | Name           |  Version |
+    | docker         | 19.03.11 |
+    | docker-compose |   1.21.0 |
+
+** Clojure
+*** Tools
+
+    | Name      | Version | Description     |
+    | leiningen |   2.9.0 | Project Manager |
+
+*** Libraries
+**** Mandatory
+
+     | Name                            | Version | Provides   |
+     | funcool/cats                    |   2.4.1 | Monad      |
+     | funcool/cuerdas                 | RELEASE | Monad      |
+     | com.draines/postal              |   2.0.4 | Email      |
+     | seancorfield/next.jdbc          | 1.1.613 | WebServer  |
+     | duct/server.http.jetty          |   0.2.1 | WebServer  |
+     | metosin/reitit                  |  0.5.12 | Routes     |
+     | honeysql/honeysql               | 1.0.444 | PostGreSQL |
+     | nilenso/honeysql-postgres       |   0.2.6 | PostGreSQL |
+     | org.postgresql/postgresql       |  42.2.2 | PostGreSQL |
+     | crypto-password/crypto-password |   0.2.1 | Security   |
+     | potemkin/potemkin               |   0.4.5 | Helper     |
+
+**** Optional
+
+     | Name                | Version | Provide |
+     | clj-kondo/clj-kondo | RELEASE | Tests   |
+
+* Development
+** Setup
+*** QuickStart
+
+    #+BEGIN_SRC sh
+    $ git clone git@github.com:Flexiana/framework.git; cd framework
+    $ ./script/auto.sh -y all
+    #+END_SRC
+
+    The first command will fetch the ~Flexiana/framework~ repository and
+    change the current working directory. After that ~auto.sh~
+    script is called and performs the following sequence of steps:
+
+    1. Download the necessary docker images (postgres)
+    2. Instantiate the database (postgres) docker container
+    3. Import the initial SQL schema: ~./docker/sql-scripts/init.sql~
+    4. Populate the new schema with 'fake' data from: ~./docker/sql-scripts/init.sql~
+    5. Call =lein test= that will download the necessary *Clojure*
+       dependencies and will execute all the unitary tests.
+
+    See ~./script/auto.sh help~ to see more advanced options/usage.
+
+    Remember it's necessary to have =docker/docker-compose= installed in your
+    host, docker daemon should be up and running already, otherwise this whole
+    chain of commands will fail.
+
+    It should also be noted that after the first installation everything is
+    cached preventing unnecessary rework, it's possible to run only the tests
+    if your development environment is already setup and running, increasing
+    the overall productivity.
+
+    #+BEGIN_SRC sh
+    ./script/auto.sh -y tests
+    #+END_SRC
+
+*** CLI
+
+    We define some aliases to make possible to use ~deps.edn~ directly
+    (recommend).
+
+*** Docker/Compose
+*** Leinigen
+
+    Using lein directly is very simple:
+
+    #+BEGIN_SRC sh
+    lein test
+    #+END_SRC
+
+    The available commands (aliases) are:
+
+    | Aliases | Command   | Description       |
+    | run     | lein run  |                   |
+    | test    | lein test | Execute the tests |
+    |         |           |                   |
+    |         |           |                   |
+
+** Hello World
+
+   Let's start with a simple ~hello-world~ example:
+
+   #+BEGIN_SRC clojure
+
+   (ns framework.app.example
+     (:require
+      ;; mandatory modules to build/run any web application
+      [xiana.core :as xiana]
+      [framework.route.core :as route]
+      [framework.webserver.core :as webserver]))
+
+   ;; application route definitions
+   (def app-routes
+     [["/" {:action
+            #(xiana/ok
+              (-> % (assoc :response
+                           {:status 200 :body "Hello Word!"})))}]])
+
+   (defn -main
+     "Application entry point."
+     []
+     ;; setup app routes
+     (route/reset app-routes)
+     ;; start app webserver
+     (webserver/start []))
+
+   #+END_SRC
+
+   The first line defines the application and the following =:require=
+   expression imports the necessary modules to build/run this simple web
+   application example.
+
+   - Xiana (Monads)
+   - State (Context)
+   - Routes
+   - Interceptors
+   - WebServer
+   - Postgresql (Database)
+
+** Flow
+* Framework
+** Concepts
+*** Monads
+
+    "Monad is a simple and powerful mechanism for function composition that
+    helps us to solve very common IT problems such as input/output, exception
+    handling, parsing, concurrency and other. Application becomes less error prone.
+    Code becomes reusable and more readable."
+
+    And we use it to do exactly that: to add *Failure*/*Success* metadata
+    to our internal wrapped *state*, our data flow unity.
+
+    Think of it as a ~container~ that is compose by ~metadata~ plus
+    actually data value (structure), and every function that returns
+    the *state* map needs to wrapper it first providing the right
+    binary direction *Success* or *Failure*.
+
+    This is done by the functions: ~xiana/ok~ and ~xiana/error~ respectively.
+
+    The container will travel through the application and dictates
+    how it will operates based on its binary direction values.
+
+*** State
+
+    A simple map that is created for each *HTTP* request map
+    and represents the current *state* of the application in a given
+    time, remember this structure is very volatile, i.e,
+    will be updated quite often on the life cycle of the request.
+
+    The main modules that updates the *state* are:
+
+    - Routes:
+      Add information from the match route to the *state* map,
+      for example: route's action handler function.
+
+    - Interceptors
+      Add, consumes or remove information from the *state* map,
+      more details on the *Interceptors* section.
+
+    In a nutshell the *state* is just a map to hold information in the
+    application data flow, when this flow ends the response will be
+    extract/returned and the rest of the data will be discarded,
+    and each new request creates a new clean *state*.
+
+    Probably you are under, why not just call it *context*?
+    Go figure :), jokes aside maybe is a good change for the future.
+
+*** Config
+*** Routes
+*** Interceptors
+*** Resources
+**** Webserver
+**** Database
+** Architecture
+* Contributions
+* LICENSE
+* References
+
+  1. http://funcool.github.io/cats/latest/
+  2. https://medium.com/@yuriigorbylov/monads-and-why-do-they-matter-9a285862e8b4
+
+* EOF
