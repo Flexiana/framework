@@ -156,6 +156,11 @@
    More details in the sections below.
 
 ** Flow
+
+     #+CAPTION: DATA FLOW OVERVIEW
+     #+NAME:   fig:DOC-FLOW-001
+     [[./resources/images/flow.png]]
+
 * Framework
 ** Modules
 *** Monads
@@ -271,7 +276,7 @@
 *** Resources
 **** Webserver
 
-     Responsible for start the =jetty= server and register the http request
+     Responsible for starting the =jetty= server and register http-request
      function handler.
 
      This function is just the 'entry point' that will apply route and
@@ -280,7 +285,8 @@
 
 **** Database
 
-     ;; TODO
+     Provides database interfaces and PostGres driver to execute/comin
+     our sql statements.
 
 ** Architecture
 *** File-Tree
