@@ -65,26 +65,26 @@
     $ ./script/auto.sh -y all
     #+END_SRC
 
-    The first command will fetch the ~Flexiana/framework~ repository and jump
+    The first command will clone the ~Flexiana/framework~ repository and jump
     to its directory. The second command calls ~auto.sh~ script to perform the
     following sequence of steps:
 
     1. Download the necessary docker images
     2. Instantiate the database container
     3. Import the initial SQL schema: ~./docker/sql-scripts/init.sql~
-    4. Populate the new schema with 'fake' data from: ~./docker/sql-scripts/init.sql~
+    4. Populate the new schema with 'fake' data from: ~./docker/sql-scripts/test.sql~
     5. Call =lein test= that will download the necessary *Clojure*
-       dependencies and will execute all the unitary tests.
+       dependencies and executes unitary tests.
 
     See ~./script/auto.sh help~ for more advanced options.
 
     Remember it's necessary to have =docker/docker-compose= installed in your
-    host machine. Docker daemon should be initialize a priori, otherwise this
-    whole chain of commands will fail.
+    host machine. Docker daemon should be initialized a priori, otherwise
+    the chain of commands fails.
 
     It should also be noted that after the first installation everything will
     be cached preventing unnecessary rework, it's possible to run only
-    the tests if your development environment is already up,
+    the tests, if your development environment is already up,
     increasing the overall productivity.
 
     #+BEGIN_SRC sh
@@ -117,7 +117,7 @@
 
    #+BEGIN_SRC clojure
 
-   (ns framework.app.example
+   (ns framework.app.hello-word
      (:require
       ;; mandatory modules to build/run any web application
       [xiana.core :as xiana]
@@ -142,10 +142,9 @@
    #+END_SRC
 
    The first line defines the application and the following =:require=
-   expression imports the necessary modules to build/run this simple
-   web application example.
+   expression imports the necessary modules to build/run it.
 
-   The most common web applications will use the following components:
+   Common web applications will use the following components:
 
    - Xiana (Monads)
    - State (Context)
@@ -158,7 +157,7 @@
 
 ** Flow
 * Framework
-** Concepts
+** Modules
 *** Monads
 
     "Monad is a simple and powerful mechanism for function composition that
@@ -188,7 +187,7 @@
     in a given time, remember this structure is very volatile, i.e,
     will be updated quite often on the application's life cycle.
 
-    The main modules that updates the *state*:
+    The main modules that updates the *state* are:
 
     - Routes:
       Add information from the match route to the *state* map,
@@ -199,10 +198,9 @@
       more details on the *Interceptors* section.
 
     In a nutshell the *state* is just a map that holds information in the
-    application data flow cycle, its final stage extracts the response value
-    from the container and the rest of the data remaining data
-    will be discarded, because each new request creates
-    a new clean *state* map.
+    application data flow cycle, the final step extracts the response value
+    from the container and the remaining data is discarded, because each new
+    request demands/creates a new clean *state* map.
 
     Probably you're under: why not just call it *context*? Go figure :),
     but putting jokes aside, this nomenclature will probably change in the
@@ -211,21 +209,21 @@
 *** Config
 
     The configuration module controls the resources options and its
-    specifications values, that will be fetched at run time by the
+    specifications values that will be fetched at run time by the
     resources modules - *server/database* - in their initialization
     processes, by adding this layer of abstraction we provide a simple,
     robust, and extensible mechanisms to manage our configuration
     data.
 
     So, we use the same and well know ~.edn~ file map that simplifies
-    everything, maintaining a certain degree of legibility.
+    everything maintaining a certain degree of legibility.
 
-    The default development configuration file can be found at:
+    The default development configuration file can be found at
     ~./config/dev/config.edn~.
 
-    NOTE: It's highly recommended to read the ~config.edn~ file and at least
-    understand the basic syntax and its implications (options/specs), specially
-    if you want to work on the core development of the framework.
+    It's highly recommended to read the ~config.edn~ file and at least
+    understand the basic syntax and its implications (options/specs),
+    specially if you want to work on the core development of the framework.
 
     The environment variable =FRAMEWORK_EDN_CONFIG= holds the file path
     definition and can be easily changed before the call of any auxiliary
@@ -235,14 +233,55 @@
     env FRAMEWORK_EDN_CONFIG=./config/prod/config.edn lein test
     #+END_SRC
 
-    That way it's very simple to extend the framework without concert to much
-    about where and how this data will be used.
-
 *** Routes
+
+    This modules provides the routes manager and is a interfaces to the
+    =reitit= routing match library.
+
+    The routes structure is defined and should use this module interfaces to
+    register it, it's also possible to update the routes at run time without
+    the necessity of restart orders resources.
+
+    #+BEGIN_SRC clojure
+    ;; define root route handler
+    (def app-root-handler
+      "App root route handler (index)."
+      [state]
+      (xiana/ok
+       (-> state (assoc :response
+                        {:status 200 :body "Hello Word!"}))))
+
+    ;; define application's routes
+    (def app-routes
+      [["/" {:action app-root-handler}]])
+
+    ;; register application's routes
+    (route/reset app-routes)
+    #+END_SRC
+
+    We use =reitit= amazing library to handle the route matching process,
+    and fetch the control/action handler function from its template map (the
+    resulting map produced by =route/match= function), don't worry if none
+    is found default functions values will be used to update the *state* map,
+    other important information for us are the specific route *interceptors*
+    that will be merged and executed following one of the defined strategies,
+    more on that latter...
+
 *** Interceptors
 *** Resources
 **** Webserver
+
+     Responsible for start the =jetty= server and register the http request
+     function handler.
+
+     This function is just the 'entry point' that will apply route and
+     interceptors function to the *state*, after everything is computed
+     the =:response= is extract and return to the client side.
+
 **** Database
+
+     ;; TODO
+
 ** Architecture
 *** File-Tree
 
