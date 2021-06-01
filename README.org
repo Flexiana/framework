@@ -20,15 +20,13 @@
 ** System
 *** Mandatory
 
-    | Name       | Version |
-    | clojure    |    1.10 |
-    | postgresql |    11.5 |
+    - Clojure 1.10
+    - Postgresql >= 11.5
 
 *** Optional
 
-    | Name           |  Version |
-    | docker         | 19.03.11 |
-    | docker-compose |   1.21.0 |
+    - Docker >= 19.03.11
+    - Docker-compose >= 1.21.0
 
 ** Clojure
 *** Tools
@@ -39,18 +37,18 @@
 *** Libraries
 **** Mandatory
 
-     | Name                            | Version | Provides   |
+     | Name                            | Version | Related    |
      | funcool/cats                    |   2.4.1 | Monad      |
      | funcool/cuerdas                 | RELEASE | Monad      |
-     | com.draines/postal              |   2.0.4 | Email      |
-     | seancorfield/next.jdbc          | 1.1.613 | WebServer  |
-     | duct/server.http.jetty          |   0.2.1 | WebServer  |
      | metosin/reitit                  |  0.5.12 | Routes     |
+     | potemkin/potemkin               |   0.4.5 | Helper     |
+     | com.draines/postal              |   2.0.4 | Email      |
+     | duct/server.http.jetty          |   0.2.1 | WebServer  |
+     | seancorfield/next.jdbc          | 1.1.613 | WebServer  |
      | honeysql/honeysql               | 1.0.444 | PostGreSQL |
      | nilenso/honeysql-postgres       |   0.2.6 | PostGreSQL |
      | org.postgresql/postgresql       |  42.2.2 | PostGreSQL |
      | crypto-password/crypto-password |   0.2.1 | Security   |
-     | potemkin/potemkin               |   0.4.5 | Helper     |
 
 **** Optional
 
@@ -67,11 +65,11 @@
     #+END_SRC
 
     The first command will fetch the ~Flexiana/framework~ repository and
-    change the current working directory. After that ~auto.sh~
-    script is called and performs the following sequence of steps:
+    change the current working directory. The second command calls ~auto.sh~
+    script to perform the following sequence of steps:
 
-    1. Download the necessary docker images (postgres)
-    2. Instantiate the database (postgres) docker container
+    1. Download the necessary docker images
+    2. Instantiate the database container
     3. Import the initial SQL schema: ~./docker/sql-scripts/init.sql~
     4. Populate the new schema with 'fake' data from: ~./docker/sql-scripts/init.sql~
     5. Call =lein test= that will download the necessary *Clojure*
@@ -80,13 +78,13 @@
     See ~./script/auto.sh help~ to see more advanced options/usage.
 
     Remember it's necessary to have =docker/docker-compose= installed in your
-    host, docker daemon should be up and running already, otherwise this whole
+    host and docker daemon should be initialize a priory, otherwise this whole
     chain of commands will fail.
 
-    It should also be noted that after the first installation everything is
-    cached preventing unnecessary rework, it's possible to run only the tests
-    if your development environment is already setup and running, increasing
-    the overall productivity.
+    It should also be noted that after the first installation everything will
+    be cached preventing unnecessary rework to happen, it's possible to run only
+    the tests if your development environment is already up,
+    increasing the overall productivity.
 
     #+BEGIN_SRC sh
     ./script/auto.sh -y tests
@@ -106,13 +104,11 @@
     lein test
     #+END_SRC
 
-    The available commands (aliases) are:
+    The available commands (aliases):
 
     | Aliases | Command   | Description       |
     | run     | lein run  |                   |
-    | test    | lein test | Execute the tests |
-    |         |           |                   |
-    |         |           |                   |
+    | test    | lein test | Invoke tests      |
 
 ** Hello World
 
@@ -145,14 +141,14 @@
    #+END_SRC
 
    The first line defines the application and the following =:require=
-   expression imports the necessary modules to build/run this simple web
-   application example.
+   expression imports the necessary modules to build/run this simple
+   web application example.
 
    - Xiana (Monads)
    - State (Context)
-   - Routes
-   - Interceptors
-   - WebServer
+   - Routes (URI)
+   - Interceptors (Helpers)
+   - WebServer (Http Request)
    - Postgresql (Database)
 
 ** Flow
@@ -168,24 +164,26 @@
     And we use it to do exactly that: to add *Failure*/*Success* metadata
     to our internal wrapped *state*, our data flow unity.
 
-    Think of it as a ~container~ that is compose by ~metadata~ plus
-    actually data value (structure), and every function that returns
+    Think of it as a ~container~ that's compose by ~metadata~ plus
+    its data value (structure), and every function that returns
     the *state* map needs to wrapper it first providing the right
     binary direction *Success* or *Failure*.
 
-    This is done by the functions: ~xiana/ok~ and ~xiana/error~ respectively.
+    This is done by the functions: ~xiana/ok~ and ~xiana/error~ respectively
+    defined in ~xiana/core.clj~.
 
     The container will travel through the application and dictates
-    how it will operates based on its binary direction values.
+    how it will operates based on its binary direction values and
+    the *state* map.
 
 *** State
 
-    A simple map that is created for each *HTTP* request map
-    and represents the current *state* of the application in a given
-    time, remember this structure is very volatile, i.e,
-    will be updated quite often on the life cycle of the request.
+    A simple map that is created for each *HTTP* request
+    and represents the current *state* of the application
+    in a given time, remember this structure is very volatile, i.e,
+    will be updated quite often on the application's life cycle.
 
-    The main modules that updates the *state* are:
+    The main modules that updates the *state*:
 
     - Routes:
       Add information from the match route to the *state* map,
@@ -195,26 +193,110 @@
       Add, consumes or remove information from the *state* map,
       more details on the *Interceptors* section.
 
-    In a nutshell the *state* is just a map to hold information in the
-    application data flow, when this flow ends the response will be
-    extract/returned and the rest of the data will be discarded,
-    and each new request creates a new clean *state*.
+    In a nutshell the *state* is just a map that holds information in the
+    application data flow cycle, its final stage extracts the response value
+    from the container and the rest of the data remaining data
+    will be discarded, because each new request creates
+    a new clean *state* map.
 
-    Probably you are under, why not just call it *context*?
-    Go figure :), jokes aside maybe is a good change for the future.
+    Probably you're under: why not just call it *context*? Go figure :),
+    but putting jokes aside, this nomenclature will probably change in the
+    near future.
 
 *** Config
+
+    The configuration module controls the resources options and its
+    specifications values, that will be fetched at run time by the
+    resources modules - *server/database* - in their initialization
+    processes, by adding this layer of abstraction we provide a simple,
+    robust, and extensible mechanisms to manager our configuration
+    data.
+
+    So we use the same well know ~.edn~ file map to simplify
+    everything maintaining a certain degree of legibility.
+
+    The default development configuration file can be found at:
+    ~./config/dev/config.edn~.
+
+    NOTE: It's highly recommended to read the ~config.edn~ file and at least
+    understand the basic syntax and its implications (options/specs), specially
+    if you want to work on the core development of the framework.
+
+    The environment variable =FRAMEWORK_EDN_CONFIG= holds the file path
+    definition and can be easily changed before the call of any auxiliary
+    command, e.g:
+
+    #+BEGIN_SRC sh
+    env FRAMEWORK_EDN_CONFIG=./config/prod/config.edn lein test
+    #+END_SRC
+
+    That way it's very simple to extend the framework without concert to much
+    about where and how this data will be used.
+
 *** Routes
 *** Interceptors
 *** Resources
 **** Webserver
 **** Database
 ** Architecture
+*** File-Tree
+
+    This is the current directory tree architecture, remember to update
+    this block after every significant update!
+
+    #+BEGIN_SRC
+    .
+    ├── framework
+    │   ├── app
+    │   │   ├── app.clj
+    │   │   ├── controllers
+    │   │   ├── core.clj
+    │   │   ├── helpers
+    │   │   ├── models
+    │   │   └── view
+    │   │       └── css
+    │   │           └── tailwind
+    │   │               ├── core.cljc
+    │   │               ├── deps.edn
+    │   │               ├── helpers.cljc
+    │   │               ├── preparers.cljc
+    │   │               └── resolvers.cljc
+    │   ├── auth
+    │   │   └── hash.clj
+    │   ├── config
+    │   │   └── core.clj
+    │   ├── db
+    │   │   ├── core.clj
+    │   │   ├── postgresql.clj
+    │   │   └── sql.clj
+    │   ├── interceptor
+    │   │   ├── core.clj
+    │   │   ├── helpers.clj
+    │   │   ├── muuntaja.clj
+    │   │   ├── queue.clj
+    │   │   └── wrap.clj
+    │   ├── mail
+    │   │   └── core.clj
+    │   ├── route
+    │   │   ├── core.clj
+    │   │   └── helpers.clj
+    │   ├── session
+    │   │   └── core.clj
+    │   ├── state
+    │   │   └── core.clj
+    │   └── webserver
+    │       └── core.clj
+    └── xiana
+        ├── commons.clj
+        └── core.clj
+    #+END_SRC
+
 * Contributions
 * LICENSE
 * References
 
-  1. http://funcool.github.io/cats/latest/
-  2. https://medium.com/@yuriigorbylov/monads-and-why-do-they-matter-9a285862e8b4
+  1. https://clojuredocs.org/clojure.edn/read
+  2. http://funcool.github.io/cats/latest/
+  3. https://medium.com/@yuriigorbylov/monads-and-why-do-they-matter-9a285862e8b4
 
 * EOF
