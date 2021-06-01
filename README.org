@@ -10,11 +10,12 @@
 * Introduction
 
   Xiana is a lightweight web-application framework written in Clojure LISP,
-  its goal is to be simple, a welcome platform for programmers from another
-  dynamic languages/frameworks.
+  its goal is to be simple, blasting fast, and most important - a welcome
+  platform for web programmers from different backgrounds that want to
+  experience the wonders of functional programming!
 
-  It's easy to install, fun to experiment and a powerful tool to produce
-  reliable/fast code for the word wild web.
+  It's easy to install, fun to experiment and a powerful
+  tool to produce reliable code for the word wild web.
 
 * Dependencies
 ** System
@@ -64,9 +65,9 @@
     $ ./script/auto.sh -y all
     #+END_SRC
 
-    The first command will fetch the ~Flexiana/framework~ repository and
-    change the current working directory. The second command calls ~auto.sh~
-    script to perform the following sequence of steps:
+    The first command will fetch the ~Flexiana/framework~ repository and jump
+    to its directory. The second command calls ~auto.sh~ script to perform the
+    following sequence of steps:
 
     1. Download the necessary docker images
     2. Instantiate the database container
@@ -75,14 +76,14 @@
     5. Call =lein test= that will download the necessary *Clojure*
        dependencies and will execute all the unitary tests.
 
-    See ~./script/auto.sh help~ to see more advanced options/usage.
+    See ~./script/auto.sh help~ for more advanced options.
 
     Remember it's necessary to have =docker/docker-compose= installed in your
-    host and docker daemon should be initialize a priory, otherwise this whole
-    chain of commands will fail.
+    host machine. Docker daemon should be initialize a priori, otherwise this
+    whole chain of commands will fail.
 
     It should also be noted that after the first installation everything will
-    be cached preventing unnecessary rework to happen, it's possible to run only
+    be cached preventing unnecessary rework, it's possible to run only
     the tests if your development environment is already up,
     increasing the overall productivity.
 
@@ -112,7 +113,7 @@
 
 ** Hello World
 
-   Let's start with a simple ~hello-world~ example:
+   Mandatory =hello-word= example:
 
    #+BEGIN_SRC clojure
 
@@ -144,12 +145,16 @@
    expression imports the necessary modules to build/run this simple
    web application example.
 
+   The most common web applications will use the following components:
+
    - Xiana (Monads)
    - State (Context)
    - Routes (URI)
    - Interceptors (Helpers)
    - WebServer (Http Request)
    - Postgresql (Database)
+
+   More details in the sections below.
 
 ** Flow
 * Framework
@@ -161,13 +166,13 @@
     handling, parsing, concurrency and other. Application becomes less error prone.
     Code becomes reusable and more readable."
 
-    And we use it to do exactly that: to add *Failure*/*Success* metadata
+    And we use it to do exactly that: to add *Failure* / *Success* metadata
     to our internal wrapped *state*, our data flow unity.
 
     Think of it as a ~container~ that's compose by ~metadata~ plus
-    its data value (structure), and every function that returns
-    the *state* map needs to wrapper it first providing the right
-    binary direction *Success* or *Failure*.
+    its data value, and every function that returns the *state* map needs
+    to wrapper it first providing the right binary direction *Success* or
+    *Failure*.
 
     This is done by the functions: ~xiana/ok~ and ~xiana/error~ respectively
     defined in ~xiana/core.clj~.
@@ -209,11 +214,11 @@
     specifications values, that will be fetched at run time by the
     resources modules - *server/database* - in their initialization
     processes, by adding this layer of abstraction we provide a simple,
-    robust, and extensible mechanisms to manager our configuration
+    robust, and extensible mechanisms to manage our configuration
     data.
 
-    So we use the same well know ~.edn~ file map to simplify
-    everything maintaining a certain degree of legibility.
+    So, we use the same and well know ~.edn~ file map that simplifies
+    everything, maintaining a certain degree of legibility.
 
     The default development configuration file can be found at:
     ~./config/dev/config.edn~.
@@ -248,16 +253,14 @@
     .
     ├── framework
     │   ├── app
-    │   │   ├── app.clj
-    │   │   ├── controllers
     │   │   ├── core.clj
+    │   │   ├── controllers
     │   │   ├── helpers
     │   │   ├── models
     │   │   └── view
     │   │       └── css
     │   │           └── tailwind
     │   │               ├── core.cljc
-    │   │               ├── deps.edn
     │   │               ├── helpers.cljc
     │   │               ├── preparers.cljc
     │   │               └── resolvers.cljc
