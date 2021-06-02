@@ -314,7 +314,10 @@
     See the *flow* section image to a better understand of how this works.
 
     It's possible to set interceptors for all routes, they are called
-    default-interceptors, but it's also possible to set peer route.
+    default-interceptors, but it's also possible to set then peer route
+    and also a combination of both, more on that letter.
+
+    But first, let's see a more complete example:
 
     #+BEGIN_SRC clojure
     (defn message
@@ -351,14 +354,14 @@
                         :inside [(interceptor/message "inside")]}}]])
     #+END_SRC
 
-    We provide tree strategies to combine the peer route interceptors with
-    the defaults one: around, inside, override.
+    We provide four strategies to combine the peer route interceptors with
+    the defaults ones: override, inside, around, around-and-inside.
 
     - *Override* means just execute the interceptors defined in the route.
 
       [[./resources/images/override.png]]
 
-    - *Around* means execute this the route interceptors around the default
+    - *Around* means execute the route interceptors around the default
       ones, i.e:
 
       [[./resources/images/around.png]]
