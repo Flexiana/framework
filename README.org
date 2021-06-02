@@ -161,6 +161,23 @@
    #+NAME:   fig:DOC-FLOW-001
    [[./resources/images/flow.png]]
 
+   This is our data flow, some details were omitted by the sake of
+   simplicity, but is a good representation of how the framework works.
+
+   So, first we receive the *http-request* a new fresh state map is created and
+   wrapped in a monad container, the route module will analyse the request and
+   update the *state* map with the following info: *action-handler* and
+   *specific-route-interceptors*.
+
+   The interceptors will be organized in a chain: =:enter= functions,
+   *action-handler*, reverse =:leave= functions. This functions can
+   and should interact with other resources, for example:
+   database interface/driver.
+
+   Finally after all the computations are done the =:response=
+   will be extracted from the *last-container* and return to
+   the client.
+
 * Framework
 ** Modules
 *** Monads
@@ -275,7 +292,10 @@
 *** Interceptors
 
     An interceptor is a pair of unary functions. Each function is called with a
-    *state* map and must an wrapped container *state* map.
+    *state* map and must return a wrapped container *state* map.
+
+    The =log= interceptor definition defines =:enter/:leave= functions
+    to display the state.
 
     #+BEGIN_SRC clojure
 
@@ -287,6 +307,27 @@
        :leave (fn [state] (println "Leave: " state) (xiana/ok state))})
 
     #+END_SRC
+
+    All the =:enter= functions for all the registered interceptors
+    will be organized as a chain and executed sequentially, the same
+    happens with the =:leave= functions but they are executed in reverse
+    other, and remember the route *action-handler* is invoked between them.
+
+    See the *flow* section image to a better understand of how this works.
+
+    It's possible to set interceptors for all routes, they are called
+    default-interceptors, but it's also possible to set peer route.
+
+    #+BEGIN_SRC sh
+
+    #+END_SRC
+
+    We provide tree strategies to combine the peer route interceptors with
+    the defaults one: around, inside, override.
+
+**** Around
+**** Inside
+**** Override
 
 *** Resources
 **** Webserver
@@ -361,14 +402,6 @@
   1. https://clojuredocs.org/clojure.edn/read
   2. http://funcool.github.io/cats/latest/
   3. https://medium.com/@yuriigorbylov/monads-and-why-do-they-matter-9a285862e8b4
-  4.
-  5.
-  6.
-  7.
-  8.
-  9.
-  10.
-  11.
-  12.
+  4. http://pedestal.io/reference/interceptors
 
 * EOF
