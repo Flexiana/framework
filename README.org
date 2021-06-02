@@ -157,9 +157,9 @@
 
 ** Flow
 
-     #+CAPTION: DATA FLOW OVERVIEW
-     #+NAME:   fig:DOC-FLOW-001
-     [[./resources/images/flow.png]]
+   #+CAPTION: DATA FLOW OVERVIEW
+   #+NAME:   fig:DOC-FLOW-001
+   [[./resources/images/flow.png]]
 
 * Framework
 ** Modules
@@ -273,6 +273,21 @@
     more on that latter...
 
 *** Interceptors
+
+    An interceptor is a pair of unary functions. Each function is called with a
+    *state* map and must an wrapped container *state* map.
+
+    #+BEGIN_SRC clojure
+
+    (def log
+      "Log interceptor.
+      Enter: Print 'Enter:' followed by the complete state map.
+      Leave: Print 'Leave:' followed by the complete state map."
+      {:enter (fn [state] (println "Enter: " state) (xiana/ok state))
+       :leave (fn [state] (println "Leave: " state) (xiana/ok state))})
+
+    #+END_SRC
+
 *** Resources
 **** Webserver
 
@@ -285,8 +300,8 @@
 
 **** Database
 
-     Provides database interfaces and PostGres driver to execute/comin
-     our sql statements.
+     Provides database interfaces and PostGreSQL driver to execute/commit
+     our SQL statements.
 
 ** Architecture
 *** File-Tree
@@ -346,5 +361,14 @@
   1. https://clojuredocs.org/clojure.edn/read
   2. http://funcool.github.io/cats/latest/
   3. https://medium.com/@yuriigorbylov/monads-and-why-do-they-matter-9a285862e8b4
+  4.
+  5.
+  6.
+  7.
+  8.
+  9.
+  10.
+  11.
+  12.
 
 * EOF
