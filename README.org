@@ -157,8 +157,6 @@
 
 ** Flow
 
-   #+CAPTION: DATA FLOW OVERVIEW
-   #+NAME:   fig:DOC-FLOW-001
    [[./resources/images/flow.png]]
 
    This is our data flow, some details were omitted by the sake of
@@ -318,16 +316,65 @@
     It's possible to set interceptors for all routes, they are called
     default-interceptors, but it's also possible to set peer route.
 
-    #+BEGIN_SRC sh
+    #+BEGIN_SRC clojure
+    (defn message
+      "This interceptor creates a function that prints predefined message.
+      Enter: Print an arbitrary message.
+      Leave: Print an arbitrary message."
+      [msg]
+      {:enter (fn [state] (println msg) (xiana/ok state))
+       :leave (fn [state] (println msg) (xiana/ok state))})
 
+    ;; application default interceptors collection
+    (def app-interceptors
+      [(interceptor/message "default-interceptors")])
+
+    ;; default routes using interceptor peer route
+    (def app-routes
+      [["/" {:action app-controller}]
+       ;; example: override interceptors
+       ["/override" {:action app-action
+                     :interceptors [(interceptor/message "override")]}]
+
+       ;; example: inside interceptors
+       ["/inside" {:action app-action
+                   :interceptors {:inside [(interceptor/message "inside")]}}]
+
+       ;; example: around interceptors
+       ["/around" {:action app-action
+                   :interceptors {:around [(interceptor/message "around")]}}]
+
+       ;; example: inside-around interceptors
+       ["/around-and-inside"
+        {:action
+         :interceptors {:around [(interceptor/message "around")]
+                        :inside [(interceptor/message "inside")]}}]])
     #+END_SRC
 
     We provide tree strategies to combine the peer route interceptors with
     the defaults one: around, inside, override.
 
-**** Around
-**** Inside
-**** Override
+    - *Override* means just execute the interceptors defined in the route.
+
+      [[./resources/images/override.png]]
+
+    - *Around* means execute this the route interceptors around the default
+      ones, i.e:
+
+      [[./resources/images/around.png]]
+
+    - *Inside* means execute the route interceptors inside the default ones,
+      i.e:
+
+      [[./resources/images/inside.png]]
+
+    - *Around & Inside* means execute the route interceptors around and inside,
+      i.e:
+
+      [[./resources/images/around-and-inside.png]]
+
+    So, that way we can add a degree of flexibility for the web application
+    developers without loose the expressiveness and clarity.
 
 *** Resources
 **** Webserver
