@@ -15,7 +15,7 @@
   experience the wonders of functional programming!
 
   It's easy to install, fun to experiment and a powerful
-  tool to produce reliable code for the word wild web.
+  tool to produce reliable code for the world wild web.
 
 * Dependencies
 ** System
