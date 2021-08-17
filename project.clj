@@ -1,4 +1,4 @@
-(defproject com.flexiana/framework "0.2.2"
+(defproject com.flexiana/framework "0.2.3"
   :description "Framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
