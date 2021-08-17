@@ -91,9 +91,6 @@
         (runner/run router-interceptors route)
         (additional-interceptors controller-interceptors run-controller))
       (xiana/extract)
-      ((fn [x]
-         (println x)
-         x))
       (get :response))))
 
 (defn ->web-server
