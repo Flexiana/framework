@@ -1,13 +1,15 @@
-version: "3.3"
+version: "3.9"
 services:
   db:
-    build:
-      context: ./Docker
-      dockerfile: db.Dockerfile
+    image: postgres:13-alpine
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=conway
+      - POSTGRES_USER=brahayan
+      - POSTGRES_PASSWORD=dev
 
 volumes:
   db-data:

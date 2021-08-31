@@ -1,5 +1,0 @@
-{:paths ["resources" "src"]
- :deps {com.wsscode/pathom3 {:git/url "https://github.com/wilkerlucio/pathom3"
-                             :sha "c50d2e75dd084190c58c0e5a599c8e3f1a88d9ef"}
-        com.wsscode/tailwind-garden {:git/url "https://github.com/wilkerlucio/tailwind-garden"
-                                     :sha "4f8af13165dd997de15b20ac5e7dd06351821acd"}}}

@@ -1,2 +1,0 @@
-#kaocha/v1
-{:plugins [:kaocha.plugin/cloverage]}

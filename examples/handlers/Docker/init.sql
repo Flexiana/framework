@@ -1,2 +1,0 @@
-CREATE DATABASE handlers;
-GRANT ALL PRIVILEGES ON DATABASE handlers TO postgres;
