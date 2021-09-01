@@ -285,7 +285,7 @@
     is found default functions values will be used to update the *state* map,
     other important information for us are the specific route *interceptors*
     that will be merged and executed following one of the defined strategies,
-    more on that latter...
+    more on that later...
 
 *** Interceptors
 
@@ -314,8 +314,8 @@
     See the *flow* section image to a better understand of how this works.
 
     It's possible to set interceptors for all routes, they are called
-    default-interceptors, but it's also possible to set then peer route
-    and also a combination of both, more on that letter.
+    default-interceptors, but it's also possible to set them per route
+    and also a combination of both, more on that later.
 
     But first, let's see a more complete example:
 
