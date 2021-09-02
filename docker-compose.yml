@@ -1,15 +1,15 @@
 version: "3.9"
 services:
-  db:
+  database:
     image: postgres:13-alpine
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - data-db:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
-      - POSTGRES_DB=conway
+      - POSTGRES_DB=framework-db
       - POSTGRES_USER=brahayan
-      - POSTGRES_PASSWORD=dev
+      - POSTGRES_PASSWORD=development
 
 volumes:
-  db-data:
+  data-db:  

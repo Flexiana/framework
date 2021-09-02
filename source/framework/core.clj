@@ -1,6 +1,6 @@
-(ns conway.core
+(ns framework.core
   (:require
-    [conway.system :as system]
+    [framework.system :as system]
     [integrant.core :as ig]))
 
 

@@ -1,6 +1,6 @@
-(ns conway.users.endpoints
+(ns framework.users.endpoints
   (:require
-    [conway.users.actions :as actions]))
+    [framework.users.actions :as actions]))
 
 
 (def endpoints

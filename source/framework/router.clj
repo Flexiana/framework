@@ -1,6 +1,6 @@
-(ns conway.router
+(ns framework.router
   (:require
-    [conway.users.endpoints :as users]
+    [framework.users.endpoints :as users]
     [muuntaja.core :as m]
     [reitit.ring :as ring]
     [reitit.ring.middleware.muuntaja :as rm]))

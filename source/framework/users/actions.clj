@@ -1,4 +1,4 @@
-(ns conway.users.actions
+(ns framework.users.actions
   (:require
     [clj-http.client :as client]
     [muuntaja.core :as m]))

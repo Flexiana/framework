@@ -1,4 +1,4 @@
-(ns conway.core-test
+(ns framework.core-test
   (:require
     [clojure.test :refer [deftest testing is]]))
 
