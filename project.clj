@@ -52,5 +52,4 @@
                         "run"
                         "-m"
                         "kaocha.runner"
-                        "--plugin" "cloverage"]}
-  :main framework.components.core)
+                        "--plugin" "cloverage"]})
