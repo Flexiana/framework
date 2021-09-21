@@ -1,13 +1,11 @@
 (ns framework.webserver.core
   (:require
-   [xiana.core :as xiana]
-   [ring.adapter.jetty :as jetty]
-   [framework.route.core :as route]
-   [framework.state.core :as state]
-   [framework.config.core :as config]
-   [framework.interceptor.queue :as interceptor.queue])
-  (:import
-   (org.eclipse.jetty.server Server)))
+    [xiana.core :as xiana]
+    [ring.adapter.jetty :as jetty]
+    [framework.route.core :as route]
+    [framework.state.core :as state]
+    [framework.config.core :as config]
+    [framework.interceptor.queue :as interceptor.queue]))
 
 ;; web server reference
 (defonce -webserver (atom {}))
@@ -44,7 +42,7 @@
   ;; stop the server
   (stop)
   ;; get server options
-  (when-let [options (config/get-spec :webserver)]
+  (when-let [options (merge (config/get-spec :webserver) (:webserver dependencies))]
     ;; tries to initialize the web-server if we have the
     ;; server specification (its options)
     (swap! -webserver
