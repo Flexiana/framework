@@ -6,7 +6,6 @@
                  [com.stuartsierra/component "1.0.0"]
                  [yogthos/config "1.1.7"]
                  [honeysql "1.0.444"]
-                 [clj-test-containers "0.4.0"]
                  [nilenso/honeysql-postgres "0.2.6"]
                  [clj-http "3.12.0"]
                  [org.postgresql/postgresql "42.2.2"]
@@ -28,9 +27,9 @@
                  [hickory "0.7.1"]
                  [hiccup "1.0.5"]
                  [funcool/cuerdas "RELEASE"]]
-  :plugins [[lein-tools-deps "0.4.5"]]
+  ;:plugins [[lein-tools-deps "0.4.5"]]
   ;:middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
-  :lein-tools-deps/config {:config-files [:install :user :project]}
+  ;:lein-tools-deps/config {:config-files [:install :user :project]}
 
   :source-paths ["src"]
   :target "target/%s/"

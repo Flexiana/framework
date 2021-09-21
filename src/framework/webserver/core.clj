@@ -45,6 +45,4 @@
   (when-let [options (merge (config/get-spec :webserver) (:webserver dependencies))]
     ;; tries to initialize the web-server if we have the
     ;; server specification (its options)
-    (swap! -webserver
-           (fn [m]
-             (merge m (make options dependencies))))))
+    (swap! -webserver merge (make options dependencies))))
