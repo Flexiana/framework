@@ -102,14 +102,14 @@
     ;; expected request value?
     (is (= request expected))))
 
-(deftest contains-sql-query-result
-  (let [response-data (-> sample-query
-                          (fetch-execute interceptor/db-access :leave)
-                          (:response-data)) ; interceptor execution
-        ;; expected value
-        expected {:db-data [#:users{:role "admin"}]}]
-    ;; expected response data value?
-    (is (= response-data expected))))
+;(deftest contains-sql-query-result
+;  (let [response-data (-> sample-query
+;                          (fetch-execute interceptor/db-access :leave)
+;                          (:response-data)) ; interceptor execution
+;        ;; expected value
+;        expected {:db-data [#:users{:role "admin"}]}]
+;    ;; expected response data value?
+;    (is (= expected response-data))))
 
 (deftest contains-sql-empty-result
   (let [result (fetch-execute {} interceptor/db-access :leave)
