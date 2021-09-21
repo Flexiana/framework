@@ -1,16 +1,19 @@
 (ns framework.interceptor.queue-test
   (:require
-   [xiana.core :as xiana]
-   [clojure.test :refer :all]
-   [framework.interceptor.queue :as queue]))
+    [clojure.test :refer :all]
+    [framework.interceptor.queue :as queue]
+    [xiana.core :as xiana]))
+
 
 (def A-interceptor
   {:enter (fn [state] (xiana/ok (assoc state :enter "A-enter")))
    :leave (fn [state] (xiana/ok (assoc state :leave "A-leave")))})
 
+
 (def B-interceptor
   {:enter (fn [state] (xiana/ok (assoc state :enter "B-enter")))
    :leave (fn [state] (xiana/ok (assoc state :leave "B-leave")))})
+
 
 (def C-interceptor
   {:enter (fn [state] (xiana/ok (assoc state :enter "C-enter")))
@@ -26,36 +29,45 @@
    :leave (fn [state] (throw (Exception. "leave-exception")))
    :error (fn [state] (xiana/ok (assoc state :error "Error")))})
 
+
 (def F-interceptor
   {:enter (fn [state] (xiana/ok (assoc state :enter "F-enter")))
    :leave (fn [state] (xiana/ok (assoc state :leave "F-leave")))})
+
 
 (def default-interceptors
   "Default interceptors."
   [A-interceptor])
 
+
 (def inside-interceptors
   {:inside [B-interceptor]})
 
+
 (def around-interceptors
   {:around [C-interceptor]})
+
 
 (def both-interceptors
   {:inside [B-interceptor]
    :around [C-interceptor]})
 
+
 (def override-interceptors
   [F-interceptor])
+
 
 (def ok-action
   "Auxiliary ok container function."
   #(xiana/ok
-    (assoc % :response {:status 200, :body "ok"})))
+     (assoc % :response {:status 200, :body "ok"})))
+
 
 (def error-action
   "Auxiliary error container function."
   #(xiana/error
-    (assoc % :response {:status 500 :body "Internal Server error"})))
+     (assoc % :response {:status 500 :body "Internal Server error"})))
+
 
 (defn make-state
   "Return a simple state request data."
@@ -104,9 +116,9 @@
         leave    (:leave result)]
     ;; verify if response is equal to the expected
     (is (and
-         (= enter "A-enter")
-         (= leave "A-leave")
-         (= response expected)))))
+          (= enter "A-enter")
+          (= leave "A-leave")
+          (= response expected)))))
 
 ;; test a simple interceptor error queue execution
 (deftest queue-interceptor-exception-default-execution
@@ -150,9 +162,9 @@
         last-leave (:leave result)]
     ;; verify if response is equal to the expected
     (is (and
-         (= last-enter "B-enter")
-         (= last-leave "A-leave")
-         (= response expected)))))
+          (= last-enter "B-enter")
+          (= last-leave "A-leave")
+          (= response expected)))))
 
 ;; test around interceptors queue execution
 (deftest queue-around-interceptors-execution
@@ -168,9 +180,9 @@
         last-leave (:leave result)]
     ;; verify if response is equal to the expected
     (is (and
-         (= last-enter "A-enter")
-         (= last-leave "C-leave")
-         (= response expected)))))
+          (= last-enter "A-enter")
+          (= last-leave "C-leave")
+          (= response expected)))))
 
 ;; test inside/around interceptors queue execution
 (deftest queue-both-interceptors-execution
@@ -186,9 +198,9 @@
         last-leave (:leave result)]
     ;; verify if response is equal to the expected
     (is (and
-         (= last-enter "B-enter")
-         (= last-leave "C-leave")
-         (= response expected)))))
+          (= last-enter "B-enter")
+          (= last-leave "C-leave")
+          (= response expected)))))
 
 ;; test override interceptors queue execution
 (deftest queue-override-interceptors-execution
@@ -204,6 +216,6 @@
         last-leave (:leave result)]
     ;; verify if response is equal to the expected
     (is (and
-         (= last-enter "F-enter")
-         (= last-leave "F-leave")
-         (= response expected)))))
+          (= last-enter "F-enter")
+          (= last-leave "F-leave")
+          (= response expected)))))

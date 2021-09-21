@@ -1,27 +1,32 @@
 (ns framework.webserver.core-test
   (:require
-   [xiana.core :as xiana]
-   [clojure.test :refer :all]
-   [framework.route.core :as route]
-   [framework.state.core :as state]
-   [framework.webserver.core :as webserver]))
+    [clojure.test :refer :all]
+    [framework.route.core :as route]
+    [framework.state.core :as state]
+    [framework.webserver.core :as webserver]
+    [xiana.core :as xiana]))
+
 
 (def default-interceptors [])
 
+
 (def sample-request
   {:uri "/" :request-method :get})
+
 
 (def sample-routes
   "Sample routes structure."
   [["/" {:action
          #(xiana/ok
-           (assoc % :response {:status 200, :body ":action"}))}]])
+            (assoc % :response {:status 200, :body ":action"}))}]])
+
 
 (deftest handler-fn-creation
   ;; test if handler-fn return
   (let [handler-fn (webserver/handler-fn {:controller-interceptors default-interceptors})]
     ;; check if return handler is a function
     (is (function? handler-fn))))
+
 
 (deftest start-webserver
   ;; verify if initial instance is clean

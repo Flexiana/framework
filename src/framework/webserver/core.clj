@@ -1,14 +1,15 @@
 (ns framework.webserver.core
   (:require
-    [xiana.core :as xiana]
-    [ring.adapter.jetty :as jetty]
+    [framework.config.core :as config]
+    [framework.interceptor.queue :as interceptor.queue]
     [framework.route.core :as route]
     [framework.state.core :as state]
-    [framework.config.core :as config]
-    [framework.interceptor.queue :as interceptor.queue]))
+    [ring.adapter.jetty :as jetty]
+    [xiana.core :as xiana]))
 
 ;; web server reference
 (defonce -webserver (atom {}))
+
 
 (defn handler-fn
   "Return jetty server handler function."
@@ -23,11 +24,13 @@
           ;; get the response
           (get :response)))))
 
+
 (defn- make
   "Web server instance."
   [options dependencies]
   {:options options
    :server  (jetty/run-jetty (handler-fn dependencies) options)})
+
 
 (defn stop
   "Stop web server."
@@ -35,6 +38,7 @@
   ;; stop the server if necessary
   (when (not (empty? @-webserver))
     (.stop (get @-webserver :server))))
+
 
 (defn start
   "Start web server."

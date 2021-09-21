@@ -15,6 +15,7 @@
     (com.opentable.db.postgres.embedded
       EmbeddedPostgres)))
 
+
 (def routes
   [["/users" {:get {:action  f-map/get-user-controller
                     :handler route}}]
@@ -38,8 +39,10 @@
                                                  (interceptors/db-access)
                                                  (interceptors/acl-restrict)]}}}]])
 
+
 (def sys-deps
   {:web-server [:db]})
+
 
 (def app-config
   (let [config (config/read-edn-file nil)]
@@ -57,10 +60,12 @@
                                (interceptors/db-access)
                                (interceptors/acl-restrict)]}))
 
+
 (defn system
   [config app-config routes]
   {:db         (->postgresql config)
    :web-server (->web-server config app-config routes)})
+
 
 (defn embedded-postgres!
   [config]
@@ -78,7 +83,9 @@
     (jdbc/execute! db-config [init-sql])
     (assoc config :framework.db.storage/postgresql db-config)))
 
+
 (defonce st (atom {}))
+
 
 (defn start
   [state]
@@ -88,9 +95,11 @@
                                      component/map->SystemMap
                                      (component/system-using sys-deps)))))
 
+
 (defn stop
   [state]
   (swap! state component/stop))
+
 
 (defn std-system-fixture
   [f]
@@ -99,6 +108,7 @@
     (f)
     (finally
       (stop st))))
+
 
 (comment
   (stop st)

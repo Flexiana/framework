@@ -1,23 +1,26 @@
 (ns framework.route.core
   (:require
+    [framework.route.helpers :as helpers]
     [reitit.core :as r]
-    [xiana.core :as xiana]
     [xiana.commons :refer [?assoc-in]]
-    [framework.route.helpers :as helpers]))
+    [xiana.core :as xiana]))
 
 ;; routes reference
 (defonce -routes (atom []))
+
 
 (defn reset
   "Update routes."
   [routes]
   (reset! -routes routes))
 
+
 (defmacro -get-in-template
   "Simple macro to get the values from the match template."
   [t m k p]
   `(or (-> ~t :data ~p)
        (-> ~t ~k ~m ~p)))
+
 
 (defn- -update
   "Update state with router match template data."
@@ -38,6 +41,7 @@
                         (if handler
                           helpers/action
                           helpers/not-found)))))))
+
 
 (defn match
   "Associate router match template data into the state.

@@ -1,9 +1,10 @@
 (ns framework.session.core-test
   (:require
-   [clojure.test :refer :all]
-   [framework.session.core :as session])
+    [clojure.test :refer :all]
+    [framework.session.core :as session])
   (:import
-   (java.util UUID)))
+    (java.util
+      UUID)))
 
 ;; initial session-instance instance
 (def session-instance (session/init-in-memory))
