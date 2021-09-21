@@ -40,10 +40,16 @@
                   (route/match)
                   (xiana/extract))
         ;; expected request data
-        expected {:method :get :action :action}]
+        expected {:method :get
+                  :match  #reitit.core.Match{:template    "/"
+                                             :data        {:action :action}
+                                             :result      nil
+                                             :path-params {}
+                                             :path        "/"}
+                  :action :action}]
     ;; verify if updated request-data
     ;; is equal to the expected value
-    (is (= (:request-data state) expected))))
+    (is (= expected (:request-data state)))))
 
 ;; test if the updated request-data (state) data handles the
 (deftest contains-not-found-action
