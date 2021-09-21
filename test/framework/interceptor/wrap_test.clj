@@ -1,11 +1,12 @@
 (ns framework.interceptor.wrap-test
   (:require
-   [clojure.test :refer :all]
-   [muuntaja.middleware :as middleware]
-   [framework.interceptor.wrap :as wrap])
+    [clojure.test :refer :all]
+    [framework.interceptor.wrap :as wrap]
+    [muuntaja.middleware :as middleware])
   (:import
-   (java.io
-    ByteArrayInputStream)))
+    (java.io
+      ByteArrayInputStream)))
+
 
 (def sample-state
   {:request  {:ssl-client-cert    nil,
@@ -59,6 +60,7 @@
       (wrap/middleware->enter middleware/wrap-format-request)
       (wrap/middleware->leave middleware/wrap-format-response)))
 
+
 (deftest contains-wrap-interceptor
   (let [interceptor (wrap/interceptor {:enter identity
                                        :leave identity
@@ -68,9 +70,10 @@
         leave ((:leave interceptor) state)
         error ((:error interceptor) state)]
     (is (and
-         (= state (:right enter))
-         (= state (:right leave))
-         (= state (:left  error))))))
+          (= state (:right enter))
+          (= state (:right leave))
+          (= state (:left  error))))))
+
 
 (deftest contains-midleware-enter
   (let [enter (-> (wrap/middleware->enter middleware/wrap-format-request)
@@ -79,11 +82,13 @@
     ;; verify middleware identity
     (is (= (:right result) sample-state))))
 
+
 (deftest contains-midleware-leave
   (let [leave (->
-               (wrap/middleware->leave middleware/wrap-format-request)
-               (:leave))]
+                (wrap/middleware->leave middleware/wrap-format-request)
+                (:leave))]
     (is (function? leave))))
+
 
 (deftest contains-middleware-formated-response-body
   (is (= ByteArrayInputStream

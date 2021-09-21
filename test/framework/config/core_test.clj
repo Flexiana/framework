@@ -1,7 +1,8 @@
 (ns framework.config.core-test
   (:require
-   [clojure.test :refer :all]
-   [framework.config.core :as config]))
+    [clojure.test :refer :all]
+    [framework.config.core :as config]))
+
 
 (def config-map (config/read-edn-file nil))
 
@@ -17,11 +18,11 @@
 ;; test if the default keys are present
 (deftest default-keys-are-present
   (is (not (= (and
-               (:framework.app/web-server config-map)
-               (:framework.db.storage/postgresql config-map)
-               (:framework.db.storage/migration config-map)
-               (:framework.app/emails config-map)
-               (:framework.app/auth config-map))
+                (:framework.app/web-server config-map)
+                (:framework.db.storage/postgresql config-map)
+                (:framework.db.storage/migration config-map)
+                (:framework.app/emails config-map)
+                (:framework.app/auth config-map))
               nil))))
 
 ;; test if the web-server map is not empty

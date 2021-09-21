@@ -1,11 +1,13 @@
 (ns framework.acl.core-functions)
 
+
 (defn grantee
   [permissions {:keys [role resource privilege]}]
   (->> (get permissions role)
        (filter #(#{resource :all} (:resource %)))
        (filter #(some #{privilege :all} (:actions %)))
        first))
+
 
 (defn has-access
   "Examine if the user is has access to a resource with the provided action.

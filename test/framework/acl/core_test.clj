@@ -3,6 +3,7 @@
     [clojure.test :refer :all]
     [framework.acl.core :refer [is-allowed]]))
 
+
 (def custom-roles
   {:customer         [{:resource "items"
                        :actions  [:read]
@@ -32,6 +33,7 @@
                        :actions  [:all]
                        :over     :all}]})
 
+
 (def default-roles
   {:guest     [{:resource "items"
                 :actions  [:read]
@@ -55,10 +57,12 @@
                 :actions  [:all]
                 :over     :all}]})
 
+
 (def guest {})
 (def member {:is_active true})
 (def admin {:is_active true :is_superuser true})
 (def suspended-admin {:is_active false :is_superuser true})
+
 
 (defn state-with-user
   ([user]
@@ -69,13 +73,16 @@
       :session-data {:user {:role user
                             :is_active true}}})))
 
+
 (defn get-ok
   [t]
   (get-in t [:right :response-data :acl]))
 
+
 (defn get-error
   [t]
   (get-in t [:left :response]))
+
 
 (deftest xiana-flow-with-access-map
   (is (= {:status 401 :body "Authorization error"}
@@ -95,6 +102,7 @@
   (is (= :all
          (get-ok (is-allowed (state-with-user :administrator) {:resource "users" :privilege :delete})))))
 
+
 (defn state-with-user-request
   [user uri method]
   (if (map? user)
@@ -107,6 +115,7 @@
                            :is_active true}}
      :request      {:uri            uri
                     :request-method method}}))
+
 
 (deftest xiana-flow-from-request-only
   (is (= :all

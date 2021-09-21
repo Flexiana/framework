@@ -1,41 +1,50 @@
 (ns framework.acl.builder.builder-functions)
 
+
 (defn collify
   [x]
   (if (and (not (map? x)) (coll? x)) x [x]))
+
 
 (defn collify-vals
   [m]
   (->> (map (fn [[k v]] [k (collify v)]) m)
        (into {})))
 
+
 (defn distinct-concat
   [x y]
   (distinct (into x y)))
+
 
 (defn add-actions
   [available-permissions action-map]
   (reduce (fn [perms [resource actions]]
             (update perms resource distinct-concat (collify actions)))
-    available-permissions action-map))
+          available-permissions action-map))
+
 
 (defn override-actions
   [available-permissions action-map]
   (merge available-permissions (collify-vals action-map)))
 
+
 (defn remove-resource
   [available-permissions resource]
   (dissoc available-permissions resource))
 
+
 (defn replace-role
   [roles old new]
   (conj (remove #{old} roles) new))
+
 
 (defn revoke
   [{actions :actions :as permission} action]
   {:pre [(not-empty permission)]}
   (let [new-actions (remove #{action} actions)]
     (when-not (empty? new-actions) (assoc permission :actions new-actions))))
+
 
 (defn grant
   [{actions :actions :as permission} action]
@@ -45,11 +54,13 @@
                       (distinct (concat actions (collify action))))]
     (assoc permission :actions new-actions)))
 
+
 (defn ->permission
   [{a :actions r :over :as p}]
   (cond-> (select-keys p [:resource :actions :over])
     (not (coll? a)) (assoc :actions [a])
     (not r) (assoc :over :all)))
+
 
 (defn allow
   "Allows a permission for a role, inserts it into the :acl/roles map.
@@ -83,16 +94,18 @@
                                  same-restricted (->> (grant same-restricted action)
                                                       (replace-role permissions same-restricted))
                                  :else (conj permissions new-permission))))
-                     permissions-by-resource actions-vec)]
+                           permissions-by-resource actions-vec)]
      (if (some #{:all} actions-vec)
        (assoc roles role [(assoc new-permission :actions [:all])])
        (assoc roles role new-roles)))))
+
 
 (defn bulk-revoke
   [permissions-by-resource actions-vec]
   (reduce (fn [perms action]
             (for [perm perms] (revoke perm action)))
-    permissions-by-resource actions-vec))
+          permissions-by-resource actions-vec))
+
 
 (defn deny
   "Denies an access for a user/group on a resource

@@ -1,7 +1,8 @@
 (ns framework.db.core
   (:require
-    [next.jdbc :as jdbc]
-    [framework.config.core :as config]))
+    [framework.config.core :as config]
+    [next.jdbc :as jdbc]))
+
 
 (defn start
   "Start database instance.

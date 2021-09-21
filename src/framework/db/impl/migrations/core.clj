@@ -4,11 +4,14 @@
     [clojure.string :as string]
     [framework.db.impl.migrations.migratus :as impl.migratus]))
 
+
 (def content-migratus-file
   "{:ns %s\n :up-fn up\n :down-fn down}")
 
+
 (def content-clojure-file
   "(ns %s\n  (:require [framework.db.sql :as sql]))")
+
 
 (defn create-clojure-file
   [fpath namespace]
@@ -19,10 +22,12 @@
     (.write wrtr "\n\n")
     (.write wrtr "(defn down [config])")))
 
+
 (defn insert-content-migratus-file
   [mdir mname mns]
   (let [file (io/file mdir (str mname ".edn"))]
     (spit file (format content-migratus-file mns))))
+
 
 (defn create
   [config name]
