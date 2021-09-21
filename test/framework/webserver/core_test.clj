@@ -19,7 +19,7 @@
 
 (deftest handler-fn-creation
   ;; test if handler-fn return
-  (let [handler-fn (webserver/handler-fn default-interceptors)]
+  (let [handler-fn (webserver/handler-fn {:controller-interceptors default-interceptors})]
     ;; check if return handler is a function
     (is (function? handler-fn))))
 
@@ -27,7 +27,7 @@
   ;; verify if initial instance is clean
   (is (empty? @webserver/-webserver))
   ;; start the server and fetch it
-  (let [result (webserver/start default-interceptors)
+  (let [result (webserver/start {:controller-interceptors default-interceptors})
         server (:server result)]
     ;; verify if server object was properly set
     (is (= (type server)

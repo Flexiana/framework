@@ -2,9 +2,7 @@
   (:require
    [next.jdbc :as jdbc]
    [honeysql.core :as sql]
-   [framework.db.core :as db]
    [honeysql-postgres.format]
-   [clojure.string :as string]
    [potemkin :refer [import-vars]]
    [honeysql-postgres.helpers :as helpers]))
 
@@ -67,25 +65,17 @@
   "Get connection, parse the given sql-map (query) and
   execute it using `jdbc/execute!`.
   If some error/exceptions occurs returns an empty map."
-  [sql-map]
-  (with-open [connection (db/connection)]
+  [datasource sql-map]
+  (with-open [connection (.getConnection datasource)]
     (let [sql-params (->sql-params sql-map)]
-      (try
-        ;; execute the formatted sql query
-        (jdbc/execute! connection sql-params {:return-keys true})
-        ;; return empty map if any exception occurs (research)
-        (catch Exception _ {})))))
+      (jdbc/execute! connection sql-params {:return-keys true}))))
 
 (defn execute!
   "Get connection and execute query using `jdbc/execute!`.
   If some error/exceptions occurs returns an empty map."
-  [sql-vec]
-  (with-open [connection (db/connection)]
-    (try
-      ;; execute the formatted sql query vector
-      (jdbc/execute! connection sql-vec)
-      ;; return empty map if any exception occurs
-      (catch Exception _ {}))))
+  [datasource sql-vec]
+  (with-open [connection (.getConnection datasource)]
+    (jdbc/execute! connection sql-vec)))
 
 (defn create-table
   "Create table specified by its name on the database."

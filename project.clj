@@ -1,4 +1,4 @@
-(defproject com.flexiana/framework "0.2.2"
+(defproject com.flexiana/framework "0.2.4"
   :description "Framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
@@ -18,8 +18,8 @@
                  [metosin/reitit "0.5.12"]
                  [funcool/cats "2.4.1"]
                  [com.draines/postal "2.0.4"]
-                 [com.opentable.components/otj-pg-embedded "0.7.1"]
                  [crypto-password "0.2.1"]
+                 [nubank/matcher-combinators "3.1.4"]
                  [garden "1.3.10"]
                  [hickory "0.7.1"]
                  [hiccup "1.0.5"]
