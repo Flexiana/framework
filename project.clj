@@ -3,7 +3,6 @@
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [com.stuartsierra/component "1.0.0"]
                  [yogthos/config "1.1.7"]
                  [honeysql "1.0.444"]
                  [nilenso/honeysql-postgres "0.2.6"]
