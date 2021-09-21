@@ -5,6 +5,7 @@
    [honeysql.core :as sql]
    [ring.middleware.params :as middleware.params]
    [framework.acl.core :as acl]
+   [clojure.pprint :refer [pprint]]
    [framework.db.sql :as db.sql]
    [framework.session.core :as session]
    [framework.interceptor.wrap :as wrap]
@@ -16,8 +17,8 @@
   "Log interceptor.
   Enter: Print 'Enter:' followed by the complete state map.
   Leave: Print 'Leave:' followed by the complete state map."
-  {:enter (fn [state] (println "Enter: " state) (xiana/ok state))
-   :leave (fn [state] (println "Leave: " state) (xiana/ok state))})
+  {:enter (fn [state] (pprint ["Enter: " state]) (xiana/ok state))
+   :leave (fn [state] (pprint [ "Leave: " state]) (xiana/ok state))})
 
 (def side-effect
   "Side-effect interceptor.
@@ -66,13 +67,13 @@
   {:leave
    (fn [{query :query :as state}]
      (xiana/ok
-      (if query
-        (assoc-in state
-                  [:response-data :db-data]
-                  ;; returns the result of the database-query
-                  ;; execution or empty ({})
-                  (db.sql/execute query))
-        state)))})
+       (if query
+         (assoc-in state
+                   [:response-data :db-data]
+                   ;; returns the result of the database-query
+                   ;; execution or empty ({})
+                   (db.sql/execute! (get-in state [:deps :db :datasource]) (sql/format query)))
+         state)))})
 
 (defn message
   "This interceptor creates a function that prints predefined message.

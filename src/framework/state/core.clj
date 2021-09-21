@@ -4,9 +4,9 @@
 
 (defn make
   "Create an empty state structure."
-  [request]
+  [deps request]
   (->
-   {:deps {:auth nil}
+   {:deps deps
     :request  request
     :response {}}
    ;; return a state container

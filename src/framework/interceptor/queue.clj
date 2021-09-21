@@ -7,7 +7,7 @@
   a lambda function that uses the try-catch approach to
   handle the interceptor exception if occurs."
   [side interceptor]
-  (let [f (side interceptor)]
+  (when-let [f (side interceptor)]
     (fn [state]
       (try
         (f state)
@@ -25,7 +25,7 @@
         leave-fns (mapv #(interceptor->fn :leave %) interceptors)
         queue-fns (apply concat [enter-fns action (reverse leave-fns)])]
     ;; apply flow: execute the queue of interceptors functions
-    (xiana/apply-flow-> state queue-fns)))
+    (xiana/apply-flow-> state (remove nil? queue-fns))))
 
 (defn- -concat
   "Concatenate routes interceptors with the defaults ones,

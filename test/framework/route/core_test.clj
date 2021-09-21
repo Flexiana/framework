@@ -1,10 +1,10 @@
 (ns framework.route.core-test
   (:require
-   [xiana.core :as xiana]
-   [clojure.test :refer :all]
-   [framework.state.core :as state]
-   [framework.route.core :as route]
-   [framework.route.helpers :as helpers]))
+    [xiana.core :as xiana]
+    [clojure.test :refer :all]
+    [framework.state.core :as state]
+    [framework.route.core :as route]
+    [framework.route.helpers :as helpers]))
 
 (def sample-request
   {:uri "/" :request-method :get})
@@ -36,11 +36,11 @@
   ;; set sample routes
   (route/reset sample-routes)
   ;; get state from sample request micro/match flow
-  (let [state (-> (state/make sample-request)
+  (let [state (-> (state/make {} sample-request)
                   (route/match)
                   (xiana/extract))
         ;; expected request data
-        expected  {:method :get :action :action}]
+        expected {:method :get :action :action}]
     ;; verify if updated request-data
     ;; is equal to the expected value
     (is (= (:request-data state) expected))))
@@ -50,7 +50,7 @@
   ;; set sample routes
   (route/reset sample-routes)
   ;; get action from sample request micro/match flow
-  (let [action (-> (state/make sample-not-found-request)
+  (let [action (-> (state/make {} sample-not-found-request)
                    (route/match)
                    (xiana/extract)
                    (:request-data)
@@ -65,7 +65,7 @@
   ;; (re)set routes
   (route/reset sample-routes-with-handler)
   ;; get action from the updated state/match (micro) flow computation
-  (let [action (-> (state/make sample-request)
+  (let [action (-> (state/make {} sample-request)
                    (route/match)
                    (xiana/extract)
                    (:request-data)
@@ -80,7 +80,7 @@
   ;; (re)set routes
   (route/reset sample-routes-without-action)
   ;; get action from the updated state/match (micro) flow computation
-  (let [action (-> (state/make sample-request)
+  (let [action (-> (state/make {} sample-request)
                    (route/match)
                    (xiana/extract)
                    (:request-data)

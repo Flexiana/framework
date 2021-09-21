@@ -14,11 +14,11 @@
 
 (defn handler-fn
   "Return jetty server handler function."
-  [interceptors]
+  [deps]
   (fn [http-request]
-    (let [state (state/make http-request)
+    (let [state (state/make deps http-request)
           queue (list #(route/match %)
-                      #(interceptor.queue/execute % interceptors))]
+                      #(interceptor.queue/execute % (:controller-interceptors deps)))]
       (-> (xiana/apply-flow-> state queue)
           ;; extract
           (xiana/extract)
@@ -27,9 +27,9 @@
 
 (defn- make
   "Web server instance."
-  [options interceptors]
+  [options dependencies]
   {:options options
-   :server  (jetty/run-jetty (handler-fn interceptors) options)})
+   :server  (jetty/run-jetty (handler-fn dependencies) options)})
 
 (defn stop
   "Stop web server."
@@ -40,7 +40,7 @@
 
 (defn start
   "Start web server."
-  [interceptors]
+  [dependencies]
   ;; stop the server
   (stop)
   ;; get server options
@@ -49,4 +49,4 @@
     ;; server specification (its options)
     (swap! -webserver
            (fn [m]
-             (merge m (make options interceptors))))))
+             (merge m (make options dependencies))))))
