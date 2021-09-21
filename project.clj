@@ -15,7 +15,7 @@
                  [duct/server.http.jetty "0.2.1"]
                  [migratus "1.3.3"]
                  [potemkin "0.4.5"]
-                 [metosin/reitit "0.5.12"]
+                 [metosin/reitit "0.5.15"]
                  [funcool/cats "2.4.1"]
                  [com.draines/postal "2.0.4"]
                  [crypto-password "0.2.1"]
