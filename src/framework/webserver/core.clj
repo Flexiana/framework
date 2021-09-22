@@ -15,7 +15,8 @@
   [deps]
   (fn [http-request]
     (let [state (state/make deps http-request)
-          queue (list #(route/match %)
+          queue (list #(interceptor.queue/execute % (:router-interceptors deps))
+                      #(route/match %)
                       #(interceptor.queue/execute % (:controller-interceptors deps)))]
       (-> (xiana/apply-flow-> state queue)
           ;; extract
