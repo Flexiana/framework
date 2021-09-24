@@ -2,7 +2,6 @@
   (:require
     [xiana.core :as xiana]))
 
-
 (defn- interceptor->fn
   "Parse the interceptor function 'side' (:enter/:leave) to
   a lambda function that uses the try-catch approach to
@@ -15,9 +14,8 @@
         (catch Exception e
           (let [f (or (:error interceptor) xiana/error)]
             (f (-> state (assoc :response
-                                {:status 500
-                                 :body   (Throwable->map e)})))))))))
-
+                           {:status 500
+                            :body   (Throwable->map e)})))))))))
 
 (defn- -execute
   "Execute interceptors functions (the enter/leave procedures)
@@ -28,7 +26,6 @@
         queue-fns (apply concat [enter-fns action (reverse leave-fns)])]
     ;; apply flow: execute the queue of interceptors functions
     (xiana/apply-flow-> state (remove nil? queue-fns))))
-
 
 (defn- -concat
   "Concatenate routes interceptors with the defaults ones,
@@ -43,7 +40,6 @@
               inside-interceptors))
     ;; else override
     (or interceptors default-interceptors)))
-
 
 (defn execute
   "Execute the interceptors queue and invoke the

@@ -4,12 +4,10 @@
     [framework.route.helpers :as helpers]
     [xiana.core :as xiana]))
 
-
 (defn test-handler
   "Sample test handler function for the tests."
   [_]
   {:status 200 :body "Ok"})
-
 
 (def test-state
   "Sample test state."

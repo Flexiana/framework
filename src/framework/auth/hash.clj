@@ -4,9 +4,7 @@
     [crypto.password.pbkdf2 :as hash-p]
     [crypto.password.scrypt :as hash-s]))
 
-
 (def supported [:bcrypt :pbkdf2 :scrypt])
-
 
 (defn- dispatch
   ([state password]
@@ -15,16 +13,13 @@
    {:pre [(some #(= hash-algorithm %) supported)]}
    hash-algorithm))
 
-
 (defmulti make dispatch)
-
 
 (defmethod make :bcrypt
   [{{:keys [bcrypt-settings]
      :or {bcrypt-settings {:work-factor 11}}} :deps/auth}
    password]
   (hash-b/encrypt password (:work-factor bcrypt-settings)))
-
 
 (defmethod make :scrypt
   [{{:keys [scrypt-settings]
@@ -38,7 +33,6 @@
     (:memory-cost scrypt-settings)
     (:parallelization scrypt-settings)))
 
-
 (defmethod make :pbkdf2
   [{{:keys [pbkdf2-settings]
      :or {pbkdf2-settings {:type :sha1
@@ -50,17 +44,13 @@
     (if (= :sha1 (:type pbkdf2-settings))
       "HMAC-SHA1" "HMAC-SHA256")))
 
-
 (defmulti check dispatch)
-
 
 (defmethod check :bcrypt [_ password encrypted]
   (hash-b/check password encrypted))
 
-
 (defmethod check :scrypt [_ password encrypted]
   (hash-s/check password encrypted))
-
 
 (defmethod check :pbkdf2 [_ password encrypted]
   (hash-p/check password encrypted))

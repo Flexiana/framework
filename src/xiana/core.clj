@@ -20,13 +20,11 @@
 ;; unwrap monad container
 (def extract m/extract)
 
-
 (defmacro apply-flow->
   "Simple macro that applies Haskell-style left associative bind to a
   queue of functions."
   [state & queue]
   `(apply m/>>= (ok ~state) ~@queue))
-
 
 (defmacro flow->
   "Expand a single form to (form) or the sequence of forms to:

@@ -25,7 +25,6 @@
    :migration :framework.db.storage/migration
    :database  :framework.db.storage/postgresql})
 
-
 (defn read-edn-file
   "Read edn configuration file."
   [edn-file]
@@ -34,14 +33,12 @@
                    (edn/read (PushbackReader. r))))
       (load-env)))
 
-
 (defn get-spec
   "Select configuration spec using 'k' identifier."
   ([k] (get-spec k nil))
   ([k edn-file]
    (get (read-edn-file edn-file)
         (-> k default-config-map))))
-
 
 (defn env
   []

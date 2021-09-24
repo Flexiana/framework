@@ -9,7 +9,6 @@
                                                      revoke
                                                      grant]]))
 
-
 (deftest build-roles-allow
   (is (= {:guest [{:resource "posts", :actions [:read], :over :all}]}
          (allow {} {:role :guest :resource "posts" :actions :read :over :all})))
@@ -55,7 +54,6 @@
              (allow {:role :guest :resource "posts" :actions [:delete] :over :own})
              (allow {:role :guest :resource "posts" :actions [:all]})))))
 
-
 (deftest build-permissions
   (is (= {"comment" [:delete :read], "post" [:comment :update :delete :read]}
          (-> (add-actions {} {"comment" :read
@@ -70,7 +68,6 @@
                               "post"    [:read :delete :update :comment]})
              (add-actions {"comment" :delete})
              (remove-resource "post")))))
-
 
 (deftest build-roles-deny
   (is (empty? (deny {:guest [{:resource "posts", :actions [:response :delete], :over :own}
@@ -121,7 +118,6 @@
                         {:resource "post", :actions [:all], :over :all}]}
                {}
                {:role :guest :resource :all, :actions :delete}))))
-
 
 (deftest build-roles-allow-with-available-permissions
   (is (= {:guest [{:resource "comments", :actions [:read], :over :all}]}

@@ -3,7 +3,6 @@
     [framework.config.core :as config]
     [next.jdbc :as jdbc]))
 
-
 (defn start
   "Start database instance.
   Get the database specification from

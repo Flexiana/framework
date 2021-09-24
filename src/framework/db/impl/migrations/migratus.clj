@@ -10,13 +10,11 @@
       Date
       TimeZone)))
 
-
 (defn timestamp
   []
   (let [fmt (doto (SimpleDateFormat. "yyyyMMddHHmmss ")
               (.setTimeZone (TimeZone/getTimeZone "UTC")))]
     (.format fmt (Date.))))
-
 
 (defn create
   [config name]
@@ -27,7 +25,6 @@
     (doseq [mig-file (proto/migration-files* :edn migration-name)]
       (.createNewFile (io/file migration-dir mig-file)))
     [migration-name migration-dir]))
-
 
 (defn get-migrations-folder-path
   [config]
