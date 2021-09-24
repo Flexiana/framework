@@ -16,6 +16,7 @@
   ;; erase all elements (side effect)
   (erase! [_]))
 
+
 (defn init-in-memory
   "Initialize session in memory."
   ([] (init-in-memory (atom {})))

@@ -21,214 +21,230 @@
     [com.wsscode.tailwind-garden.expanders :as exp]
     [framework.app.view.css.tailwind.helpers :as hlp]))
 
+
 (defn layout'
   []
   (reduce into
-    [(layout/box-sizing)
-     (layout/display)
-     (layout/floats)
-     (layout/clear)
-     (layout/object-fit)
-     (layout/object-position)
-     (layout/overflow)
-     (layout/overscroll-behavior)
-     (layout/position)
-     (layout/top-right-left-bottom)
-     (layout/visibility)
-     (layout/z-index)]))
+          [(layout/box-sizing)
+           (layout/display)
+           (layout/floats)
+           (layout/clear)
+           (layout/object-fit)
+           (layout/object-position)
+           (layout/overflow)
+           (layout/overscroll-behavior)
+           (layout/position)
+           (layout/top-right-left-bottom)
+           (layout/visibility)
+           (layout/z-index)]))
+
 
 (defn flexbox'
   []
   (reduce into
-    [(flexbox/flex-direction)
-     (flexbox/flex-wrap)
-     (flexbox/flex)
-     (flexbox/flex-grow)
-     (flexbox/flex-shrink)
-     (flexbox/order)]))
+          [(flexbox/flex-direction)
+           (flexbox/flex-wrap)
+           (flexbox/flex)
+           (flexbox/flex-grow)
+           (flexbox/flex-shrink)
+           (flexbox/order)]))
+
 
 (defn grid'
   []
   (reduce into
-    [(grid/grid-template-columns)
-     (grid/grid-column-start-end)
-     (grid/grid-template-rows)
-     (grid/grid-row-start-end)
-     (grid/grid-auto-flow)
-     (grid/grid-auto-columns)
-     (grid/grid-auto-rows)
-     (grid/gap)]))
+          [(grid/grid-template-columns)
+           (grid/grid-column-start-end)
+           (grid/grid-template-rows)
+           (grid/grid-row-start-end)
+           (grid/grid-auto-flow)
+           (grid/grid-auto-columns)
+           (grid/grid-auto-rows)
+           (grid/gap)]))
+
 
 (defn box-alignment'
   []
   (reduce into
-    [(box-alignment/justify-content)
-     (box-alignment/justify-items)
-     (box-alignment/justify-self)
-     (box-alignment/align-content)
-     (box-alignment/align-items)
-     (box-alignment/align-self)
-     (box-alignment/place-content)
-     (box-alignment/place-items)
-     (box-alignment/place-self)]))
+          [(box-alignment/justify-content)
+           (box-alignment/justify-items)
+           (box-alignment/justify-self)
+           (box-alignment/align-content)
+           (box-alignment/align-items)
+           (box-alignment/align-self)
+           (box-alignment/place-content)
+           (box-alignment/place-items)
+           (box-alignment/place-self)]))
+
 
 (defn spacing'
   []
   (reduce into
-    [(spacing/margin)
-     (spacing/padding)
-     (spacing/space-between)]))
+          [(spacing/margin)
+           (spacing/padding)
+           (spacing/space-between)]))
+
 
 (defn sizing'
   []
   (reduce into
-    [(sizing/width)
-     (sizing/min-width)
-     (sizing/max-width)
-     (sizing/height)
-     (sizing/min-height)
-     (sizing/max-height)]))
+          [(sizing/width)
+           (sizing/min-width)
+           (sizing/max-width)
+           (sizing/height)
+           (sizing/min-height)
+           (sizing/max-height)]))
+
 
 (defn typography'
   []
   (reduce into
-    [(typography/font-family)
-     (typography/font-size)
-     (typography/font-smoothing)
-     (typography/font-style)
-     (typography/font-weight)
-     (typography/font-variant-numeric)
-     (typography/letter-spacing)
-     (typography/line-height)
-     (typography/list-style-type)
-     (typography/list-style-position)
-     (exp/with-variants ["focus"]
-                        (typography/placeholder-color))
-     (exp/with-variants ["focus"]
-                        (typography/placeholder-opacity))
-     (typography/text-align)
-     (exp/with-variants ["hover"]
-                        (typography/text-color))
-     (exp/with-variants ["hover"]
-                        (typography/text-opacity))
-     (exp/with-variants ["hover"]
-                        (typography/text-decoration))
-     (typography/text-transform)
-     (typography/text-overflow)
-     (typography/vertical-align)
-     (typography/whitespace)
-     (typography/word-break)]))
+          [(typography/font-family)
+           (typography/font-size)
+           (typography/font-smoothing)
+           (typography/font-style)
+           (typography/font-weight)
+           (typography/font-variant-numeric)
+           (typography/letter-spacing)
+           (typography/line-height)
+           (typography/list-style-type)
+           (typography/list-style-position)
+           (exp/with-variants ["focus"]
+                              (typography/placeholder-color))
+           (exp/with-variants ["focus"]
+                              (typography/placeholder-opacity))
+           (typography/text-align)
+           (exp/with-variants ["hover"]
+                              (typography/text-color))
+           (exp/with-variants ["hover"]
+                              (typography/text-opacity))
+           (exp/with-variants ["hover"]
+                              (typography/text-decoration))
+           (typography/text-transform)
+           (typography/text-overflow)
+           (typography/vertical-align)
+           (typography/whitespace)
+           (typography/word-break)]))
+
 
 (defn backgrounds'
   []
   (reduce into
-    [(backgrounds/background-attachment)
-     (backgrounds/background-color)
-     (backgrounds/background-clip)
-     (exp/with-variants ["hover" "focus" "active"]
-                        (backgrounds/background-color))
-     (exp/with-variants ["hover" "focus" "active"]
-                        (backgrounds/background-opacity))
-     (backgrounds/background-position)
-     (backgrounds/background-repeat)
-     (backgrounds/background-size)
-     (backgrounds/background-image)
-     (exp/with-variants ["hover" "focus" "active"]
-                        (backgrounds/gradient-color-stops))]))
+          [(backgrounds/background-attachment)
+           (backgrounds/background-color)
+           (backgrounds/background-clip)
+           (exp/with-variants ["hover" "focus" "active"]
+                              (backgrounds/background-color))
+           (exp/with-variants ["hover" "focus" "active"]
+                              (backgrounds/background-opacity))
+           (backgrounds/background-position)
+           (backgrounds/background-repeat)
+           (backgrounds/background-size)
+           (backgrounds/background-image)
+           (exp/with-variants ["hover" "focus" "active"]
+                              (backgrounds/gradient-color-stops))]))
+
 
 (defn borders'
   []
   (reduce into
-    [(borders/border-radius)
-     (exp/with-variants ["hover" "focus"]
-                        (borders/border-color))
-     (borders/border-width)
-     (exp/with-variants ["hover" "focus"]
-                        (borders/border-opacity))
-     (borders/border-style)
-     (borders/divide-width)
-     (borders/divide-color)
-     (borders/divide-opacity)
-     (borders/divide-style)
-     (exp/with-variants ["hover" "focus"]
-                        (borders/ring-width))
-     (exp/with-variants ["hover" "focus"]
-                        (borders/ring-color))
-     (exp/with-variants ["hover" "focus"]
-                        (borders/ring-opacity))
-     (exp/with-variants ["hover" "focus"]
-                        (borders/ring-offset-width))
-     (exp/with-variants ["hover" "focus"]
-                        (borders/ring-offset-color))
+          [(borders/border-radius)
+           (exp/with-variants ["hover" "focus"]
+                              (borders/border-color))
+           (borders/border-width)
+           (exp/with-variants ["hover" "focus"]
+                              (borders/border-opacity))
+           (borders/border-style)
+           (borders/divide-width)
+           (borders/divide-color)
+           (borders/divide-opacity)
+           (borders/divide-style)
+           (exp/with-variants ["hover" "focus"]
+                              (borders/ring-width))
+           (exp/with-variants ["hover" "focus"]
+                              (borders/ring-color))
+           (exp/with-variants ["hover" "focus"]
+                              (borders/ring-opacity))
+           (exp/with-variants ["hover" "focus"]
+                              (borders/ring-offset-width))
+           (exp/with-variants ["hover" "focus"]
+                              (borders/ring-offset-color))
 
-     (exp/with-variants ["hover" "focus"]
-                        (effects/box-shadow))
-     (exp/with-variants ["hover" "focus" "disabled"]
-                        (effects/opacity))]))
+           (exp/with-variants ["hover" "focus"]
+                              (effects/box-shadow))
+           (exp/with-variants ["hover" "focus" "disabled"]
+                              (effects/opacity))]))
+
 
 (defn tables'
   []
   (reduce into
-    [(tables/border-collapse)
-     (tables/table-layout)]))
+          [(tables/border-collapse)
+           (tables/table-layout)]))
+
 
 (defn transitions'
   []
   (reduce into
-    [(transitions/transition-property)
-     (transitions/transition-duration)
-     (transitions/transition-timing-function)
-     (transitions/transition-delay)
-     (transitions/animation)
+          [(transitions/transition-property)
+           (transitions/transition-duration)
+           (transitions/transition-timing-function)
+           (transitions/transition-delay)
+           (transitions/animation)
 
-     (transforms/transform)
-     (transforms/transform-origin)
-     (exp/with-variants ["hover"]
-                        (transforms/scale))
-     (exp/with-variants ["hover"]
-                        (transforms/rotate))
-     (exp/with-variants ["hover"]
-                        (transforms/translate))
-     (exp/with-variants ["hover"]
-                        (transforms/skew))]))
+           (transforms/transform)
+           (transforms/transform-origin)
+           (exp/with-variants ["hover"]
+                              (transforms/scale))
+           (exp/with-variants ["hover"]
+                              (transforms/rotate))
+           (exp/with-variants ["hover"]
+                              (transforms/translate))
+           (exp/with-variants ["hover"]
+                              (transforms/skew))]))
+
 
 (defn transforms'
   []
   (reduce into
-    [(transforms/transform)
-     (transforms/transform-origin)
-     (exp/with-variants ["hover"]
-                        (transforms/scale))
-     (exp/with-variants ["hover"]
-                        (transforms/rotate))
-     (exp/with-variants ["hover"]
-                        (transforms/translate))
-     (exp/with-variants ["hover"]
-                        (transforms/skew))]))
+          [(transforms/transform)
+           (transforms/transform-origin)
+           (exp/with-variants ["hover"]
+                              (transforms/scale))
+           (exp/with-variants ["hover"]
+                              (transforms/rotate))
+           (exp/with-variants ["hover"]
+                              (transforms/translate))
+           (exp/with-variants ["hover"]
+                              (transforms/skew))]))
+
 
 (defn interactivity'
   []
   (reduce into
-    [(interactivity/appearance)
-     (interactivity/cursor)
-     (exp/with-variants ["focus"]
-                        (interactivity/outline))
-     (interactivity/pointer-events)
-     (interactivity/resize)
-     (interactivity/user-select)]))
+          [(interactivity/appearance)
+           (interactivity/cursor)
+           (exp/with-variants ["focus"]
+                              (interactivity/outline))
+           (interactivity/pointer-events)
+           (interactivity/resize)
+           (interactivity/user-select)]))
+
 
 (defn svg'
   []
   (reduce into
-    [(svg/fill)
-     (svg/stroke)
-     (svg/stroke-width)
+          [(svg/fill)
+           (svg/stroke)
+           (svg/stroke-width)
 
-     (exp/with-variants ["focus"]
-                        (accessibility/screen-readers))]))
+           (exp/with-variants ["focus"]
+                              (accessibility/screen-readers))]))
+
 
 (def css-keys-in-hiccup (atom #{}))
 (def user-css (atom {}))
+
 
 (def css-db
   (atom (hash-map :bases {:layout (layout')
@@ -250,9 +266,11 @@
                   :theme base/preflight
                   :container (layout/container))))
 
+
 (defn generate-default-components
   [{:keys [theme ring-vars]}]
   (reduce into [theme ring-vars]))
+
 
 (defn generate-base-components-no-mqueries
   "A function that returns the map of base components without media queries.
@@ -266,6 +284,7 @@
                                     svg])]
     (hlp/garden->map reduced-bases)))
 
+
 (defn generate-base-components-with-sm
   [{:keys [bases]}]
   (let [{:keys [layout flexbox grid box-alignment spacing sizing typography
@@ -275,6 +294,7 @@
                                     backgrounds borders tables transitions transforms interactivity
                                     svg])]
     (hlp/unfold-responsive-selectors "640px" "sm" reduced-bases)))
+
 
 (defn generate-base-components-with-md
   [{:keys [bases]}]
@@ -286,6 +306,7 @@
                                     svg])]
     (hlp/unfold-responsive-selectors "768px" "md" reduced-bases)))
 
+
 (defn generate-base-components-with-lg
   [{:keys [bases]}]
   (let [{:keys [layout flexbox grid box-alignment spacing sizing typography
@@ -296,6 +317,7 @@
                                     svg])]
     (hlp/unfold-responsive-selectors "1024px" "lg" reduced-bases)))
 
+
 (defn generate-base-components-with-xl
   [{:keys [bases]}]
   (let [{:keys [layout flexbox grid box-alignment spacing sizing typography
@@ -305,6 +327,7 @@
                                     backgrounds borders tables transitions transforms interactivity
                                     svg])]
     (hlp/unfold-responsive-selectors "1280px" "xl" reduced-bases)))
+
 
 (defn generate-base-components-with-2xl
   [{:keys [bases]}]

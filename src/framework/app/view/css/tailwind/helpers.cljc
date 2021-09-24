@@ -4,12 +4,14 @@
     [com.wsscode.tailwind-garden.expanders :as exp]
     [garden.stylesheet]))
 
+
 (defn strip-whitespace
   [s]
   (cond
     (string? s) (s/join (s/split s #"\s+"))
     :else
     s))
+
 
 (defn strip-variants-on-keys
   [k]
@@ -22,6 +24,7 @@
       :else
       k)))
 
+
 (defn garden->map
   [everything]
   (into (hash-map) (for [class everything
@@ -29,6 +32,7 @@
                      (cond
                        (string? f) {(keyword (s/replace (strip-whitespace f) #"\\" "")) class}
                        (keyword? f) {f class}))))
+
 
 (defn unfold-responsive-selectors
   "The function get the base components without @media query and apply for each css class the requested garden media selector.
@@ -40,6 +44,7 @@
                                                                                                                                          :screen true}
                                                                                                                                         (into [] (map #(update % 0 exp/prefix-classname (str prefix "\\" ":"))) [f]))})))
 
+
 (defn extract-garden-element
   [garden-record]
   (into []
@@ -48,11 +53,13 @@
               :value
               :rules))))
 
+
 (defn fold-responsive-selectors
   [classes-used-map size-key size]
   (garden.stylesheet/at-media {:min-width size :screen true}
                               (reduce into [] (for [v (vals (size-key classes-used-map))]
                                                 [(extract-garden-element v)]))))
+
 
 (defn class-keys->classes-string
   ;; the return is a string of the names class keys "class1 class2 class3"

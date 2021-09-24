@@ -6,11 +6,13 @@
                                                remove-resource]]
     [xiana.core :as xiana]))
 
+
 (defn test-permissions
   [expected actual]
   (is (= expected (-> actual
                       :right
                       :acl/available-permissions))))
+
 
 (deftest permissions-builder
   (test-permissions {"comments" [:read]}

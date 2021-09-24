@@ -10,6 +10,7 @@
 ;; web server reference
 (defonce -webserver (atom {}))
 
+
 (defn handler-fn
   "Return jetty server handler function."
   [deps]
@@ -27,11 +28,13 @@
     ([request respond _]
      (respond (handle* request)))))
 
+
 (defn- make
   "Web server instance."
   [options dependencies]
   {:options options
    :server  (jetty/run-jetty (handler-fn dependencies) options)})
+
 
 (defn stop
   "Stop web server."
@@ -39,6 +42,7 @@
   ;; stop the server if necessary
   (when (not (empty? @-webserver))
     (.stop (get @-webserver :server))))
+
 
 (defn start
   "Start web server."
