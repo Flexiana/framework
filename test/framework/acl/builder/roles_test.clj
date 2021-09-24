@@ -7,13 +7,11 @@
                                          init]]
     [xiana.core :as xiana]))
 
-
 (defn test-roles
   [expected actual]
   (is (= expected (-> actual
                       :right
                       :acl/roles))))
-
 
 (deftest init-test
   (test-roles {}

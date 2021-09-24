@@ -4,13 +4,11 @@
     [framework.acl.core-functions :refer [has-access]]
     [xiana.core :as xiana]))
 
-
 (def action-mapping
   {:get    :read
    :post   :create
    :put    :update
    :delete :delete})
-
 
 (defn- ->resource
   ([uri prefix]
@@ -19,13 +17,11 @@
   ([uri]
    (re-find #"\w+" uri)))
 
-
 (defn- user->role
   [u]
   (when
     (or (:users/is_active u) (:is_active u))
     (or (:role u) (:users/role u))))
-
 
 (defn is-allowed
   "Checks if the user is able to do an action on a resource.
@@ -61,7 +57,6 @@
    (let [resource (->resource (:uri http-request))
          privilege (action-mapping (:request-method http-request))]
      (is-allowed state {:resource resource :privilege privilege :role (:role user)}))))
-
 
 (defn acl-restrict
   "Access control layer interceptor.
