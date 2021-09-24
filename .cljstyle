@@ -1,0 +1,29 @@
+{:rules
+ {:indentation
+  {:indents
+   {letfn     [[:inner 2 0]]
+    reduce    [[:inner 0]]
+    every?    [[:inner 0]]
+    conj      [[:inner 0]]
+    as->      [[:inner 0]]
+    assoc-in  [[:inner 0]]
+    some      [[:inner 0]]
+    cond->    [[:inner 0]]
+    update    [[:inner 0]]
+    update-in [[:inner 0]]
+    recur     [[:inner 0]]
+    swap!     [[:inner 0]]
+    assert    [[:inner 0]]
+    mapv      [[:inner 0]]
+    apply     [[:inner 0]]
+    assoc     [[:inner 0]]
+    defrecord [[:inner 0]]
+    .then     [[:inner 0]]}}
+  :whitespace  {:remove-surrounding? true
+                :remove-trailing?    true
+                :insert-missing?     true}
+  :blank-lines {:padding-lines 1}
+  :types       {:enabled? false}
+  :namespaces  {:enabled?    true
+                :indent-size 2}}
+ :max-blank-lines 1}
