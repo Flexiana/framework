@@ -4,16 +4,13 @@
     [framework.interceptor.queue :as queue]
     [xiana.core :as xiana]))
 
-
 (def A-interceptor
   {:enter (fn [state] (xiana/ok (assoc state :enter "A-enter")))
    :leave (fn [state] (xiana/ok (assoc state :leave "A-leave")))})
 
-
 (def B-interceptor
   {:enter (fn [state] (xiana/ok (assoc state :enter "B-enter")))
    :leave (fn [state] (xiana/ok (assoc state :leave "B-leave")))})
-
 
 (def C-interceptor
   {:enter (fn [state] (xiana/ok (assoc state :enter "C-enter")))
@@ -29,45 +26,36 @@
    :leave (fn [state] (throw (Exception. "leave-exception")))
    :error (fn [state] (xiana/ok (assoc state :error "Error")))})
 
-
 (def F-interceptor
   {:enter (fn [state] (xiana/ok (assoc state :enter "F-enter")))
    :leave (fn [state] (xiana/ok (assoc state :leave "F-leave")))})
-
 
 (def default-interceptors
   "Default interceptors."
   [A-interceptor])
 
-
 (def inside-interceptors
   {:inside [B-interceptor]})
 
-
 (def around-interceptors
   {:around [C-interceptor]})
-
 
 (def both-interceptors
   {:inside [B-interceptor]
    :around [C-interceptor]})
 
-
 (def override-interceptors
   [F-interceptor])
-
 
 (def ok-action
   "Auxiliary ok container function."
   #(xiana/ok
      (assoc % :response {:status 200, :body "ok"})))
 
-
 (def error-action
   "Auxiliary error container function."
   #(xiana/error
      (assoc % :response {:status 500 :body "Internal Server error"})))
-
 
 (defn make-state
   "Return a simple state request data."

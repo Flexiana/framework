@@ -8,16 +8,13 @@
     (java.util
       UUID)))
 
-
 (def sample-session-id
   "Sample session id."
   "21f0d6e6-3782-465a-b903-ca84f6f581a0")
 
-
 (def sample-authorization
   "Sample authorization data."
   "auth")
-
 
 (def sample-request
   "Sample request example."
@@ -33,16 +30,13 @@
   "Simple/minimal request example."
   {:uri "/" :request-method :get})
 
-
 (def sample-state
   "State with the sample request."
   {:request sample-request})
 
-
 (def simple-state
   "State with the simple/minimal request."
   {:request simple-request})
-
 
 (def sample-query
   {:query {:select [:role]
@@ -59,7 +53,6 @@
   "Instance of the session user role interceptor."
   (interceptor/session-user-role))
 
-
 (def ok-fn
   "Ok response function."
   #(xiana/ok
@@ -73,7 +66,6 @@
        (apply (branch interceptor))
        (xiana/extract)))
 
-
 (deftest log-interceptor-execution
   (let [interceptor interceptor/log
         state {}
@@ -82,7 +74,6 @@
     ;; verify log execution
     (is (and (= enter (xiana/ok state))
              (= leave (xiana/ok state))))))
-
 
 (deftest side-effect-execution
   (let [state {:request     {:uri "/"}
@@ -96,14 +87,12 @@
     ;; verify if the response is equal to the expected
     (is (= response expected))))
 
-
 (deftest view-execution
   (let [response (fetch-execute {:request :view}
                                 interceptor/view
                                 :leave)
         expected {:request :view}]
     (is (= response expected))))
-
 
 (deftest params-execution
   (let [state {}
@@ -130,7 +119,6 @@
     ;; expected response data value?
     (is (= result expected))))
 
-
 (deftest msg-interceptor-execution
   (let [interceptor (interceptor/message "")
         state {}
@@ -148,7 +136,6 @@
     ;; verify if session-id was registered
     (is (= (:new-session session-data) true))))
 
-
 (deftest persiste-session-id
   ;; compute a single interceptor semi cycle (enter-leave-enter)
   (let [enter-resp (fetch-execute sample-state session-user-id :enter)
@@ -160,7 +147,6 @@
     (is (= (get-in last-resp [:request :headers :session-id])
            (.toString (get-in last-resp [:session-data :session-id]))))))
 
-
 (deftest contains-session-user-role
   ;; compute a single interceptor semi cycle (enter-leave-enter)
   (let [sample-resp (fetch-execute sample-state session-user-role :enter)
@@ -171,7 +157,6 @@
     ;; verify if has the user and the right authorization is nil
     (is (and (= (get-in simple-resp [:session-data :user :role]) :guest)
              (nil? (get-in simple-resp [:session-data :authorization]))))))
-
 
 (deftest contains-muuntaja-interceptor
   (let [interceptor (interceptor/muuntaja)]

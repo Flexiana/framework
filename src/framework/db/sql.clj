@@ -6,7 +6,6 @@
     [next.jdbc :as jdbc]
     [potemkin :refer [import-vars]]))
 
-
 (import-vars
   [honeysql.helpers
    select
@@ -31,31 +30,25 @@
    modifiers
    where])
 
-
 (import-vars
   [honeysql.core
    call])
-
 
 (defmulti build-clause
   "Create build clause multimethod with associated
   dispatch function: (honeysql-postgres.helpers args)."
   (fn [optype dbtype _args] [dbtype optype]))
 
-
 (defmethod build-clause [:default :create-table]
   [_ _ args] (helpers/create-table (:table-name args)))
 
-
 (defmethod build-clause [:default :drop-table]
   [_ _ args] (helpers/drop-table (:table-name args)))
-
 
 (defmethod build-clause [:default :with-columns]
   [_ _ args]
   (let [{:keys [map rows]} args]
     (helpers/with-columns map rows)))
-
 
 (defn ->sql-params
   "Parse sql-map using honeysql format function with pre-defined
@@ -77,14 +70,12 @@
     (let [sql-params (->sql-params sql-map)]
       (jdbc/execute! connection sql-params {:return-keys true}))))
 
-
 (defn execute!
   "Get connection and execute query using `jdbc/execute!`.
   If some error/exceptions occurs returns an empty map."
   [datasource sql-vec]
   (with-open [connection (.getConnection datasource)]
     (jdbc/execute! connection sql-vec)))
-
 
 (defn create-table
   "Create table specified by its name on the database."
@@ -95,7 +86,6 @@
          args   {:table-name table-name}]
      (build-clause :create-table dbtype args))))
 
-
 (defn drop-table
   "Delete table."
   ([table-name]
@@ -104,7 +94,6 @@
    (let [dbtype (:dbtype opts)
          args   {:table-name table-name}]
      (build-clause :drop-table dbtype args))))
-
 
 (defn with-columns
   "Dispatch database operation with columns arguments."

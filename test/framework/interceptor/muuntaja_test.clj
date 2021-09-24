@@ -6,9 +6,7 @@
     [muuntaja.format.core :as format]
     [xiana.core :as xiana]))
 
-
 (def data-sample [["note" "anything" "note"]])
-
 
 (deftest contains-default-xlm
   (let [instance   (muuntaja/xml-encoder '_)
@@ -17,7 +15,6 @@
         expected   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"]
     ;; verify if response is equal to the expected
     (is (= XLM-string expected))))
-
 
 (deftest enconde-arbitrary-xml
   (let [instance   (muuntaja/xml-encoder '_)
