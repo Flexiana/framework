@@ -13,16 +13,19 @@
 (defn handler-fn
   "Return jetty server handler function."
   [deps]
-  (fn [http-request]
-    (let [state (state/make deps http-request)
-          queue (list #(interceptor.queue/execute % (:router-interceptors deps))
-                      #(route/match %)
-                      #(interceptor.queue/execute % (:controller-interceptors deps)))]
-      (-> (xiana/apply-flow-> state queue)
-          ;; extract
-          (xiana/extract)
-          ;; get the response
-          (get :response)))))
+  (fn handle*
+    ([http-request]
+     (let [state (state/make deps http-request)
+           queue (list #(interceptor.queue/execute % (:router-interceptors deps))
+                       #(route/match %)
+                       #(interceptor.queue/execute % (:controller-interceptors deps)))]
+       (-> (xiana/apply-flow-> state queue)
+           ;; extract
+           (xiana/extract)
+           ;; get the response
+           (get :response))))
+    ([request respond _]
+     (respond (handle* request)))))
 
 (defn- make
   "Web server instance."
