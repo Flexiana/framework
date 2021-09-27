@@ -20,4 +20,4 @@
         (-> state
             (assoc :error e)
             (assoc :response
-              {:status 500 :body "Internal Server error"}))))))
+                   {:status 500 :body "Internal Server error"}))))))

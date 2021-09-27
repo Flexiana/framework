@@ -6,10 +6,10 @@
   [state]
   (xiana/ok
     (assoc state
-      :response
-      {:status  200
-       :headers {"Content-Type" "text/plain"}
-       :body    "Index page"})))
+           :response
+           {:status  200
+            :headers {"Content-Type" "text/plain"}
+            :body    "Index page"})))
 
 (defn require-logged-in
   [{req :http-request :as state}]

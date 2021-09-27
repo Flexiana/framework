@@ -133,4 +133,3 @@
                 {"comments" [:read :delete :like], "post" [:read :delete :update :comment]}
                 {:role :guest :resource "comments", :actions [:read :delete :like]}))))
 
-

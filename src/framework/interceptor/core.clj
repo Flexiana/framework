@@ -70,10 +70,10 @@
      (xiana/ok
        (if query
          (assoc-in state
-           [:response-data :db-data]
+                   [:response-data :db-data]
                    ;; returns the result of the database-query
                    ;; execution or empty ({})
-           (db.sql/execute! (get-in state [:deps :db :datasource]) (sql/format query)))
+                   (db.sql/execute! (get-in state [:deps :db :datasource]) (sql/format query)))
          state)))})
 
 (defn message
@@ -121,8 +121,8 @@
         ;; associate the session id
         (xiana/ok
           (assoc-in state
-            [:response :headers :session-id]
-            (str session-id)))))}))
+                    [:response :headers :session-id]
+                    (str session-id)))))}))
 
 (defn -user-role
   "Update the user role."

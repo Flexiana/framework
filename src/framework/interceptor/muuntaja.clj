@@ -30,14 +30,14 @@
   (muuntaja.core/create
     (-> muuntaja.core/default-options
         (assoc-in [:formats "application/upper-json"]
-          {:decoder [json/decoder]
-           :encoder [json/encoder
-                     {:encode-key-fn
-                      (comp clojure.string/upper-case name)}]})
+                  {:decoder [json/decoder]
+                   :encoder [json/encoder
+                             {:encode-key-fn
+                              (comp clojure.string/upper-case name)}]})
         (assoc-in [:formats "application/xml"] {:encoder [xml-encoder]})
         (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)
         (assoc-in [:formats "application/json" :encoder-opts :date-format]
-          "yyyy-MM-dd"))))
+                  "yyyy-MM-dd"))))
 
 (def interceptor
   "Define muuntaja's default interceptor."

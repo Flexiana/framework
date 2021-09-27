@@ -34,10 +34,10 @@
           (?assoc-in [:request-data :interceptors] interceptors)
           (?assoc-in [:request-data :match] match)
           (assoc-in [:request-data :action]
-            (or action
-                (if handler
-                  helpers/action
-                  helpers/not-found)))))))
+                    (or action
+                        (if handler
+                          helpers/action
+                          helpers/not-found)))))))
 
 (defn match
   "Associate router match template data into the state.
