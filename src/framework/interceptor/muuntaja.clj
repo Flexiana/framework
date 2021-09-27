@@ -14,13 +14,15 @@
   (let [helper-fn
         #(xml/emit-str
            (mapv
-             (fn make-node [[f s]]
+             (fn make-node
+               [[f s]]
                (xml/element f {} (if (map? s) (map make-node (seq s)) s)))
              (seq %)))]
     ;; implement EncodeToBytes protocol
     (reify
       muuntaja.format.core/EncodeToBytes
-      (encode-to-bytes [_ data charset]
+      (encode-to-bytes
+        [_ data charset]
         (.getBytes ^String (helper-fn data) ^String charset)))))
 
 (def instance

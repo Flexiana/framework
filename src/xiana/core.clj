@@ -4,7 +4,8 @@
     [cats.monad.either :as me]))
 
 ;; state/context record definition
-(defrecord State [request request-data response session-data deps])
+(defrecord State
+  [request request-data response session-data deps])
 
 ;; monad.either/right container alias
 ;; don't stop the sequence of executions, continue! (implicit)

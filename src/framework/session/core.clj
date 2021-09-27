@@ -27,7 +27,8 @@
      ;; fetch all elements (no side effect)
      (dump [_] @m)
      ;; add session key:element
-     (add! [_ k v]
+     (add!
+       [_ k v]
        (let [k (or k (UUID/randomUUID))]
          (swap! m assoc k v)))
      ;; delete session key:element
