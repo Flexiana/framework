@@ -105,7 +105,6 @@ GTAGS
 profiles.clj
 pom.xml
 pom.xml.asc
-.cljstyle
 *.jar
 *.class
 /.lein-*

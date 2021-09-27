@@ -8,7 +8,6 @@
     [muuntaja.format.json :as json]
     [muuntaja.interceptor]))
 
-
 (defn xml-encoder
   "XML encoder."
   [_]
@@ -26,7 +25,6 @@
         [_ data charset]
         (.getBytes ^String (helper-fn data) ^String charset)))))
 
-
 (def instance
   "Define muuntaja's default encoder/decoder instance."
   (muuntaja.core/create
@@ -40,7 +38,6 @@
         (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)
         (assoc-in [:formats "application/json" :encoder-opts :date-format]
                   "yyyy-MM-dd"))))
-
 
 (def interceptor
   "Define muuntaja's default interceptor."

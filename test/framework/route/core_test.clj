@@ -6,24 +6,19 @@
     [framework.state.core :as state]
     [xiana.core :as xiana]))
 
-
 (def sample-request
   {:uri "/" :request-method :get})
 
-
 (def sample-not-found-request
   {:uri "/not-found" :request-method :get})
-
 
 (def sample-routes
   "Sample routes structure."
   [["/" {:action :action}]])
 
-
 (def sample-routes-with-handler
   "Sample routes structure."
   [["/" {:handler :handler}]])
-
 
 (def sample-routes-without-action
   "Sample routes structure (without action or handler)."

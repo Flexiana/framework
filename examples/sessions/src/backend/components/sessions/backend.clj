@@ -38,4 +38,3 @@
   []
   (map->SessionBackend {}))
 
-

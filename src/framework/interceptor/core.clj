@@ -14,14 +14,12 @@
     (java.util
       UUID)))
 
-
 (def log
   "Log interceptor.
   Enter: Print 'Enter:' followed by the complete state map.
   Leave: Print 'Leave:' followed by the complete state map."
   {:enter (fn [state] (pprint ["Enter: " state]) (xiana/ok state))
    :leave (fn [state] (pprint ["Leave: " state]) (xiana/ok state))})
-
 
 (def side-effect
   "Side-effect interceptor.
@@ -32,7 +30,6 @@
    (fn [{side-effect :side-effect :as state}]
      (let [f (or side-effect xiana/ok)]
        (f state)))})
-
 
 (def view
   "View interceptor.
@@ -61,7 +58,6 @@
               (xiana/ok
                 (update state :request f))))})
 
-
 (def db-access
   "Database access interceptor.
   Enter: nil.
@@ -80,7 +76,6 @@
                    (db.sql/execute! (get-in state [:deps :db :datasource]) (sql/format query)))
          state)))})
 
-
 (defn message
   "This interceptor creates a function that prints predefined message.
   Enter: Print an arbitrary message.
@@ -88,7 +83,6 @@
   [msg]
   {:enter (fn [state] (println msg) (xiana/ok state))
    :leave (fn [state] (println msg) (xiana/ok state))})
-
 
 (defn session-user-id
   "This interceptor handles the session user id management.
@@ -130,12 +124,10 @@
                     [:response :headers :session-id]
                     (str session-id)))))}))
 
-
 (defn -user-role
   "Update the user role."
   [state role]
   (assoc-in state [:session-data :user] {:role role}))
-
 
 (defn session-user-role
   "This interceptor updates session data user role:authorization
@@ -156,7 +148,6 @@
             (f state role)
           ;; associate authorization into session-data
             (assoc-in [:session-data :authorization] auth)))))}))
-
 
 (defn muuntaja
   "Muuntaja encoder/decoder interceptor."

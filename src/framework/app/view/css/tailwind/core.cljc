@@ -8,7 +8,6 @@
     [garden.core :as garden]
     [garden.stylesheet]))
 
-
 (defn result-css-map
   [user-col]
   (-> (hash-map)
@@ -29,13 +28,11 @@
       (assoc-in [:user-css] (select-keys (-> rlv/smart-css-map
                                              :user-css) user-col))))
 
-
 (defn update-hiccup-css-keys-atom*
   "A helper function to mutate the inline hiccup classes."
   [[& classes]]
   (doseq [k classes]
     (swap! prep/css-keys-in-hiccup conj k)))
-
 
 (defn ->hcss*
   "A function that is used to gather the class keys from hiccup, and add them
@@ -48,12 +45,10 @@
       (hlp/class-keys->classes-string classes))
     ""))
 
-
 (defn update-user-css-atom*
   "A helper function to mutate the user-css atom."
   [gform-map]
   (swap! prep/user-css conj gform-map))
-
 
 (defn ->css*
   "A function that is used as wraper of garden forms, work similar to 'h-tail*'
@@ -65,7 +60,6 @@
     (update-user-css-atom* rsl)
     (update-hiccup-css-keys-atom* k)))
 
-
 (defn group-sm:queries
   [{:keys [bases:sm]}]
   (if-not (empty? bases:sm)
@@ -74,7 +68,6 @@
                                 (reduce into [] (for [v (vals bases:sm)]
                                                   [(hlp/extract-garden-element v)])))
     {}))
-
 
 (defn group-md:queries
   [{:keys [bases:md]}]
@@ -85,7 +78,6 @@
                                                   [(hlp/extract-garden-element v)])))
     {}))
 
-
 (defn group-lg:queries
   [{:keys [bases:lg]}]
   (if-not (empty? bases:lg)
@@ -93,7 +85,6 @@
                                 (reduce into [] (for [v (vals bases:lg)]
                                                   [(hlp/extract-garden-element v)])))
     {}))
-
 
 (defn group-xl:queries
   [{:keys [bases:xl]}]
@@ -103,7 +94,6 @@
                                                   [(hlp/extract-garden-element v)])))
     {}))
 
-
 (defn group-2xl:queries
   [{:keys [bases:2xl]}]
   (if-not (empty? bases:2xl)
@@ -112,13 +102,11 @@
                                                   [(hlp/extract-garden-element v)])))
     {}))
 
-
 (defn state-usr-classes
   "Evaluate the css functions of css classes to add the garden forms
   in the user-css atom. Accepts a vector of functions"
   [& fns]
   (apply eval fns))
-
 
 (defn ->garden
   ([]
@@ -170,17 +158,14 @@
            (group-2xl:queries))
        animation))))
 
-
 (defmulti garden-to
   (fn [action & _] action))
-
 
 (defmethod garden-to :css
   ([_ [& key-col]]
    (garden.core/css (->garden key-col)))
   ([_]
    (garden.core/css (->garden))))
-
 
 (defmethod garden-to :file
   ([_ [& key-col] ^String file-name]

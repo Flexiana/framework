@@ -64,7 +64,7 @@
   component/Lifecycle
   (stop [this] this)
   (start [this]
-         (assoc this
+    (assoc this
            :handler
            (fn [http-request]
              (->

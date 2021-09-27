@@ -3,7 +3,6 @@
     [cuerdas.core :as cu]
     [postal.core :as pc]))
 
-
 (defn- make-body
   [body atts]
   (let [body-payload [:alternative
@@ -14,7 +13,6 @@
         attachments (if (string? atts) (vector atts) atts)
         file-map #(hash-map :type :attachment :content (java.io.File. %))]
     (vec (concat body-payload (map file-map attachments)))))
-
 
 (defn send-email!
   [{mail-config :framework.app/emails}

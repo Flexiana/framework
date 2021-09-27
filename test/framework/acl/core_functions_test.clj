@@ -3,7 +3,6 @@
     [clojure.test :refer :all]
     [framework.acl.core-functions :refer [has-access]]))
 
-
 (def custom-roles
   {:customer         [{:resource "items"
                        :actions  [:read]
@@ -33,14 +32,12 @@
                        :actions  [:all]
                        :over     :all}]})
 
-
 (deftest custom-roles-test
   (is (= :all (has-access custom-roles {:role :customer :resource "items" :privilege :read})))
   (is (false? (has-access custom-roles {:role :customer :resource "items" :privilege :delete})))
   (is (= :own (has-access custom-roles {:role :customer :resource "users" :privilege :read})))
   (is (= :own (has-access custom-roles {:role :customer :resource "users" :privilege :delete})))
   (is (= :all (has-access custom-roles {:role :administrator :resource "users" :privilege :read}))))
-
 
 (def default-roles
   {:guest     [{:resource "items"
@@ -65,13 +62,11 @@
                 :actions  [:all]
                 :over     :all}]})
 
-
 (def guest {})
 (def member {:is_active true})
 (def staff {:is_active true :is_staff true})
 (def admin {:is_active true :is_superuser true})
 (def suspended-admin {:is_active false :is_superuser true})
-
 
 (deftest default-role-tests
   (is (= :all (has-access default-roles guest {:resource "items" :privilege :read})))
@@ -85,7 +80,6 @@
   (is (= :all (has-access default-roles suspended-admin {:resource "items" :privilege :read})))
   (is (false? (has-access default-roles suspended-admin {:resource "items" :privilege :create})))
   (is (false? (has-access default-roles suspended-admin {:resource "users" :privilege :delete}))))
-
 
 (def complex-roles
   {:guest     [{:resource "posts"
@@ -121,7 +115,6 @@
    :superuser [{:resource :all
                 :actions  [:all]
                 :over     :all}]})
-
 
 (deftest complex-roles-test
   (is (= :all (has-access complex-roles {:role :guest :resource "posts" :privilege :read})))

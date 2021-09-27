@@ -7,7 +7,7 @@
   [state]
   (xiana/ok
     (assoc state
-      :response
-      (-> "index.html"
-          (ring/resource-response {:root "public"})
-          (ring/header "Content-Type" "text/html; charset=utf-8")))))
+           :response
+           (-> "index.html"
+               (ring/resource-response {:root "public"})
+               (ring/header "Content-Type" "text/html; charset=utf-8")))))
