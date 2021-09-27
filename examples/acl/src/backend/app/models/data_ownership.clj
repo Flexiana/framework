@@ -14,5 +14,5 @@
 (defn owner-fn
   [{response-data :response-data :as state}]
   (xiana/ok (assoc state
-              :owner-fn
-              (ownership ((juxt :acl-resource :acl) response-data)))))
+                   :owner-fn
+                   (ownership ((juxt :acl-resource :acl) response-data)))))

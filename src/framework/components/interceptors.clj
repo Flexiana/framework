@@ -77,7 +77,7 @@
   {:enter (fn [state]
             (xiana/ok
               (clojure.core/update state :request
-                #(keywordize-keys ((par/wrap-params identity) %)))))})
+                                   #(keywordize-keys ((par/wrap-params identity) %)))))})
 
 (defn db-access
   "Runs HoneySQL query provided in (:query state)
@@ -93,11 +93,11 @@
                (xiana/ok state)))})
   ([on-new-session]
    (assoc (db-access)
-     :enter (fn [{{new-session :new-session} :session-data
-                  :as                        state}]
-              (if new-session
-                (on-new-session state)
-                (xiana/ok state))))))
+          :enter (fn [{{new-session :new-session} :session-data
+                       :as                        state}]
+                   (if new-session
+                     (on-new-session state)
+                     (xiana/ok state))))))
 
 (def view
   "Executes view function to create response"

@@ -28,8 +28,8 @@
                                   (map keyword))
                     action (get action-map keywords)]
                 (xiana/ok (cond-> (assoc state
-                                    :acl/access-map {:resource  (:resource body)
-                                                     :privilege (:action body)})
+                                         :acl/access-map {:resource  (:resource body)
+                                                          :privilege (:action body)})
                             (:id body) (assoc-in [:request :query-params :id] (:id body))
                             action (assoc-in [:request-data :action] action))))
               (xiana/ok state)))})

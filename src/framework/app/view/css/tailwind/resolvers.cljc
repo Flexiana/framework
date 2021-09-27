@@ -6,37 +6,37 @@
     [framework.app.view.css.tailwind.preparers :as prep]))
 
 (pco/defresolver get-bases []
-  {:bases (prep/generate-base-components-no-mqueries @prep/css-db)})
+                 {:bases (prep/generate-base-components-no-mqueries @prep/css-db)})
 
 (pco/defresolver get-bases:sm []
-  {:bases:sm (prep/generate-base-components-with-sm @prep/css-db)})
+                 {:bases:sm (prep/generate-base-components-with-sm @prep/css-db)})
 
 (pco/defresolver get-bases:md []
-  {:bases:md (prep/generate-base-components-with-md @prep/css-db)})
+                 {:bases:md (prep/generate-base-components-with-md @prep/css-db)})
 
 (pco/defresolver get-bases:lg []
-  {:bases:lg (prep/generate-base-components-with-lg @prep/css-db)})
+                 {:bases:lg (prep/generate-base-components-with-lg @prep/css-db)})
 
 (pco/defresolver get-bases:xl []
-  {:bases:lg (prep/generate-base-components-with-xl @prep/css-db)})
+                 {:bases:lg (prep/generate-base-components-with-xl @prep/css-db)})
 
 (pco/defresolver get-bases:2xl []
-  {:bases:2xl (prep/generate-base-components-with-2xl @prep/css-db)})
+                 {:bases:2xl (prep/generate-base-components-with-2xl @prep/css-db)})
 
 (pco/defresolver get-theme []
-  {:theme (:theme @prep/css-db)})
+                 {:theme (:theme @prep/css-db)})
 
 (pco/defresolver get-container []
-  {:container (:container @prep/css-db)})
+                 {:container (:container @prep/css-db)})
 
 (pco/defresolver get-animation []
-  {:animation (:animation @prep/css-db)})
+                 {:animation (:animation @prep/css-db)})
 
 (pco/defresolver default-components []
-  {:default-components (prep/generate-default-components @prep/css-db)})
+                 {:default-components (prep/generate-default-components @prep/css-db)})
 
 (pco/defresolver get-hiccup-classes []
-  {:user-css @prep/user-css})
+                 {:user-css @prep/user-css})
 
 (def indexes
   (pci/register [get-theme

@@ -9,7 +9,7 @@
   (start
     [this]
     (assoc this :http-server
-      (jetty/run-jetty (:handler app) config)))
+           (jetty/run-jetty (:handler app) config)))
   (stop
     [this]
     (.stop http-server)

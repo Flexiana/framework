@@ -17,7 +17,7 @@
   [available-permissions action-map]
   (reduce (fn [perms [resource actions]]
             (update perms resource distinct-concat (collify actions)))
-    available-permissions action-map))
+          available-permissions action-map))
 
 (defn override-actions
   [available-permissions action-map]
@@ -83,7 +83,7 @@
                                  same-restricted (->> (grant same-restricted action)
                                                       (replace-role permissions same-restricted))
                                  :else (conj permissions new-permission))))
-                     permissions-by-resource actions-vec)]
+                           permissions-by-resource actions-vec)]
      (if (some #{:all} actions-vec)
        (assoc roles role [(assoc new-permission :actions [:all])])
        (assoc roles role new-roles)))))
@@ -92,7 +92,7 @@
   [permissions-by-resource actions-vec]
   (reduce (fn [perms action]
             (for [perm perms] (revoke perm action)))
-    permissions-by-resource actions-vec))
+          permissions-by-resource actions-vec))
 
 (defn deny
   "Denies an access for a user/group on a resource
