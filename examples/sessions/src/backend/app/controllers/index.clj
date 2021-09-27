@@ -8,10 +8,10 @@
     (prn "You are logged in"))
   (xiana/ok
     (assoc state
-      :response
-      {:status  200
-       :headers {"Content-Type" "text/plain"}
-       :body    "Index page"})))
+           :response
+           {:status  200
+            :headers {"Content-Type" "text/plain"}
+            :body    "Index page"})))
 
 (defn something-else
   [state]

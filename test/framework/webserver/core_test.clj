@@ -6,13 +6,10 @@
     [framework.webserver.core :as webserver]
     [xiana.core :as xiana]))
 
-
 (def default-interceptors [])
-
 
 (def sample-request
   {:uri "/" :request-method :get})
-
 
 (def sample-routes
   "Sample routes structure."
@@ -20,13 +17,11 @@
          #(xiana/ok
             (assoc % :response {:status 200, :body ":action"}))}]])
 
-
 (deftest handler-fn-creation
   ;; test if handler-fn return
   (let [handler-fn (webserver/handler-fn {:controller-interceptors default-interceptors})]
     ;; check if return handler is a function
     (is (function? handler-fn))))
-
 
 (deftest start-webserver
   ;; verify if initial instance is clean

@@ -12,18 +12,14 @@
       Date
       TimeZone)))
 
-
 (def content-migratus-file
   "{:ns %s\n :up-fn up\n :down-fn down}")
-
 
 (def content-clojure-file
   "(ns %s\n  (:require [framework.db.sql :as sql]))")
 
-
 (def migrations-folder-path
   (-> (java.io.File. "src/framework/db/migration_files") .getAbsolutePath))
-
 
 (defn create-clojure-file
   [fpath ^String namespace]
@@ -34,19 +30,16 @@
     (.write wrtr "\n\n")
     (.write wrtr "(defn down [config])")))
 
-
 (defn insert-content-migratus-file
   [mdir mname mns]
   (let [file (io/file mdir (str mname ".edn"))]
     (spit file (format content-migratus-file mns))))
-
 
 (defn timestamp
   []
   (let [fmt (doto (SimpleDateFormat. "yyyyMMddHHmmss ")
               (.setTimeZone (TimeZone/getTimeZone "UTC")))]
     (.format fmt (Date.))))
-
 
 (defn migratus-create
   [env name]
@@ -58,7 +51,6 @@
       (.createNewFile (io/file migration-dir mig-file)))
     [migration-name migration-dir]))
 
-
 (defn create
   [env name]
   (let [[migration-name migration-dir] (migratus-create env name)
@@ -69,7 +61,6 @@
     (create-clojure-file absolute-path namespace-content)
     (insert-content-migratus-file migration-dir migration-name namespace)))
 
-
 (defn migration-cfg
   [env]
   (let [{:framework.db.storage/keys [postgresql]} env
@@ -78,20 +69,17 @@
                                                             postgresql)]
     mig-cfg))
 
-
 (defn migrate
   [env]
   (->  env
        migration-cfg
        migratus/migrate))
 
-
 (defn rollback-last
   [env]
   (-> env
       migration-cfg
       migratus/rollback))
-
 
 (defn reset
   [env]

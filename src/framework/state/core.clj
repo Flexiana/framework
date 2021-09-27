@@ -2,7 +2,6 @@
   (:require
     [xiana.core :as xiana]))
 
-
 (defn make
   "Create an empty state structure."
   [deps request]

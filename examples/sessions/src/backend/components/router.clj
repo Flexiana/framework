@@ -15,7 +15,6 @@
 ;:static-content ["/assets/*" (ring/create-resource-handler)]
 
 
-
 (def routes
   [["/" {:action index/index}]
    ["/login" {:action login/login-controller}]

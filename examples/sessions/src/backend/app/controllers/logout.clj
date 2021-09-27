@@ -11,10 +11,10 @@
                        :headers
                        (get "session-id"))]
     (xiana/ok (assoc state
-                :response {:status 200
-                           :headers {"Content-Type" "application/json"}
-                           :body "foso"}
-                :logout-data {:session-id session-id}))))
+                     :response {:status 200
+                                :headers {"Content-Type" "application/json"}
+                                :body "foso"}
+                     :logout-data {:session-id session-id}))))
 
 (defn logout-controller
   [state]

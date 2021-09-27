@@ -2,7 +2,6 @@
   (:require
     [xiana.core :as xiana]))
 
-
 (defn interceptor
   "Interceptor wrapper to use xiana monad."
   [in]
@@ -11,13 +10,11 @@
     (:leave in) (assoc :leave (fn [state] (xiana/ok ((:leave in) state))))
     (:error in) (assoc :error (fn [state] (xiana/error ((:error in) state))))))
 
-
 (defn- middleware-fn
   "Simple enter/leave middleware function generator."
   [m k]
   (fn [{r k :as state}]
     (xiana/ok (-> state (assoc k (m r))))))
-
 
 (defn middleware->enter
   "Parse middleware function to interceptor enter lambda function."
@@ -27,7 +24,6 @@
    (let [m (middleware identity)
          f (middleware-fn m :request)]
      (-> interceptor (assoc :enter f)))))
-
 
 (defn middleware->leave
   "Parse middleware function to interceptor leave lambda function."

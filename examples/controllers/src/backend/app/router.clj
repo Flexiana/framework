@@ -54,7 +54,7 @@
                           (if (map? s)
                             (xml/element f {} (map make-node (seq s)))
                             (xml/element f {} s)))
-                    (seq %)))]
+                        (seq %)))]
     (reify
       muuntaja.format.core/EncodeToBytes
       (encode-to-bytes [_ data charset]
@@ -64,8 +64,8 @@
   (muuntaja.core/create
     (-> muuntaja.core/default-options
         (assoc-in [:formats "application/upper-json"]
-          {;:decoder [json-format/decoder]
-           :encoder [json-format/encoder {:encode-key-fn (comp clojure.string/upper-case name)}]})
+                  {;:decoder [json-format/decoder]
+                   :encoder [json-format/encoder {:encode-key-fn (comp clojure.string/upper-case name)}]})
         (assoc-in [:formats "application/xml"] {:encoder [xml-encoder]})
         (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)
         (assoc-in [:formats "application/json" :encoder-opts :date-format] "yyyy-MM-dd"))))
