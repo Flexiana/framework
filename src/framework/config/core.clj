@@ -7,7 +7,7 @@
   []
   component/Lifecycle
   (start [_this]
-         (load-env)))
+    (load-env)))
 
 (defn new-config
   []

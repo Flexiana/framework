@@ -101,7 +101,7 @@
   (with-meta config
     `{component/start ~(fn [system]
                          (assoc system :web-server
-                           (jetty/run-jetty (handler-fn app-config system routes) web-cfg)))
+                                (jetty/run-jetty (handler-fn app-config system routes) web-cfg)))
       component/stop  ~(fn [{:keys [^Server web-server]
                              :as   system}]
                          (.stop web-server)

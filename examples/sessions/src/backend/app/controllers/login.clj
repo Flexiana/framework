@@ -25,14 +25,14 @@
         session-id (str (java.util.UUID/randomUUID))]
     (if (= (:password user) (:password rbody))
       (xiana/ok (assoc state
-                  :login-data (merge  {:session-id (str session-id)}
-                                      (dissoc user :password))
-                  :response
-                  {:status  200
-                   :headers {"Content-Type" "application/json"}
-                   :body   (json/write-str
-                             (merge (dissoc user :password)
-                                    {:session-id session-id}))}))
+                       :login-data (merge  {:session-id (str session-id)}
+                                           (dissoc user :password))
+                       :response
+                       {:status  200
+                        :headers {"Content-Type" "application/json"}
+                        :body   (json/write-str
+                                  (merge (dissoc user :password)
+                                         {:session-id session-id}))}))
 
       (xiana/error (assoc state :response {:status 401
                                            :body "Incorrect credentials"})))))
@@ -42,5 +42,4 @@
 
   (xiana/flow-> state
                 login-view))
-
 

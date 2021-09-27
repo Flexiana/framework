@@ -17,7 +17,7 @@
   [web-server]
   (-> web-server
       (assoc :requires [{:app [:handler]}]
-        :provides [:http-server])
+             :provides [:http-server])
       (with-meta `{component/stop  ~(fn [{:keys [^Server http-server]
                                           :as   this}]
                                       (.stop http-server)
@@ -79,12 +79,12 @@
   [ring]
   (-> ring
       (assoc :requires [:router :db]
-        :provides [:handler])
+             :provides [:handler])
       (with-meta `{component/stop  ~(fn [this] (dissoc this :handler))
                    component/start ~(fn [this]
                                       (assoc this
-                                        :handler
-                                        (partial state->handler this (xiana/map->State {}))))})))
+                                             :handler
+                                             (partial state->handler this (xiana/map->State {}))))})))
 
 (defn controller:index-view
   [state]

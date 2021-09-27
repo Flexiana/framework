@@ -7,5 +7,5 @@
   [state]
   (xiana/ok
     (assoc state
-      :response
-      (ring/response "Index page"))))
+           :response
+           (ring/response "Index page"))))
