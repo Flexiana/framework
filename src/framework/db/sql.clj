@@ -1,38 +1,38 @@
 (ns framework.db.sql
   (:require
-   [next.jdbc :as jdbc]
-   [honeysql.core :as sql]
-   [honeysql-postgres.format]
-   [potemkin :refer [import-vars]]
-   [honeysql-postgres.helpers :as helpers]))
+    [honeysql-postgres.format]
+    [honeysql-postgres.helpers :as helpers]
+    [honeysql.core :as sql]
+    [next.jdbc :as jdbc]
+    [potemkin :refer [import-vars]]))
 
 (import-vars
- [honeysql.helpers
-  select
-  merge-select
-  un-select
-  from
-  merge-from
-  join
-  merge-join
-  left-join
-  merge-left-join
-  merge-right-join
-  full-join
-  merge-full-join
-  cross-join
-  merge-group-by
-  order-by
-  merge-order-by
-  limit
-  offset
-  lock
-  modifiers
-  where])
+  [honeysql.helpers
+   select
+   merge-select
+   un-select
+   from
+   merge-from
+   join
+   merge-join
+   left-join
+   merge-left-join
+   merge-right-join
+   full-join
+   merge-full-join
+   cross-join
+   merge-group-by
+   order-by
+   merge-order-by
+   limit
+   offset
+   lock
+   modifiers
+   where])
 
 (import-vars
- [honeysql.core
-  call])
+  [honeysql.core
+   call])
 
 (defmulti build-clause
   "Create build clause multimethod with associated

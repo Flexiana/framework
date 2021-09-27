@@ -1,10 +1,10 @@
 (ns framework.webserver.core-test
   (:require
-   [xiana.core :as xiana]
-   [clojure.test :refer :all]
-   [framework.route.core :as route]
-   [framework.state.core :as state]
-   [framework.webserver.core :as webserver]))
+    [clojure.test :refer :all]
+    [framework.route.core :as route]
+    [framework.state.core :as state]
+    [framework.webserver.core :as webserver]
+    [xiana.core :as xiana]))
 
 (def default-interceptors [])
 
@@ -15,7 +15,7 @@
   "Sample routes structure."
   [["/" {:action
          #(xiana/ok
-           (assoc % :response {:status 200, :body ":action"}))}]])
+            (assoc % :response {:status 200, :body ":action"}))}]])
 
 (deftest handler-fn-creation
   ;; test if handler-fn return

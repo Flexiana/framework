@@ -67,13 +67,13 @@
    {:enter
     (fn [{acl :acl/access-map :as state}]
       (is-allowed state
-                      (merge m acl)))
+                  (merge m acl)))
     :leave
     (fn [{query                 :query
           {{user-id :id} :user} :session-data
           owner-fn              :owner-fn
           :as                   state}]
       (xiana/ok
-       (if owner-fn
-         (assoc state :query (owner-fn query user-id))
-         state)))}))
+        (if owner-fn
+          (assoc state :query (owner-fn query user-id))
+          state)))}))

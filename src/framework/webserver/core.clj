@@ -1,11 +1,11 @@
 (ns framework.webserver.core
   (:require
-    [xiana.core :as xiana]
-    [ring.adapter.jetty :as jetty]
+    [framework.config.core :as config]
+    [framework.interceptor.queue :as interceptor.queue]
     [framework.route.core :as route]
     [framework.state.core :as state]
-    [framework.config.core :as config]
-    [framework.interceptor.queue :as interceptor.queue]))
+    [ring.adapter.jetty :as jetty]
+    [xiana.core :as xiana]))
 
 ;; web server reference
 (defonce -webserver (atom {}))

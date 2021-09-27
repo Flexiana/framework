@@ -1,7 +1,7 @@
 (ns xiana.core
   (:require
-   [cats.core :as m]
-   [cats.monad.either :as me]))
+    [cats.core :as m]
+    [cats.monad.either :as me]))
 
 ;; state/context record definition
 (defrecord State [request request-data response session-data deps])
@@ -32,8 +32,8 @@
   monad.either/right context (wrapped)."
   [state & forms]
   `(m/>>=
-    (ok ~state)
-    ~@(for [form forms]
-        (if (seq? form)
-          `(fn [~'x] (~(first form) ~'x ~@(rest form)))
-          form))))
+     (ok ~state)
+     ~@(for [form forms]
+         (if (seq? form)
+           `(fn [~'x] (~(first form) ~'x ~@(rest form)))
+           form))))

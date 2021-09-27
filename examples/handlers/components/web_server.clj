@@ -9,7 +9,7 @@
   (start
     [this]
     (assoc this :http-server
-      (jetty/run-jetty app-component config)))
+           (jetty/run-jetty app-component config)))
   (stop
     [this]
     (.stop http-server)

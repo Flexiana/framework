@@ -1,11 +1,12 @@
 (ns framework.interceptor.core-test
   (:require
-   [xiana.core :as xiana]
-   [clojure.test :refer :all]
-   [framework.session.core :as session]
-   [framework.interceptor.core :as interceptor])
+    [clojure.test :refer :all]
+    [framework.interceptor.core :as interceptor]
+    [framework.session.core :as session]
+    [xiana.core :as xiana])
   (:import
-   (java.util UUID)))
+    (java.util
+      UUID)))
 
 (def sample-session-id
   "Sample session id."
@@ -55,7 +56,7 @@
 (def ok-fn
   "Ok response function."
   #(xiana/ok
-    (assoc % :response {:status 200, :body "ok"})))
+     (assoc % :response {:status 200, :body "ok"})))
 
 ;; auxiliary function
 (defn fetch-execute

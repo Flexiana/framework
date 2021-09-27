@@ -1,9 +1,12 @@
 (ns framework.config.core
   (:require
     [clojure.edn :as edn]
-    [config.core :refer [load-env]]
-    [clojure.java.io :as io])
-  (:import (java.io File PushbackReader)))
+    [clojure.java.io :as io]
+    [config.core :refer [load-env]])
+  (:import
+    (java.io
+      File
+      PushbackReader)))
 
 ;; set configuration environment variable name
 (def env-edn-file "FRAMEWORK_EDN_CONFIG")
@@ -28,7 +31,7 @@
   (if edn-file (let [edn-file (or edn-file default-edn-file)]
                  (with-open [r (io/reader edn-file)]
                    (edn/read (PushbackReader. r))))
-               (load-env)))
+      (load-env)))
 
 (defn get-spec
   "Select configuration spec using 'k' identifier."

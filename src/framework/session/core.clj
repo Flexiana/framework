@@ -1,10 +1,13 @@
 (ns framework.session.core
-  (:import (java.util UUID)))
+  (:import
+    (java.util
+      UUID)))
 
 ;; define session protocol
 (defprotocol Session
   ;; fetch an element (no side effect)
   (fetch [_ k])
+  ;; fetch all elements (no side effect)
   (dump [_])
   ;; add an element (side effect)
   (add! [_ k v])
@@ -21,6 +24,7 @@
    (reify Session
      ;; fetch session key:element
      (fetch [_ k] (get @m k))
+     ;; fetch all elements (no side effect)
      (dump [_] @m)
      ;; add session key:element
      (add! [_ k v]

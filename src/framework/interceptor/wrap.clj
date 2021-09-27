@@ -1,6 +1,6 @@
 (ns framework.interceptor.wrap
   (:require
-   [xiana.core :as xiana]))
+    [xiana.core :as xiana]))
 
 (defn interceptor
   "Interceptor wrapper to use xiana monad."

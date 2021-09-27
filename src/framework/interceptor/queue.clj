@@ -1,6 +1,6 @@
 (ns framework.interceptor.queue
   (:require
-   [xiana.core :as xiana]))
+    [xiana.core :as xiana]))
 
 (defn- interceptor->fn
   "Parse the interceptor function 'side' (:enter/:leave) to
@@ -29,7 +29,6 @@
       (xiana/ok state)
       (xiana/apply-flow-> state queue-fns))))
 
-
 (defn- -concat
   "Concatenate routes interceptors with the defaults ones,
   or override it if its type isn't a map."
@@ -49,8 +48,8 @@
   action procedure between its enter-leave stacks."
   [state default-interceptors]
   (let [interceptors (-concat
-                      (get-in state [:request-data :interceptors])
-                      default-interceptors)
+                       (get-in state [:request-data :interceptors])
+                       default-interceptors)
         action (vector (get-in state [:request-data :action]))]
     ;; execute the interceptors queue calling the action
     ;; between its enter/leave stacks

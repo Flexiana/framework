@@ -1,24 +1,25 @@
 (ns framework.interceptor.core
   (:require
-   [clojure.walk :refer [keywordize-keys]]
-   [xiana.core :as xiana]
-   [honeysql.core :as sql]
-   [ring.middleware.params :as middleware.params]
-   [framework.acl.core :as acl]
-   [clojure.pprint :refer [pprint]]
-   [framework.db.sql :as db.sql]
-   [framework.session.core :as session]
-   [framework.interceptor.wrap :as wrap]
-   [framework.interceptor.muuntaja :as muuntaja])
+    [clojure.pprint :refer [pprint]]
+    [clojure.walk :refer [keywordize-keys]]
+    [framework.acl.core :as acl]
+    [framework.db.sql :as db.sql]
+    [framework.interceptor.muuntaja :as muuntaja]
+    [framework.interceptor.wrap :as wrap]
+    [framework.session.core :as session]
+    [honeysql.core :as sql]
+    [ring.middleware.params :as middleware.params]
+    [xiana.core :as xiana])
   (:import
-   (java.util UUID)))
+    (java.util
+      UUID)))
 
 (def log
   "Log interceptor.
   Enter: Print 'Enter:' followed by the complete state map.
   Leave: Print 'Leave:' followed by the complete state map."
   {:enter (fn [state] (pprint ["Enter: " state]) (xiana/ok state))
-   :leave (fn [state] (pprint [ "Leave: " state]) (xiana/ok state))})
+   :leave (fn [state] (pprint ["Leave: " state]) (xiana/ok state))})
 
 (def side-effect
   "Side-effect interceptor.
@@ -53,9 +54,9 @@
   Leave: nil."
   {:enter (fn [state]
             (let [f #(keywordize-keys
-                      ((middleware.params/wrap-params identity) %))]
+                       ((middleware.params/wrap-params identity) %))]
               (xiana/ok
-               (update state :request f))))})
+                (update state :request f))))})
 
 (def db-access
   "Database access interceptor.
@@ -97,18 +98,18 @@
     (fn [{request :request :as state}]
 
       (let [session-id (try (UUID/fromString
-                             (get-in request [:headers :session-id]))
+                              (get-in request [:headers :session-id]))
                             (catch Exception _ nil))
             session-data (when session-id
                            (session/fetch session-instance
                                           session-id))]
         (xiana/ok
-         (if session-data
+          (if session-data
            ;; associate session data into state
-           (assoc state :session-data session-data)
+            (assoc state :session-data session-data)
            ;; else, associate a new session
-           (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
-               (assoc-in [:session-data :new-session] true))))))
+            (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
+                (assoc-in [:session-data :new-session] true))))))
     :leave
     (fn [state]
       (let [session-id (get-in state [:session-data :session-id])]
@@ -119,9 +120,9 @@
                       (dissoc (:session-data state) :new-session))
         ;; associate the session id
         (xiana/ok
-         (assoc-in state
-                   [:response :headers :session-id]
-                   (str session-id)))))}))
+          (assoc-in state
+                    [:response :headers :session-id]
+                    (str session-id)))))}))
 
 (defn -user-role
   "Update the user role."
@@ -142,11 +143,11 @@
     (fn [{request :request :as state}]
       (let [auth (get-in request [:headers :authorization])]
         (xiana/ok
-         (->
+          (->
           ;; f: function to update/associate the user role
-          (f state role)
+            (f state role)
           ;; associate authorization into session-data
-          (assoc-in [:session-data :authorization] auth)))))}))
+            (assoc-in [:session-data :authorization] auth)))))}))
 
 (defn muuntaja
   "Muuntaja encoder/decoder interceptor."
