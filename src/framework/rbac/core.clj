@@ -22,7 +22,8 @@
         permissions (c/permissions role-set role resource action)]
     (into #{} (map #(keyword (str (name resource) "/" (name %))) permissions))))
 
-(defn restrict
+(defn- restrict
+  "combines all restrictions, the stricter rule the stronger" ;TODO make the behavior more sophisticated
   [{query :query
     :as state}]
   (if query (let [restriction-fns (get-in state [:request-data :restriction-fns])
