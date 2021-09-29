@@ -1,9 +1,8 @@
-(defproject com.flexiana/framework "0.2.4"
+(defproject com.flexiana/framework "0.3.0"
   :description "Framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [com.stuartsierra/component "1.0.0"]
                  [yogthos/config "1.1.7"]
                  [honeysql "1.0.444"]
                  [nilenso/honeysql-postgres "0.2.6"]
@@ -42,15 +41,22 @@
                                         :exclusions [org.clojure/clojure]]
                                        [clj-kondo "2021.01.20"]
                                        [nubank/matcher-combinators "3.1.4"]]}}
-  :aliases {"cljstyle" ["with-profile"
-                        "+test"
-                        "run"
-                        "-m"
-                        "cljstyle.main"]
-            "test"     ["with-profile"
-                        "+test"
-                        "run"
-                        "-m"
-                        "kaocha.runner"
-                        "--plugin" "cloverage"]}
-  :main framework.components.core)
+  :aliases {"check-style"     ["with-profile"
+                               "+test"
+                               "run"
+                               "-m"
+                               "cljstyle.main"
+                               "check"]
+            "fix-style" ["with-profile"
+                         "+test"
+                         "run"
+                         "-m"
+                         "cljstyle.main"
+                         "fix"]
+            "test"      ["with-profile"
+                         "+test"
+                         "run"
+                         "-m"
+                         "kaocha.runner"
+                         "--plugin" "cloverage"]
+            "pre-hook"  ["do" ["check-style"] ["do" "test"]]})

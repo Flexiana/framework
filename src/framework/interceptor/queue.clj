@@ -23,9 +23,11 @@
   [state interceptors action]
   (let [enter-fns (mapv #(interceptor->fn :enter %) interceptors)
         leave-fns (mapv #(interceptor->fn :leave %) interceptors)
-        queue-fns (apply concat [enter-fns action (reverse leave-fns)])]
+        queue-fns (remove nil? (apply concat [enter-fns action (reverse leave-fns)]))]
     ;; apply flow: execute the queue of interceptors functions
-    (xiana/apply-flow-> state (remove nil? queue-fns))))
+    (if (empty? queue-fns)
+      (xiana/ok state)
+      (xiana/apply-flow-> state queue-fns))))
 
 (defn- -concat
   "Concatenate routes interceptors with the defaults ones,
