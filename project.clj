@@ -1,4 +1,4 @@
-(defproject com.flexiana/framework "0.3.0"
+(defproject com.flexiana/framework "0.3.1"
   :description "Framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
@@ -7,6 +7,7 @@
                  [honeysql "1.0.444"]
                  [nilenso/honeysql-postgres "0.2.6"]
                  [clj-http "3.12.0"]
+                 [com.flexiana/tiny-rbac "0.1.1"]
                  [org.postgresql/postgresql "42.2.2"]
                  [com.fzakaria/slf4j-timbre "0.3.21"]
                  [org.clojure/data.xml "0.0.8"]
