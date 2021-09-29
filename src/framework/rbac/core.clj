@@ -12,11 +12,11 @@
 (defn permissions
   [state]
   (let [role-set (get-in state [:deps :role-set])
-        session-id (get-in state [:request :headers "Session-id"])
+        session-id (get-in state [:request :headers "session-id"])
         session-backend (-> state :deps :session-backend)
         user (session/fetch session-backend session-id)
         role (:users/role user)
-        permit (get-in state [:request-data :match :permission])
+        permit (get-in state [:request-data :permission])
         resource (keyword (namespace permit))
         action (keyword (name permit))
         permissions (c/permissions role-set role resource action)]
@@ -31,11 +31,11 @@
                 (reduce (fn [s p]
                           ((restriction-fns p) s)) state user-permissions)
                 state))
-            state))
+      state))
 
 (def interceptor
   {:enter (fn [state]
-            (let [operation-restricted (get-in state [:request-data :match :permission])
+            (let [operation-restricted (get-in state [:request-data :permission])
                   permits (and operation-restricted (permissions state))]
               (cond
                 (and operation-restricted (empty? permits)) (xiana/error {:response {:status 403 :body "Forbidden"}})

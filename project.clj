@@ -38,6 +38,7 @@
              :test     {:source-paths ["test"]
                         :dependencies [[lambdaisland/kaocha "1.0.732"]
                                        [lambdaisland/kaocha-cloverage "1.0.75"]
+                                       [clj-test-containers "0.4.0"]
                                        [mvxcvi/cljstyle "0.14.0"
                                         :exclusions [org.clojure/clojure]]
                                        [clj-kondo "2021.01.20"]

@@ -33,8 +33,8 @@
   (let [session-id (str (UUID/randomUUID))
         session-backend (session/init-in-memory)]
     (session/add! session-backend session-id user)
-    (-> (assoc-in {} [:request-data :match :permission] permission)
-        (assoc-in [:request :headers "Session-id"] session-id)
+    (-> (assoc-in {} [:request-data :permission] permission)
+        (assoc-in [:request :headers "session-id"] session-id)
         (assoc-in [:deps :session-backend] session-backend)
         (assoc-in [:deps :role-set] role-set))))
 
@@ -64,10 +64,9 @@
              xiana/extract
              :response))))
 
-
 (def owner-fns
   {:image/own (fn [state]
-                (let [session-id (get-in state [:request :headers "Session-id"])
+                (let [session-id (get-in state [:request :headers "session-id"])
                       session-backend (-> state :deps :session-backend)
                       user-id (:users/id (session/fetch session-backend session-id))]
                   (update state :query sql/merge-where [:= :owner.id user-id])))
