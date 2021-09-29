@@ -49,7 +49,7 @@
 (def system-config
   {:routes                  routes
    :session-backend         backend
-   :role-set                (:role-set (rbac/init role-set))
+   :role-set                role-set
    :controller-interceptors [session/interceptor
                              rbac/interceptor]})
 

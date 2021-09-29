@@ -7,7 +7,7 @@
 
 (defn init
   [role-set]
-  {:role-set (b/init role-set)})
+  (b/init role-set))
 
 (defn permissions
   [state]
