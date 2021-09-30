@@ -22,18 +22,6 @@
         permissions (c/permissions role-set role resource action)]
     (into #{} (map #(keyword (str (name resource) "/" (name %))) permissions))))
 
-(defn- restrict
-  "combines all restrictions, the stricter rule the stronger" ;TODO make the behavior more sophisticated
-  [{query :query
-    :as state}]
-  (if query (let [restriction-fns (get-in state [:request-data :restriction-fns])
-                  user-permissions (get-in state [:request-data :user-permissions])]
-              (if (and user-permissions restriction-fns)
-                (reduce (fn [s p]
-                          ((restriction-fns p) s)) state user-permissions)
-                state))
-      state))
-
 (def interceptor
   {:enter (fn [state]
             (let [operation-restricted (get-in state [:request-data :permission])
@@ -43,4 +31,6 @@
                 operation-restricted (xiana/ok (assoc-in state [:request-data :user-permissions] permits))
                 :else (xiana/ok state))))
    :leave (fn [state]
-            (xiana/ok (restrict state)))})
+            (if-let [restriction-fn (get-in state [:request-data :restriction-fn])]
+              (restriction-fn state)
+              (xiana/ok state)))})
