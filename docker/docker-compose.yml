@@ -1,0 +1,17 @@
+version: "3.3"
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: postgres.dockerfile
+    # environment:
+    #   POSTGRES_DB: framework
+    volumes:
+        - ./sql-scripts:/sql
+        # - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+# volumes:
+#   db-data:

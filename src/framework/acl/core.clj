@@ -57,3 +57,23 @@
    (let [resource (->resource (:uri http-request))
          privilege (action-mapping (:request-method http-request))]
      (is-allowed state {:resource resource :privilege privilege :role (:role user)}))))
+
+(defn acl-restrict
+  "Access control layer interceptor.
+  Enter: Lambda function checks access control.
+  Leave: Lambda function place for tightening db query via provided owner-fn."
+  ([] (acl-restrict {}))
+  ([m]
+   {:enter
+    (fn [{acl :acl/access-map :as state}]
+      (is-allowed state
+                  (merge m acl)))
+    :leave
+    (fn [{query                 :query
+          {{user-id :id} :user} :session-data
+          owner-fn              :owner-fn
+          :as                   state}]
+      (xiana/ok
+        (if owner-fn
+          (assoc state :query (owner-fn query user-id))
+          state)))}))

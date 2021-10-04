@@ -1,8 +1,7 @@
 (ns framework.db.sql
   (:require
-    [clojure.string :as string]
     [honeysql-postgres.format]
-    [honeysql-postgres.helpers :as psqlh]
+    [honeysql-postgres.helpers :as helpers]
     [honeysql.core :as sql]
     [next.jdbc :as jdbc]
     [potemkin :refer [import-vars]]))
@@ -35,66 +34,69 @@
   [honeysql.core
    call])
 
-(defn fmt-create-table-stmt
-  "This function should not exist. Research why jdbc cant process
-  create statements with ?."
-  [hsql]
-  (let [qry-raw (sql/format hsql)
-        qry (reduce
-              (fn [s input]
-                (string/replace-first s #"\?" (str input)))
-              (first qry-raw)
-              (rest qry-raw))]
-    [qry]))
-
-(defn execute
-  "Executes db query"
-  [state query]
-  (jdbc/execute!
-    (get-in state [:deps :db :datasource]) query {:return-keys true}))
-
-(defn execute!
-  [hsql config]
-  (let [query (if (:create-table hsql)
-                (fmt-create-table-stmt hsql)
-                (sql/format hsql))
-        conn (if (get-in config [:conn :connection])
-               (get-in config [:conn :connection])
-               (:connection config))]
-    (jdbc/execute! conn query)))
-
-(defmulti build-clause (fn [optype dbtype _args] [dbtype optype]))
-
-(defn create-table
-  ([table-name]
-   (create-table table-name {:dbtype :default}))
-  ([table-name opts]
-   (let [{:keys [dbtype]} opts
-         args {:table-name table-name}]
-     (build-clause :create-table dbtype args))))
+(defmulti build-clause
+  "Create build clause multimethod with associated
+  dispatch function: (honeysql-postgres.helpers args)."
+  (fn [optype dbtype _args] [dbtype optype]))
 
 (defmethod build-clause [:default :create-table]
-  [_ _ args]
-  (psqlh/create-table (:table-name args)))
-
-(defn drop-table
-  ([table-name]
-   (drop-table table-name {:dbtype :default}))
-  ([table-name opts]
-   (let [{:keys [dbtype]} opts
-         args {:table-name table-name}]
-     (build-clause :drop-table dbtype args))))
+  [_ _ args] (helpers/create-table (:table-name args)))
 
 (defmethod build-clause [:default :drop-table]
-  [_ _ args]
-  (psqlh/drop-table (:table-name args)))
-
-(defn with-columns
-  [m rows]
-  (let [args {:map m :rows rows}]
-    (build-clause :with-columns :default args)))
+  [_ _ args] (helpers/drop-table (:table-name args)))
 
 (defmethod build-clause [:default :with-columns]
   [_ _ args]
   (let [{:keys [map rows]} args]
-    (psqlh/with-columns map rows)))
+    (helpers/with-columns map rows)))
+
+(defn ->sql-params
+  "Parse sql-map using honeysql format function with pre-defined
+  options that target postgresql."
+  [sql-map]
+  (sql/format sql-map
+              {:quoting            :ansi
+               :parameterizer      :postgresql
+               :return-param-names false}))
+
+;; Question: What's the benefits to used the sql-map format?
+;; {:select [:*] :from [:users]}
+(defn execute
+  "Get connection, parse the given sql-map (query) and
+  execute it using `jdbc/execute!`.
+  If some error/exceptions occurs returns an empty map."
+  [datasource sql-map]
+  (with-open [connection (.getConnection datasource)]
+    (let [sql-params (->sql-params sql-map)]
+      (jdbc/execute! connection sql-params {:return-keys true}))))
+
+(defn execute!
+  "Get connection and execute query using `jdbc/execute!`.
+  If some error/exceptions occurs returns an empty map."
+  [datasource sql-vec]
+  (with-open [connection (.getConnection datasource)]
+    (jdbc/execute! connection sql-vec)))
+
+(defn create-table
+  "Create table specified by its name on the database."
+  ([table-name]
+   (create-table table-name {:dbtype :default}))
+  ([table-name opts]
+   (let [dbtype (:dbtype opts)
+         args   {:table-name table-name}]
+     (build-clause :create-table dbtype args))))
+
+(defn drop-table
+  "Delete table."
+  ([table-name]
+   (drop-table table-name {:dbtype :default}))
+  ([table-name opts]
+   (let [dbtype (:dbtype opts)
+         args   {:table-name table-name}]
+     (build-clause :drop-table dbtype args))))
+
+(defn with-columns
+  "Dispatch database operation with columns arguments."
+  [m rows]
+  (let [args {:map m :rows rows}]
+    (build-clause :with-columns :default args)))

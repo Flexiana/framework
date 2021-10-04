@@ -27,7 +27,7 @@ jobs:
           m2-
 
     - name: Run cljstyle
-      run: lein cljstyle check src test
+      run: lein check-style src test
 
     - name: Run tests
       run: lein test

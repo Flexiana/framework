@@ -1,3 +1,104 @@
+# Cmake build folder
+build
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.core
+*.data
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# python precompiled files
+*.pyc
+
+# python dirs
+venv
+dist
+htmlcov
+instance
+.pytest_cache
+.coverage
+*.egg-info
+__pycache__
+
+# OS generated files
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+*.lock
+package-lock.json
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Etags
+TAGS
+
+# Gtags
+GPATH
+GRTAGS
+GTAGS
+
+# Org-mode
+#*.org
+.org-id-locations
+*_archive
+
+# flymake-mode
+*_flymake.*
+
+# reftex files
+*.rel
+
+# projectile
+.projectile
+
+# dir-locals
+.dir-locals.el
+
+# editorconfig
+.editorconfig
+
+# Dirs
+.backup
+
+# Autoloads
+*-autoloads.el
+
+# Clojure
 /target
 /classes
 /checkouts
@@ -18,3 +119,4 @@ pom.xml.asc
 .cpcache/
 .lsp/
 !/.lein-git-deps/
+.clj-kondo/
