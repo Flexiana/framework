@@ -31,7 +31,10 @@
   :source-paths ["src"]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths         ["config/dev"]
-                        :lein-tools-deps/config {:config-files [:install :user :project]}}
+                        :lein-tools-deps/config {:config-files [:install :user :project]}
+                        :plugins [[lein-codox "0.10.7"]]
+                        :codox {:output-path "target/doc/new/"
+                                :themes [:default :xiana]}}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
