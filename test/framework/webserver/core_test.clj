@@ -2,9 +2,11 @@
   (:require
     [clojure.test :refer :all]
     [framework.route.core :as route]
-    [framework.state.core :as state]
     [framework.webserver.core :as webserver]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana])
+  (:import
+    (org.eclipse.jetty.server
+      Server)))
 
 (def default-interceptors [])
 
@@ -25,13 +27,14 @@
 
 (deftest start-webserver
   ;; verify if initial instance is clean
-  (is (empty? @webserver/-webserver))
+  (is (or (empty? @webserver/-webserver)
+          (.isStopped (:server @webserver/-webserver))))
   ;; start the server and fetch it
   (let [result (webserver/start {:controller-interceptors default-interceptors})
         server (:server result)]
     ;; verify if server object was properly set
     (is (= (type server)
-           org.eclipse.jetty.server.Server))))
+           Server))))
 
 ;; test jetty handler function call
 (deftest call-jetty-handler-fn
@@ -42,9 +45,7 @@
     ;; verify if it's the right response
     (is (= (f sample-request) {:status 200, :body ":action"}))))
 
-;; TODO: research: this is wrong, because web-server stop function
-;; always returns nil
 (deftest stop-webserver
-  ;; how to verify if the following function call was successful?
-  (is (nil? (webserver/stop))))
-
+  (webserver/stop)
+  (is (or (empty? @webserver/-webserver)
+          (.isStopped (:server @webserver/-webserver)))))

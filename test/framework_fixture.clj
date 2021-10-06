@@ -1,105 +1,64 @@
 (ns framework-fixture
-  "Sample application to test the framework startup and functions"
   (:require
-    [com.stuartsierra.component :as component]
-    [framework.components.interceptors :as interceptors]
-    [framework.components.session.backend :as session-backend]
-    [framework.components.web-server.core :refer [->web-server route]]
+    [clj-test-containers.core :as tc]
     [framework.config.core :as config]
-    [framework.db.storage :refer [->postgresql]]
-    [framework.one-endpoint-functions :as f-map]
-    [framework.test-interceptors :as ti]
-    [next.jdbc :as jdbc]
-    [xiana.core :as xiana])
-  (:import
-    (com.opentable.db.postgres.embedded
-      EmbeddedPostgres)))
-
-(def routes
-  [["/users" {:get {:action  f-map/get-user-controller
-                    :handler route}}]
-   ["/interceptor" {:get {:handler      route
-                          :action       #(xiana/ok (update % :response conj {:status 200 :body "Ok"}))
-                          :interceptors [ti/test-interceptor]}}]
-   ["/action" {:post {:handler route}}]
-   ["/test-override" {:post {:handler      route
-                             :action       #(xiana/ok (update % :response conj {:status 200 :body "Ok"}))
-                             :interceptors {:override [ti/test-override]}}}]
-   ["/session" {:post {:handler      route
-                       :action       #(xiana/ok (update % :response conj {:status 200 :body "Ok"}))
-                       :interceptors {:override [(interceptors/muuntaja)
-                                                 ;interceptors/log
-                                                 interceptors/params
-                                                 interceptors/session-interceptor
-                                                 ti/response-session
-                                                 (ti/single-entry f-map/action-map "/session")
-                                                 interceptors/view
-                                                 interceptors/side-effect
-                                                 (interceptors/db-access)
-                                                 (interceptors/acl-restrict)]}}}]])
-
-(def sys-deps
-  {:web-server [:db]})
-
-(def app-config
-  (let [config (config/read-edn-file nil)]
-    {:acl-cfg                 (select-keys config [:acl/permissions :acl/roles])
-     :auth                    (:framework.app/auth config)
-     :session-backend         (session-backend/init-in-memory-session)
-     :router-interceptors     []
-     :controller-interceptors [(interceptors/muuntaja)
-                               ;interceptors/log
-                               interceptors/params
-                               interceptors/session-interceptor
-                               (ti/single-entry f-map/action-map "/action")
-                               interceptors/view
-                               interceptors/side-effect
-                               (interceptors/db-access)
-                               (interceptors/acl-restrict)]}))
+    [framework.db.core :as db-core]
+    [framework.route.core :as routes]
+    [framework.session.core :as session-backend]
+    [framework.webserver.core :as ws]
+    [migratus.core :as migratus]
+    [next.jdbc :as jdbc]))
 
 (defn system
-  [config app-config routes]
-  {:db         (->postgresql config)
-   :web-server (->web-server config app-config routes)})
-
-(defn embedded-postgres!
   [config]
-  (let [pg (.start (EmbeddedPostgres/builder))
-        pg-port (.getPort pg)
-        nuke-sql (slurp "./Docker/init.sql")
-        init-sql (slurp "./test/resources/init.sql")
+  (let [session-backend (:session-backend config (session-backend/init-in-memory))
+        deps {:webserver               (:framework.app/web-server config)
+              :routes                  (routes/reset (:routes config))
+              :role-set                (:role-set config)
+              :auth                    (:framework.app/auth config)
+              :session-backend         session-backend
+              :router-interceptors     (:router-interceptors config)
+              :controller-interceptors (:controller-interceptors config)
+              :db                      (db-core/start
+                                         (:database-connection config))}]
+    (assoc deps :web-server (ws/start deps))))
+
+(defn docker-postgres!
+  [config]
+  (let [container (-> (tc/create {:image-name    "postgres:11.5-alpine"
+                                  :exposed-ports [5432]})
+                      (tc/start!))
+        port (get (:mapped-ports container) 5432)
+
         db-config (-> config
-                      :framework.db.storage/postgresql
+                      :database-connection
                       (assoc
-                        :port pg-port
-                        :embedded pg
-                        :subname (str "//localhost:" pg-port "/framework")))]
-    (jdbc/execute! (dissoc db-config :dbname) [nuke-sql])
-    (jdbc/execute! db-config [init-sql])
-    (assoc config :framework.db.storage/postgresql db-config)))
+                        :port port
+                        :dbtype "postgresql"
+                        :dbname "framework_test"
+                        :embedded container
+                        :user "postgres"
+                        :subname (str "//localhost:" port "/frankie")))]
+    (jdbc/execute! (dissoc db-config :dbname) ["CREATE DATABASE framework_test;"])
+    (jdbc/execute! db-config ["GRANT ALL PRIVILEGES ON DATABASE framework_test TO postgres;"])
+    (assoc config :database-connection db-config)))
 
-(defonce st (atom {}))
-
-(defn start
-  [state]
-  (reset! state (component/start (-> (config/read-edn-file nil)
-                                     embedded-postgres!
-                                     (system app-config routes)
-                                     component/map->SystemMap
-                                     (component/system-using sys-deps)))))
-
-(defn stop
-  [state]
-  (swap! state component/stop))
+(defn migrate!
+  [config]
+  (let [db (:database-connection config)
+        mig-config (assoc (:framework.db.storage/migration config) :db db)]
+    (migratus/migrate mig-config))
+  config)
 
 (defn std-system-fixture
-  [f]
-  (start st)
+  [config f]
   (try
+    (-> (config/env)
+        (merge config)
+        docker-postgres!
+        (assoc-in [:framework.app/web-server :port] 3333)
+        migrate!
+        system)
     (f)
     (finally
-      (stop st))))
-
-(comment
-  (stop st)
-  (start st))
+      (ws/stop))))

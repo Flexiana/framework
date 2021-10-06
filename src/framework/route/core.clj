@@ -25,6 +25,7 @@
   (let [method (:request-method request)
         handler (-get-in-template match method :result :handler)
         action (-get-in-template match method :data :action)
+        permission (-get-in-template match method :data :permission)
         interceptors (-get-in-template match method :data :interceptors)]
     ;; associate the necessary route match information
     (xiana/ok
@@ -33,6 +34,7 @@
           (?assoc-in [:request-data :handler] handler)
           (?assoc-in [:request-data :interceptors] interceptors)
           (?assoc-in [:request-data :match] match)
+          (?assoc-in [:request-data :permission] permission)
           (assoc-in [:request-data :action]
                     (or action
                         (if handler

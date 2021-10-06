@@ -7,6 +7,7 @@
                  [honeysql "1.0.444"]
                  [nilenso/honeysql-postgres "0.2.6"]
                  [clj-http "3.12.0"]
+                 [com.flexiana/tiny-rbac "0.1.1"]
                  [org.postgresql/postgresql "42.2.2"]
                  [com.fzakaria/slf4j-timbre "0.3.21"]
                  [org.clojure/data.xml "0.0.8"]
@@ -37,6 +38,7 @@
              :test     {:source-paths ["test"]
                         :dependencies [[lambdaisland/kaocha "1.0.732"]
                                        [lambdaisland/kaocha-cloverage "1.0.75"]
+                                       [clj-test-containers "0.4.0"]
                                        [mvxcvi/cljstyle "0.14.0"
                                         :exclusions [org.clojure/clojure]]
                                        [clj-kondo "2021.01.20"]
