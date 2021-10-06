@@ -16,7 +16,7 @@
   (fn handle*
     ([http-request]
      (let [state (state/make deps http-request)
-           queue (list #(interceptor.queue/execute % (:router-interceptors deps))
+           queue (list #(interceptor.queue/execute % (:router-interceptors deps) false)
                        #(route/match %)
                        #(interceptor.queue/execute % (:controller-interceptors deps)))]
        (-> (xiana/apply-flow-> state queue)
