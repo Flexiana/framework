@@ -1,26 +1,20 @@
 (ns interceptors.load-user
   (:require
-    [clojure.core :as core]
     [framework.db.sql :as db]
-    [honeysql.core :as sql]
-    [honeysql.helpers :as helpers]
-    [xiana.core :as xiana]))
+    [honeysql.helpers :refer [select from where]]
+    [xiana.core :as xiana])
+  (:import (java.util UUID)))
 
-(defn- purify
-  "Removes namespaces from keywords"
-  [elem]
-  (into {}
-        (map (fn [[k v]] {(keyword (name k)) v}) elem)))
-
-(defn load-user
-  [{{{user-id :id} :user} :session-data
-    :as                   state}]
-  (let [query (-> (helpers/select :*)
-                  (helpers/from :users)
-                  (helpers/where [:= :id user-id])
-                  sql/format)
-        user (first (db/execute state query))]
-    (if user
-      (xiana/ok (-> (assoc-in state [:session-data :user] (purify user))
-                    (core/update :session-data dissoc :new-session)))
-      (xiana/ok state))))
+(def login-user
+  {:enter (fn [{:keys [request] :as state}]
+            (try (if-let [user-id (UUID/fromString (get-in request [:headers :authorization]))]
+                   (let [datasource (get-in state [:deps :db :datasource])
+                         query (-> {}
+                                   (select :*)
+                                   (from :users)
+                                   (where [:= :id user-id]))
+                         user (first (db/execute datasource query))]
+                     (xiana/ok (assoc-in state [:session-data :user] user))))
+                 (catch Exception _
+                   (xiana/ok (assoc-in state [:session-data :user] {:users/role :guest
+                                                                    :users/id (UUID/randomUUID)})))))})
