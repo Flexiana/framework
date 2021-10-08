@@ -11,7 +11,6 @@
                      post
                      test_member
                      test_admin
-                     test_suspended_admin
                      test_staff]]
     [post-helpers :refer [post-ids
                           update-count
@@ -165,8 +164,8 @@
                     :body
                     post-ids
                     first)
-        comment (put :comments test_member {:post_id post-id
-                                            :content "test comment on test post"})
+        _ (put :comments test_member {:post_id post-id
+                                      :content "test comment on test post"})
         result (-> (fetch "posts/comments" test_member)
                    :body
                    (json/read-str :key-fn keyword)

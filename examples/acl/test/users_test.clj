@@ -2,15 +2,13 @@
   (:require
     [acl-fixture]
     [clojure.data.json :as json]
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is use-fixtures]]
     [helpers :refer [delete
                      put
                      fetch
                      post
                      test_member
-                     test_admin
-                     test_suspended_admin
-                     test_staff]]
+                     test_admin]]
     [post-helpers]))
 
 (use-fixtures :once acl-fixture/std-system-fixture)
@@ -106,7 +104,7 @@
                     :body
                     post-helpers/post-ids
                     first)
-        comment (put :comments test_member {:post_id post-id :content "Test comment on test post"})
+        _ (put :comments test_member {:post_id post-id :content "Test comment on test post"})
         result (-> (fetch "users/posts/comments" test_member test_member)
                    ->users
                    first)]
@@ -119,7 +117,7 @@
                     :body
                     post-helpers/post-ids
                     first)
-        comment (put :comments test_member {:post_id post-id :content "Test comment on test post"})
+        _ (put :comments test_member {:post_id post-id :content "Test comment on test post"})
         result (-> (fetch "users/posts" test_member test_member)
                    ->users
                    first)]
