@@ -222,7 +222,7 @@
     from the container and the remaining data is discarded, because each new
     request demands/creates a new clean *state* map.
 
-    Probably you're under: why not just call it *context*? Go figure :),
+    Probably you're wondering: why not just call it *context*? Go figure :),
     but putting jokes aside, this nomenclature will probably change in the
     near future.
 
