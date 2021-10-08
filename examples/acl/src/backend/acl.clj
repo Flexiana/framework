@@ -71,7 +71,7 @@
                                         interceptors/params
                                         (interceptors/message 2)
                                         ;(interceptors/session-user-id session-backend)
-                                        user/login-user
+                                        user/load-user!
                                         (interceptors/message 3)
                                         ;(interceptors/session-user-role)
                                         (interceptors/message 4)

@@ -44,13 +44,13 @@
 (deftest guest-cannot-delete-posts :posts
   (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
-    (is (= [401 "You don't have rights to do this"]
+    (is (= [403 "Forbidden"]
            (-> {:url                  "http://localhost:3000/posts"
                 :unexceptional-status (constantly true)
                 :method               :delete}
                http/request
                ((juxt :status :body)))) "Guest cannot delete all posts")
-    (is (= [401 "You don't have rights to do this"]
+    (is (= [403 "Forbidden"]
            (-> {:url                  "http://localhost:3000/posts"
                 :unexceptional-status (constantly true)
                 :query-params         {:id (first orig-ids)}
@@ -60,7 +60,7 @@
 
 (deftest guest-cannot-create-post
   (init-db-with-two-posts)
-  (is (= [401 "You don't have rights to do this"]
+  (is (= [403 "Forbidden"]
          (-> {:url                  "http://localhost:3000/posts"
               :unexceptional-status (constantly true)
               :form-params          {:content "It doesn't save anyway"}
@@ -71,7 +71,7 @@
 (deftest guest-cannot-update-post
   (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
-    (is (= [401 "You don't have rights to do this"]
+    (is (= [403 "Forbidden"]
            (-> {:url                  "http://localhost:3000/posts"
                 :unexceptional-status (constantly true)
                 :query-params         {:id (first orig-ids)}
