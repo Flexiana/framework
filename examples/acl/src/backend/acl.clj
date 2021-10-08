@@ -45,7 +45,7 @@
   (let [session-backend (:session-backend config (session/init-in-memory))
         deps {:webserver               (:framework.app/web-server config)
               :routes                  (routes/reset routes)
-              :role-set                (rbac/init (:role-set config))
+              :role-set                (rbac/init (:framework.app/role-set config))
               :auth                    (:framework.app/auth config)
               :session-backend         session-backend
               :router-interceptors     [(interceptors/message "router ---------------")]

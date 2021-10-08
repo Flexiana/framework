@@ -30,6 +30,53 @@
 
  :framework.app/web-server        {:port  3000
                                    :join? false}
+ :framework.app/role-set          {:resources [:posts :comments :users]
+                                   :actions   {:posts    [:read :create :update :delete :comment :react]
+                                               :comments [:read :create :update :delete :reply :react]
+                                               :users    [:read :create :update :delete :ban]}
+                                   :roles     {:guest     {:posts    {:read :all}
+                                                           :comments {:read :all}}
+                                               :member    {:posts    {:read    :all
+                                                                      :comment :friends
+                                                                      :react   :friends
+                                                                      :create  :own
+                                                                      :update  :own
+                                                                      :delete  :own}
+                                                           :comments {:read   :all
+                                                                      :create :own
+                                                                      :update :own
+                                                                      :delete :own
+                                                                      :reply  :friends
+                                                                      :react  :friends}
+                                                           :users    {:read   :all
+                                                                      :create :own
+                                                                      :update :own
+                                                                      :delete :own}}
+                                               :staff     {:posts    {:read   :all
+                                                                      :delete :all}
+                                                           :comments {:read   :all
+                                                                      :delete :all}
+                                                           :users    {:read   :all
+                                                                      :delete :ban}}
+                                               :superuser {:posts    {:read    :all
+                                                                      :comment :all
+                                                                      :react   :all
+                                                                      :create  :all
+                                                                      :update  :all
+                                                                      :delete  :all}
+                                                           :comments {:read   :all
+                                                                      :create :all
+                                                                      :update :all
+                                                                      :delete :all
+                                                                      :reply  :all
+                                                                      :react  :all}
+                                                           :users    {:read   :all
+                                                                      :create :all
+                                                                      :update :all
+                                                                      :delete :all
+                                                                      :ban :all}}}}
+
+
  :acl/permissions                 {"posts"    [:read :create :update :delete :comment :react]
                                    "comments" [:read :create :update :delete :reply :react]
                                    "users"    [:read :create :update :delete :ban]}
