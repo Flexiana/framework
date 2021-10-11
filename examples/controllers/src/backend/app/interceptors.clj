@@ -1,5 +1,6 @@
 (ns interceptors
   (:require
+    [malli.core :as m]
     [potemkin :refer [import-vars]]
     [reitit.coercion :as coercion]
     [reitit.core :as r]
@@ -25,4 +26,15 @@
               (xiana/ok (update-in state [:request :params] merge coercion))))
    :error (fn [state]
             (xiana/error (assoc state :response {:status 400
-                                                 :body "Request coercion failed"})))})
+                                                 :body   "Request coercion failed"})))
+   :leave (fn [{response :response :as st}]
+            (let [responses (get-in st [:request-data :match :data :responses])
+                  {:keys [status body]} (select-keys response [:status :body])
+                  schema (get-in responses [status :body])
+                  valid (if (and schema body)
+                          (m/validate schema body)
+                          true)]
+              (if valid
+                (xiana/ok st)
+                (xiana/error (assoc st :response {:status 400
+                                                  :body "Response validation failed"})))))})

@@ -2,16 +2,12 @@
 (ns router
   (:require
     [clojure.data.xml :as xml]
-    [clojure.string :as str]
     [controllers.index :as index]
     [controllers.re-frame :as re-frame]
-    [framework.route.helpers :as helpers]
     [framework.webserver.core :as ws]
     [malli.core :as m]
     [malli.registry :as mr]
     [malli.util :as mu]
-    [muuntaja.core :as munc]
-    [muuntaja.format.json :as json-format]
     [my-domain-logic.siege-machines :as mydomain.siege-machines]
     [reitit.coercion.malli :as rcm]
     [reitit.ring :as ring])
@@ -63,22 +59,10 @@
       (encode-to-bytes [_ data charset]
         (.getBytes ^String (helper data) ^String charset)))))
 
-(def minun-muuntajani
-  (munc/create
-    (-> muuntaja.core/default-options
-        (assoc-in [:formats "application/upper-json"]
-                  {;:decoder [json-format/decoder]
-                   :encoder [json-format/encoder {:encode-key-fn (comp str/upper-case name)}]})
-        (assoc-in [:formats "application/xml"] {:encoder [xml-encoder]})
-        (assoc-in [:formats "application/json" :decoder-opts :bigdecimals] true)
-        (assoc-in [:formats "application/json" :encoder-opts :date-format] "yyyy-MM-dd"))))
-
 (def routes
   [["/" {:action index/index}]
    ["/re-frame" {:action re-frame/index}]
-   ["" {:action     helpers/action
-        :coercion   (rcm/create {:registry registry})
-        :muuntaja   minun-muuntajani}
+   ["" {:coercion   (rcm/create {:registry registry})}
     ["/api/siege-machines/{mydomain/id}" {:hander     ws/handler-fn
                                           :action     mydomain.siege-machines/get-by-id
                                           :parameters {:path [:map [:mydomain/id int?]]}

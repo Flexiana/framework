@@ -90,20 +90,8 @@
              http/request
              (select-keys [:status :body]))))
 
-  (comment
-    "Have no idea why this request should fail"
-    (is (= {:body   "Internal Server error"
-            :status 500}
-           (-> {:url                  "http://localhost:3000/api/siege-machines/3"
-                :unexceptional-status (constantly true)
-                :basic-auth           ["aladdin" "opensesame"]
-                :accept               :application/json
-                :method               :get}
-               http/request
-               (select-keys [:status :body])))))
-
-  (is (= {:body   "{\"id\":3,\"name\":\"puppet on strings\"}"
-          :status 200}
+  (is (= {:status 400
+          :body "Response validation failed"}
          (-> {:url                  "http://localhost:3000/api/siege-machines/3"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]
