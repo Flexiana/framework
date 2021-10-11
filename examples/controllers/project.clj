@@ -2,9 +2,9 @@
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [com.flexiana/framework "0.1.4"]
-                 [metosin/reitit "0.5.12"]
-                 [metosin/malli "0.2.1"]
+                 [com.flexiana/framework "0.3.0"]
+                 [metosin/reitit "0.5.15"]
+                 [metosin/malli "0.6.2"]
                  [duct/server.http.jetty "0.2.1"]
                  [thheller/shadow-cljs "2.11.7"]
                  [reagent "0.10.0"]
