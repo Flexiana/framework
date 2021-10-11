@@ -73,7 +73,7 @@
                    [:response-data :db-data]
                    ;; returns the result of the database-query
                    ;; execution or empty ({})
-                   (db.sql/execute! (get-in state [:deps :db :datasource]) (sql/format query)))
+                   (db.sql/execute (get-in state [:deps :db :datasource]) query))
          state)))})
 
 (defn message
