@@ -25,7 +25,7 @@
    :leave (fn [{{:keys [:status :body]} :response
                 :as                     state}]
             (let [schema (get-in state [:request-data :match :data :responses status :body])]
-              (if (and schema body (m/validate schema body))
-                (xiana/ok state)
-                (xiana/error (assoc state :response {:status 400
-                                                     :body   "Response validation failed"})))))})
+              (cond (and schema body (m/validate schema body)) (xiana/ok state)
+                    (and schema body) (xiana/error (assoc state :response {:status 400
+                                                                           :body   "Response validation failed"}))
+                    :else (xiana/ok state))))})
