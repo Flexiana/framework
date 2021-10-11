@@ -24,7 +24,7 @@ lein run
 
     Unauthorized
 
-    curl "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/re-frame
+    curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/re-frame
 
 ```html
 <!DOCTYPE html>
