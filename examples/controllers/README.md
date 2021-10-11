@@ -4,41 +4,74 @@ FIXME: description
 
 ## Usage
 
-### Start dockerized PostgreSQL
+### Run the backend
 
-    postgres-start.sh
-
-### Build frontend and run the backend
-
-    lein release
-
-    lein run
-
-### Open re-frame app
-
-    open http://localhost:3000/re-frame
+```shell
+lein run
+```
 
 ### Try controllers
 
     curl http://localhost:3000/
+
     Unauthorized
     
     curl http://localhost:3000/wrong
-    Not Found
-    
+
+    Unauthorized
+
+    curl http://localhost:3000/re-frame
+
+    Unauthorized
+
+    curl "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/re-frame
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>controllers</title>
+</head>
+<body>
+<noscript>
+    controllers is a JavaScript app. Please enable JavaScript to continue.
+</noscript>
+<div id="app"></div>
+<script src="assets/js/compiled/app.js"></script>
+</body>
+</html>
+```
+
     curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/
+
     Index page
     
     curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/wrong
+
     Not Found
-    
+
+    curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/api/siege-machines/1 
+
+    {"id":1,"name":"trebuchet"}
+
+    curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/api/siege-machines/apple 
+
+    Request coercion failed
+
+    curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/api/siege-machines/4
+
+    Not found
+
+    curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/api/siege-machines/3
+
+    Response validation failed
+
 ### Run controllers test
 
-    Start the db with 
-    ```bash 
-    ./postgres-start.sh
-    ``` 
-    and run tests with
-    ```bash 
-    lein test components-test
-    ```
+Run tests with
+
+```shell 
+lein test components-test
+```
