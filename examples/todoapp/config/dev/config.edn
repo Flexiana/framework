@@ -1,0 +1,34 @@
+{:framework.db.storage/postgresql {:port     5432
+                                   :dbname   "controllers"
+                                   :host     "localhost"
+                                   :dbtype   "postgresql"
+                                   :user     "postgres"
+                                   :password "postgres"}
+ :framework.db.storage/migration  {:store                :database
+                                   :migration-dir        "resources/migrations"
+                                   :parent-migration-dir "src/"
+                                  ;;  :migration-dir        "migrations"
+                                  ;;  :init-in-transaction? false
+                                   :init-in-transaction? false
+                                   :migration-table-name "migrations"}
+
+ :framework.app/ring {:defaults {:params    {:urlencoded true
+                                             :multipart  true
+                                             :nested     true
+                                             :keywordize true}
+                                 :cookies   true
+                                 :session   {:flash true
+                                             :cookie-attrs
+                                             {:http-only true, :same-site :strict}}
+                                 :security  {:anti-forgery         true
+                                             :xss-protection
+                                             {:enable? true, :mode :block}
+                                             :frame-options        :sameorigin
+                                             :content-type-options :nosniff}
+                                 :static    {:resources "public"}
+                                 :responses {:not-modified-responses true
+                                             :absolute-redirects     true
+                                             :content-types          true}}}
+
+ :framework.app/web-server {:port  3000
+                            :join? false}}
