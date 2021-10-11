@@ -1,6 +1,5 @@
 {:paths   ["src" "config"]
- :deps    {com.flexiana/framework {:mvn/version "0.2.4"}
-;;  :deps    {:io.github.kaze/framework {:git/tag "v0.3.0" :git/sha "ee5868a"}
+ :deps    {com.flexiana/framework {:mvn/version "0.3.0"}
            metosin/reitit         {:mvn/version "0.5.15"}
            ring/ring              {:mvn/version "1.9.4"}
            ring/ring-defaults     {:mvn/version "0.3.3"}}
@@ -18,33 +17,9 @@
                    :exec-args  {:sync-pom    true
                                 :group-id    "flexiana"
                                 :artifact-id "framework-todoapp"
-                                :version     "1.0.0"
+                                :version     "0.3.0"
                                 :jar         "todoapp.jar"
                                 :jar-type    "uber"
                                 :aot         true
                                 :main-class  todoapp.core}
                    :exec-fn    hf.depstar/uberjar}}}
-
-;; {:paths   ["src" "config"]
-;;  :deps    {com.flexiana/framework {:mvn/version "0.1.2"}
-;;            metosin/reitit         {:mvn/version "0.5.12"}
-;;            ring/ring              {:mvn/version "1.7.0"}
-;;            ring/ring-defaults     {:mvn/version "0.3.2"}}
-;;  :aliases {:test  {:extra-paths ["config/test""test"]
-;;                    :extra-deps  {clj-http                   {:mvn/version "3.12.0"}
-;;                                  lambdaisland/kaocha        {:mvn/version "1.0.732"}
-;;                                  clj-kondo/clj-kondo        {:mvn/version "2021.01.20"}
-;;                                  nubank/matcher-combinators {:mvn/version "3.1.4"}}}
-;;            :style {:deps      {mvxcvi/cljstyle {:mvn/version "0.14.0"}}
-;;                    :main-opts ["-m" "cljstyle.main" "fix"]}
-;;            :build {:extra-deps {seancorfield/depstar {:mvn/version "2.0.165"}}
-;;                    :ns-default hf.depstar
-;;                    :exec-args  {:sync-pom    true
-;;                                 :group-id    "flexiana"
-;;                                 :artifact-id "framework-todoapp"
-;;                                 :version     "1.0.0"
-;;                                 :jar         "todoapp.jar"
-;;                                 :jar-type    "uber"
-;;                                 :aot         true
-;;                                 :main-class  todoapp.core}
-;;                    :exec-fn    hf.depstar/uberjar}}}
