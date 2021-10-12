@@ -8,3 +8,8 @@
       (assoc m k (assoc-in (get m k) ks v))
       (assoc m k v))
     m))
+
+(defn map-keys
+  [f m]
+  (zipmap (map f (keys m))
+          (vals m)))

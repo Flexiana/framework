@@ -1,7 +1,7 @@
 (ns framework.session.core
   (:require
-    [xiana.core :as xiana]
-    [clojure.string :as string])
+    [clojure.string :as string]
+    [xiana.core :as xiana])
   (:import
     (java.util
       UUID)))
