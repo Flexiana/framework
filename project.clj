@@ -33,7 +33,7 @@
   :profiles {:dev      {:resource-paths         ["config/dev"]
                         :lein-tools-deps/config {:config-files [:install :user :project]}
                         :plugins [[lein-codox "0.10.7"]]
-                        :codox {:output-path "target/doc/new/"
+                        :codox {:output-path "docs/new/"
                                 :themes [:default :xiana]
                                 :namespaces [#"framework" #"xiana"]
                                 :source-uri "https://github.com/Flexiana/framework/blob/{git-commit}/{filepath}#L{line}"}}
