@@ -70,13 +70,6 @@
     (let [sql-params (->sql-params sql-map)]
       (jdbc/execute! connection sql-params {:return-keys true}))))
 
-(defn execute!
-  "Get connection and execute query using `jdbc/execute!`.
-  If some error/exceptions occurs returns an empty map."
-  [datasource sql-vec]
-  (with-open [connection (.getConnection datasource)]
-    (jdbc/execute! connection sql-vec)))
-
 (defn create-table
   "Create table specified by its name on the database."
   ([table-name]
