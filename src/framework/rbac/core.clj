@@ -12,9 +12,7 @@
 (defn permissions
   [state]
   (let [role-set (get-in state [:deps :role-set])
-        session-id (get-in state [:request :headers "session-id"])
-        session-backend (-> state :deps :session-backend)
-        user (session/fetch session-backend session-id)
+        user (get-in state [:session-data :user])
         role (:users/role user)
         permit (get-in state [:request-data :permission])
         resource (keyword (namespace permit))

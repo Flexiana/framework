@@ -42,5 +42,5 @@
                                 valid-user))
                             (catch Exception _ guest-user))]
               (session/add! session-backend session-id user)
-              (xiana/ok (-> (assoc-in state [:session-data :user] user)
-                            (assoc-in [:request :headers "session-id"] session-id)))))})
+              (xiana/ok (assoc-in (assoc-in state [:session-data :user] user)
+                                  [:session-data :session-id] session-id))))})

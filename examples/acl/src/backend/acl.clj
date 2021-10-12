@@ -64,25 +64,13 @@
               :role-set                (rbac/init (:framework.app/role-set config))
               :auth                    (:framework.app/auth config)
               :session-backend         session-backend
-              :router-interceptors     [(interceptors/message "router ---------------")]
-              :controller-interceptors [(interceptors/message 0)
-                                        (interceptors/muuntaja)
-                                        (interceptors/message 1)
+              :router-interceptors     []
+              :controller-interceptors [(interceptors/muuntaja)
                                         interceptors/params
-                                        (interceptors/message 2)
-                                        ;(interceptors/session-user-id session-backend)
                                         user/load-user!
-                                        (interceptors/message 3)
-                                        ;(interceptors/session-user-role)
-                                        (interceptors/message 4)
-                                        ;(session/interceptor session-backend)
-                                        (interceptors/message 5)
                                         interceptors/view
-                                        (interceptors/message 6)
                                         interceptors/db-access
-                                        (interceptors/message 7)
-                                        rbac/interceptor
-                                        (interceptors/message 8)]
+                                        rbac/interceptor]
               :db                      (db-core/start
                                          (:framework.db.storage/postgresql config))}]
     (assoc deps :web-server (ws/start deps))))
