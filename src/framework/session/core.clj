@@ -1,6 +1,7 @@
 (ns framework.session.core
   (:require
-    [xiana.core :as xiana])
+    [xiana.core :as xiana]
+    [clojure.string :as string])
   (:import
     (java.util
       UUID)))
@@ -38,33 +39,51 @@
      ;; erase session
      (erase! [_] (reset! m {})))))
 
-(defn interceptor
-  "Session interceptor."
-  ([] (interceptor (init-in-memory)))
-  ([session-instance]
-   {:enter
-    (fn [{request :request :as state}]
-      (let [session-id (try (UUID/fromString
-                              (get-in request [:headers :session-id]))
-                            (catch Exception _ nil))
-            session-data (when session-id
-                           (fetch session-instance
-                                  session-id))]
+(defn on-enter
+  [protected-path
+   excluded-resource
+   {{headers      :headers
+     cookies      :cookies
+     query-params :query-params
+     uri          :uri} :request
+    :as                 state}]
+  (if (and (string/starts-with? uri protected-path)
+           (not= uri (str protected-path excluded-resource)))
+    (try (let [session-backend (-> state :deps :session-backend)
+               session-id (UUID/fromString (or (some->> headers
+                                                        :session-id)
+                                               (some->> cookies
+                                                        :session-id
+                                                        :value)
+                                               (some->> query-params
+                                                        :SESSIONID)))
+               session-data (or (fetch session-backend session-id)
+                                (throw (ex-message "Missing session data")))]
+           (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id))))
+         (catch Exception _
+           (xiana/error
+             (assoc state :response {:status 401
+                                     :body   "Invalid or missing session"}))))
+    (xiana/ok state)))
 
-        (if session-id
-          ;; associate session in state
-          (xiana/ok (assoc state :session-data session-data))
-          ;; new session
-          (xiana/error {:response {:status 403 :body "Session expired"}}))))
-    :leave
-    (fn [state]
-      (let [session-id (get-in state [:session-data :session-id])]
-        ;; dissociate session data
-        (add! session-instance
-              session-id
-              (dissoc (:session-data state) :new-session))
-        ;; associate the session id
-        (xiana/ok
-          (assoc-in state
-                    [:response :headers "Session-id"]
-                    (str session-id)))))}))
+(defn interceptor
+  "It allows a resource to be served when
+      * it is not protected
+   or
+      * the user-provided `session-id` exists in the server's session store.
+
+   In case the session exists in the session store, it adds the user-related data (`id`, `role`, ...)
+   to the `state` as `:session-data`."
+  [protected-path excluded-resource]
+  {:enter (partial on-enter protected-path excluded-resource)
+   :leave (fn [state]
+            (let [session-backend (-> state :deps :session-backend)
+                  session-id (get-in state [:session-data :session-id])]
+              (add! session-backend
+                    session-id
+                    (:session-data state))
+              ;; associate the session id
+              (xiana/ok
+                (assoc-in state
+                          [:response :headers "Session-id"]
+                          (str session-id)))))})
