@@ -9,5 +9,5 @@
   ["" {:handler ws/handler-fn}
    ["/" {:get {:action index/handle-index}}]
    ["/status" {:get {:action status/handle-status}}]
-   ["/assets/*" {:get {:action (ring/create-resource-handler)}}]])
+   ["/assets/*" (ring/create-resource-handler {:path "/"})]])
 
