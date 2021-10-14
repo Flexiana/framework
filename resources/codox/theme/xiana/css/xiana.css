@@ -2,6 +2,11 @@
     background: #f8cc00;
 }
 
+.sidebar.primary .logo {
+    background: black;
+    width: 100%;
+}
+
 .logo {
     float: left;
     padding-left: 10px;
@@ -10,6 +15,6 @@
 }
 
 .logo h3{
-    color: #f8cc00;
     margin:0px;
+    color: #f8cc00;
 }

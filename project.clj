@@ -36,7 +36,8 @@
                         :codox {:output-path "docs/new/"
                                 :themes [:default :xiana]
                                 :namespaces [#"framework" #"xiana"]
-                                :source-uri "https://github.com/Flexiana/framework/blob/{git-commit}/{filepath}#L{line}"}}
+                                :source-uri "https://github.com/Flexiana/framework/blob/{git-commit}/{filepath}#L{line}"
+                                :doc-files ["doc/Getting-Started.md", "doc/How-To.md", "doc/Development-Guide.md"]}}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}

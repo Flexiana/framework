@@ -1,4 +1,13 @@
-# Generating API Docs
+# Development guide
+TODO fill this with everything a developer starting to work on Xiana might need to know
+
+* Ticket System
+* Coding standards
+* Submitting a PR
+* Making a release
+
+
+## Generating API Docs
 
 This is done automatically using *Codox*
 

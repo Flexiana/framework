@@ -1,5 +1,5 @@
 {:transforms [[:head] [:append [:link {:rel "stylesheet", :type "text/css" :href "css/xiana.css"}]]
               [:div#header] [:prepend [:div.logo [:h3 "Xiana logo here"]]]
-              [:div.sidebar] [:prepend [:div.logo [:h3 "Or Xiana Logo Here"]]]
+              [:div.sidebar] [:prepend [:div.logo [:h3 "Or Here"]]]
               ]
  :resources ["css/xiana.css"]}
