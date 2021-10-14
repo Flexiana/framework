@@ -1,10 +1,10 @@
 .sidebar.primary {
     background: #f8cc00;
+    width: 200px;
 }
 
-.sidebar.primary .logo {
-    background: black;
-    width: 100%;
+.sidebar.primary::-webkit-scrollbar {
+  display: none;
 }
 
 .logo {

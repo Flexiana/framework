@@ -33,6 +33,7 @@
   :profiles {:dev      {:resource-paths         ["config/dev"]
                         :lein-tools-deps/config {:config-files [:install :user :project]}
                         :plugins [[lein-codox "0.10.7"]]
+                        :jvm-opts ["--add-opens" "java.base/java.lang=ALL-UNNAMED"]
                         :codox {:output-path "docs/new/"
                                 :themes [:default :xiana]
                                 :namespaces [#"framework" #"xiana"]

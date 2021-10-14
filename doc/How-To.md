@@ -1,4 +1,4 @@
-# How to guides
+# How-to guide
 
 TODO fill this with info on how to use Xiana to acheive specific ends
 
