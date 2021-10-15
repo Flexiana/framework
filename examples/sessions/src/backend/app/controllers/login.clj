@@ -26,16 +26,16 @@
                       (json/read-str :key-fn keyword))
         user (find-user (-> rbody
                             :email))
-        session-id (UUID/randomUUID)]
+        session-id (UUID/randomUUID)
+        session-data {:session-id session-id
+                      :user       (dissoc user :password)}]
     (if (and user (= (:password user) (:password rbody)))
       (xiana/ok (assoc state
-                       :login-data {:session-id session-id
-                                    :user       (dissoc user :password)}
-                       :response {:status  200
-                                  :headers {"Content-Type" "application/json"}
-                                  :body    (json/write-str
-                                             {:session-id (str session-id)
-                                              :user       (dissoc user :password)})}))
+                  :login-data session-data
+                  :session-data session-data
+                  :response {:status  200
+                             :headers {"Content-Type" "application/json"}
+                             :body    (json/write-str (update session-data :session-id str))}))
 
       (xiana/error (assoc state :response {:status 401
                                            :body   "Incorrect credentials"})))))
