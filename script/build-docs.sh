@@ -19,4 +19,4 @@ echo "Generating new index.html"
 if [ -f $INDEX_HTML ]; then
     rm "docs/index.html"
 fi
-cat script/template-index.html | sed 's/current-version-number>/$PROJECT_VERSION/' > docs/index.html
+cat script/template-index.html | sed "s/<current-version-number>/$PROJECT_VERSION/" > docs/index.html
