@@ -1,31 +1,12 @@
 (ns framework.webserver.core
+  "Lifecycle management of the webserver"
   (:require
     [framework.config.core :as config]
-    [framework.interceptor.queue :as interceptor.queue]
-    [framework.route.core :as route]
-    [framework.state.core :as state]
-    [ring.adapter.jetty :as jetty]
-    [xiana.core :as xiana]))
+    [framework.handler.core :refer [handler-fn]]
+    [ring.adapter.jetty :as jetty]))
 
 ;; web server reference
 (defonce -webserver (atom {}))
-
-(defn handler-fn
-  "Return jetty server handler function."
-  [deps]
-  (fn handle*
-    ([http-request]
-     (let [state (state/make deps http-request)
-           queue (list #(interceptor.queue/execute % (:router-interceptors deps))
-                       #(route/match %)
-                       #(interceptor.queue/execute % (:controller-interceptors deps)))]
-       (-> (xiana/apply-flow-> state queue)
-           ;; extract
-           (xiana/extract)
-           ;; get the response
-           (get :response))))
-    ([request respond _]
-     (respond (handle* request)))))
 
 (defn- make
   "Web server instance."
