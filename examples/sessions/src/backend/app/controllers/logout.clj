@@ -7,11 +7,11 @@
   (let [session-id (get-in state [:session-data :session-id])
         user (get-in state [:session-data :user])]
     (xiana/ok (assoc state
-                :session-data {}
-                :response {:status  200
-                           :headers {"Content-Type" "application/json"}
-                           :body    (str (:first-name user) " logged out")}
-                :logout-data {:session-id session-id}))))
+                     :session-data {}
+                     :response {:status  200
+                                :headers {"Content-Type" "application/json"}
+                                :body    (str (:first-name user) " logged out")}
+                     :logout-data {:session-id session-id}))))
 
 (defn logout-controller
   [state]

@@ -4,14 +4,17 @@
     [controllers.login :as login]
     [controllers.logout :as logout]
     [controllers.secret :as secret]
+    [framework.interceptor.core :as x-interceptors]
     [framework.webserver.core :as ws]
-    [interceptors :refer [require-logged-in
-                          login-out]]))
+    [interceptors :refer [inject-session?
+                          login-out
+                          require-logged-in]]))
 
 (def routes
   [["" {:handler ws/handler-fn}]
-   ["/" {:action index/index
-         :interceptors []}]
+   ["/" {:action       index/index
+         :interceptors [x-interceptors/params
+                        inject-session?]}]
    ["/login" {:action login/login-controller
               :interceptors {:around [login-out]}}]
    ["/logout" {:action logout/logout-controller

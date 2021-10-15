@@ -1,7 +1,10 @@
 (ns interceptors
   (:require
-    [framework.session.core :refer [add! delete!]]
-    [xiana.core :as xiana]))
+    [framework.session.core :refer [add! delete! fetch]]
+    [xiana.core :as xiana])
+  (:import
+    (java.util
+      UUID)))
 
 (def require-logged-in
   {:enter
@@ -25,3 +28,21 @@
               (when logout-data
                 (delete! sessions-backend session-id))
               (xiana/ok (assoc-in state [:session-data] (or login-data logout-data)))))})
+
+(def inject-session?
+  {:enter (fn [{{headers      :headers
+                 cookies      :cookies
+                 query-params :query-params} :request
+                :as                          state}]
+            (try (let [session-backend (-> state :deps :session-backend)
+                       session-id (UUID/fromString (or (some->> headers
+                                                                :session-id)
+                                                       (some->> cookies
+                                                                :session-id
+                                                                :value)
+                                                       (some->> query-params
+                                                                :SESSIONID)))
+                       session-data (fetch session-backend session-id)]
+                   (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id))))
+                 (catch Exception _
+                   (xiana/ok state))))})

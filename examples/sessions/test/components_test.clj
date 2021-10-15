@@ -67,14 +67,14 @@
         "and has UUID session id")
     (is (= body-session-id header-session-id)
         "Session ID is the same in the response and from headers")
-    (is (= {:status 200, :body "Index page"}
+    (is (= {:status 200, :body "Index page, for Piotr"}
            (-> {:url                  "http://localhost:3000/"
                 :headers              {:session-id body-session-id}
                 :unexceptional-status (constantly true)
                 :method               :get}
                http/request
                (select-keys [:status :body])))
-        "Index page is always available")
+        "Index page has some surprise when user logged in")
     (is (= {:status 200, :body "Hello Piotr"}
            (-> {:url                  "http://localhost:3000/secret"
                 :unexceptional-status (constantly true)

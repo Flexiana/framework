@@ -4,12 +4,16 @@
 
 (defn index-view
   [state]
-  (xiana/ok
-    (assoc state
-           :response
-           {:status  200
-            :headers {"Content-Type" "text/plain"}
-            :body    "Index page"})))
+  (let [user (get-in state [:session-data :user])
+        body (if user
+               (format "Index page, for %s" (:first-name user))
+               "Index page")]
+    (xiana/ok
+      (assoc state
+             :response
+             {:status  200
+              :headers {"Content-Type" "text/plain"}
+              :body    body}))))
 
 (defn index
   [state]

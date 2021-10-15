@@ -31,11 +31,11 @@
                       :user       (dissoc user :password)}]
     (if (and user (= (:password user) (:password rbody)))
       (xiana/ok (assoc state
-                  :login-data session-data
-                  :session-data session-data
-                  :response {:status  200
-                             :headers {"Content-Type" "application/json"}
-                             :body    (json/write-str (update session-data :session-id str))}))
+                       :login-data session-data
+                       :session-data session-data
+                       :response {:status  200
+                                  :headers {"Content-Type" "application/json"}
+                                  :body    (json/write-str (update session-data :session-id str))}))
 
       (xiana/error (assoc state :response {:status 401
                                            :body   "Incorrect credentials"})))))
