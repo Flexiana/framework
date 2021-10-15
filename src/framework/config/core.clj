@@ -1,4 +1,5 @@
 (ns framework.config.core
+  "Solves environment and config variables"
   (:require
     [clojure.edn :as edn]
     [clojure.java.io :as io]
@@ -41,5 +42,6 @@
         (-> k default-config-map))))
 
 (defn env
+  "Loads environment variables and config.edn from resource path"
   []
   (load-env))

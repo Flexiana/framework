@@ -1,4 +1,5 @@
 (ns framework.session.core
+  "Xiana's session management"
   (:require
     [clojure.string :as string]
     [xiana.core :as xiana])
@@ -67,13 +68,15 @@
     (xiana/ok state)))
 
 (defn interceptor
-  "It allows a resource to be served when
+  "On enter allows a resource to be served when
       * it is not protected
    or
       * the user-provided `session-id` exists in the server's session store.
-
-   In case the session exists in the session store, it adds the user-related data (`id`, `role`, ...)
-   to the `state` as `:session-data`."
+   If the session exists in the session store, it's copies it to the (-> state :session-data),
+   else responds with {:status 401
+                       :body   \"Invalid or missing session\"}
+   
+   On leave, it updates the session storage from (-> state :session-data)"
   [protected-path excluded-resource]
   {:enter (partial on-enter protected-path excluded-resource)
    :leave (fn [state]

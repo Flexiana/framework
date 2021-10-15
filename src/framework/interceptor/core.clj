@@ -1,13 +1,12 @@
 (ns framework.interceptor.core
+  "Collection of useful interceptors"
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.walk :refer [keywordize-keys]]
-    [framework.acl.core :as acl]
     [framework.db.sql :as db.sql]
     [framework.interceptor.muuntaja :as muuntaja]
     [framework.interceptor.wrap :as wrap]
     [framework.session.core :as session]
-    [honeysql.core :as sql]
     [ring.middleware.params :as middleware.params]
     [xiana.core :as xiana])
   (:import

@@ -1,4 +1,5 @@
 (ns framework.db.sql
+  "PostgreSQL functions, helpers, and executor"
   (:require
     [honeysql-postgres.format]
     [honeysql-postgres.helpers :as helpers]
@@ -50,26 +51,6 @@
   (let [{:keys [map rows]} args]
     (helpers/with-columns map rows)))
 
-(defn ->sql-params
-  "Parse sql-map using honeysql format function with pre-defined
-  options that target postgresql."
-  [sql-map]
-  (sql/format sql-map
-              {:quoting            :ansi
-               :parameterizer      :postgresql
-               :return-param-names false}))
-
-;; Question: What's the benefits to used the sql-map format?
-;; {:select [:*] :from [:users]}
-(defn execute
-  "Get connection, parse the given sql-map (query) and
-  execute it using `jdbc/execute!`.
-  If some error/exceptions occurs returns an empty map."
-  [datasource sql-map]
-  (with-open [connection (.getConnection datasource)]
-    (let [sql-params (->sql-params sql-map)]
-      (jdbc/execute! connection sql-params {:return-keys true}))))
-
 (defn create-table
   "Create table specified by its name on the database."
   ([table-name]
@@ -93,3 +74,20 @@
   [m rows]
   (let [args {:map m :rows rows}]
     (build-clause :with-columns :default args)))
+
+(defn ->sql-params
+  "Parse sql-map using honeysql format function with pre-defined
+  options that target postgresql."
+  [sql-map]
+  (sql/format sql-map
+              {:quoting            :ansi
+               :parameterizer      :postgresql
+               :return-param-names false}))
+
+(defn execute
+  "Gets datasource, parse the given sql-map (query) and
+  execute it using `jdbc/execute!`, and returns the modified keys"
+  [datasource sql-map]
+  (with-open [connection (.getConnection datasource)]
+    (let [sql-params (->sql-params sql-map)]
+      (jdbc/execute! connection sql-params {:return-keys true}))))

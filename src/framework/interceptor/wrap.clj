@@ -1,4 +1,5 @@
 (ns framework.interceptor.wrap
+  "To wrap any kind of middlewares and interceptors to xiana flow."
   (:require
     [xiana.core :as xiana]))
 

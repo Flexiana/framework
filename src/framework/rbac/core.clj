@@ -1,15 +1,20 @@
 (ns framework.rbac.core
+  "Integrates tiny-RBAC library to the xiana flow"
   (:require
-    [framework.session.core :as session]
     [tiny-rbac.builder :as b]
     [tiny-rbac.core :as c]
     [xiana.core :as xiana]))
 
 (defn init
+  "Initialize and validates a role-set"
   [role-set]
   (b/init role-set))
 
 (defn permissions
+  "Gathers the necessary parameters from xiana state for permission resolution.
+  Returns a set of keywords for data ownership check.
+  The format of returned keywords:
+   ':resource/restriction'"
   [state]
   (let [role-set (get-in state [:deps :role-set])
         user (get-in state [:session-data :user])
@@ -21,6 +26,11 @@
     (into #{} (map #(keyword (str (name resource) "/" (name %))) permissions))))
 
 (def interceptor
+  "On enter it validates if the resource is restricted,
+  and available at the current state (actual user with a role)
+  If it's not restricted do nothing,
+  if the given user has no rights, responses {:status 403 :body \"Forbidden\"}.
+  On leave executes restriction function if any."
   {:enter (fn [state]
             (let [operation-restricted (get-in state [:request-data :permission])
                   permits (and operation-restricted (permissions state))]
