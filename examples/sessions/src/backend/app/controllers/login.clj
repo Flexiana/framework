@@ -31,7 +31,6 @@
                       :user       (dissoc user :password)}]
     (if (and user (= (:password user) (:password rbody)))
       (xiana/ok (assoc state
-                       :login-data session-data
                        :session-data session-data
                        :response {:status  200
                                   :headers {"Content-Type" "application/json"}

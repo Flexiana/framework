@@ -13,21 +13,16 @@
        (xiana/ok state)
        (xiana/error (assoc state :response {:status 401 :body "Unauthorized"}))))})
 
-(def login-out
+(def logout
   {:leave (fn [state]
             (let [sessions-backend (-> state
                                        :deps
                                        :session-backend)
-                  login-data (-> state
-                                 :login-data)
-                  logout-data (-> state
-                                  :logout-data)
-                  session-id (get login-data :session-id (:session-id logout-data))]
-              (when login-data
-                (add! sessions-backend session-id login-data))
-              (when logout-data
-                (delete! sessions-backend session-id))
-              (xiana/ok (assoc-in state [:session-data] (or login-data logout-data)))))})
+                  session-id (-> state
+                                 :session-data
+                                 :session-id)]
+              (delete! sessions-backend session-id)
+              (xiana/ok (dissoc state :session-data))))})
 
 (def inject-session?
   {:enter (fn [{{headers      :headers
