@@ -3,15 +3,15 @@
     [xiana.core :as xiana]))
 
 (defn logout-view
-  [{request :http-request :as state}]
-  (let [session-id (-> request
-                       :headers
-                       (get "session-id"))]
+  [state]
+  (let [session-id (get-in state [:session-data :session-id])
+        user (get-in state [:session-data :user])]
     (xiana/ok (assoc state
-                     :response {:status 200
-                                :headers {"Content-Type" "application/json"}
-                                :body "foso"}
-                     :logout-data {:session-id session-id}))))
+                :session-data {}
+                :response {:status  200
+                           :headers {"Content-Type" "application/json"}
+                           :body    (str (:first-name user) " logged out")}
+                :logout-data {:session-id session-id}))))
 
 (defn logout-controller
   [state]

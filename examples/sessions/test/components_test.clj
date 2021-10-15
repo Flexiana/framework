@@ -80,3 +80,49 @@
                 :method               :get}
                http/request
                (select-keys [:status :body]))))))
+
+(deftest testing-with-logout
+  (let [login (-> {:url                  "http://localhost:3000/login"
+                   :unexceptional-status (constantly true)
+                   :body                 (json/write-value-as-string
+                                           {:email    "piotr@example.com"
+                                            :password "topsecret"})
+                   :method               :post}
+                  http/request
+                  :body
+                  json/read-value)
+        session-id (get login "session-id")
+        user (get login "user")]
+    (is (= {"first-name" "Piotr", "id" 1, "email" "piotr@example.com", "last-name" "Developer"}
+           user))
+    (is (true? (try (UUID/fromString session-id)
+                    true
+                    (catch Exception _ false))))
+    (is (= {:status 200 :body "Piotr logged out"}
+           (-> {:url                  "http://localhost:3000/logout"
+                :headers              {:session-id session-id}
+                :unexceptional-status (constantly true)
+                :method               :get}
+               http/request
+               (select-keys [:status :body]))))
+    (is (= {:status 200, :body "Index page"}
+           (-> {:url                  "http://localhost:3000/"
+                :headers              {:session-id session-id}
+                :unexceptional-status (constantly true)
+                :method               :get}
+               http/request
+               (select-keys [:status :body]))))
+    (is (= {:status 401, :body "Invalid or missing session"}
+           (-> {:url                  "http://localhost:3000/secret"
+                :unexceptional-status (constantly true)
+                :headers              {:session-id session-id}
+                :method               :get}
+               http/request
+               (select-keys [:status :body]))))
+    (is (= {:status 401, :body "Invalid or missing session"}
+           (-> {:url                  "http://localhost:3000/wrong"
+                :unexceptional-status (constantly true)
+                :headers              {:session-id session-id}
+                :method               :get}
+               http/request
+               (select-keys [:status :body]))))))
