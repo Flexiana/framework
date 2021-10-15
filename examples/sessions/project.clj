@@ -13,9 +13,9 @@
   :plugins [[lein-shadow "0.3.1"]
             [lein-shell "0.5.0"]
             [migratus-lein "0.7.3"]]
-  :main ^:skip-aot components
+  :main ^:skip-aot app.core
   :uberjar-name "frames.jar"
-  :source-paths ["src/backend/app" "src/backend/components" "src/frontend"]
+  :source-paths ["src/backend/" "src/frontend"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :profiles {:dev   {:resource-paths ["config/dev"]
                      :dependencies   [[binaryage/devtools "1.0.2"]]}

@@ -1,7 +1,7 @@
-(ns interceptors
+(ns app.interceptors
   (:require
-    [framework.session.core :refer [add! delete! fetch]]
-    [xiana.core :as xiana])
+    [framework.session.core :refer [delete! fetch]]
+    [xiana.core :as x])
   (:import
     (java.util
       UUID)))
@@ -10,8 +10,8 @@
   {:enter
    (fn [state]
      (if (get-in state [:session-data :user])
-       (xiana/ok state)
-       (xiana/error (assoc state :response {:status 401 :body "Unauthorized"}))))})
+       (x/ok state)
+       (x/error (assoc state :response {:status 401 :body "Unauthorized"}))))})
 
 (def logout
   {:leave (fn [state]
@@ -22,7 +22,7 @@
                                  :session-data
                                  :session-id)]
               (delete! sessions-backend session-id)
-              (xiana/ok (dissoc state :session-data))))})
+              (x/ok (dissoc state :session-data))))})
 
 (def inject-session?
   {:enter (fn [{{headers      :headers
@@ -38,6 +38,6 @@
                                                        (some->> query-params
                                                                 :SESSIONID)))
                        session-data (fetch session-backend session-id)]
-                   (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id))))
+                   (x/ok (assoc state :session-data (assoc session-data :session-id session-id))))
                  (catch Exception _
-                   (xiana/ok state))))})
+                   (x/ok state))))})

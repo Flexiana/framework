@@ -1,10 +1,10 @@
-(ns components-test
+(ns integration
   (:require
+    [app.core :as app]
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
-    [components :as comps]
-    [framework.config.core :as config]
-    [framework.webserver.core :as ws]
+    [framework.config.core :as x-config]
+    [framework.webserver.core :as x-ws]
     [jsonista.core :as json])
   (:import
     (java.util
@@ -13,13 +13,13 @@
 (defn std-system-fixture
   [f]
   (try
-    (-> (config/env)
-        comps/system)
+    (-> (x-config/env)
+        app/system)
     (f)
     (finally
-      (ws/stop))))
+      (x-ws/stop))))
 
-(use-fixtures :each std-system-fixture)
+(use-fixtures :once std-system-fixture)
 
 (deftest testing-without-login
   (is (= {:status 200, :body "Index page"}

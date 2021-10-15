@@ -1,6 +1,6 @@
-(ns controllers.index
+(ns app.controllers.index
   (:require
-    [xiana.core :as xiana]))
+    [xiana.core :as x]))
 
 (defn index-view
   [state]
@@ -8,7 +8,7 @@
         body (if user
                (format "Index page, for %s" (:first-name user))
                "Index page")]
-    (xiana/ok
+    (x/ok
       (assoc state
              :response
              {:status  200
@@ -17,6 +17,6 @@
 
 (defn index
   [state]
-  (xiana/flow->
+  (x/flow->
     state
     index-view))
