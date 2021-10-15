@@ -1,6 +1,5 @@
 (ns controllers.secret
   (:require
-    [sessions.auth :as auth]
     [xiana.core :as xiana]))
 
 (defn protected-view
@@ -13,5 +12,4 @@
 (defn protected-controller
   [state]
   (xiana/flow-> state
-                auth/require-logged-in
                 protected-view))

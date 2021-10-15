@@ -1,12 +1,9 @@
 (ns controllers.logout
   (:require
-    [clojure.data.json :as json]
-    [ring.util.request :refer [body-string]]
     [xiana.core :as xiana]))
 
 (defn logout-view
   [{request :http-request :as state}]
-
   (let [session-id (-> request
                        :headers
                        (get "session-id"))]
@@ -18,6 +15,5 @@
 
 (defn logout-controller
   [state]
-
   (xiana/flow-> state
                 logout-view))

@@ -2,44 +2,46 @@
   (:require
     [clojure.data.json :as json]
     [ring.util.request :refer [body-string]]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana])
+  (:import
+    (java.util
+      UUID)))
 
 (def db
-  [{:id "piotr@example.com"
+  [{:id         1
+    :email      "piotr@example.com"
     :first-name "Piotr"
-    :last-name "Developer"
-    :password "topsecret"}])
+    :last-name  "Developer"
+    :password   "topsecret"}])
 
 (defn find-user
   [email]
-  (first  (filter (fn [i]
-                    (= email (:id i))) db)))
+  (first (filter (fn [i]
+                   (= email (:email i))) db)))
 
 (defn login-view
-  [{request :http-request :as state}]
-  (let [rbody (-> request
-                  body-string
-                  (json/read-str :key-fn keyword))
+  [{request :request :as state}]
+  (let [rbody (some-> request
+                      body-string
+                      (json/read-str :key-fn keyword))
         user (find-user (-> rbody
                             :email))
-        session-id (str (java.util.UUID/randomUUID))]
-    (if (= (:password user) (:password rbody))
+        session-id (UUID/randomUUID)]
+    (if (and user (= (:password user) (:password rbody)))
       (xiana/ok (assoc state
-                       :login-data (merge  {:session-id (str session-id)}
-                                           (dissoc user :password))
-                       :response
-                       {:status  200
-                        :headers {"Content-Type" "application/json"}
-                        :body   (json/write-str
-                                  (merge (dissoc user :password)
-                                         {:session-id session-id}))}))
+                       :login-data {:session-id session-id
+                                    :user       (dissoc user :password)}
+                       :response {:status  200
+                                  :headers {"Content-Type" "application/json"}
+                                  :body    (json/write-str
+                                             {:session-id (str session-id)
+                                              :user       (dissoc user :password)})}))
 
       (xiana/error (assoc state :response {:status 401
-                                           :body "Incorrect credentials"})))))
+                                           :body   "Incorrect credentials"})))))
 
 (defn login-controller
   [state]
-
   (xiana/flow-> state
                 login-view))
 

@@ -2,51 +2,81 @@
   (:require
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
-    [com.stuartsierra.component :as component]
     [components :as comps]
-    [framework.config.core :as config]))
+    [framework.config.core :as config]
+    [framework.webserver.core :as ws]
+    [jsonista.core :as json])
+  (:import
+    (java.util
+      UUID)))
 
 (defn std-system-fixture
   [f]
-  (let [config (config/edn)
-        system (-> config
-                   comps/system
-                   component/start)]
-    (try
-      (f)
-      (finally
-        (component/stop system)))))
+  (try
+    (-> (config/env)
+        comps/system)
+    (f)
+    (finally
+      (ws/stop))))
 
 (use-fixtures :each std-system-fixture)
 
-(deftest testing-controllers
-  (is (= {:body   "Unauthorized"
-          :status 401}
+(deftest testing-without-login
+  (is (= {:status 200, :body "Index page"}
          (-> {:url                  "http://localhost:3000/"
               :unexceptional-status (constantly true)
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-  (is (= {:body   "Unauthorized"
-          :status 401}
-         (-> {:url                  "http://localhost:3000/"
+  (is (= {:status 401, :body "Invalid or missing session"}
+         (-> {:url                  "http://localhost:3000/secret"
               :unexceptional-status (constantly true)
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-  (is (= {:body   "Index page"
-          :status 200}
-         (-> {:url                  "http://localhost:3000/"
-              :unexceptional-status (constantly true)
-              :basic-auth           ["aladdin" "opensesame"]
-              :method               :get}
-             http/request
-             (select-keys [:status :body]))))
-  (is (= {:body   "Not Found"
-          :status 404}
+  (is (= {:status 401, :body "Invalid or missing session"}
          (-> {:url                  "http://localhost:3000/wrong"
               :unexceptional-status (constantly true)
-              :basic-auth           ["aladdin" "opensesame"]
               :method               :get}
              http/request
              (select-keys [:status :body])))))
+
+(deftest testing-with-login
+  (let [login (-> {:url                  "http://localhost:3000/login"
+                   :unexceptional-status (constantly true)
+                   :body                 (json/write-value-as-string
+                                           {:email    "piotr@example.com"
+                                            :password "topsecret"})
+                   :method               :post}
+                  http/request
+                  :body
+                  json/read-value)
+        session-id (get login "session-id")
+        user (get login "user")]
+    (is (= {"first-name" "Piotr", "id" 1, "email" "piotr@example.com", "last-name" "Developer"}
+           user))
+    (is (true? (try (UUID/fromString session-id)
+                    true
+                    (catch Exception _ false))))
+    (is (= {:status 200, :body "Index page"}
+           (-> {:url                  "http://localhost:3000/"
+                :headers              {:session-id session-id}
+                :unexceptional-status (constantly true)
+                :method               :get}
+               http/request
+               (select-keys [:status :body]))))
+    (is (= {:status 200, :body "Hello Piotr"}
+           (-> {:url                  "http://localhost:3000/secret"
+                :unexceptional-status (constantly true)
+                :headers              {:session-id session-id}
+                :method               :get}
+               http/request
+               (select-keys [:status :body]))))
+    (is (= {:body   "Not Found"
+            :status 404}
+           (-> {:url                  "http://localhost:3000/wrong"
+                :unexceptional-status (constantly true)
+                :headers              {:session-id session-id}
+                :method               :get}
+               http/request
+               (select-keys [:status :body]))))))
