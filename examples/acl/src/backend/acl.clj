@@ -8,6 +8,7 @@
     [framework.config.core :as config]
     [framework.db.core :as db-core]
     [framework.interceptor.core :as interceptors]
+    [framework.handler.core :as handler]
     [framework.rbac.core :as rbac]
     [framework.route.core :as routes]
     [framework.webserver.core :as ws]
@@ -18,7 +19,7 @@
   [["/" {:action index/handle-index}]
    ["/re-frame" {:action re-frame/handle-index}]
    ["/assets/*" (ring/create-resource-handler)]
-   ["" {:handler ws/handler-fn}
+   ["" {:handler handler/handler-fn}
     ["/posts" {:get    {:action     posts-controllers/fetch
                         :permission :posts/read}
                :put    {:action     posts-controllers/add

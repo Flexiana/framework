@@ -8,10 +8,10 @@
                               logout
                               require-logged-in]]
     [framework.interceptor.core :as x-interceptors]
-    [framework.webserver.core :as x-ws]))
+    [framework.handler.core :as x-handler]))
 
 (def routes
-  [["" {:handler x-ws/handler-fn}]
+  [["" {:handler x-handler/handler-fn}]
    ["/" {:action       index/index
          :interceptors [x-interceptors/params
                         inject-session?]}]

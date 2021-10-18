@@ -4,6 +4,7 @@
     [clojure.data.xml :as xml]
     [controllers.index :as index]
     [controllers.re-frame :as re-frame]
+    [framework.handler.core :as handler]
     [framework.webserver.core :as ws]
     [malli.core :as m]
     [malli.registry :as mr]
@@ -63,7 +64,7 @@
   [["/" {:action index/index}]
    ["/re-frame" {:action re-frame/index}]
    ["" {:coercion   (rcm/create {:registry registry})}
-    ["/api/siege-machines/{mydomain/id}" {:hander     ws/handler-fn
+    ["/api/siege-machines/{mydomain/id}" {:hander     handler/handler-fn
                                           :action     mydomain.siege-machines/get-by-id
                                           :parameters {:path [:map [:mydomain/id int?]]}
                                           :responses  {200 {:body :mydomain/SiegeMachine}}}]]
