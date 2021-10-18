@@ -1,6 +1,6 @@
-# controllers
+# sessions
 
-FIXME: description
+Example that showcase the use of session interceptors using Xiana framework.
 
 ## Usage
 
