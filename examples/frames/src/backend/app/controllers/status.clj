@@ -1,5 +1,10 @@
 (ns controllers.status
   (:require
-    [corpus.responses :as responses]))
+    [corpus.responses :as responses]
+    [xiana.core :as xiana]))
 
-(def handle-status (constantly (responses/ok {:status "OK"})))
+(defn handle-status
+  [state]
+  (xiana/ok
+    (assoc state :response
+           (responses/ok {:status "OK"}))))
