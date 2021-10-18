@@ -4,41 +4,78 @@ FIXME: description
 
 ## Usage
 
-### Start dockerized PostgreSQL
+`lein install` in the framework's root directory
 
-    postgres-start.sh
+### Run the backend
 
-### Build frontend and run the backend
+```bash 
+lein run
+```    
 
-    lein release
+### Run manual tests against the application
 
-    lein run
+There are 4 endpoints provided:
 
-### Open re-frame app
+- localhost:3000/
+>if you don't have valid session it returns
+>
+> ```clojure
+> {:status 200, :body "Index page"}
+> ```
+>
+>with valid session it returns
+>
+> ```clojure
+> {:status 200, :body "Index page, for Piotr"}
+> ```
 
-    open http://localhost:3000/re-frame
+- localhost:3000/secret
 
-### Try controllers
+>if you don't have valid session it returns
+>
+> ```clojure
+> {:status 401, :body "Invalid or missing session"}
+> ```
+>
+>with valid session it returns
+>
+> ```clojure
+> {:status 200, :body "Hello Piotr"}
+> ```
 
-    curl http://localhost:3000/
-    Unauthorized
-    
-    curl http://localhost:3000/wrong
-    Not Found
-    
-    curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/
-    Index page
-    
-    curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l" http://localhost:3000/wrong
-    Not Found
-    
-### Run controllers test
+- localhost:3000/login 
+>request:
+>```clojure
+>  {:method :post
+>   :body {:email "piotr@example.com"
+>          :password "topsecret"}}
+>```
+>returns:
+>```clojure
+>{:status 200
+> :body {:session-id {{session-id}}
+>        :user {"first-name" "Piotr"
+>               "id" 1 
+>               "email" "piotr@example.com"
+>               "last-name" "Developer"}}}
+>```
+- localhost:3000/logout
 
-    Start the db with 
-    ```bash 
-    ./postgres-start.sh
-    ``` 
-    and run tests with
-    ```bash 
-    lein test components-test
-    ```
+>if you have valid session it returns
+>
+> ```clojure
+> {:status 200 :body "Piotr logged out"}
+> ```
+> 
+> and it clears the session you had.
+
+You can provide the session-id from login response in the request's headers
+>```clojure
+> {:headers {:session-id {{session-id}}}}
+>```
+
+### Run integration tests
+
+```bash 
+lein test
+```
