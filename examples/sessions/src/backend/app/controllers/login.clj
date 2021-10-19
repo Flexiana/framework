@@ -21,23 +21,25 @@
 
 (defn login-view
   [{request :request :as state}]
-  (let [rbody (some-> request
-                      body-string
-                      (json/read-str :key-fn keyword))
-        user (find-user (-> rbody
-                            :email))
-        session-id (UUID/randomUUID)
-        session-data {:session-id session-id
-                      :user       (dissoc user :password)}]
-    (if (and user (= (:password user) (:password rbody)))
-      (x/ok (assoc state
+  (try (let [rbody (some-> request
+                           body-string
+                           (json/read-str :key-fn keyword))
+             user (find-user (-> rbody
+                                 :email))
+             session-id (UUID/randomUUID)
+             session-data {:session-id session-id
+                           :user       (dissoc user :password)}]
+         (if (and user (= (:password user) (:password rbody)))
+           (x/ok (assoc state
                    :session-data session-data
                    :response {:status  200
                               :headers {"Content-Type" "application/json"}
                               :body    (json/write-str (update session-data :session-id str))}))
 
-      (x/error (assoc state :response {:status   401
-                                       :body "Incorrect credentials"})))))
+           (x/error (assoc state :response {:status 401
+                                            :body   "Incorrect credentials"}))))
+       (catch Exception _ (x/error (assoc state :response {:status 401
+                                                           :body   "Missing credentials"})))))
 
 (defn login-controller
   [state]

@@ -44,6 +44,16 @@
              (select-keys [:status :body])))
       "A missing page is hidden too"))
 
+(deftest login-fails-on-empty-body
+  (let [login-request {:url                  "http://localhost:3000/login"
+                       :unexceptional-status (constantly true)
+                       :method               :post}
+        login-response (http/request login-request)]
+    (prn login-response)
+    (is (= {:status 401
+            :body "Missing credentials"}
+           (select-keys login-response [:status :body])))))
+
 (deftest testing-with-login
   (let [login-request {:url                  "http://localhost:3000/login"
                        :unexceptional-status (constantly true)

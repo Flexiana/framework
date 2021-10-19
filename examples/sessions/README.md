@@ -44,7 +44,7 @@ There are 4 endpoints provided:
 > ```
 
 - localhost:3000/login 
->request:
+>request should look like:
 >```clojure
 >  {:method :post
 >   :body {:email "piotr@example.com"
@@ -59,6 +59,13 @@ There are 4 endpoints provided:
 >               "email" "piotr@example.com"
 >               "last-name" "Developer"}}}
 >```
+>
+>Without the request body, or with wrong HTTP method it returns:
+> ```clojure
+> {:status 401
+>  :body "Missing credentials"}
+>```
+
 - localhost:3000/logout
 
 >if you have valid session it returns

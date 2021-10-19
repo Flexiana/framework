@@ -3,13 +3,13 @@
     [clojure.test :refer :all]
     [components]
     [framework.config.core :as config]
-    [framework.webserver.core :as ws]))
+    [framework.handler.core :refer [handler-fn]]))
 
 (deftest status-test
   (let [deps (components/deps (config/env))
         request {:uri            "/status"
                  :request-method :get}
-        handle (ws/handler-fn deps)
+        handle (handler-fn deps)
         visit (-> (handle request)
                   (update :body slurp))]
     (is (= 200 (:status visit)))
