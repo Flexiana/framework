@@ -12,6 +12,7 @@
                  [com.fzakaria/slf4j-timbre "0.3.21"]
                  [org.clojure/data.xml "0.0.8"]
                  [seancorfield/next.jdbc "1.1.613"]
+                 [http.async.client "1.3.1"]
                  [http-kit "2.5.3"]
                  [migratus "1.3.3"]
                  [potemkin "0.4.5"]
