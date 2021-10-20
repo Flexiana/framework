@@ -3,6 +3,7 @@
     [clojure.test :refer :all]
     [framework.route.core :as route]
     [framework.webserver.core :as webserver]
+    [framework.handler.core :refer [handler-fn]]
     [xiana.core :as xiana])
   (:import
     (org.eclipse.jetty.server
@@ -21,7 +22,7 @@
 
 (deftest handler-fn-creation
   ;; test if handler-fn return
-  (let [handler-fn (webserver/handler-fn {:controller-interceptors default-interceptors})]
+  (let [handler-fn (handler-fn {:controller-interceptors default-interceptors})]
     ;; check if return handler is a function
     (is (function? handler-fn))))
 
@@ -41,7 +42,7 @@
   ;; set sample routes
   (route/reset sample-routes)
   ;; set handler function
-  (let [f (webserver/handler-fn default-interceptors)]
+  (let [f (handler-fn default-interceptors)]
     ;; verify if it's the right response
     (is (= (f sample-request) {:status 200, :body ":action"}))))
 

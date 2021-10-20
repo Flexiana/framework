@@ -42,6 +42,8 @@
     (-> (assoc-in {} [:request-data :permission] permission)
         (assoc-in [:request :headers "session-id"] session-id)
         (assoc-in [:deps :session-backend] session-backend)
+        (assoc-in [:session-data :user] user)
+        (assoc-in [:session-data :session-id] session-id)
         (assoc-in [:deps :role-set] role-set))))
 
 (deftest user-permissions
