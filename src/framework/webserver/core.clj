@@ -3,7 +3,7 @@
   (:require
     [framework.config.core :as config]
     [framework.handler.core :refer [handler-fn]]
-    [ring.adapter.jetty :as jetty]))
+    [org.httpkit.server :as server]))
 
 ;; web server reference
 (defonce -webserver (atom {}))
@@ -12,14 +12,15 @@
   "Web server instance."
   [options dependencies]
   {:options options
-   :server  (jetty/run-jetty (handler-fn dependencies) options)})
+   :server  (server/run-server (handler-fn dependencies) options)})
 
 (defn stop
   "Stop web server."
   []
   ;; stop the server if necessary
   (when (not (empty? @-webserver))
-    (.stop (get @-webserver :server))))
+    (when-let [-stop-server (get @-webserver :server)]
+      (-stop-server))))
 
 (defn start
   "Start web server."
