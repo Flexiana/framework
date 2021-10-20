@@ -3,10 +3,11 @@
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
     [framework-fixture :as fixture]
+    [framework.handler.core :refer [handler-fn]]
+    [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
     [framework.session.core :as session]
     [framework.session.core :as session-backend]
-    [framework.webserver.core :as ws]
     [honeysql.helpers :as sql]
     [tiny-rbac.builder :as b]
     [xiana.core :as xiana])
@@ -34,7 +35,7 @@
         (assoc-in [:request-data :restriction-fn] restriction-fn))))
 
 (def routes
-  [["/api" {:handler ws/handler-fn}
+  [["/api" {:handler handler-fn}
     ["/image" {:delete {:action     delete-action
                         :permission :image/delete}}]]])
 
@@ -54,7 +55,8 @@
   {:routes                  routes
    :session-backend         backend
    :role-set                role-set
-   :controller-interceptors [session/interceptor
+   :controller-interceptors [interceptors/params
+                             (session/interceptor "/api" "/login")
                              rbac/interceptor]})
 
 (use-fixtures :once (partial fixture/std-system-fixture system-config))
@@ -68,15 +70,17 @@
    :users/id   (str (UUID/randomUUID))})
 
 (deftest delete-request-by-member
-  (let [session-id (str (UUID/randomUUID))]
-    (session/add! backend session-id member)
+  (let [session-id (UUID/randomUUID)]
+    (session/add! backend session-id {:user member
+                                      :session-id session-id})
     (is (= 200 (:status (http/delete "http://localhost:3333/api/image"
                                      {:throw-exceptions false
-                                      :headers          {"Session-id" session-id}}))))))
+                                      :headers          {"Session-id" (str session-id)}}))))))
 
 (deftest delete-request-by-guest
-  (let [session-id (str (UUID/randomUUID))]
-    (session/add! backend session-id guest)
+  (let [session-id (UUID/randomUUID)]
+    (session/add! backend session-id {:user guest
+                                      :session-id session-id})
     (is (= 403 (:status (http/delete "http://localhost:3333/api/image"
                                      {:throw-exceptions false
-                                      :headers          {"Session-id" session-id}}))))))
+                                      :headers          {"Session-id" (str session-id)}}))))))

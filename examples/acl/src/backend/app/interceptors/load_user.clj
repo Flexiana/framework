@@ -32,8 +32,7 @@
 
 (def load-user!
   {:enter (fn [{:keys [request] :as state}]
-            (let [session-backend (-> state :deps :session-backend)
-                  guest-user {:users/role :guest
+            (let [guest-user {:users/role :guest
                               :users/id   (UUID/randomUUID)}
                   session-id (get-in request [:headers :session-id] (UUID/randomUUID))
                   user (try (let [valid-user (valid-user? state)]
@@ -41,6 +40,5 @@
                                 guest-user
                                 valid-user))
                             (catch Exception _ guest-user))]
-              (session/add! session-backend session-id user)
-              (xiana/ok (-> (assoc-in state [:session-data :user] user)
-                            (assoc-in [:request :headers "session-id"] session-id)))))})
+              (xiana/ok (assoc-in (assoc-in state [:session-data :user] user)
+                                  [:session-data :session-id] session-id))))})

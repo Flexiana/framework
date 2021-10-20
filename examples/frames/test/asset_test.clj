@@ -1,4 +1,4 @@
-(ns status-test
+(ns asset-test
   (:require
     [clojure.test :refer :all]
     [components]
@@ -7,10 +7,11 @@
 
 (deftest status-test
   (let [deps (components/deps (config/env))
-        request {:uri            "/status"
+        request {:uri            "/assets/Clojure-icon.png"
                  :request-method :get}
         handle (handler-fn deps)
         visit (-> (handle request)
                   (update :body slurp))]
     (is (= 200 (:status visit)))
-    (is (= "{\"status\":\"OK\"}" (:body visit)))))
+    (is (= (slurp "resources/public/assets/Clojure-icon.png")
+           (:body visit)))))

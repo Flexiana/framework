@@ -1,4 +1,6 @@
 (ns framework.interceptor.queue
+  "Interceptor executor.
+  Collects and executes interceptors and the given action in between."
   (:require
     [xiana.core :as xiana]))
 

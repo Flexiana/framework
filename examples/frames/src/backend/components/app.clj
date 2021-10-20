@@ -2,17 +2,12 @@
   (:require
     [controllers.index :as index]
     [controllers.status :as status]
-    [corpus.responses.hiccup :as hiccup]
-    [corpus.router.reitit :as corpus]
+    [framework.handler.core :refer [handler-fn]]
     [reitit.ring :as ring]))
 
 (def routes
-  (concat [""
-           ["/" {:get index/handle-index}]
-           ["/status" {:get status/handle-status}]
-           ["/assets/*" (ring/create-resource-handler)]]))
+  ["" {:handler handler-fn}
+   ["/" {:get {:action index/handle-index}}]
+   ["/status" {:get {:action status/handle-status}}]
+   ["/assets/*" (ring/create-resource-handler {:path "/"})]])
 
-(defn ring-app
-  [conf]
-  (corpus/ring-handler conf
-                       (corpus/router routes conf hiccup/wrap-render)))

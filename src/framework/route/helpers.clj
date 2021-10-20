@@ -1,4 +1,5 @@
 (ns framework.route.helpers
+  "The default not found and action functions"
   (:require
     [xiana.core :as xiana]))
 
