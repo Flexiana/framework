@@ -20,12 +20,13 @@
                                       [:id int?]
                                       [:name keyword?]
                                       [:attack {:optional true} int?]]})"
-  (:require [reitit.core :as r]
-            [reitit.coercion :as coercion]
-            [malli.core :as m]
-            [malli.registry :as mr]
-            [malli.util :as mu]
-            [xiana.core :as xiana]))
+  (:require
+    [malli.core :as m]
+    [malli.registry :as mr]
+    [malli.util :as mu]
+    [reitit.coercion :as coercion]
+    [reitit.core :as r]
+    [xiana.core :as xiana]))
 
 (defn registry
   "Registers a given schema in malli"

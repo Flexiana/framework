@@ -3,7 +3,6 @@
   (:require
     [clojure.walk :refer [keywordize-keys]]
     [ring.middleware.cookies :as cookies]
-    [xiana.commons :refer [map-keys]]
     [xiana.core :as xiana]))
 
 (defn- parse-request-cookies

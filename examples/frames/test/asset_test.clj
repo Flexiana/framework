@@ -1,8 +1,9 @@
 (ns asset-test
-  (:require [clojure.test :refer :all]
-            [components]
-            [framework.config.core :as config]
-            [framework.handler.core :refer [handler-fn]]))
+  (:require
+    [clojure.test :refer :all]
+    [components]
+    [framework.config.core :as config]
+    [framework.handler.core :refer [handler-fn]]))
 
 (deftest status-test
   (let [deps (components/deps (config/env))

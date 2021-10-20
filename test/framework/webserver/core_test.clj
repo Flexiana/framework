@@ -1,9 +1,9 @@
 (ns framework.webserver.core-test
   (:require
     [clojure.test :refer :all]
+    [framework.handler.core :refer [handler-fn]]
     [framework.route.core :as route]
     [framework.webserver.core :as webserver]
-    [framework.handler.core :refer [handler-fn]]
     [xiana.core :as xiana])
   (:import
     (org.eclipse.jetty.server

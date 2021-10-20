@@ -7,8 +7,8 @@
     [app.interceptors :refer [inject-session?
                               logout
                               require-logged-in]]
-    [framework.interceptor.core :as x-interceptors]
-    [framework.handler.core :as x-handler]))
+    [framework.handler.core :as x-handler]
+    [framework.interceptor.core :as x-interceptors]))
 
 (def routes
   [["" {:handler x-handler/handler-fn}]

@@ -17,8 +17,8 @@
    hash-algorithm))
 
 (defmulti make
-          "Creating an encrypted version for store password."
-          dispatch)
+  "Creating an encrypted version for store password."
+  dispatch)
 
 (defmethod make :bcrypt
   [{{:keys [bcrypt-settings]
@@ -50,8 +50,8 @@
       "HMAC-SHA1" "HMAC-SHA256")))
 
 (defmulti check
-          "Validating password."
-          dispatch)
+  "Validating password."
+  dispatch)
 
 (defmethod check :bcrypt [_ password encrypted]
   (hash-b/check password encrypted))

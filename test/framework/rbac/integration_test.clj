@@ -3,11 +3,11 @@
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
     [framework-fixture :as fixture]
+    [framework.handler.core :refer [handler-fn]]
     [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
     [framework.session.core :as session]
     [framework.session.core :as session-backend]
-    [framework.handler.core :refer [handler-fn]]
     [honeysql.helpers :as sql]
     [tiny-rbac.builder :as b]
     [xiana.core :as xiana])

@@ -31,10 +31,10 @@
                            :user       (dissoc user :password)}]
          (if (and user (= (:password user) (:password rbody)))
            (x/ok (assoc state
-                   :session-data session-data
-                   :response {:status  200
-                              :headers {"Content-Type" "application/json"}
-                              :body    (json/write-str (update session-data :session-id str))}))
+                        :session-data session-data
+                        :response {:status  200
+                                   :headers {"Content-Type" "application/json"}
+                                   :body    (json/write-str (update session-data :session-id str))}))
 
            (x/error (assoc state :response {:status 401
                                             :body   "Incorrect credentials"}))))
