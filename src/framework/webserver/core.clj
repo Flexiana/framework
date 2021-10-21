@@ -1,6 +1,7 @@
 (ns framework.webserver.core
   "Lifecycle management of the webserver"
   (:require
+    [clojure.tools.logging :as log]
     [framework.config.core :as config]
     [framework.handler.core :refer [handler-fn]]
     [org.httpkit.server :as server]))
@@ -29,6 +30,6 @@
   (stop)
   ;; get server options
   (when-let [options (merge (config/get-spec :webserver) (:webserver dependencies))]
-    ;; tries to initialize the web-server if we have the
-    ;; server specification (its options)
-    (swap! -webserver merge (make options dependencies))))
+    (when-let [server (make options dependencies)]
+      (log/info "Server started with options: " options)
+      (swap! -webserver merge server))))
