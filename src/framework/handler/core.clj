@@ -24,17 +24,21 @@
   [deps]
   (fn handle*
     ([http-request]
-     (let [state (state/make deps http-request)
-           queue (list #(interceptor.queue/execute % (:router-interceptors deps))
-                       #(route/match %)
-                       #(interceptor.queue/execute % (:controller-interceptors deps)))]
-       (if (:websocket? http-request)
-         (let [flow (-> (xiana/apply-flow-> state queue)
-                        (xiana/extract))
-               channel (get-in flow [:response-data :channel])]
-           (if channel
-             (s/as-channel http-request channel)
-             (:response flow)))
+     (if (:websocket? http-request)
+       (let [state (state/make deps http-request)
+             queue (list #(interceptor.queue/execute % (:router-interceptors deps))
+                         #(route/match %)
+                         #(interceptor.queue/execute % (:web-socket-interceptors deps)))
+             flow (-> (xiana/apply-flow-> state queue)
+                      (xiana/extract))
+             channel (get-in flow [:response-data :channel])]
+         (if channel
+           (s/as-channel http-request channel)
+           (:response flow)))
+       (let [state (state/make deps http-request)
+             queue (list #(interceptor.queue/execute % (:router-interceptors deps))
+                         #(route/match %)
+                         #(interceptor.queue/execute % (:controller-interceptors deps)))]
          (-> (xiana/apply-flow-> state queue)
              (xiana/extract)
              :response))))

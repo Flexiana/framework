@@ -34,11 +34,11 @@
 (defn hello
   [state]
   (xiana/ok (assoc state :response {:status 200
-                                    :body "Hello from REST!"})))
+                                    :body   "Hello from REST!"})))
 
 (def routes
   [["/ws" {:ws-action echo
-           :action hello}]])
+           :action    hello}]])
 
 (def backend
   (session/init-in-memory))
@@ -47,6 +47,7 @@
   {:routes                   routes
    :session-backend          backend
    :framework.app/web-server (config/get-spec :framework.app/web-server)
+   :web-socket-interceptors  [interceptors/params]
    :controller-interceptors  [interceptors/params
                               (session/interceptor "/api" "/login")
                               rbac/interceptor]})
@@ -56,24 +57,19 @@
 (deftest http-async
   (with-open [client (ac/create-client)]
     (let [latch (promise)
-          received-msg (atom nil)
+          session-id (str (UUID/randomUUID))
           ws (ac/websocket client "ws://localhost:3333/ws"
-                           :headers {:session-id (str (UUID/randomUUID))}
+                           :headers {:session-id session-id}
                            :text (fn [con mesg]
-                                   (reset! received-msg mesg)
-                                   (deliver latch true))
+                                   (deliver latch mesg))
                            :close (fn [con & status]
                                     (println "close:" con status))
                            :error (fn [& args]
                                     (println "ERROR:" args))
                            :open (fn [con]
                                    (println "opened:" con)))]
-
-      ;; (h/send ws :byte (byte-array 10)) not implemented yet
-      (let [msg "testing12"]
-        (ac/send ws :text msg)
-        @latch
-        (is (= msg @received-msg)))
+      (ac/send ws :text session-id)
+      (is (= session-id @latch))
       (ac/close ws))))
 
 (deftest rest-call
