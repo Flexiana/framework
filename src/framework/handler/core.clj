@@ -35,7 +35,6 @@
              (get :response)))
        (let [state (state/make deps http-request)
              match (xiana/extract (route/match state))
-             method (:request-method http-request)
              action (get-in match [:request-data :action])]
          (action http-request))))
     ([request respond _]
