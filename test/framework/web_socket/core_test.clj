@@ -8,9 +8,9 @@
     [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
     [framework.session.core :as session]
-    [http.async.client :as ac]
-    [org.httpkit.client :as c]
-    [org.httpkit.server :as s]
+    [http.async.client :as a-client]
+    [org.httpkit.client :as client]
+    [org.httpkit.server :as server]
     [xiana.core :as xiana])
   (:import
     (java.util
@@ -21,7 +21,7 @@
     (assoc-in state [:response-data :channel]
               {:on-receive (fn [ch msg]
                              (println "Message: " msg)
-                             (s/send! ch msg))
+                             (server/send! ch msg))
                :on-open    #(println "OPEN: - - - - - " %)
                :on-ping    (fn [ch data]
                              (println "Ping"))
@@ -55,25 +55,25 @@
 (use-fixtures :once (partial fixture/std-system-fixture system-config))
 
 (deftest http-async
-  (with-open [client (ac/create-client)]
+  (with-open [client (a-client/create-client)]
     (let [latch (promise)
           session-id (str (UUID/randomUUID))
-          ws (ac/websocket client "ws://localhost:3333/ws"
-                           :headers {:session-id session-id}
-                           :text (fn [con mesg]
-                                   (deliver latch mesg))
-                           :close (fn [con & status]
-                                    (println "close:" con status))
-                           :error (fn [& args]
-                                    (println "ERROR:" args))
-                           :open (fn [con]
-                                   (println "opened:" con)))]
-      (ac/send ws :text session-id)
+          ws (a-client/websocket client "ws://localhost:3333/ws"
+                                 :headers {:session-id session-id}
+                                 :text (fn [con mesg]
+                                         (deliver latch mesg))
+                                 :close (fn [con & status]
+                                          (println "close:" con status))
+                                 :error (fn [& args]
+                                          (println "ERROR:" args))
+                                 :open (fn [con]
+                                         (println "opened:" con)))]
+      (a-client/send ws :text session-id)
       (is (= session-id @latch))
-      (ac/close ws))))
+      (a-client/close ws))))
 
 (deftest rest-call
   (is (= {:status 200, :body "Hello from REST!"}
-         (-> @(c/get "http://localhost:3333/ws")
+         (-> @(client/get "http://localhost:3333/ws")
              (select-keys [:status :body])
              (update :body slurp)))))

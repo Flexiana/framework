@@ -4,7 +4,7 @@
     [framework.interceptor.queue :as interceptor.queue]
     [framework.route.core :as route]
     [framework.state.core :as state]
-    [org.httpkit.server :as s]
+    [org.httpkit.server :refer [as-channel]]
     [xiana.core :as xiana]))
 
 (defn handler-fn
@@ -33,7 +33,7 @@
                       (xiana/extract))
              channel (get-in flow [:response-data :channel])]
          (if channel
-           (s/as-channel http-request channel)
+           (as-channel http-request channel)
            (:response flow)))
        (let [state (state/make deps http-request)
              queue (list #(interceptor.queue/execute % (:router-interceptors deps))
