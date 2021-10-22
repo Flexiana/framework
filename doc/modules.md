@@ -1,16 +1,16 @@
 
 # Modules
 
-- [Frontend](#frontend)
+- Frontend
 - [Backend](#backend)
     - [Core](#core)
     - [ACL](#acl)
     - [Auth](#auth)
     - [Config](#config)
     - [Database](#database)
-    - [Core](#core)
-    - [Postgresql](#postgresql)
-    - [SQL](#sql)
+      - [Database/core](#databasecore)
+      - [Database/postgresql](#databasepostgresql)
+      - [Database/sql](#databasesql)
     - [Migrations](#migrations)
     - [Interceptor](#interceptor)
         - [Interceptor/core](#interceptorcore)
@@ -22,11 +22,7 @@
     - [Session](#session)
     - [State](#state-1)
     - [Webserver](#webserver)
-
-## Frontend
-
-    Have no idea!!!
-
+    
 ## Backend
 
 ### Core
@@ -50,15 +46,15 @@
 
     Database handling functions
 
-#### Core
+#### Database/core
 
     db.core Start function, to get the datasource based on given configuration
 
-#### Postgresql
+#### Database/postgresql
 
     Some honey-sql helpers
 
-#### Sql
+#### Database/sql
 
     SQL helper functions, query executor execute functions gets the datasource and query-map (honey-sql map) and executes it
     on the database

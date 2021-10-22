@@ -1,4 +1,4 @@
-# Interceptors implemented in xiana
+# Interceptors implemented in Xiana
 
 - [acl-restrict](#acl-restrict)
 - [log](#log)
