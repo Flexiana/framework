@@ -164,7 +164,7 @@ will extend the defaults inside and around
      :interceptors {:except [...]}}
 ```
 
-will skipp the excepted interceptors from defaults
+will skip the excepted interceptors from defaults
 
 The execution flow will look like this
 
