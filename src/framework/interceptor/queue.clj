@@ -34,14 +34,17 @@
 (defn- -concat
   "Concatenate routes interceptors with the defaults ones,
   or override it if its type isn't a map."
-  [interceptors default-interceptors]
+  [{except-interceptors :except
+    around-interceptors :around
+    inside-interceptors :inside
+    :as                 interceptors}
+   default-interceptors]
   (if (map? interceptors)
     ;; get around/inside interceptors
-    (let [around-interceptors (get interceptors :around)
-          inside-interceptors (get interceptors :inside)]
-      (concat around-interceptors
-              default-interceptors
-              inside-interceptors))
+    (remove (into #{} except-interceptors)
+            (concat around-interceptors
+                    default-interceptors
+                    inside-interceptors))
     ;; else override
     (or interceptors default-interceptors)))
 

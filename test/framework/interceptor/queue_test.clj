@@ -44,6 +44,9 @@
   {:inside [B-interceptor]
    :around [C-interceptor]})
 
+(def except-interceptors
+  {:except [A-interceptor]})
+
 (def override-interceptors
   [F-interceptor])
 
@@ -207,3 +210,18 @@
           (= last-enter "F-enter")
           (= last-leave "F-leave")
           (= response expected)))))
+
+(deftest queue-both-interceptors-execution
+  ;; construct a simple request data state
+  (let [state (make-state ok-action except-interceptors)
+        ;; get response using a simple micro flow
+        result (-> state
+                   (queue/execute default-interceptors)
+                   (xiana/extract))
+        response (:response result)
+        expected {:status 200 :body "ok"}
+        last-enter (:enter result)
+        last-leave (:leave result)]
+    (is (nil? last-enter))
+    (is (nil? last-leave))
+    (is (= expected response))))
