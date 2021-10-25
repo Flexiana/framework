@@ -1,7 +1,6 @@
 # Tutorials
 
-- Dependencies
-- Configuration
+- [Dependencies and configuration](#dependencies-and-configuration)
 - [Interceptors typical use-case, and ordering](#interceptors-typical-use-case-and-ordering)
 - [Defining new interceptors](#defining-new-interceptors)
     - [Interceptor example](#interceptor-example)
@@ -18,6 +17,30 @@
 - Session management
 - Role based access and data ownership control
 - WebSocket
+
+## Dependencies and configuration
+
+Almost all components what you need on runtime should be reachable via the passed around state. To achieve this it
+should be part of the :deps map in the state. Any other configuration what you need in runtime should be part of this
+map too.
+
+The system configuration and start-up:
+
+```clojure
+(defn system
+  [config]
+  (let [deps {:webserver               (:framework.app/web-server config)
+              :routes                  (routes/reset (:routes config))
+              :role-set                (:framework.app/role-set config)
+              :auth                    (:framework.app/auth config)
+              :session-backend         (session-backend/init-in-memory)
+              :router-interceptors     []
+              :web-socket-interceptors []
+              :controller-interceptors []
+              :db                      (db-core/start
+                                         (:framework.app/postgresql config))}]
+    (update deps :webserver (ws/start deps))))
+```
 
 ## Interceptors typical use-case, and ordering
 

@@ -22,7 +22,7 @@
               :controller-interceptors (:controller-interceptors config)
               :db                      (db-core/start
                                          (:database-connection config))}]
-    (assoc deps :web-server (ws/start deps))))
+    (update deps :webserver (ws/start deps))))
 
 (defn docker-postgres!
   [config]
