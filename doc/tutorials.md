@@ -303,4 +303,54 @@ On the `:leave` branch, updates session storage with the data from `(-> state :s
 
 ## Role based access and data ownership control
 
+To get the benefits of [tiny RBAC](https://github.com/Flexiana/tiny-rbac) library you need to provide the resource and
+the action for your endpoint in [router](#routes) definition:
+
+```clojure
+[["/api"
+  ["/image" {:delete {:action     delete-action
+                      :permission :image/delete}}]]]
+```
+
+and add your role-set into your app's [dependencies](#dependencies-and-configuration):
+
+```clojure
+(defn system
+  [config]
+  (let [deps {:role-set  (framework.rbac.core/init (:framework.app/role-set config))
+              :webserver (:framework.app/web-server config)
+              ...        ...}]
+    (update deps :webserver ws/start)))
+```
+
+On `:enter` the interceptor do the permission check if it's allowed for the user found
+in `(-> state :session-data :user)`. If the user has no permit on the resource/action then the response will be:
+
+```clojure
+{:status 403
+ :body   "Forbidden"}
+```
+
+If it has the permission, then it goes to `(-> state :request-data :user-permissions)` as a parameter for data
+ownership.
+
+On `:leave` executes the restriction function from `(-> state :request-data :restriction-fn)`, when it's provided.
+The `restriction-fn` would look like this:
+
+```clojure
+(defn restriction-fn
+  [state]
+  (let [user-permissions (get-in state [:request-data :user-permissions])]
+    (cond
+      (user-permissions :image/all) (xiana/ok state)
+      (user-permissions :image/own) (xiana/ok
+                                      (let [session-id (get-in state [:request :headers "session-id"])
+                                            session-backend (-> state :deps :session-backend)
+                                            user-id (:users/id (session/fetch session-backend session-id))]
+                                        (update state :query sql/merge-where [:= :owner.id user-id]))))))
+```
+
+The rbac interceptor must be right between the [action](#action) and the [db-access](#database-access) interceptors in
+the [interceptor chain](#interceptors-typical-use-case-and-ordering).
+
 ## WebSocket
