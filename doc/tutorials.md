@@ -7,16 +7,14 @@
 - [Router and controller interceptors](#router-and-controller-interceptors)
 - [Providing default interceptors](#providing-default-interceptors)
 - [Interceptor overriding](#interceptor-overriding)
-- Routes
-- Action
-- Database-access
-- View
-- Side-effects
-- User management
-- Login/Logout
-- Session management
-- Role based access and data ownership control
-- WebSocket
+- [Routes](#routes)
+- [Action](#action)
+- [Database-access](#database-access)
+- [View](#view)
+- [Side-effects](#side-effects)
+- [Session management](#session-management)
+- [Role based access and data ownership control](#role-based-access-and-data-ownership-control)
+- [WebSocket](#websocket)
 
 ## Dependencies and configuration
 
@@ -161,6 +159,13 @@ will extend the defaults inside
 
 will extend the defaults inside and around
 
+```clojure
+... {:action       #(do something)
+     :interceptors {:except [...]}}
+```
+
+will skipp the excepted interceptors from defaults
+
 The execution flow will look like this
 
 1. router interceptors :enters in order
@@ -174,3 +179,128 @@ The execution flow will look like this
 9. controller interceptors :leaves in reversed order
 10. around interceptors :leaves in reversed order
 
+If any of interceptors are in :except will be skipped.
+
+## Routes
+
+Route definition is done via [reitit's routing](https://github.com/metosin/reitit) library. Route processing is done
+with `framework.route.core` namespace. At route definition you can define.
+
+- The [action](#action) what should be executed
+- [Interceptor overriding](#interceptor-overriding)
+- The required permission for [rbac](#role-based-access-and-data-ownership-control)
+- [WebSocket](#websocket) action definition
+
+If any extra is provided here, it goes to
+
+```clojure
+(-> state :request-data :match)
+```
+
+in routing step.
+
+## Action
+
+The action function in a single
+[CRUD application](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete#RESTful_APIs) is for define a
+[view](#view), a [database-query](#database-access) and optionally a [side-effect](#side-effects) function which will be
+executed in the following interceptor steps.
+
+```clojure
+(defn action
+  [state]
+  (xiana/ok
+    (assoc state :view view/success
+                 :side-effect behaviour/update-sessions-and-db!
+                 :query model/fetch-query)))
+```
+
+## Database-access
+
+The `database.core`'s interceptor extracts the datasource from the provided state parameter, and the :query.
+
+The query should be in [honey SQL](https://github.com/nilenso/honeysql-postgres) format, it will be sql-formatted on
+execution:
+
+```clojure
+(defn fetch-query
+  [state]
+  (let [login (-> state :request :body-params :login)]
+    (-> (select :*)
+        (from :users)
+        (where [:and
+                :is_active
+                [:or
+                 [:= :email login]
+                 [:= :username login]]]))))
+```
+
+The execution always has `{:return-keys true}` parameter and the result goes into
+
+```clojure
+(-> state :response-data :db-data)
+```
+
+without any transformation.
+
+## View
+
+A view is a function to prepare the response final response into the state based on whatever happened before.
+
+```clojure
+(defn success
+  [state]
+  (let [{:users/keys [id]} (-> state :response-data :db-data first)]
+    (xiana/ok
+      (assoc state :response {:status  200
+                              :headers {"Content-type" "Application/json"}
+                              :body    {:view-type "login"
+                                        :data      {:login   "succeed"
+                                                    :user-id id}}}))))
+```
+
+## Side-effects
+
+Conventionally side-effects interceptor placed after the [action](#action) and [database-access](#database-access), just
+right before [view](#view). Here you already have the result of database execution, so you are able to do some extra
+refinements, like sending notifications, updating the application state, filtering or mapping the result and so on.
+
+To keep continue with the previous examples:
+
+```clojure
+(defn update-sessions-and-db!
+  "Creates and adds a new session to the server's store for the user that wants to sign-in.
+   Avoids duplication by firstly removing the session that is related to this user (if it exists).
+   After the session addition, it updates the user's last-login value in the database."
+  [state]
+  (if (valid-credentials? state)
+    (let [new-session-id (str (UUID/randomUUID))
+          session-backend (-> state :deps :session-backend)
+          {:users/keys [id] :as user} (-> state :response-data :db-data first)]
+      (remove-from-session-store! session-backend id)
+      (xiana-sessions/add! session-backend new-session-id user)
+      (update-user-last-login! state id)
+      (xiana/ok
+        (assoc-in state [:response :headers "Session-id"] new-session-id)))
+    (xiana/error (c/not-allowed state))))
+```
+
+## Session management
+
+The actual session interceptor loads and saves the actual session data from its backend to the app state.
+
+On `:enter` it loads the session by its session-id, into `(-> state :session-data)`
+
+The session-id can be provided in headers, cookies, or as query-param. When the session-id is not provided or invalid
+UUID, or the session is not stored in the storage, then the response will be:
+
+```clojure
+{:status 401
+ :body   "Invalid or missing session"}
+```
+
+On the `:leave` branch, updates session storage with the data from `(-> state :session-data)`
+
+## Role based access and data ownership control
+
+## WebSocket

@@ -26,6 +26,7 @@ Add it to your project as dependency from clojars:
 
 - Everyone should read about [conventions](./doc/conventions.md).
 - To start working with xiana, read [tutorials](./doc/tutorials.md).
+- When you interested in advised [how-to](./doc/how-to.md)s.
 - Readings about provided [modules](./doc/modules.md), and [interceptors](./doc/interceptors.md).
 - To contribute check [contribution](./doc/contribution.md) docs.
 
