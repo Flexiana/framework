@@ -350,7 +350,38 @@ The `restriction-fn` would look like this:
                                         (update state :query sql/merge-where [:= :owner.id user-id]))))))
 ```
 
-The rbac interceptor must be right between the [action](#action) and the [db-access](#database-access) interceptors in
+The rbac interceptor must between the [action](#action) and the [db-access](#database-access) interceptors in
 the [interceptor chain](#interceptors-typical-use-case-and-ordering).
 
 ## WebSocket
+
+To use an endpoint to serve WebSocket connection, you can define it on route-definition beside the restfull action:
+
+```clojure
+(def routes
+  [[...]
+   ["/ws" {:ws-action websocket/echo
+           :action    restfull/hello}]])
+```
+
+And in your `:ws-action` function you can provide your reactive functions in `(-> state :response-data :channel)`
+
+```clojure
+(defn echo [{req :request :as state}]
+  (xiana/ok
+    (assoc-in state [:response-data :channel]
+              {:on-receive (fn [ch msg]
+                             (println "Message: " msg)
+                             (server/send! ch msg))
+               :on-open    #(println "OPEN: - - - - - " %)
+               :on-ping    (fn [ch data]
+                             (println "Ping"))
+               :on-close   (fn [ch status]
+                             (println "\nCLOSE=============="))
+               :init       (fn [ch]
+                             (prn "INIT: " ch)
+                             (prn "Session-Id: " (get-in req [:headers :session-id])))})))
+```
+
+The creation of the actual channel has been done in the framework's [handler](conventions.md#handler) and all your
+reactive functions have the whole [state](conventions.md#state) to work with.
