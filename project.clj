@@ -12,7 +12,8 @@
                  [com.fzakaria/slf4j-timbre "0.3.21"]
                  [org.clojure/data.xml "0.0.8"]
                  [seancorfield/next.jdbc "1.1.613"]
-                 [duct/server.http.jetty "0.2.1"]
+                 [http.async.client "1.3.1"]
+                 [http-kit "2.5.3"]
                  [migratus "1.3.3"]
                  [potemkin "0.4.5"]
                  [metosin/reitit "0.5.15"]
@@ -37,6 +38,7 @@
              :cljstyle {:dependencies []}
              :test     {:source-paths ["test"]
                         :dependencies [[lambdaisland/kaocha "1.0.732"]
+                                       [stylefruits/gniazdo "1.2.0"]
                                        [lambdaisland/kaocha-cloverage "1.0.75"]
                                        [clj-test-containers "0.4.0"]
                                        [mvxcvi/cljstyle "0.14.0"

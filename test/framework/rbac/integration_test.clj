@@ -7,7 +7,6 @@
     [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
     [framework.session.core :as session]
-    [framework.session.core :as session-backend]
     [honeysql.helpers :as sql]
     [tiny-rbac.builder :as b]
     [xiana.core :as xiana])
@@ -40,7 +39,7 @@
                         :permission :image/delete}}]]])
 
 (def backend
-  (session-backend/init-in-memory))
+  (session/init-in-memory))
 
 (def role-set
   (-> (b/add-resource {} :image)

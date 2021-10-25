@@ -18,6 +18,7 @@
               :auth                    (:framework.app/auth config)
               :session-backend         session-backend
               :router-interceptors     (:router-interceptors config)
+              :web-socket-interceptors (:web-socket-interceptors config)
               :controller-interceptors (:controller-interceptors config)
               :db                      (db-core/start
                                          (:database-connection config))}]

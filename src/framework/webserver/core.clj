@@ -1,9 +1,10 @@
 (ns framework.webserver.core
   "Lifecycle management of the webserver"
   (:require
+    [clojure.tools.logging :as log]
     [framework.config.core :as config]
     [framework.handler.core :refer [handler-fn]]
-    [ring.adapter.jetty :as jetty]))
+    [org.httpkit.server :as server]))
 
 ;; web server reference
 (defonce -webserver (atom {}))
@@ -12,14 +13,15 @@
   "Web server instance."
   [options dependencies]
   {:options options
-   :server  (jetty/run-jetty (handler-fn dependencies) options)})
+   :server  (server/run-server (handler-fn dependencies) options)})
 
 (defn stop
   "Stop web server."
   []
   ;; stop the server if necessary
   (when (not (empty? @-webserver))
-    (.stop (get @-webserver :server))))
+    (when-let [-stop-server (get @-webserver :server)]
+      (-stop-server))))
 
 (defn start
   "Start web server."
@@ -28,6 +30,6 @@
   (stop)
   ;; get server options
   (when-let [options (merge (config/get-spec :webserver) (:webserver dependencies))]
-    ;; tries to initialize the web-server if we have the
-    ;; server specification (its options)
-    (swap! -webserver merge (make options dependencies))))
+    (when-let [server (make options dependencies)]
+      (log/info "Server started with options: " options)
+      (swap! -webserver merge server))))

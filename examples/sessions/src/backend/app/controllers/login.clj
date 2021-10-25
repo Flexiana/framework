@@ -19,11 +19,17 @@
   (first (filter (fn [i]
                    (= email (:email i))) db)))
 
+(defn missing-credentials
+  [state]
+  (x/error (assoc state :response {:status 401
+                                   :body   "Missing credentials"})))
+
 (defn login-view
   [{request :request :as state}]
-  (try (let [rbody (some-> request
-                           body-string
-                           (json/read-str :key-fn keyword))
+  (try (let [rbody (or (some-> request
+                               body-string
+                               (json/read-str :key-fn keyword))
+                       (throw (ex-message "Missing body")))
              user (find-user (-> rbody
                                  :email))
              session-id (UUID/randomUUID)
@@ -38,8 +44,7 @@
 
            (x/error (assoc state :response {:status 401
                                             :body   "Incorrect credentials"}))))
-       (catch Exception _ (x/error (assoc state :response {:status 401
-                                                           :body   "Missing credentials"})))))
+       (catch Exception _ (missing-credentials state))))
 
 (defn login-controller
   [state]

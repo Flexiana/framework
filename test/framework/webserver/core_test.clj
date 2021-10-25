@@ -4,10 +4,9 @@
     [framework.handler.core :refer [handler-fn]]
     [framework.route.core :as route]
     [framework.webserver.core :as webserver]
-    [xiana.core :as xiana])
-  (:import
-    (org.eclipse.jetty.server
-      Server)))
+    [framework.webserver.core :as ws]
+    [org.httpkit.server :refer [server-status]]
+    [xiana.core :as xiana]))
 
 (def default-interceptors [])
 
@@ -26,19 +25,8 @@
     ;; check if return handler is a function
     (is (function? handler-fn))))
 
-(deftest start-webserver
-  ;; verify if initial instance is clean
-  (is (or (empty? @webserver/-webserver)
-          (.isStopped (:server @webserver/-webserver))))
-  ;; start the server and fetch it
-  (let [result (webserver/start {:controller-interceptors default-interceptors})
-        server (:server result)]
-    ;; verify if server object was properly set
-    (is (= (type server)
-           Server))))
-
 ;; test jetty handler function call
-(deftest call-jetty-handler-fn
+(deftest call-handler-fn
   ;; set sample routes
   (route/reset sample-routes)
   ;; set handler function
@@ -47,6 +35,11 @@
     (is (= (f sample-request) {:status 200, :body ":action"}))))
 
 (deftest stop-webserver
-  (webserver/stop)
+  (ws/stop)
   (is (or (empty? @webserver/-webserver)
-          (.isStopped (:server @webserver/-webserver)))))
+          (= :stopped (-> @webserver/-webserver
+                          :server
+                          meta
+                          :server
+                          server-status)))))
+
