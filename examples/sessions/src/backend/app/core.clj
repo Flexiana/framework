@@ -13,7 +13,7 @@
               :routes                  (x-routes/reset router/routes)
               :session-backend         (x-session/init-in-memory)
               :controller-interceptors [x-interceptors/params
-                                        (x-session/interceptor "" "/login")]}]
+                                        (x-session/protected-interceptor "" "/login")]}]
     (x-ws/start deps)))
 
 (defn -main

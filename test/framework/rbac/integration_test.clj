@@ -55,7 +55,7 @@
    :session-backend         backend
    :role-set                role-set
    :controller-interceptors [interceptors/params
-                             (session/interceptor "/api" "/login")
+                             session/interceptor
                              rbac/interceptor]})
 
 (use-fixtures :once (partial fixture/std-system-fixture system-config))

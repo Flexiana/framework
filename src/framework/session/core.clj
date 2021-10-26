@@ -40,34 +40,51 @@
      ;; erase session
      (erase! [_] (reset! m {})))))
 
-(defn on-enter
+(defn- on-enter
+  [{{headers      :headers
+     cookies      :cookies
+     query-params :query-params} :request
+    :as                          state}]
+  (try (let [session-backend (-> state :deps :session-backend)
+             session-id (UUID/fromString (or (some->> headers
+                                                      :session-id)
+                                             (some->> cookies
+                                                      :session-id
+                                                      :value)
+                                             (some->> query-params
+                                                      :SESSIONID)))
+             session-data (or (fetch session-backend session-id)
+                              (throw (ex-message "Missing session data")))]
+         (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id))))
+       (catch Exception _
+         (xiana/error
+           (assoc state :response {:status 401
+                                   :body   "Invalid or missing session"})))))
+
+(defn- protect
   [protected-path
    excluded-resource
-   {{headers      :headers
-     cookies      :cookies
-     query-params :query-params
-     uri          :uri} :request
-    :as                 state}]
+   {{uri :uri} :request
+    :as        state}]
   (if (and (string/starts-with? uri protected-path)
            (not= uri (str protected-path excluded-resource)))
-    (try (let [session-backend (-> state :deps :session-backend)
-               session-id (UUID/fromString (or (some->> headers
-                                                        :session-id)
-                                               (some->> cookies
-                                                        :session-id
-                                                        :value)
-                                               (some->> query-params
-                                                        :SESSIONID)))
-               session-data (or (fetch session-backend session-id)
-                                (throw (ex-message "Missing session data")))]
-           (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id))))
-         (catch Exception _
-           (xiana/error
-             (assoc state :response {:status 401
-                                     :body   "Invalid or missing session"}))))
+    (on-enter state)
     (xiana/ok state)))
 
-(defn interceptor
+(defn- on-leave
+  [state]
+  (let [session-backend (-> state :deps :session-backend)
+        session-id (get-in state [:session-data :session-id])]
+    (add! session-backend
+          session-id
+          (:session-data state))
+    ;; associate the session id
+    (xiana/ok
+      (assoc-in state
+                [:response :headers "Session-id"]
+                (str session-id)))))
+
+(defn protected-interceptor
   "On enter allows a resource to be served when
       * it is not protected
    or
@@ -78,15 +95,9 @@
    
    On leave, it updates the session storage from (-> state :session-data)"
   [protected-path excluded-resource]
-  {:enter (partial on-enter protected-path excluded-resource)
-   :leave (fn [state]
-            (let [session-backend (-> state :deps :session-backend)
-                  session-id (get-in state [:session-data :session-id])]
-              (add! session-backend
-                    session-id
-                    (:session-data state))
-              ;; associate the session id
-              (xiana/ok
-                (assoc-in state
-                          [:response :headers "Session-id"]
-                          (str session-id)))))})
+  {:enter (partial protect protected-path excluded-resource)
+   :leave on-leave})
+
+(def interceptor
+  {:enter on-enter
+   :leave on-leave})
