@@ -348,7 +348,7 @@ all requests going to be **denied**.
 
 When `rbac/interceptor` `:enter` executed it'll check if the user has any permission on the
 pre-defined `resource/action`
-pair. If it has any, it will collect all of them (including restricted rights too) into a set in a format:
+pair. If it has any, it will collect all of them (including inherited permissions) into a set in a format:
 `:resource/restriction`.
 
 For example:
