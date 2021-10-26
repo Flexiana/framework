@@ -166,7 +166,7 @@ function defined above, is there in the interceptor chain. How it goes there? Le
 ```clojure
 (defn action
   [state]
-  (xiana/flow->
+  (xiana/ok
     (assoc state :side-effect side-effects/login)))
 ```
 
@@ -175,7 +175,7 @@ This is the place for inject the database query too:
 ```clojure
 (defn action
   [state]
-  (xiana/flow->
+  (xiana/ok
     (assoc state :side-effect side-effects/login
                  :query model/fetch-query)))
 ```
@@ -199,7 +199,7 @@ And finally the [view](tutorials.md#view) is injected in the action function:
 ```clojure
 (defn action
   [state]
-  (xiana/flow->
+  (xiana/ok
     (assoc state :side-effect side-effects/login
                  :view view/login-success
                  :query model/fetch-query)))
@@ -225,9 +225,9 @@ Adding the `ok` response
 ```clojure
 (defn logout-view
   [state]
-  (-> (assoc-in state [:response :body] {:view-type "logout"
+  (xiana/ok (-> (assoc-in state [:response :body] {:view-type "logout"
                                          :data      {:logout "succeed"}})
-      (assoc-in [:response :status] 200)))
+                (assoc-in [:response :status] 200))))
 ```
 
 and using it:
