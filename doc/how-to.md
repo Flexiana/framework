@@ -225,8 +225,9 @@ Adding the `ok` response
 ```clojure
 (defn logout-view
   [state]
-  (xiana/ok (-> (assoc-in state [:response :body] {:view-type "logout"
-                                         :data      {:logout "succeed"}})
+  (xiana/ok (-> (assoc-in state [:response :body]
+                          {:view-type "logout"
+                           :data      {:logout "succeed"}})
                 (assoc-in [:response :status] 200))))
 ```
 
@@ -435,13 +436,13 @@ And finally the only missing piece of code: the model, and the action
     [app.action.login :refer [login]]
     [tiny-rbac.builder :as b]
     [framework.handler.core :refer [handler-fn]
-    [framework.session.core :as session]
-    [framework.route.core :as routes]
-    [framework.interceptor.core :as interceptors]
-    [framework.db.core :as db-core]
-    [framework.webserver.core :as ws]
-    [framework.config.core :as config]
-    [framework.rbac.core :as rbac]))
+     [framework.session.core :as session]
+     [framework.route.core :as routes]
+     [framework.interceptor.core :as interceptors]
+     [framework.db.core :as db-core]
+     [framework.webserver.core :as ws]
+     [framework.config.core :as config]
+     [framework.rbac.core :as rbac]]))
 
 (def role-set
   (-> (b/add-resource {} :image)
