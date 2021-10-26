@@ -40,19 +40,23 @@
      ;; erase session
      (erase! [_] (reset! m {})))))
 
-(defn- on-enter
+(defn ->session-id
   [{{headers      :headers
      cookies      :cookies
-     query-params :query-params} :request
-    :as                          state}]
+     query-params :query-params} :request}]
+  (UUID/fromString (or (some->> headers
+                                :session-id)
+                       (some->> cookies
+                                :session-id
+                                :value)
+                       (some->> query-params
+                                :SESSIONID))))
+
+
+(defn- on-enter
+  [state]
   (try (let [session-backend (-> state :deps :session-backend)
-             session-id (UUID/fromString (or (some->> headers
-                                                      :session-id)
-                                             (some->> cookies
-                                                      :session-id
-                                                      :value)
-                                             (some->> query-params
-                                                      :SESSIONID)))
+             session-id (->session-id state)
              session-data (or (fetch session-backend session-id)
                               (throw (ex-message "Missing session data")))]
          (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id))))
@@ -100,4 +104,21 @@
 
 (def interceptor
   {:enter on-enter
+   :leave on-leave})
+
+(def guest-session-interceptor
+  {:enter
+   (fn [state]
+     (try (let [session-backend (-> state :deps :session-backend)
+                session-id (->session-id state)
+                session-data (or (fetch session-backend session-id)
+                                 (throw (ex-message "Missing session data")))]
+            (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id))))
+          (catch Exception _
+            (xiana/ok (let [session-backend (-> state :deps :session-backend)
+                            session-id (UUID/randomUUID)
+                            session-data {:session-id session-id
+                                          :user       {:users/role :guest}}]
+                        (add! session-backend session-id session-data)
+                        (assoc state :session-data session-data))))))
    :leave on-leave})
