@@ -73,7 +73,7 @@ The actions are defined in the routing
 
     The framework provided handler is a general tool. It creates the state for every request, makes the routing with it,
     executes the interceptors, handles interceptor overrides, and not-found cases.
-    It's also handles websocket requests too.
+    It handles websocket requests too.
 
 ### Routing
 
@@ -88,6 +88,6 @@ The actions are defined in the routing
 
     An interceptor is a pair of unary functions. Each function is called with a state map and must return a state map
     wrapped into a monad container. You can see it analogue to AOP's around aspect, or pair of middlewares. 
-    In Xiana we're providing a handful set of interceptors for do the most common use cases.
+    In Xiana we're providing a handful set of interceptors for the most common use cases.
 
 
