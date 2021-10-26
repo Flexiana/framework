@@ -52,14 +52,17 @@
                        (some->> query-params
                                 :SESSIONID))))
 
+(defn fetch-session
+  [state]
+  (let [session-backend (-> state :deps :session-backend)
+        session-id (->session-id state)
+        session-data (or (fetch session-backend session-id)
+                         (throw (ex-message "Missing session data")))]
+    (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id)))))
 
 (defn- on-enter
   [state]
-  (try (let [session-backend (-> state :deps :session-backend)
-             session-id (->session-id state)
-             session-data (or (fetch session-backend session-id)
-                              (throw (ex-message "Missing session data")))]
-         (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id))))
+  (try (fetch-session state)
        (catch Exception _
          (xiana/error
            (assoc state :response {:status 401
@@ -109,16 +112,12 @@
 (def guest-session-interceptor
   {:enter
    (fn [state]
-     (try (let [session-backend (-> state :deps :session-backend)
-                session-id (->session-id state)
-                session-data (or (fetch session-backend session-id)
-                                 (throw (ex-message "Missing session data")))]
-            (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id))))
+     (try (fetch-session state)
           (catch Exception _
-            (xiana/ok (let [session-backend (-> state :deps :session-backend)
-                            session-id (UUID/randomUUID)
-                            session-data {:session-id session-id
-                                          :user       {:users/role :guest}}]
-                        (add! session-backend session-id session-data)
-                        (assoc state :session-data session-data))))))
+            (let [session-backend (-> state :deps :session-backend)
+                  session-id (UUID/randomUUID)
+                  session-data {:session-id session-id
+                                :user       {:users/role :guest}}]
+              (add! session-backend session-id session-data)
+              (xiana/ok (assoc state :session-data session-data))))))
    :leave on-leave})
