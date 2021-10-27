@@ -15,7 +15,7 @@
 Xiana framework don't have login and logout functions because all application can be different on user management. The
 session interceptor can validate a request only if the session is already exists in session storage. So to login a user,
 you need to add its session to the storage. All session should have unique, and valid UUID as session-id, and this ID
-should be part of active session too. The active session goes to the `(-> state :sessoin-data)`. It's loaded and stored
+should be part of active session too. The active session goes to the `(-> state :session-data)`. It's loaded and stored
 in session storage before/after reaching the action. But if a referred session isn't in the storage, the execution flow
 will be interrupted before the flow reaching the action function, and responses with:
 
