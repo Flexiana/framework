@@ -1,0 +1,2 @@
+CREATE DATABASE cli_chat;
+GRANT ALL PRIVILEGES ON DATABASE cli_chat TO postgres;
