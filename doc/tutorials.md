@@ -18,7 +18,7 @@
 
 ## Dependencies and configuration
 
-Almost all components what you need on runtime should be reachable via the passed around state. To achieve this it
+Almost all components that you need on runtime should be reachable via the passed around state. To achieve this it
 should be part of the :deps map in the state. Any other configuration what you need in runtime should be part of this
 map too.
 
