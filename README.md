@@ -1,7 +1,7 @@
 # Xiana framework
 
 Xiana is a lightweight web-application framework written in clojure, for clojure. The goal is to be simple, fast, and most
-important - a welcome platform for web programmers with different background who want to experience the wonders of
+important - a welcoming platform for web programmers with different background who want to experience the wonders of
 functional programming!
 
 It's easy to install, fun to experiment with, and a powerful tool to produce monolithic web application.
@@ -26,7 +26,7 @@ Add it to your project as dependency from clojars:
 
 - Everyone should read about [conventions](./doc/conventions.md).
 - To start working with xiana, read [tutorials](./doc/tutorials.md).
-- When you interested in advised [how-to](./doc/how-to.md)s.
+- When you are interested in advised [how-to](./doc/how-to.md)s.
 - Readings about provided [modules](./doc/modules.md), and [interceptors](./doc/interceptors.md).
 - To contribute check [contribution](./doc/contribution.md) docs.
 
