@@ -27,6 +27,8 @@
               :auth                    (:framework.app/auth config)
               :session-backend         (session/init-in-memory)
               :router-interceptors     []
+              :web-socket-interceptors [interceptors/params
+                                        session/guest-session-interceptor]
               :controller-interceptors [(interceptors/muuntaja)
                                         interceptors/params
                                         session/guest-session-interceptor
@@ -44,3 +46,5 @@
   (reset! system-map (-> (config/env)
                          (merge _args)
                          system)))
+
+(comment (-main))
