@@ -33,7 +33,7 @@
               {:on-receive (fn [ch msg]
                              (routing (assoc state :ch ch :income-msg msg :fallback behave/broadcast :channels channels)))
                :on-open    (fn [ch]
-                             (behave/welcome (assoc state :ch ch)))
+                             (behave/welcome (assoc state :ch ch :channels channels)))
                :on-ping    (fn [ch data])
                :on-close   (fn [ch status] (swap! channels dissoc ch))
                :init       (fn [ch])})))
