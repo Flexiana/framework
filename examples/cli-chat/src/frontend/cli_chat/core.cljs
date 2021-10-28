@@ -1,11 +1,10 @@
 (ns cli-chat.core
   (:require
-   [reagent.dom :as rdom]
-   [re-frame.core :as re-frame]
-   [cli-chat.events :as events]
-   [cli-chat.views :as views]
-   [cli-chat.config :as config]))
-
+    [cli-chat.config :as config]
+    [cli-chat.events :as events]
+    [cli-chat.views :as views]
+    [re-frame.core :as re-frame]
+    [reagent.dom :as rdom]))
 
 (defn dev-setup []
   (when config/debug?

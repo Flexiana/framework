@@ -1,9 +1,9 @@
 (ns cli-chat-test
   (:require
-    [clj-http.client :as http]
-    [clojure.test :refer [deftest is use-fixtures]]
+    [cli-chat-fixture :refer [std-system-fixture]]
     [cli-chat.core]
-    [cli-chat-fixture :refer [std-system-fixture]]))
+    [clj-http.client :as http]
+    [clojure.test :refer [deftest is use-fixtures]]))
 
 (def config {})
 

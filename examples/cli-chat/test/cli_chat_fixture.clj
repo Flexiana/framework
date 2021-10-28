@@ -9,7 +9,6 @@
     (com.opentable.db.postgres.embedded
       EmbeddedPostgres)))
 
-
 (defn embedded-postgres!
   [config]
   (let [pg (.start (EmbeddedPostgres/builder))

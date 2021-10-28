@@ -1,9 +1,8 @@
 (ns cli-chat.core
   (:require
+    [cli-chat.controllers.chat :refer [chat-action]]
     [cli-chat.controllers.index :as index]
     [cli-chat.controllers.re-frame :as re-frame]
-    [cli-chat.controllers.chat :refer [chat-action]]
-
     [framework.config.core :as config]
     [framework.db.core :as db]
     [framework.interceptor.core :as interceptors]

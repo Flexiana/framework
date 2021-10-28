@@ -1,10 +1,11 @@
 (ns cli-chat.controllers.index
-  (:require [xiana.core :as xiana]
-            [ring.util.response :as ring]))
+  (:require
+    [ring.util.response :as ring]
+    [xiana.core :as xiana]))
 
 (defn handle-index
   [state]
   (xiana/ok
     (assoc state
-      :response
-      (ring/response "Index page"))))
+           :response
+           (ring/response "Index page"))))
