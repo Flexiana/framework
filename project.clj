@@ -7,11 +7,13 @@
                  [honeysql "1.0.444"]
                  [nilenso/honeysql-postgres "0.2.6"]
                  [clj-http "3.12.0"]
+                 [com.flexiana/tiny-rbac "0.1.1"]
                  [org.postgresql/postgresql "42.2.2"]
                  [com.fzakaria/slf4j-timbre "0.3.21"]
                  [org.clojure/data.xml "0.0.8"]
                  [seancorfield/next.jdbc "1.1.613"]
-                 [duct/server.http.jetty "0.2.1"]
+                 [http.async.client "1.3.1"]
+                 [http-kit "2.5.3"]
                  [migratus "1.3.3"]
                  [potemkin "0.4.5"]
                  [metosin/reitit "0.5.15"]
@@ -22,11 +24,9 @@
                  [garden "1.3.10"]
                  [hickory "0.7.1"]
                  [hiccup "1.0.5"]
+                 [com.wsscode/tailwind-garden "2021.04.09"]
+                 [com.wsscode/pathom3 "2021.10.20-alpha"]
                  [funcool/cuerdas "RELEASE"]]
-  :plugins [[lein-tools-deps "0.4.5"]]
-  :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
-  :lein-tools-deps/config {:config-files [:install :user :project]}
-
   :source-paths ["src"]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths         ["config/dev"]
@@ -36,7 +36,10 @@
              :cljstyle {:dependencies []}
              :test     {:source-paths ["test"]
                         :dependencies [[lambdaisland/kaocha "1.0.732"]
+                                       [stylefruits/gniazdo "1.2.0"]
                                        [lambdaisland/kaocha-cloverage "1.0.75"]
+                                       [clj-test-containers "0.5.0"]
+                                       [org.testcontainers/testcontainers "1.16.2"]
                                        [mvxcvi/cljstyle "0.14.0"
                                         :exclusions [org.clojure/clojure]]
                                        [clj-kondo "2021.01.20"]
