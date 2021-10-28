@@ -13,6 +13,7 @@
 (def routes
   (r/router [["/help" {:action behave/help}]
              ["/welcome" {:action behave/welcome}]
+             ["/me" {:action behave/me}]
              ["/login" {:action behave/login}]]))
 
 (defn router
@@ -22,7 +23,7 @@
     :as                    state}]
   (log/info "Processing: " (str/trim income-msg))
   (when-not (str/blank? income-msg)
-    (let [match (r/match-by-path routes (str/trim (first (str/split income-msg #"\s"))))
+    (let [match (r/match-by-path routes (first (str/split income-msg #"\s")))
           action (get-in match [:data :action] fallback)
           update-state (-> (xiana/flow->
                              state

@@ -70,3 +70,16 @@
   (let [username (get-in @channels [ch :user :users/name])]
     (xiana/ok (update state :response-data merge {:reply-fn broadcast-to-others
                                                   :reply    (str username ": " income-msg)}))))
+
+(defn me
+  [{{ch         :ch
+     channels   :channels
+     income-msg :income-msg} :request-data
+    :as                      state}]
+  (let [user (get-in @channels [ch :user])
+        msg (str/split income-msg #"\s")]
+    (if (second msg)
+      (xiana/ok (update state :response-data merge {:reply-fn broadcast-to-others
+                                                    :reply    (apply str (:users/name user) " " (rest msg))}))
+      (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
+                                                    :reply    (str user)})))))
