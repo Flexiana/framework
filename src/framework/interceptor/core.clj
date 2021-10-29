@@ -104,9 +104,9 @@
                                           session-id))]
         (xiana/ok
           (if session-data
-           ;; associate session data into state
+            ;; associate session data into state
             (assoc state :session-data session-data)
-           ;; else, associate a new session
+            ;; else, associate a new session
             (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
                 (assoc-in [:session-data :new-session] true))))))
     :leave
@@ -143,9 +143,9 @@
       (let [auth (get-in request [:headers :authorization])]
         (xiana/ok
           (->
-          ;; f: function to update/associate the user role
+            ;; f: function to update/associate the user role
             (f state role)
-          ;; associate authorization into session-data
+            ;; associate authorization into session-data
             (assoc-in [:session-data :authorization] auth)))))}))
 
 (defn muuntaja

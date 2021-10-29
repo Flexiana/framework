@@ -24,11 +24,9 @@
                  [garden "1.3.10"]
                  [hickory "0.7.1"]
                  [hiccup "1.0.5"]
+                 [com.wsscode/tailwind-garden "2021.04.09"]
+                 [com.wsscode/pathom3 "2021.10.20-alpha"]
                  [funcool/cuerdas "RELEASE"]]
-  :plugins [[lein-tools-deps "0.4.5"]]
-  :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
-  :lein-tools-deps/config {:config-files [:install :user :project]}
-
   :source-paths ["src"]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths         ["config/dev"]
@@ -40,7 +38,8 @@
                         :dependencies [[lambdaisland/kaocha "1.0.732"]
                                        [stylefruits/gniazdo "1.2.0"]
                                        [lambdaisland/kaocha-cloverage "1.0.75"]
-                                       [clj-test-containers "0.4.0"]
+                                       [clj-test-containers "0.5.0"]
+                                       [org.testcontainers/testcontainers "1.16.2"]
                                        [mvxcvi/cljstyle "0.14.0"
                                         :exclusions [org.clojure/clojure]]
                                        [clj-kondo "2021.01.20"]
