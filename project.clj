@@ -40,6 +40,7 @@
                                        [lambdaisland/kaocha-cloverage "1.0.75"]
                                        [clj-test-containers "0.5.0"]
                                        [org.testcontainers/testcontainers "1.16.2"]
+                                       [piotr-yuxuan/closeable-map "0.35.0"]
                                        [mvxcvi/cljstyle "0.14.0"
                                         :exclusions [org.clojure/clojure]]
                                        [clj-kondo "2021.01.20"]
