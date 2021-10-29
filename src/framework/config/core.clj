@@ -3,6 +3,7 @@
   (:require
     [clojure.edn :as edn]
     [clojure.java.io :as io]
+    [clojure.set :refer [map-invert rename-keys]]
     [config.core :refer [load-env]])
   (:import
     (java.io
@@ -29,10 +30,11 @@
 (defn read-edn-file
   "Read edn configuration file."
   [edn-file]
-  (if edn-file (let [edn-file (or edn-file default-edn-file)]
-                 (with-open [r (io/reader edn-file)]
-                   (edn/read (PushbackReader. r))))
-      (load-env)))
+  (if edn-file
+    (let [edn-file (or edn-file default-edn-file)]
+      (with-open [r (io/reader edn-file)]
+        (edn/read (PushbackReader. r))))
+    (load-env)))
 
 (defn get-spec
   "Select configuration spec using 'k' identifier."
@@ -45,3 +47,11 @@
   "Loads environment variables and config.edn from resource path"
   []
   (load-env))
+
+(def config
+  (let [config-map (merge
+                     (load-env)
+                     (read-edn-file default-edn-file))]
+    (rename-keys
+      config-map
+      (map-invert default-config-map))))
