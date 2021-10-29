@@ -23,6 +23,15 @@
   (doseq [c (remove #(#{ch} (key %)) @channels)]
     (server/send! (key c) reply)))
 
+(defn broadcast
+  [{{ch         :ch
+     channels   :channels
+     income-msg :income-msg} :request-data
+    :as                      state}]
+  (let [username (get-in @channels [ch :user :users/name])]
+    (xiana/ok (update state :response-data merge {:reply-fn broadcast-to-others
+                                                  :reply    (str username ": " income-msg)}))))
+
 (defn gen-username []
   (let [id (apply str (take 4 (repeatedly #(char (+ (rand 26) 65)))))]
     (str "guest_" id)))
@@ -54,47 +63,17 @@
   (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
                                                 :reply    "Help message"})))
 
-(defn login
-  [{{ch         :ch
-     channels   :channels
-     income-msg :income-msg} :request-data
-    :as                      state}]
-  (let [msg (str/split income-msg #"\s")]
-    (if-not (str/blank? (second msg))
-      (let [user-name (second msg)]
-        (swap! channels assoc-in [ch :login] {:status    :in-progress
-                                              :user-name user-name})
-        (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                      :reply    (str "Type '/password \"password\"' to log in as " user-name)})))
-      (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                    :reply    (str "Usage:\n'/login username'")})))))
-
-(defn update-user
+(defn update-user!
   [{{ch       :ch
      channels :channels} :request-data
     {db-data :db-data}   :response-data
     :as                  state}]
-  (log/info "update user: " db-data)
-  (swap! channels update ch assoc :user (dissoc (first db-data) :users/passwd))
-  (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                :reply    (str (dissoc (first db-data) :users/passwd))})))
-
-(defn sign-up
-  [{{income-msg :income-msg} :request-data
-    :as                      state}]
-  (let [[_ user-name passwd] (str/split income-msg #"\s")
-        exists (not-empty (sql/execute (-> state :deps :db :datasource) (user/get-user user-name)))]
-    (cond (and user-name passwd (not exists))
-          (xiana/ok (assoc state
-                           :query {:insert-into :users
-                                   :values      [{:name user-name :passwd (auth/make state passwd) :role "member"}]}
-                           :side-effect update-user))
-          exists
-          (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                        :reply    "Username already registered"}))
-          :else
-          (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                        :reply    "Usage:\n/sing-up username password"})))))
+  (let [logable-user (-> (first db-data)
+                         (dissoc :users/passwd))]
+    (log/info "update user: " logable-user)
+    (swap! channels update ch assoc :user logable-user)
+    (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
+                                                  :reply    (str logable-user)}))))
 
 (defn valid-password?
   [{{income-msg :income-msg} :request-data
@@ -109,44 +88,47 @@
          (catch Exception _ false))))
 
 (defn password-side
-  [{{ch         :ch
-     channels   :channels
-     income-msg :income-msg} :request-data
-    {db-data :db-data}       :response-data
+  [{{income-msg :income-msg} :request-data
     :as                      state}]
-  (log/info "db-data" db-data)
-  (log/info (get @channels ch))
-  (let [msg (str/split income-msg #"\s")]
-    (if-not (or (str/blank? (second msg))
-                (not= :in-progress (get-in @channels [ch :login :status])))
-      (if (valid-password? state)
-        (do
-          (update-user state)
-          (xiana/ok
-            (update state :response-data merge {:reply-fn send-multi-line
-                                                :reply    "Successful login"})))
-        (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                      :reply    "Invalid username/password"})))
+  (let [msg (str/split income-msg #"\s")
+        [_ user-name password] msg]
+    (if (and user-name password (valid-password? state))
+      (do
+        (update-user! state)
+        (xiana/ok
+          (update state :response-data merge {:reply-fn send-multi-line
+                                              :reply    "Successful login"})))
       (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                    :reply    "Init login sequence with '/login username' command,\n Usage:\n'/password password'"})))))
+                                                    :reply    "Invalid username or password"})))))
 
-(defn password
-  [{{ch       :ch
-     channels :channels} :request-data
-    :as                  state}]
-  (let [user-name (get-in @channels [ch :login :user-name])]
-    (xiana/ok (assoc state
-                     :side-effect password-side
-                     :query (user/get-user user-name)))))
-
-(defn broadcast
-  [{{ch         :ch
-     channels   :channels
-     income-msg :income-msg} :request-data
+(defn login
+  [{{income-msg :income-msg} :request-data
     :as                      state}]
-  (let [username (get-in @channels [ch :user :users/name])]
-    (xiana/ok (update state :response-data merge {:reply-fn broadcast-to-others
-                                                  :reply    (str username ": " income-msg)}))))
+  (let [msg (str/split income-msg #"\s")
+        [_ user-name password] msg]
+    (if (and user-name password)
+      (xiana/ok (xiana/ok (assoc state
+                                 :side-effect password-side
+                                 :query (user/get-user user-name))))
+      (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
+                                                    :reply    (str "Usage:\n'/login username password'")})))))
+
+(defn sign-up
+  [{{income-msg :income-msg} :request-data
+    :as                      state}]
+  (let [[_ user-name passwd] (str/split income-msg #"\s")
+        exists (not-empty (sql/execute (-> state :deps :db :datasource) (user/get-user user-name)))]
+    (cond (and user-name passwd (not exists))
+          (xiana/ok (assoc state
+                           :query {:insert-into :users
+                                   :values      [{:name user-name :passwd (auth/make state passwd) :role "member"}]}
+                           :side-effect update-user!))
+          exists
+          (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
+                                                        :reply    "Username already registered"}))
+          :else
+          (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
+                                                        :reply    "Usage:\n/sing-up username password"})))))
 
 (defn me
   [{{ch         :ch

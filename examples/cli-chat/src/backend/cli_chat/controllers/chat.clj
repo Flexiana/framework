@@ -35,15 +35,14 @@
   (r/router [["/help" {:action behave/help}]
              ["/welcome" {:action behave/welcome}]
              ["/me" {:action behave/me}]
-             ["/login" {:action behave/login
-                        :hide   true}]
+             ["/login" {:action       behave/login
+                        :interceptors {:inside [interceptors/side-effect
+                                                interceptors/db-access]}
+                        :hide         true}]
              ["/sign-up" {:action       behave/sign-up
                           :interceptors {:inside [interceptors/side-effect
-                                                  interceptors/db-access]}}]
-             ["/password" {:action       behave/password
-                           :hide         true
-                           :interceptors {:inside [interceptors/side-effect
-                                                   interceptors/db-access]}}]]
+                                                  interceptors/db-access]}
+                          :hide         true}]]
             {:data {:default-interceptors [(keyceptor :request-data :income-msg)]}}))
 
 (defn router
