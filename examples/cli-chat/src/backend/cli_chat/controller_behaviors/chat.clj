@@ -12,9 +12,9 @@
   ([ch reply]
    (doseq [m (str/split-lines reply)]
      (server/send! ch (str m "\n"))))
-  ([{{req-ch :ch}       :request-data
+  ([{{req-ch :ch}    :request-data
      {res-ch :ch
-      reply :reply} :response-data}]
+      reply  :reply} :response-data}]
    (send-multi-line (or res-ch req-ch) reply)))
 
 (defn broadcast-to-others
@@ -147,7 +147,9 @@
 
 (defn user->ch
   [channels name]
-  (filter (fn [[_ v]] (= name (get-in v [:user :users/name]))) @channels))
+  (->> @channels
+       (filter (fn [[_ v]] (= name (get-in v [:user :users/name]))))
+       first))
 
 (defn to
   [{{ch         :ch
@@ -156,9 +158,20 @@
     :as                      state}]
   (let [[_ to] (str/split income-msg #"\s")
         from (get-in @channels [ch :user :users/name])
-        user-ch (user->ch channels to)
-        message (-> (str/replace-first income-msg #"\/to " from)
-                    (str/replace-first to ""))]
-    (xiana/ok (update state :response-data merge {:ch       user-ch
-                                                  :reply-fn send-multi-line
-                                                  :reply    message}))))
+        user-ch (some->> to
+                         (user->ch channels)
+                         key)
+        message (try (-> income-msg
+                         (str/replace-first to "")
+                         (str/replace-first #"\/to" (format ">>%s>>" from)))
+                     (catch Exception _ nil))]
+    (xiana/ok (cond (and user-ch message)
+                    (update state :response-data merge {:ch       user-ch
+                                                        :reply-fn send-multi-line
+                                                        :reply    message})
+                    message
+                    (update state :response-data merge {:reply-fn send-multi-line
+                                                        :reply    (format "User %s not logged in" to)})
+                    :else
+                    (update state :response-data merge {:reply-fn send-multi-line
+                                                        :reply    "Usage:\n /to username message"})))))
