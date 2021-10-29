@@ -35,6 +35,7 @@
   (r/router [["/help" {:action behave/help}]
              ["/welcome" {:action behave/welcome}]
              ["/me" {:action behave/me}]
+             ["/to" {:action behave/to}]
              ["/login" {:action       behave/login
                         :interceptors {:inside [interceptors/side-effect
                                                 interceptors/db-access]}
