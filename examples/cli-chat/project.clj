@@ -39,6 +39,6 @@
              :migration-dir "migrations"
              :db            {:classname   "com.mysql.jdbc.Driver"
                              :subprotocol "postgres"
-                             :subname     "//localhost:5433/cli-chat"
+                             :subname     "//localhost:5433/cli_chat"
                              :user        "postgres"
                              :password    "postgres"}})
