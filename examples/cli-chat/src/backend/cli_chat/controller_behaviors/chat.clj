@@ -41,9 +41,7 @@
   [username]
   (format "HELLo tHERE, %s
 
-  type '/sign-up' to register
-  '/login username' to log in,
-   get help with '/help'
+   type '/help' for get help
    " username))
 
 (defn welcome
@@ -59,10 +57,16 @@
     (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
                                                   :reply    (welcome-message username)}))))
 
+(def help-messages
+  {"/login"   "Usage:\n /login username password"
+   "/sign-up" "Usage:\n /sing-up username password"
+   "/to"      "Usage:\n /to username message"
+   "/me"      "Usage:\n /me the get user info\n /me message to send personalized message"})
+
 (defn help
   [state]
   (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                :reply    "Help message"})))
+                                                :reply    (str/join "\n" help-messages)})))
 
 (defn update-user!
   [{{ch       :ch
@@ -112,7 +116,7 @@
                   :side-effect password-side
                   :query (user/get-user user-name)))
       (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                    :reply    (str "Usage:\n'/login username password'")})))))
+                                                    :reply    (help-messages "/login")})))))
 
 (defn sign-up
   [{{income-msg :income-msg} :request-data
@@ -129,7 +133,7 @@
                                                         :reply    "Username already registered"}))
           :else
           (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                        :reply    "Usage:\n/sing-up username password"})))))
+                                                        :reply    (help-messages "/sign-up")})))))
 
 (defn me
   [{{ch         :ch
@@ -174,4 +178,4 @@
                                                         :reply    (format "User %s not logged in" to)})
                     :else
                     (update state :response-data merge {:reply-fn send-multi-line
-                                                        :reply    "Usage:\n /to username message"})))))
+                                                        :reply    (help-messages "/to")})))))
