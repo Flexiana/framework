@@ -1,26 +1,44 @@
 (ns interceptors.load-user
   (:require
-    [clojure.core :as core]
     [framework.db.sql :as db]
-    [honeysql.core :as sql]
-    [honeysql.helpers :as helpers]
-    [xiana.core :as xiana]))
+    [framework.session.core :as session]
+    [honeysql.helpers :refer [select from where]]
+    [xiana.core :as xiana])
+  (:import
+    (java.util
+      UUID)))
 
-(defn- purify
-  "Removes namespaces from keywords"
-  [elem]
-  (into {}
-        (map (fn [[k v]] {(keyword (name k)) v}) elem)))
+(defn ->role
+  [user]
+  (let [role (cond
+               (not (:users/is_active user)) :guest
+               (:users/is_superuser user) :superuser
+               (:users/is_staff user) :staff
+               (:users/is_active user) :member
+               :else :guest)]
+    (assoc user :users/role role)))
 
-(defn load-user
-  [{{{user-id :id} :user} :session-data
-    :as                   state}]
-  (let [query (-> (helpers/select :*)
-                  (helpers/from :users)
-                  (helpers/where [:= :id user-id])
-                  sql/format)
-        user (first (db/execute state query))]
-    (if user
-      (xiana/ok (-> (assoc-in state [:session-data :user] (purify user))
-                    (core/update :session-data dissoc :new-session)))
-      (xiana/ok state))))
+(defn valid-user?
+  [{:keys [request] :as state}]
+  (let [user-id (UUID/fromString (get-in request [:headers :authorization]))
+        datasource (get-in state [:deps :db :datasource])
+        query (-> {}
+                  (select :*)
+                  (from :users)
+                  (where [:= :id user-id]))]
+    (-> (db/execute datasource query)
+        first
+        ->role)))
+
+(def load-user!
+  {:enter (fn [{:keys [request] :as state}]
+            (let [guest-user {:users/role :guest
+                              :users/id   (UUID/randomUUID)}
+                  session-id (get-in request [:headers :session-id] (UUID/randomUUID))
+                  user (try (let [valid-user (valid-user? state)]
+                              (if (empty? valid-user)
+                                guest-user
+                                valid-user))
+                            (catch Exception _ guest-user))]
+              (xiana/ok (assoc-in (assoc-in state [:session-data :user] user)
+                                  [:session-data :session-id] session-id))))})

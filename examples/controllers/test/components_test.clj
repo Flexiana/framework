@@ -1,21 +1,21 @@
 (ns components-test
   (:require
     [clj-http.client :as http]
+    [clojure.pprint :refer [pprint]]
     [clojure.test :refer [deftest is use-fixtures]]
-    [com.stuartsierra.component :as component]
     [components :as comps]
-    [framework.config.core :as config]))
+    [framework.config.core :as config]
+    [framework.webserver.core :as ws]))
 
 (defn std-system-fixture
   [f]
-  (let [config (config/edn)
-        system (-> config
-                   comps/system
-                   component/start)]
-    (try
-      (f)
-      (finally
-        (component/stop system)))))
+  (try
+    (-> (config/env)
+        comps/system)
+    (f)
+    (catch Exception e (pprint e))
+    (finally
+      (ws/stop))))
 
 (use-fixtures :each std-system-fixture)
 
@@ -79,9 +79,9 @@
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-  ;TODO here I would like to have 400 and some reasonable explanation
-  (is (= {:body   "Internal Server error"
-          :status 500}
+
+  (is (= {:status 400
+          :body "Request coercion failed"}
          (-> {:url                  "http://localhost:3000/api/siege-machines/1c"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]
@@ -90,8 +90,8 @@
              http/request
              (select-keys [:status :body]))))
 
-  (is (= {:body   "Internal Server error"
-          :status 500}
+  (is (= {:status 400
+          :body "Response validation failed"}
          (-> {:url                  "http://localhost:3000/api/siege-machines/3"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]

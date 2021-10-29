@@ -1,24 +1,18 @@
 (ns components
   (:require
     [app]
-    [com.stuartsierra.component :as component]
     [framework.config.core :as config]
-    [framework.db.storage :as db.storage]
-    [web-server]))
+    [framework.interceptor.core :as interceptor]
+    [framework.route.core :as routes]
+    [framework.webserver.core :as ws]))
 
-(defn system
+(defn deps
   [config]
-  (let [pg-cfg (:framework.db.storage/postgresql config)
-        app-cfg (:framework.app/ring config)
-        web-server-cfg (:framework.app/web-server config)]
-
-    (component/system-map
-      :config config
-      :db (db.storage/postgresql pg-cfg)
-      :app-component (app/ring-app app-cfg)
-      :web-server (web-server/web-server web-server-cfg))))
+  {:routes (routes/reset app/routes)
+   :webserver (:framework.app/web-server config)
+   :controller-interceptors [(interceptor/muuntaja)]})
 
 (defn -main
   [& args]
-  (let [config (config/edn)]
-    (component/start (system config))))
+  (let [config (config/env)]
+    (ws/start (deps config))))

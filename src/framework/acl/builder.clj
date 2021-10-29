@@ -1,4 +1,6 @@
 (ns framework.acl.builder
+  "This package will be removed in the next version, use rbac instead"
+  {:deprecated true}
   (:require
     [framework.acl.builder.permissions :as abp]
     [framework.acl.builder.roles :as abr]

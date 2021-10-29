@@ -1,4 +1,5 @@
 (ns framework.db.postgresql
+  "Duplicates some functions from 'honeysql-postgres.helpers'"
   (:require
     [honeysql-postgres.helpers]
     [potemkin :refer [import-vars]]))

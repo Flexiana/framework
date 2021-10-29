@@ -37,6 +37,4 @@
   [state]
   (xiana/flow->
     state
-    (require-logged-in)
-    (something-else)
-    (index-view)))
+    index-view))

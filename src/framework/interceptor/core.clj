@@ -1,13 +1,12 @@
 (ns framework.interceptor.core
+  "Collection of useful interceptors"
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.walk :refer [keywordize-keys]]
-    [framework.acl.core :as acl]
     [framework.db.sql :as db.sql]
     [framework.interceptor.muuntaja :as muuntaja]
     [framework.interceptor.wrap :as wrap]
     [framework.session.core :as session]
-    [honeysql.core :as sql]
     [ring.middleware.params :as middleware.params]
     [xiana.core :as xiana])
   (:import
@@ -73,7 +72,7 @@
                    [:response-data :db-data]
                    ;; returns the result of the database-query
                    ;; execution or empty ({})
-                   (db.sql/execute! (get-in state [:deps :db :datasource]) (sql/format query)))
+                   (db.sql/execute (get-in state [:deps :db :datasource]) query))
          state)))})
 
 (defn message

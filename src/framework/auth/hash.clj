@@ -1,4 +1,7 @@
 (ns framework.auth.hash
+  "Cryptography helper for creating, and resolving passwords.
+  Supported algorithms are bcrypr, pbkdf2, and scrypt.
+  The required algorithm should be in (-> state :deps :auth :hash-algorithm)"
   (:require
     [crypto.password.bcrypt :as hash-b]
     [crypto.password.pbkdf2 :as hash-p]
@@ -13,19 +16,21 @@
    {:pre [(some #(= hash-algorithm %) supported)]}
    hash-algorithm))
 
-(defmulti make dispatch)
+(defmulti make
+  "Creating an encrypted version for store password."
+  dispatch)
 
 (defmethod make :bcrypt
   [{{:keys [bcrypt-settings]
-     :or {bcrypt-settings {:work-factor 11}}} :deps/auth}
+     :or   {bcrypt-settings {:work-factor 11}}} :deps/auth}
    password]
   (hash-b/encrypt password (:work-factor bcrypt-settings)))
 
 (defmethod make :scrypt
   [{{:keys [scrypt-settings]
-     :or {scrypt-settings {:cpu-cost 32768
-                           :memory-cost 8
-                           :parallelization 1}}} :deps/auth}
+     :or   {scrypt-settings {:cpu-cost        32768
+                             :memory-cost     8
+                             :parallelization 1}}} :deps/auth}
    password]
   (hash-s/encrypt
     password
@@ -35,8 +40,8 @@
 
 (defmethod make :pbkdf2
   [{{:keys [pbkdf2-settings]
-     :or {pbkdf2-settings {:type :sha1
-                           :iterations 100000}}} :deps/auth}
+     :or   {pbkdf2-settings {:type       :sha1
+                             :iterations 100000}}} :deps/auth}
    password]
   (hash-p/encrypt
     password
@@ -44,7 +49,9 @@
     (if (= :sha1 (:type pbkdf2-settings))
       "HMAC-SHA1" "HMAC-SHA256")))
 
-(defmulti check dispatch)
+(defmulti check
+  "Validating password."
+  dispatch)
 
 (defmethod check :bcrypt [_ password encrypted]
   (hash-b/check password encrypted))

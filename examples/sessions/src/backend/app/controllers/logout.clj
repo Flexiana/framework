@@ -1,23 +1,16 @@
-(ns controllers.logout
+(ns app.controllers.logout
   (:require
-    [clojure.data.json :as json]
-    [ring.util.request :refer [body-string]]
-    [xiana.core :as xiana]))
+    [xiana.core :as x]))
 
 (defn logout-view
-  [{request :http-request :as state}]
-
-  (let [session-id (-> request
-                       :headers
-                       (get "session-id"))]
-    (xiana/ok (assoc state
-                     :response {:status 200
-                                :headers {"Content-Type" "application/json"}
-                                :body "foso"}
-                     :logout-data {:session-id session-id}))))
+  [state]
+  (let [user (get-in state [:session-data :user])]
+    (x/ok (assoc state
+                 :response {:status  200
+                            :headers {"Content-Type" "application/json"}
+                            :body    (str (:first-name user) " logged out")}))))
 
 (defn logout-controller
   [state]
-
-  (xiana/flow-> state
-                logout-view))
+  (x/flow-> state
+            logout-view))

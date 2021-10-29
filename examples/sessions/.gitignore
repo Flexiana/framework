@@ -1,6 +1,7 @@
 /target
 /classes
 /checkouts
+/resources/js/public/js/compiled
 profiles.clj
 pom.xml
 pom.xml.asc

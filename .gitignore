@@ -120,3 +120,4 @@ pom.xml.asc
 .lsp/
 !/.lein-git-deps/
 .clj-kondo/
+*.iml

@@ -1,21 +1,15 @@
 (ns comments-test
   (:require
     [acl]
-    [acl-fixture]
-    [clojure.data.json :as json]
-    [clojure.test :refer :all]
-    [helpers :refer [delete
-                     put
-                     fetch
-                     post
-                     test_member
-                     test_admin
-                     test_suspended_admin
-                     test_staff]]
+    [acl-fixture :refer [std-system-fixture]]
+    [clojure.data.json :refer [read-str]]
+    [clojure.test :refer [deftest is use-fixtures]]
+    [helpers :refer [test_member
+                     test_admin]]
     [post-helpers :refer [init-db-with-two-posts
                           all-post-ids]]))
 
-(use-fixtures :once acl-fixture/std-system-fixture)
+(use-fixtures :once std-system-fixture)
 
 (deftest commenting-on-post
   (init-db-with-two-posts)
@@ -25,7 +19,7 @@
                                        :content "Test comment on first post"})
     (let [new-posts (-> (helpers/fetch "posts/comments" test_admin)
                         :body
-                        (json/read-str :key-fn keyword)
+                        (read-str :key-fn keyword)
                         :data
                         :posts)]
       (is (= 1 (->> (filter #(#{first-id} (:posts/id %)) new-posts)
@@ -41,7 +35,7 @@
   [response]
   (-> response
       :body
-      (json/read-str :key-fn keyword)
+      (read-str :key-fn keyword)
       :data
       :comments))
 

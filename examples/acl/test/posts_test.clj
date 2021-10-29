@@ -11,7 +11,6 @@
                      post
                      test_member
                      test_admin
-                     test_suspended_admin
                      test_staff]]
     [post-helpers :refer [post-ids
                           update-count
@@ -44,13 +43,13 @@
 (deftest guest-cannot-delete-posts :posts
   (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
-    (is (= [401 "You don't have rights to do this"]
+    (is (= [403 "Forbidden"]
            (-> {:url                  "http://localhost:3000/posts"
                 :unexceptional-status (constantly true)
                 :method               :delete}
                http/request
                ((juxt :status :body)))) "Guest cannot delete all posts")
-    (is (= [401 "You don't have rights to do this"]
+    (is (= [403 "Forbidden"]
            (-> {:url                  "http://localhost:3000/posts"
                 :unexceptional-status (constantly true)
                 :query-params         {:id (first orig-ids)}
@@ -60,7 +59,7 @@
 
 (deftest guest-cannot-create-post
   (init-db-with-two-posts)
-  (is (= [401 "You don't have rights to do this"]
+  (is (= [403 "Forbidden"]
          (-> {:url                  "http://localhost:3000/posts"
               :unexceptional-status (constantly true)
               :form-params          {:content "It doesn't save anyway"}
@@ -71,7 +70,7 @@
 (deftest guest-cannot-update-post
   (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
-    (is (= [401 "You don't have rights to do this"]
+    (is (= [403 "Forbidden"]
            (-> {:url                  "http://localhost:3000/posts"
                 :unexceptional-status (constantly true)
                 :query-params         {:id (first orig-ids)}
@@ -165,8 +164,8 @@
                     :body
                     post-ids
                     first)
-        comment (put :comments test_member {:post_id post-id
-                                            :content "test comment on test post"})
+        _ (put :comments test_member {:post_id post-id
+                                      :content "test comment on test post"})
         result (-> (fetch "posts/comments" test_member)
                    :body
                    (json/read-str :key-fn keyword)
