@@ -28,7 +28,7 @@
    ["/session" {:post {:handler      route
                        :action       #(xiana/ok (update % :response conj {:status 200 :body "Ok"}))
                        :interceptors {:override [(interceptors/muuntaja)
-                                                 ;interceptors/log
+                                                 ;; interceptors/log
                                                  interceptors/params
                                                  interceptors/session-interceptor
                                                  ti/response-session
@@ -48,7 +48,7 @@
      :session-backend         (session-backend/init-in-memory-session)
      :router-interceptors     []
      :controller-interceptors [(interceptors/muuntaja)
-                               ;interceptors/log
+                               ;; interceptors/log
                                interceptors/params
                                interceptors/session-interceptor
                                (ti/single-entry f-map/action-map "/action")
