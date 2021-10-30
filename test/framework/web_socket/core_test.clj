@@ -49,7 +49,7 @@
    :framework.app/web-server (config/get-spec :framework.app/web-server)
    :web-socket-interceptors  [interceptors/params]
    :controller-interceptors  [interceptors/params
-                              (session/interceptor "/api" "/login")
+                              (session/protected-interceptor "/api" "/login")
                               rbac/interceptor]})
 
 (use-fixtures :once (partial fixture/std-system-fixture system-config))
