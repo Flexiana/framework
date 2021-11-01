@@ -73,12 +73,12 @@
      channels :channels} :request-data
     {db-data :db-data}   :response-data
     :as                  state}]
-  (let [logable-user (-> (first db-data)
-                         (dissoc :users/passwd))]
-    (log/info "update user: " logable-user)
-    (swap! channels update ch assoc :user logable-user)
+  (let [loggable-user (-> (first db-data)
+                          (dissoc :users/passwd))]
+    (log/info "update user: " loggable-user)
+    (swap! channels update ch assoc :user loggable-user)
     (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
-                                                  :reply    (str logable-user)}))))
+                                                  :reply    (str loggable-user)}))))
 
 (defn valid-password?
   [{{income-msg :income-msg} :request-data
@@ -112,7 +112,8 @@
   (let [msg (str/split income-msg #"\s")
         [_ user-name password] msg]
     (if (and user-name password)
-      (xiana/ok (assoc state
+      (xiana/ok (assoc
+                  state
                   :side-effect password-side
                   :query (user/get-user user-name)))
       (xiana/ok (update state :response-data merge {:reply-fn send-multi-line
@@ -124,7 +125,8 @@
   (let [[_ user-name passwd] (str/split income-msg #"\s")
         exists (not-empty (sql/execute (-> state :deps :db :datasource) (user/get-user user-name)))]
     (cond (and user-name passwd (not exists))
-          (xiana/ok (assoc state
+          (xiana/ok (assoc
+                      state
                       :query {:insert-into :users
                               :values      [{:name user-name :passwd (auth/make state passwd) :role "member"}]}
                       :side-effect update-user!))
