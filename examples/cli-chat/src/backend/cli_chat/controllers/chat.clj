@@ -1,6 +1,7 @@
 (ns cli-chat.controllers.chat
   (:require
     [cli-chat.controller-behaviors.chat :as behave]
+    [cli-chat.views.chat :as views]
     [framework.interceptor.core :as interceptors]
     [framework.websockets.core :refer [router string->]]
     [reitit.core :as r]
@@ -34,7 +35,7 @@
                              (routing (update state :request-data
                                               merge {:ch         ch
                                                      :income-msg msg
-                                                     :fallback   behave/fallback
+                                                     :fallback   views/fallback
                                                      :channels   channels})))
                :on-open    (fn [ch]
                              (routing (update state :request-data
