@@ -11,6 +11,9 @@
                  [org.postgresql/postgresql "42.2.2"]
                  [com.fzakaria/slf4j-timbre "0.3.21"]
                  [org.clojure/data.xml "0.0.8"]
+                 [com.opentable.components/otj-pg-embedded "0.13.3"]
+                 [clj-test-containers "0.5.0"]
+                 [org.testcontainers/testcontainers "1.16.2"]
                  [seancorfield/next.jdbc "1.1.613"]
                  [http.async.client "1.3.1"]
                  [http-kit "2.5.3"]
@@ -37,8 +40,7 @@
                         :dependencies [[lambdaisland/kaocha "1.0.732"]
                                        [stylefruits/gniazdo "1.2.0"]
                                        [lambdaisland/kaocha-cloverage "1.0.75"]
-                                       [clj-test-containers "0.5.0"]
-                                       [org.testcontainers/testcontainers "1.16.2"]
+
                                        [mvxcvi/cljstyle "0.14.0"
                                         :exclusions [org.clojure/clojure]]
                                        [clj-kondo "2021.01.20"]
