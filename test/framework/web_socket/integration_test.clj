@@ -1,4 +1,4 @@
-(ns framework.web-socket.core-test
+(ns framework.web-socket.integration-test
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.test :refer :all]

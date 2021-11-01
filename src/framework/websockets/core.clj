@@ -26,12 +26,13 @@
 
 (defn probe->
   [e]
-  (or (try (json-> e)
-           (catch Exception _ nil))
-      (try (edn-> e)
-           (catch Exception _ nil))
-      (try (string-> e)
-           (catch Exception _ nil))))
+  (name
+    (or (try (json-> e)
+             (catch Exception _ nil))
+        (try (edn-> e)
+             (catch Exception _ nil))
+        (try (string-> e)
+             (catch Exception _ nil)))))
 
 (defn router
   "Router for webSockets.
