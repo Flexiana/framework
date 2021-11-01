@@ -32,12 +32,12 @@ Add it to your project as dependency from clojars:
 
 ### Examples
 
-Visit [examples folder](https://github.com/Flexiana/framework/tree/main/examples), and see how you can do
+Visit [examples folder](examples), and see how you can do
 
 - [Access and data ownership control](examples/acl/README.md)
 - [Request coercion and response validation](examples/controllers/README.md)
 - [Session handling with varying interceptors](examples/sessions/README.md)
-- [Chat platform with WebSocket]() #TODO 
+- [Chat platform with WebSocket](examples/cli-chat/README.md)
 
 ## References
 

@@ -15,6 +15,8 @@
 - [Session management](#session-management)
 - [Role based access and data ownership control](#role-based-access-and-data-ownership-control)
 - [WebSocket](#websocket)
+    - [WebSockets routing](#websockets-routing)
+    - [Route matching](#route-matching)
 
 ## Dependencies and configuration
 
@@ -353,9 +355,9 @@ The `restriction-fn` would look like this:
 The rbac interceptor must between the [action](#action) and the [db-access](#database-access) interceptors in
 the [interceptor chain](#interceptors-typical-use-case-and-ordering).
 
-## WebSocket
+## WebSockets
 
-To use an endpoint to serve WebSocket connection, you can define it on route-definition beside the restfull action:
+To use an endpoint to serve WebSockets connection, you can define it on route-definition beside the restfull action:
 
 ```clojure
 (def routes
@@ -367,21 +369,75 @@ To use an endpoint to serve WebSocket connection, you can define it on route-def
 And in your `:ws-action` function you can provide your reactive functions in `(-> state :response-data :channel)`
 
 ```clojure
-(defn echo [{req :request :as state}]
+(:require
+  ...
+  [framework.websockets.core :refer [router string->]]
+  ...)
+
+(defonce channels (atom {}))
+
+(def routing
+  (partial router routes string->))
+
+(defn chat-action
+  [state]
   (xiana/ok
     (assoc-in state [:response-data :channel]
               {:on-receive (fn [ch msg]
-                             (println "Message: " msg)
-                             (server/send! ch msg))
-               :on-open    #(println "OPEN: - - - - - " %)
-               :on-ping    (fn [ch data]
-                             (println "Ping"))
-               :on-close   (fn [ch status]
-                             (println "\nCLOSE=============="))
-               :init       (fn [ch]
-                             (prn "INIT: " ch)
-                             (prn "Session-Id: " (get-in req [:headers :session-id])))})))
+                             (routing (update state :request-data
+                                              merge {:ch         ch
+                                                     :income-msg msg
+                                                     :fallback   views/fallback
+                                                     :channels   channels})))
+               :on-open    (fn [ch]
+                             (routing (update state :request-data
+                                              merge {:ch         ch
+                                                     :channels   channels
+                                                     :income-msg "/welcome"})))
+               :on-ping    (fn [ch data])
+               :on-close   (fn [ch status] (swap! channels dissoc ch))
+               :init       (fn [ch])})))
 ```
 
 The creation of the actual channel has been done in the framework's [handler](conventions.md#handler) and all your
 reactive functions have the whole [state](conventions.md#state) to work with.
+
+### WebSockets routing
+
+`framework.websockets.core` gives you a router function, with supporting the same concepts what Xiana already have. You
+can define a reitit route, and use it inside WebSockets reactive functions. With Xiana [monad](conventions.md#monads)
+, [state](conventions.md#state), and support of [interceptors](conventions.md#interceptors),
+with [interceptor override](#interceptor-overriding). You can define a [fallback function](#websockets), to handle
+missing actions.
+
+```clojure
+(def routes
+  (r/router [["/login" {:action       behave/login
+                        :interceptors {:inside [interceptors/side-effect
+                                                interceptors/db-access]}
+                        :hide         true}]]
+            {:data {:default-interceptors [(interceptors/message "Incoming message...")]}}))
+```
+
+### Route matching
+
+For route matching Xiana provides a couple of modes:
+
+- extract from string
+
+  The first word of given message as actionable symbol
+
+- from JSON
+
+  The given message parsed as JSON, and `:action` is the actionable symbol
+
+- from EDN
+
+  The given message parsed as EDN, and `:action` is the actionable symbol
+
+- Probe
+  
+  It's tries to decode the message as JSON, then as EDN, and at the end, as single string.
+
+
+You can define your own, and use it as parameter of `framework.websockets.core/router`
