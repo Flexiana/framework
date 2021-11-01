@@ -2,6 +2,7 @@
   "Collection of useful interceptors"
   (:require
     [clojure.pprint :refer [pprint]]
+    [clojure.tools.logging :as log]
     [clojure.walk :refer [keywordize-keys]]
     [framework.db.sql :as db.sql]
     [framework.interceptor.muuntaja :as muuntaja]
@@ -19,6 +20,15 @@
   Leave: Print 'Leave:' followed by the complete state map."
   {:enter (fn [state] (pprint ["Enter: " state]) (xiana/ok state))
    :leave (fn [state] (pprint ["Leave: " state]) (xiana/ok state))})
+
+(defn keyceptor
+  [& keyz]
+  {:enter (fn [state]
+            (log/info keyz (get-in state keyz))
+            (xiana/ok state))
+   :leave (fn [state]
+            (log/info keyz (get-in state keyz))
+            (xiana/ok state))})
 
 (def side-effect
   "Side-effect interceptor.

@@ -33,6 +33,16 @@
     (xiana/ok (update state :response-data merge {:reply-fn broadcast-to-others
                                                   :reply    (str username ": " income-msg)}))))
 
+(defn fallback
+  [{{income-msg :income-msg} :request-data
+    :as                      state}]
+
+  (if (str/starts-with? income-msg "/")
+    (xiana/ok
+      (update state :response-data merge {:reply-fn send-multi-line
+                                          :reply    (str "Invalid command: " income-msg)}))
+    (broadcast state)))
+
 (defn gen-username []
   (let [id (apply str (take 4 (repeatedly #(char (+ (rand 26) 65)))))]
     (str "guest_" id)))

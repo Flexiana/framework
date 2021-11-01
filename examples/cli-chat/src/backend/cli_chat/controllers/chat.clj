@@ -1,35 +1,12 @@
 (ns cli-chat.controllers.chat
   (:require
     [cli-chat.controller-behaviors.chat :as behave]
-    [clojure.pprint]
-    [clojure.string :as str]
-    [clojure.tools.logging :as log]
-    [framework.handler.core]
     [framework.interceptor.core :as interceptors]
-    [framework.interceptor.queue :as queue]
+    [framework.websockets.core :refer [router string->]]
     [reitit.core :as r]
     [xiana.core :as xiana]))
 
 (defonce channels (atom {}))
-
-(defn keyceptor
-  [& keyz]
-  {:enter (fn [state]
-            (log/info keyz (get-in state keyz))
-            (xiana/ok state))
-   :leave (fn [state]
-            (log/info keyz (get-in state keyz))
-            (xiana/ok state))})
-
-(defn fallback
-  [{{income-msg :income-msg} :request-data
-    :as                      state}]
-
-  (if (str/starts-with? income-msg "/")
-    (xiana/ok
-      (update state :response-data merge {:reply-fn behave/send-multi-line
-                                          :reply    (str "Invalid command: " income-msg)}))
-    (behave/broadcast state)))
 
 (def routes
   (r/router [["/help" {:action behave/help}]
@@ -44,33 +21,10 @@
                           :interceptors {:inside [interceptors/side-effect
                                                   interceptors/db-access]}
                           :hide         true}]]
-            {:data {:default-interceptors [(keyceptor :request-data :income-msg)]}}))
-
-(defn router
-  [routes
-   {{income-msg :income-msg
-     fallback   :fallback} :request-data
-    :as                    state}]
-
-  (when-not (str/blank? income-msg)
-    (let [match (r/match-by-path routes (first (str/split income-msg #"\s")))
-          action (get-in match [:data :action] fallback)
-          interceptors (get-in match [:data :interceptors])
-          default-interceptors (get-in match [:data :default-interceptors])
-          _ (or (get-in match [:data :hide])
-                (log/info "Processing: " (str/trim income-msg)))
-          routing-state (update state :request-data assoc
-                                :action action
-                                :interceptors interceptors)
-          update-state (-> (xiana/flow->
-                             routing-state
-                             (queue/execute default-interceptors))
-                           (xiana/extract))]
-      (when-let [reply-fn (get-in update-state [:response-data :reply-fn])]
-        (reply-fn update-state)))))
+            {:data {:default-interceptors [(interceptors/message "Incoming message...")]}}))
 
 (def routing
-  (partial router routes))
+  (partial router routes string->))
 
 (defn chat-action
   [state]
@@ -80,7 +34,7 @@
                              (routing (update state :request-data
                                               merge {:ch         ch
                                                      :income-msg msg
-                                                     :fallback   fallback
+                                                     :fallback   behave/fallback
                                                      :channels   channels})))
                :on-open    (fn [ch]
                              (routing (update state :request-data
