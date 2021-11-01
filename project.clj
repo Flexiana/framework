@@ -29,8 +29,7 @@
                  [funcool/cuerdas "RELEASE"]]
   :source-paths ["src"]
   :target "target/%s/"
-  :profiles {:dev      {:resource-paths         ["config/dev"]
-                        :lein-tools-deps/config {:config-files [:install :user :project]}}
+  :profiles {:dev      {:resource-paths         ["config/dev"]}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
