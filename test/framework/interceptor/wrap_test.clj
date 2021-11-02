@@ -2,7 +2,8 @@
   (:require
     [clojure.test :refer :all]
     [framework.interceptor.wrap :as wrap]
-    [muuntaja.middleware :as middleware]))
+    [muuntaja.middleware :as middleware])
+  (:import (java.io ByteArrayInputStream)))
 
 (def sample-state
   {:request  {:ssl-client-cert    nil,
@@ -82,10 +83,10 @@
                 (:leave))]
     (is (function? leave))))
 
-#_(deftest contains-middleware-formated-response-body
-    (is (= ByteArrayInputStream
-           (-> ((:leave middleware-interceptor) sample-state)
-               :right
-               :response
-               :body
-               type))))
+(deftest contains-middleware-formated-response-body
+  (is (= ByteArrayInputStream
+         (-> ((:leave middleware-interceptor) sample-state)
+             :right
+             :response
+             :body
+             type))))

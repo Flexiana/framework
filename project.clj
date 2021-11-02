@@ -13,7 +13,6 @@
                  [org.clojure/data.xml "0.0.8"]
                  [com.opentable.components/otj-pg-embedded "0.13.3"]
                  [clj-test-containers "0.5.0"]
-                 [org.testcontainers/testcontainers "1.16.2"]
                  [seancorfield/next.jdbc "1.1.613"]
                  [http.async.client "1.3.1"]
                  [http-kit "2.5.3"]
