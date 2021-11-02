@@ -42,11 +42,8 @@
   On leave: validates response body
   on request error: responds {:status 400, :body \"Request coercion failed\"}
   on response error: responds {:status 400, :body \"Response validation failed\"}"
-  {:enter (fn [{req :request :as state}]
-            (let [cc (-> state
-                         (get-in [:deps :routes])
-                         (r/router {:compile coercion/compile-request-coercers})
-                         (r/match-by-path (:uri req))
+  {:enter (fn [state]
+            (let [cc (-> (get-in state [:request-data :match])
                          coercion/coerce!)]
               (xiana/ok (update-in state [:request :params] merge cc))))
    :error (fn [state]

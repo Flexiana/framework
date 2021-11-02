@@ -29,7 +29,7 @@
   ;; set sample routes
   (route/reset sample-routes)
   ;; test if sample routes was registered correctly
-  (is (= sample-routes @route/-routes)))
+  (is (= sample-routes (.routes @route/-routes))))
 
 ;; test route match update request-data (state) functionality
 (deftest contains-updated-request-data

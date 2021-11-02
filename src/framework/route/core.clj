@@ -4,7 +4,8 @@
     [framework.route.helpers :as helpers]
     [reitit.core :as r]
     [xiana.commons :refer [?assoc-in]]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [reitit.coercion :as coercion]))
 
 ;; routes reference
 (defonce -routes (atom []))
@@ -12,7 +13,7 @@
 (defn reset
   "Update routes."
   [routes]
-  (reset! -routes routes))
+  (reset! -routes (r/router routes {:compile coercion/compile-request-coercers})))
 
 (defmacro -get-in-template
   "Simple macro to get the values from the match template."
@@ -49,5 +50,5 @@
   "Associate router match template data into the state.
   Return the wrapped state container."
   [{request :request :as state}]
-  (let [match (r/match-by-path (r/router @-routes) (:uri request))]
+  (let [match (r/match-by-path @-routes (:uri request))]
     (-update match state)))
