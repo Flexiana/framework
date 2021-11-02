@@ -7,7 +7,7 @@
   [state]
   (let [user-permissions (get-in state [:request-data :user-permissions])
         query (:query state)
-        user-id (get-in state [:session-data :user :users/id])]
+        user-id (get-in state [:session-data :users/id])]
     (xiana/ok (assoc state :query
                      (cond
                        (user-permissions :comments/own) (merge-where query [:= :comments.user_id user-id])

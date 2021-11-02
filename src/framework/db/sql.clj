@@ -91,3 +91,8 @@
   (with-open [connection (.getConnection datasource)]
     (let [sql-params (->sql-params sql-map)]
       (jdbc/execute! connection sql-params {:return-keys true}))))
+
+(defn in-transaction
+  [tx sql-map]
+  (let [sql-params (->sql-params sql-map)]
+    (jdbc/execute! tx sql-params {:return-keys true})))
