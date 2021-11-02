@@ -5,11 +5,11 @@
                                    :user     "postgres"
                                    :password "postgres"}
  :framework.app/web-server        {:port  3000
-                                    :join? false}
+                                   :join? false}
  :framework.db.storage/migration  {:store                :database
-                                   :migration-dir        "resources/migrations"
+                                   :migration-dir        "resources/migrations/dev"
                                    :init-in-transaction? false
-                                   :migration-table-name "migrations"}
+                                   :migration-table-name "dev_migrations"}
  :framework.app/emails            {:host ""
                                    :user ""
                                    :pass ""
@@ -22,8 +22,4 @@
                                                      :memory-cost     8
                                                      :parallelization 1}
                                    :pbkdf2-settings {:type       :sha1 ;; Available values: :sha1 and :sha256
-                                                     :iterations 100000}}
- :acl/permissions                 {"users"      [:read :create :update :delete]}
- :acl/roles                       {:guest       [{:resource :all
-                                                  :actions  [:all]
-                                                  :over     :all}]}}
+                                                     :iterations 100000}}}

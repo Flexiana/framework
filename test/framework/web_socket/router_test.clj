@@ -1,10 +1,11 @@
 (ns framework.web-socket.router-test
-  (:require [clojure.test :refer :all]
-            [framework.websockets.core :refer [router string->]]
-            [reitit.core :as r]
-            [framework.interceptor.core :as interceptors]
-            [xiana.core :as xiana]
-            [clojure.data.json :as json]))
+  (:require
+    [clojure.data.json :as json]
+    [clojure.test :refer :all]
+    [framework.interceptor.core :as interceptors]
+    [framework.websockets.core :refer [router string->]]
+    [reitit.core :as r]
+    [xiana.core :as xiana]))
 
 (defn string-log [state]
   (xiana/ok (assoc state :response-data {:reply-fn identity
@@ -26,7 +27,6 @@
 
 (def routing
   (partial router routes))
-
 
 (deftest router-test
   (let [string-action "/log-string"
