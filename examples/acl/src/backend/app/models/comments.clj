@@ -19,7 +19,7 @@
     :as                      state}]
   (xiana/ok (assoc state :query (cond-> (-> (select :*)
                                             (from :comments))
-                                        id (where [:= :id (UUID/fromString id)])))))
+                                  id (where [:= :id (UUID/fromString id)])))))
 
 (defn add-query
   [{{user-id :users/id}                                :session-data
@@ -43,4 +43,4 @@
   [{{{id :id} :params} :request
     :as                state}]
   (xiana/ok (assoc state :query (cond-> (delete-from :comments)
-                                        id (where [:= :id (UUID/fromString id)])))))
+                                  id (where [:= :id (UUID/fromString id)])))))

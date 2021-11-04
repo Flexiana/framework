@@ -1,11 +1,10 @@
 (ns migrator.core
   (:require
-   [reagent.dom :as rdom]
-   [re-frame.core :as re-frame]
-   [migrator.events :as events]
-   [migrator.views :as views]
-   [migrator.config :as config]))
-
+    [migrator.config :as config]
+    [migrator.events :as events]
+    [migrator.views :as views]
+    [re-frame.core :as re-frame]
+    [reagent.dom :as rdom]))
 
 (defn dev-setup []
   (when config/debug?

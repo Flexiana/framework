@@ -2,8 +2,8 @@
   (:require
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
-    [migrator.core]
-    [migrator-fixture :refer [std-system-fixture]]))
+    [migrator-fixture :refer [std-system-fixture]]
+    [migrator.core]))
 
 (def config {})
 

@@ -1,8 +1,8 @@
 (ns framework.interceptor.core-test
   (:require
     [clojure.test :refer :all]
-    [framework.interceptor.core :as interceptor]
     [framework.db.sql :as db]
+    [framework.interceptor.core :as interceptor]
     [xiana.core :as xiana]))
 
 (def sample-session-id

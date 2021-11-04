@@ -1,9 +1,9 @@
 (ns framework.db.main
   (:require
-    [migratus.core :as migratus]
-    [framework.config.core :as config]
     [clojure.string :as str]
-    [clojure.tools.logging :as log]))
+    [clojure.tools.logging :as log]
+    [framework.config.core :as config]
+    [migratus.core :as migratus]))
 
 (defn help []
   (println "Available migratus commands:")
