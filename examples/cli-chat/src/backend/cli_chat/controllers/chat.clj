@@ -3,6 +3,7 @@
     [cli-chat.controller-behaviors.chat :as behave]
     [cli-chat.views.chat :as views]
     [framework.interceptor.core :as interceptors]
+    [framework.db.sql :as db]
     [framework.websockets.core :refer [router string->]]
     [reitit.core :as r]
     [xiana.core :as xiana]))
@@ -16,11 +17,11 @@
              ["/to" {:action behave/to}]
              ["/login" {:action       behave/login
                         :interceptors {:inside [interceptors/side-effect
-                                                interceptors/db-access]}
+                                                db/db-access]}
                         :hide         true}]
              ["/sign-up" {:action       behave/sign-up
                           :interceptors {:inside [interceptors/side-effect
-                                                  interceptors/db-access]}
+                                                  db/db-access]}
                           :hide         true}]]
             {:data {:default-interceptors [(interceptors/message "Incoming message...")]}}))
 
