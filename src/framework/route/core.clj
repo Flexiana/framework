@@ -2,10 +2,10 @@
   "Do the routing, and inject request data to the xiana state"
   (:require
     [framework.route.helpers :as helpers]
+    [reitit.coercion :as coercion]
     [reitit.core :as r]
     [xiana.commons :refer [?assoc-in]]
-    [xiana.core :as xiana]
-    [reitit.coercion :as coercion]))
+    [xiana.core :as xiana]))
 
 ;; routes reference
 (defonce -routes (atom []))

@@ -3,7 +3,9 @@
     [clojure.test :refer :all]
     [framework.interceptor.wrap :as wrap]
     [muuntaja.middleware :as middleware])
-  (:import (java.io ByteArrayInputStream)))
+  (:import
+    (java.io
+      ByteArrayInputStream)))
 
 (def sample-state
   {:request  {:ssl-client-cert    nil,

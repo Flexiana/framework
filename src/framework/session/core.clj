@@ -1,6 +1,7 @@
 (ns framework.session.core
   "Xiana's session management"
   (:require
+    [clojure.data.json :as json]
     [clojure.string :as string]
     [xiana.core :as xiana])
   (:import
@@ -66,7 +67,7 @@
        (catch Exception _
          (xiana/error
            (assoc state :response {:status 401
-                                   :body   "Invalid or missing session"})))))
+                                   :body   (json/write-str {:message "Invalid or missing session"})})))))
 
 (defn- protect
   [protected-path
