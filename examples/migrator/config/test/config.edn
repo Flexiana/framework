@@ -6,7 +6,7 @@
                                    :password "postgres"}
 
  :framework.db.storage/migration  {:store                :database
-                                   :migration-dir        "resources/migrations"
+                                   :migration-dir        "test_migrations"
                                    :init-in-transaction? false
                                    :migration-table-name "migrations"}
 
