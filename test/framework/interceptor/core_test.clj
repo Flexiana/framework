@@ -2,11 +2,8 @@
   (:require
     [clojure.test :refer :all]
     [framework.interceptor.core :as interceptor]
-    [framework.session.core :as session]
-    [xiana.core :as xiana])
-  (:import
-    (java.util
-      UUID)))
+    [framework.db.sql :as db]
+    [xiana.core :as xiana]))
 
 (def sample-session-id
   "Sample session id."
@@ -113,11 +110,11 @@
 ;;    (is (= expected response-data))))
 
 (deftest contains-sql-empty-result
-  (let [result (fetch-execute {} interceptor/db-access :leave)
+  (let [result (fetch-execute {} db/db-access :leave)
         ;; expected value
-        expected {}]
+        expected {:response-data {:db-data nil}}]
     ;; expected response data value?
-    (is (= result expected))))
+    (is (= expected result))))
 
 (deftest msg-interceptor-execution
   (let [interceptor (interceptor/message "")
