@@ -19,10 +19,10 @@
     :as                      state}]
   (xiana/ok (assoc state :query (cond-> (-> (select :*)
                                             (from :comments))
-                                  id (where [:= :id (UUID/fromString id)])))))
+                                        id (where [:= :id (UUID/fromString id)])))))
 
 (defn add-query
-  [{{{user-id :users/id} :user}                        :session-data
+  [{{user-id :users/id}                                :session-data
     {{content :content post-id :post_id} :body-params} :request
     :as                                                state}]
   (let [pid (try (UUID/fromString post-id)
@@ -32,7 +32,7 @@
                                       (values [[content pid user-id]]))))))
 
 (defn update-query
-  [{{{id :id} :params}          :request
+  [{{{id :id} :params}                :request
     {{content :content} :body-params} :request
     :as                               state}]
   (xiana/ok (assoc state :query (-> (helpers/update :comments)
@@ -43,4 +43,4 @@
   [{{{id :id} :params} :request
     :as                state}]
   (xiana/ok (assoc state :query (cond-> (delete-from :comments)
-                                  id (where [:= :id (UUID/fromString id)])))))
+                                        id (where [:= :id (UUID/fromString id)])))))

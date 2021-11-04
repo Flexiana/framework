@@ -7,6 +7,7 @@
     [controllers.users :as users-controllers]
     [framework.config.core :as config]
     [framework.db.core :as db-core]
+    [framework.db.sql :as db]
     [framework.handler.core :as handler]
     [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
@@ -63,7 +64,7 @@
                                         interceptors/params
                                         user/load-user!
                                         interceptors/view
-                                        interceptors/db-access
+                                        db/db-access
                                         rbac/interceptor]
               :db                      (db-core/start
                                          (:framework.db.storage/postgresql config))}]

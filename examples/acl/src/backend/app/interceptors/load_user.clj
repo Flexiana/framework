@@ -40,5 +40,4 @@
                                 guest-user
                                 valid-user))
                             (catch Exception _ guest-user))]
-              (xiana/ok (assoc-in (assoc-in state [:session-data :user] user)
-                                  [:session-data :session-id] session-id))))})
+              (xiana/ok (assoc state :session-data  (assoc user :session-id session-id)))))})
