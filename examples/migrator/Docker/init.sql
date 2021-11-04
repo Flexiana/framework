@@ -1,0 +1,2 @@
+CREATE DATABASE migrator;
+GRANT ALL PRIVILEGES ON DATABASE migrator TO postgres;
