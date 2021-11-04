@@ -29,14 +29,14 @@
              http/request
              (select-keys [:status :body])))
       "Index page is always available")
-  (is (= {:status 401, :body "Invalid or missing session"}
+  (is (= {:status 401, :body "{\"message\":\"Invalid or missing session\"}"}
          (-> {:url                  "http://localhost:3000/secret"
               :unexceptional-status (constantly true)
               :method               :get}
              http/request
              (select-keys [:status :body])))
       "Should login to see the secret page")
-  (is (= {:status 401, :body "Invalid or missing session"}
+  (is (= {:status 401, :body "{\"message\":\"Invalid or missing session\"}"}
          (-> {:url                  "http://localhost:3000/wrong"
               :unexceptional-status (constantly true)
               :method               :get}
@@ -138,7 +138,7 @@
                http/request
                (select-keys [:status :body])))
         "Index page is always available")
-    (is (= {:status 401, :body "Invalid or missing session"}
+    (is (= {:status 401, :body "{\"message\":\"Invalid or missing session\"}"}
            (-> {:url                  "http://localhost:3000/secret"
                 :unexceptional-status (constantly true)
                 :headers              {:session-id session-id}
@@ -146,7 +146,7 @@
                http/request
                (select-keys [:status :body])))
         "The secret page gets hidden")
-    (is (= {:status 401, :body "Invalid or missing session"}
+    (is (= {:status 401, :body "{\"message\":\"Invalid or missing session\"}"}
            (-> {:url                  "http://localhost:3000/wrong"
                 :unexceptional-status (constantly true)
                 :headers              {:session-id session-id}
