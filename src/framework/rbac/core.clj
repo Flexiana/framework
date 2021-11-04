@@ -17,8 +17,7 @@
    ':resource/restriction'"
   [state]
   (let [role-set (get-in state [:deps :role-set])
-        user (get-in state [:session-data :user])
-        role (:users/role user)
+        role (get-in state [:session-data :users/role])
         permit (get-in state [:request-data :permission])
         resource (keyword (namespace permit))
         action (keyword (name permit))

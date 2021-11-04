@@ -307,7 +307,7 @@ Prerequisites:
 
 - role-set in `(-> state :deps :role-set)`
 - route definition has `:permission` key
-- user's role is in `(-> state :session-data :user :users/role)`
+- user's role is in `(-> state :session-data :users/role)`
 
 If the `:permission` key is missing, all requests going to be **granted**. If `role-set` or `:users/role` is missing ,
 all requests going to be **denied**.
@@ -367,7 +367,7 @@ The `user-permissions` is a set, so it can be easily used for making conditions:
   [state]
   (let [user-permissions (get-in state [:request-data :user-permissions])]
     (cond
-      (user-permissions :image/own) (let [user-id (get-in state [:session-data :user :users/id])]
+      (user-permissions :image/own) (let [user-id (get-in state [:session-data :users/id])]
                                       (xiana/ok (update state :query sql/merge-where [:= :owner.id user-id])))
       :else (xiana/ok state))))
 ```
