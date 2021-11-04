@@ -5,7 +5,13 @@
     [honeysql-postgres.helpers :as helpers]
     [honeysql.core :as sql]
     [next.jdbc :as jdbc]
-    [potemkin :refer [import-vars]]))
+    [potemkin :refer [import-vars]]
+    [xiana.core :as xiana])
+  (:import
+    (javax.sql
+      DataSource)
+    (org.postgresql.jdbc
+      PgConnection)))
 
 (import-vars
   [honeysql.helpers
@@ -37,7 +43,7 @@
 
 (defmulti build-clause
   "Create build clause multimethod with associated
-  dispatch function: (honeysql-postgres.helpers args)."
+          dispatch function: (honeysql-postgres.helpers args)."
   (fn [optype dbtype _args] [dbtype optype]))
 
 (defmethod build-clause [:default :create-table]
@@ -57,7 +63,7 @@
    (create-table table-name {:dbtype :default}))
   ([table-name opts]
    (let [dbtype (:dbtype opts)
-         args   {:table-name table-name}]
+         args {:table-name table-name}]
      (build-clause :create-table dbtype args))))
 
 (defn drop-table
@@ -66,7 +72,7 @@
    (drop-table table-name {:dbtype :default}))
   ([table-name opts]
    (let [dbtype (:dbtype opts)
-         args   {:table-name table-name}]
+         args {:table-name table-name}]
      (build-clause :drop-table dbtype args))))
 
 (defn with-columns
@@ -88,6 +94,39 @@
   "Gets datasource, parse the given sql-map (query) and
   execute it using `jdbc/execute!`, and returns the modified keys"
   [datasource sql-map]
+  {:pre [(instance? DataSource datasource)]}
   (with-open [connection (.getConnection datasource)]
     (let [sql-params (->sql-params sql-map)]
       (jdbc/execute! connection sql-params {:return-keys true}))))
+
+(defn in-transaction
+  [tx sql-map]
+  {:pre [(instance? PgConnection tx)]}
+  (let [sql-params (->sql-params sql-map)]
+    (jdbc/execute! tx sql-params {:return-keys true})))
+
+(defn multi-execute!
+  [datasource {:keys [queries transaction?]}]
+  (if transaction?
+    (jdbc/with-transaction [tx datasource]
+                           (mapv #(in-transaction tx %) queries))
+    (mapv #(execute datasource %) queries)))
+
+(def db-access
+  "Database access interceptor, works from `:query` and from `db-queries` keys
+  Enter: nil.
+  Leave: Fetch and execute a given query using the chosen database
+  driver, if succeeds associate its results into state response data.
+  Remember the entry query must be a sql-map, e.g:
+  {:select [:*] :from [:users]}."
+  {:leave
+   (fn [{query      :query
+         db-queries :db-queries
+         :as        state}]
+     (let [datasource (get-in state [:deps :db :datasource])
+           db-data (cond-> []
+                     query (into (execute datasource query))
+                     db-queries (into (multi-execute! datasource db-queries))
+                     :always seq)]
+       (xiana/ok
+         (assoc-in state [:response-data :db-data] db-data))))})

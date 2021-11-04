@@ -57,24 +57,6 @@
               (xiana/ok
                 (update state :request f))))})
 
-(def db-access
-  "Database access interceptor.
-  Enter: nil.
-  Leave: Fetch and execute a given query using the chosen database
-  driver, if succeeds associate its results into state response data.
-  Remember the entry query must be a sql-map, e.g:
-  {:select [:*] :from [:users]}."
-  {:leave
-   (fn [{query :query :as state}]
-     (xiana/ok
-       (if query
-         (assoc-in state
-                   [:response-data :db-data]
-                   ;; returns the result of the database-query
-                   ;; execution or empty ({})
-                   (db.sql/execute (get-in state [:deps :db :datasource]) query))
-         state)))})
-
 (defn message
   "This interceptor creates a function that prints predefined message.
   Enter: Print an arbitrary message.
