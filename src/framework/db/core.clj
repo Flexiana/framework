@@ -7,7 +7,6 @@
 (defn start
   "Creates datasource.
   When no parameter given, then resolves database specs from configuration"
-  ([] (start nil))
-  ([db-spec]
-   (when-let [spec (or db-spec (config/get-spec :database))]
-     {:datasource (jdbc/get-datasource spec)})))
+  [db-spec]
+  {:datasource (or (:datasource db-spec)
+                   (jdbc/get-datasource db-spec))})

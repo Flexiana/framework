@@ -9,37 +9,42 @@
 
 (defn embedded-postgres!
   [config init-sql]
-  (let [pg (.start (EmbeddedPostgres/builder))
+  (let [pg (-> (EmbeddedPostgres/builder)
+               (.start))
+        ds (.getPostgresDatabase pg)
         pg-port (.getPort pg)
-        db-name (-> config
-                    :framework.db.storage/postgresql :dbname)
         db-config (-> config
                       :framework.db.storage/postgresql
                       (assoc
                         :port pg-port
+                        :dbname "postgres"
+                        :user "postgres"
                         :embedded pg
-                        :subname (str "//localhost:" pg-port db-name)))]
-    (jdbc/execute! (dissoc db-config :dbname) init-sql)
+                        :datasource ds))]
+    (when (seq init-sql) (jdbc/execute! (dissoc db-config :dbname) init-sql))
     (assoc config :framework.db.storage/postgresql db-config)))
 
 (defn docker-postgres!
   [config init-sql]
-  (let [container (-> (tc/create {:image-name    "postgres:11.5-alpine"
-                                  :exposed-ports [5432]})
+  (let [{db-name  :dbname
+         user     :user
+         password :password} (:framework.db.storage/postgresql config)
+        container (-> (tc/create {:image-name    "postgres:11.5-alpine"
+                                  :exposed-ports [5432]
+                                  :env-vars      {"POSTGRES_DB"       db-name
+                                                  "POSTGRES_USER"     user
+                                                  "POSTGRES_PASSWORD" password}})
                       (tc/start!))
         port (get (:mapped-ports container) 5432)
-        db-name (-> config
-                    :framework.db.storage/postgresql :dbname)
         db-config (-> config
                       :framework.db.storage/postgresql
                       (assoc
                         :port port
                         :embedded container
-                        :user "postgres"
-                        :subname (str "//localhost:" port db-name)))]
+                        :subname (str "//localhost:" port "/" db-name)))]
     (tc/wait {:wait-strategy :log
               :message       "accept connections"} (:container container))
-    (jdbc/execute! (dissoc db-config :dbname) init-sql)
+    (when (seq init-sql) (jdbc/execute! (dissoc db-config :dbname) init-sql))
     (assoc config :framework.db.storage/postgresql db-config)))
 
 (defn migrate!
