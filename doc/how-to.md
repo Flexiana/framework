@@ -61,8 +61,7 @@ If you already have this in the state, you can modify your create session functi
       ;create session
       session-id (UUID/randomUUID)]
   ;store a new session in session storage,
-  (add! session-storage session-id {:session-id session-id
-                                    :user       user})
+  (add! session-storage session-id (assoc user :session-id session-id))
   ;and be sure the session-id will be part of the response
   (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
 ```
@@ -80,8 +79,7 @@ Be sure to remove the user's password and any other sensitive information that w
       ;create session
       session-id (UUID/randomUUID)]
   ;store a new session in session storage,
-  (add! session-storage session-id {:session-id session-id
-                                    :user       user})
+  (add! session-storage session-id (assoc user :session-id session-id))
   ;and be sure the session-id will be part of the response
   (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
 ```
@@ -100,8 +98,7 @@ Next, we check if the credentials are correct, so we use an `if` statement.
         ;create session
         session-id (UUID/randomUUID)]
     ;store a new session in session storage,
-    (add! session-storage session-id {:session-id session-id
-                                      :user       user})
+    (add! session-storage session-id (assoc user :session-id session-id))
     ;and be sure the session-id will be part of the response
     (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
   (xiana/error (assoc state :response {:status 401

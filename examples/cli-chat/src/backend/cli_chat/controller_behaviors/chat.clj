@@ -5,7 +5,7 @@
     [clojure.string :as str]
     [clojure.tools.logging :as log]
     [framework.auth.hash :as auth]
-    [framework.db.sql :as sql]
+    [framework.db.core :as sql]
     [xiana.core :as xiana]))
 
 (defn gen-username []

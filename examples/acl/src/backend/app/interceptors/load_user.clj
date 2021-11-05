@@ -1,6 +1,6 @@
 (ns interceptors.load-user
   (:require
-    [framework.db.sql :as db]
+    [framework.db.core :as db]
     [framework.session.core :as session]
     [honeysql.helpers :refer [select from where]]
     [xiana.core :as xiana])

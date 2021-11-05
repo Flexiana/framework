@@ -2,7 +2,7 @@
   (:require
     [cli-chat.controller-behaviors.chat :as behave]
     [cli-chat.views.chat :as views]
-    [framework.db.sql :as db]
+    [framework.db.core :as db]
     [framework.interceptor.core :as interceptors]
     [framework.websockets.core :refer [router string->]]
     [reitit.core :as r]

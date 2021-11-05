@@ -1,7 +1,7 @@
 (ns framework.interceptor.core-test
   (:require
     [clojure.test :refer :all]
-    [framework.db.sql :as db]
+    [framework.db.core :as db]
     [framework.interceptor.core :as interceptor]
     [xiana.core :as xiana]))
 

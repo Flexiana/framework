@@ -5,7 +5,6 @@
     [cli-chat.controllers.re-frame :as re-frame]
     [framework.config.core :as config]
     [framework.db.core :as db]
-    [framework.db.sql :as db-tools]
     [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
     [framework.route.core :as routes]
@@ -35,7 +34,7 @@
                                         session/guest-session-interceptor
                                         interceptors/view
                                         interceptors/side-effect
-                                        db-tools/db-access
+                                        db/db-access
                                         rbac/interceptor]}]
     (assoc deps :webserver (ws/start deps))))
 

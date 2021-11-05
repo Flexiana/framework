@@ -6,8 +6,7 @@
     [controllers.re-frame :as re-frame]
     [controllers.users :as users-controllers]
     [framework.config.core :as config]
-    [framework.db.core :as db-core]
-    [framework.db.sql :as db]
+    [framework.db.core :as db]
     [framework.handler.core :as handler]
     [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
@@ -66,7 +65,7 @@
                                         interceptors/view
                                         db/db-access
                                         rbac/interceptor]
-              :db                      (db-core/start
+              :db                      (db/start
                                          (:framework.db.storage/postgresql config))}]
     (assoc deps :web-server (ws/start deps))))
 

@@ -4,7 +4,6 @@
     [clojure.pprint :refer [pprint]]
     [clojure.tools.logging :as log]
     [clojure.walk :refer [keywordize-keys]]
-    [framework.db.sql :as db.sql]
     [framework.interceptor.muuntaja :as muuntaja]
     [framework.interceptor.wrap :as wrap]
     [framework.session.core :as session]
