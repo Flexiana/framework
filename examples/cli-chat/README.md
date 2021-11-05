@@ -21,4 +21,4 @@ lein run
 
 ### Try cli-chat
 
-Connect at least two times with [WebSocat](https://github.com/vi/websocat) to `ws:localhost:3000/chat`
+Connect at least two times with [WebSocat](https://github.com/vi/websocat/releases) to `ws:localhost:3000/chat`
