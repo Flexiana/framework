@@ -43,7 +43,7 @@ Params for resolving the request parameters.
 
 ## db-access
 
-Executes the `:query` key if it's provided on database on `:leave` state
+Executes the `:query` and `:db-queries` keys if provided on `:leave` state.
 
 ## message
 

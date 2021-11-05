@@ -1,4 +1,3 @@
-
 # Modules
 
 - Frontend
@@ -8,9 +7,10 @@
     - [Auth](#auth)
     - [Config](#config)
     - [Database](#database)
-      - [Database/core](#databasecore)
-      - [Database/postgresql](#databasepostgresql)
-      - [Database/sql](#databasesql)
+        - [Database/main](#databasemain)
+        - [Database/core](#databasecore)
+        - [Database/postgresql](#databasepostgresql)
+        - [Database/sql](#databasesql)
     - [Migrations](#migrations)
     - [Interceptor](#interceptor)
         - [Interceptor/core](#interceptorcore)
@@ -19,104 +19,106 @@
     - [Mail](#mail)
     - [RBAC](#rbac-1)
     - [Route](#route)
+    - [SSE](#sse)
     - [Session](#session)
     - [State](#state-1)
     - [Webserver](#webserver)
-    
+
 ## Backend
 
 ### Core
 
-    Xiana.core contains the State record, the monad helpers, and flow macros to deal with the monadic structure.
+Xiana.core contains the State record, the monad helpers, and flow macros to deal with the monadic structure.
 
 ### ~~ACL~~
 
-    ^deprecated
-    use RBAC instead
+^deprecated use [RBAC](#rbac) instead.
 
 ### Auth
 
-    Auth.core is a package to deal with password encoding, and validation
+Auth.core is a package to deal with password encoding, and validation.
 
 ### Config
 
-    config/core provides functions to deal with environment variables and config.edn files
+config/core provides functions to deal with environment variables and config.edn files.
 
 ### Database
 
-    Database handling functions
+Database handling functions.
+
+#### Database/main
+
+Migratus wrapper to get rid of migratus lein plugin, and support profile dependent configuration of migratus.
 
 #### Database/core
 
-    db.core Start function, to get the datasource based on given configuration
+db.core Start function, to get the datasource based on given configuration.
 
 #### Database/postgresql
 
-    Some honey-sql helpers
+Some honey-sql helpers.
 
 #### Database/sql
 
-    SQL helper functions, query executor execute functions gets the datasource and query-map (honey-sql map) and executes it
-    on the database
-
-#### Migrations
-
-    Migrations is a migration helper around migratus.
+SQL helper functions, query executor execute functions gets the datasource and query-map (honey-sql map)
+and executes it on the database. Has the db-access interceptor.
 
 ### Interceptor
 
-    Some provided interceptors, and other helpers
+Some provided interceptors, and other helpers.
 
 #### Interceptor/core
 
-    Collection of interceptors, like:
+Collection of interceptors, like:
 
-    log
-    side-effect
-    view
-    params
-    db-access
-    message
-    session-user-id
-    session-user-role
-    muuntaja
+- log
+- side-effect
+- view
+- params
+- message
+- session-user-id
+- session-user-role
+- muuntaja
 
 #### Interceptor/muuntaja
 
-    Default settings, and format instance of content negotiation
+Default settings, and format instance of content negotiation.
 
 #### Interceptor/queue
 
-    The queue is the interceptor executor. It contains all the functions what is necessary to the handler to deal with
-    interceptors, interceptor overrides.
+The queue is the interceptor executor. It contains all the functions what is necessary to the handler to deal with
+interceptors, interceptor overrides.
 
 #### Interceptor/wrap
 
-    With interceptor wrapper you can use any kind of interceptors and middlewares with xiana provided flow.
+With interceptor wrapper you can use any kind of interceptors and middlewares with xiana provided flow.
 
 ### Mail
 
-    Helps you to send an email message based on configuration
+Helps you to send an email message based on configuration.
 
 ### RBAC
 
-    Wrapper package for tiny-RBAC lib, with initialize role-set, gathering permissions from the actual state,
-    and it contains an interceptor too, to deal with permissions and restrictions.
+Wrapper package for tiny-RBAC lib, with initialize role-set, gathering permissions from the actual state, and it
+contains an interceptor too, to deal with permissions and restrictions.
 
 ### Route
 
-    Contains all functions to deal with route dependent functionality. Use reitit matcher and router. 
-    Collects request-data for processing it via controller interceptors and action.
+Contains all functions to deal with route dependent functionality. Use reitit matcher and router. Collects request-data
+for processing it via controller interceptors and action.
+
+### SSE
+
+Server-sent events implementation based on HTTP-kit's Channel protocol.
 
 ### Session
 
-    Contains Session protocol definition, an in-memory session backend, and the session interceptor
+Contains Session protocol definition, an in-memory session backend, and the session interceptor.
 
 ### State
 
-    In handler-fn it creates the initial state for request execution.
+In handler-fn it creates the initial state for request execution.
 
 ### Webserver
 
-    Starts a jetty server with the default handler, provides the dependencies to the handler function.
-
+Starts a jetty server with the default handler, provides the dependencies to the handler function.

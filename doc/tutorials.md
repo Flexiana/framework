@@ -15,7 +15,7 @@
 - [Side-effects](#side-effects)
 - [Session management](#session-management)
 - [Role based access and data ownership control](#role-based-access-and-data-ownership-control)
-- [WebSocket](#websocket)
+- [WebSockets](#websockets)
     - [WebSockets routing](#websockets-routing)
     - [Route matching](#route-matching)
 - [Server-Sent Events (SSE)](#server-sent-events-sse)
@@ -490,7 +490,8 @@ routing them to `framework.sse.core/sse-action`, and messages are sent via `fram
     [framework.config.core :as config]
     [framework.sse.core :as sse]
     [framework.route.core :as route]
-    [framework.webserver.core :as ws]))
+    [framework.webserver.core :as ws]
+    [xiana.core :as xiana]))
 
 (def routes
   [["/sse" {:action sse/sse-action}]
