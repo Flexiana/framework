@@ -18,6 +18,7 @@
 - [WebSocket](#websocket)
     - [WebSockets routing](#websockets-routing)
     - [Route matching](#route-matching)
+- [Server-Sent Events (SSE)](#server-sent-events-sse)
 
 ## Dependencies and configuration
 
@@ -449,7 +450,7 @@ missing actions.
   (r/router [["/login" {:action       behave/login
                         :interceptors {:inside [interceptors/side-effect
                                                 interceptors/db-access]}
-                        :hide         true}]]
+                        :hide         true}]]              ;; framework.websockets.core/router will not log the message 
             {:data {:default-interceptors [(interceptors/message "Incoming message...")]}}))
 ```
 
@@ -474,3 +475,37 @@ For route matching Xiana provides a couple of modes:
   It's tries to decode the message as JSON, then as EDN, and at the end, as single string.
 
 You can define your own, and use it as parameter of `framework.websockets.core/router`
+
+## Server-Sent Events (SSE)
+
+Xiana contains a simple SSE solution over [http-kit](https://github.com/http-kit/http-kit) server's `Channel`
+protocol.
+
+The initialization and message push loop starts via calling `framework.sse.core/init`, clients can subscribe with
+routing them to `framework.sse.core/sse-action`, and messages are sent via `framework.sse.core/put!` function.
+
+```clojure
+(ns app.core
+  (:require
+    [framework.config.core :as config]
+    [framework.sse.core :as sse]
+    [framework.route.core :as route]
+    [framework.webserver.core :as ws]))
+
+(def routes
+  [["/sse" {:action sse/sse-action}]
+   ["/broadcast" {:action (fn [state]
+                            (sse/put! {:message "This is not a drill!"})
+                            (xiana/ok state))}]])
+
+(defn system
+  [config]
+  (let [deps {:webserver      (:framework.app/web-server config)
+              :routes         (route/reset routes)
+              :events-channel (sse/init)}]
+    (assoc deps :webserver (ws/start deps))))
+
+(defn -main
+  [& _args]
+  (system (config/env)))
+```
