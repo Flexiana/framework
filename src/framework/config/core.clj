@@ -45,3 +45,8 @@
   "Loads environment variables and config.edn from resource path"
   []
   (load-env))
+
+(def config
+  (merge (load-env)
+         default-edn-file))
+

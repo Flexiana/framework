@@ -2,7 +2,7 @@
   :description "Framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
-  :dependencies [[org.clojure/clojure "1.10.1"]
+  :dependencies [[org.clojure/clojure "1.11.0-alpha2"]
                  [yogthos/config "1.1.7"]
                  [honeysql "1.0.444"]
                  [nilenso/honeysql-postgres "0.2.6"]
@@ -43,7 +43,8 @@
                                          [mvxcvi/cljstyle "0.14.0"
                                           :exclusions [org.clojure/clojure]]
                                          [clj-kondo "2021.01.20"]
-                                         [nubank/matcher-combinators "3.1.4"]]}}
+                                         [nubank/matcher-combinators "3.1.4"]
+                                         [piotr-yuxuan/closeable-map "0.35.0"]]}}
   :aliases {"check-style" ["with-profile"
                            "+test"
                            "run"

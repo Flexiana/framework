@@ -4,7 +4,9 @@
     [clojure.tools.logging :as log]
     [framework.config.core :as config]
     [framework.handler.core :refer [handler-fn]]
-    [org.httpkit.server :as server]))
+    [framework.app :as-alias app]
+    [org.httpkit.server :as server])
+  (:import (java.lang AutoCloseable)))
 
 ;; web server reference
 (defonce -webserver (atom {}))
@@ -24,12 +26,14 @@
       (-stop-server))))
 
 (defn start
-  "Start web server."
-  [dependencies]
-  ;; stop the server
-  (stop)
-  ;; get server options
-  (when-let [options (merge (config/get-spec :webserver) (:webserver dependencies))]
-    (when-let [server (make options dependencies)]
-      (log/info "Server started with options: " options)
-      (swap! -webserver merge server))))
+  [{::app/keys [web-server]
+    :as config}]
+  (let [web-server-config (assoc web-server
+                            :legacy-return-value? false)
+        server (server/run-server
+                 (handler-fn config)
+                 web-server-config)]
+    (assoc config :web-server
+                  (reify AutoCloseable
+                    (close [this]
+                      (server/server-stop! server))))))
