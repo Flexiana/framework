@@ -1,16 +1,15 @@
 (ns framework.db.core
   "Data source builder"
   (:require
-    [next.jdbc :as jdbc]
     [honeysql-postgres.format]
     [honeysql.core :as sql]
+    [next.jdbc :as jdbc]
     [xiana.core :as xiana])
   (:import
     (javax.sql
       DataSource)
     (org.postgresql.jdbc
       PgConnection)))
-
 
 (defn start
   "Creates datasource.
@@ -65,8 +64,8 @@
          :as        state}]
      (let [datasource (get-in state [:deps :db :datasource])
            db-data (cond-> []
-                           query (into (execute! datasource query))
-                           db-queries (into (multi-execute! datasource db-queries))
-                           :always seq)]
+                     query (into (execute! datasource query))
+                     db-queries (into (multi-execute! datasource db-queries))
+                     :always seq)]
        (xiana/ok
          (assoc-in state [:response-data :db-data] db-data))))})
