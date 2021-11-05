@@ -52,16 +52,8 @@ Migratus wrapper to get rid of migratus lein plugin, and support profile depende
 
 #### Database/core
 
-db.core Start function, to get the datasource based on given configuration.
-
-#### Database/postgresql
-
-Some honey-sql helpers.
-
-#### Database/sql
-
-SQL helper functions, query executor execute functions gets the datasource and query-map (honey-sql map)
-and executes it on the database. Has the db-access interceptor.
+Start function, to get the datasource based on given configuration. Query executor functions and the db-access
+interceptor.
 
 ### Interceptor
 

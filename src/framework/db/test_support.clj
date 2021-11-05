@@ -49,7 +49,8 @@
 
 (defn migrate!
   [config]
-  (let [db (:framework.db.storage/postgresql config)
-        mig-config (assoc (:framework.db.storage/migration config) :db db)]
-    (migratus/migrate mig-config))
+  (try (let [db (:framework.db.storage/postgresql config)
+             mig-config (assoc (:framework.db.storage/migration config) :db db)]
+         (migratus/migrate mig-config))
+       (catch Exception _ (migrate! config)))
   config)
