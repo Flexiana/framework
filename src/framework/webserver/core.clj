@@ -2,11 +2,13 @@
   "Lifecycle management of the webserver"
   (:require
     [clojure.tools.logging :as log]
+    [framework.app :as-alias app]
     [framework.config.core :as config]
     [framework.handler.core :refer [handler-fn]]
-    [framework.app :as-alias app]
     [org.httpkit.server :as server])
-  (:import (java.lang AutoCloseable)))
+  (:import
+    (java.lang
+      AutoCloseable)))
 
 ;; web server reference
 (defonce -webserver (atom {}))
@@ -29,11 +31,11 @@
   [{::app/keys [web-server]
     :as config}]
   (let [web-server-config (assoc web-server
-                            :legacy-return-value? false)
+                                 :legacy-return-value? false)
         server (server/run-server
                  (handler-fn config)
                  web-server-config)]
     (assoc config :web-server
-                  (reify AutoCloseable
-                    (close [this]
-                      (server/server-stop! server))))))
+           (reify AutoCloseable
+             (close [this]
+               (server/server-stop! server))))))

@@ -10,5 +10,5 @@
   ([{:framework.db.storage/keys [postgresql]
      :as config}]
    (assoc config
-     :datasource
-     (jdbc/get-datasource postgresql))))
+          :datasource
+          (jdbc/get-datasource postgresql))))

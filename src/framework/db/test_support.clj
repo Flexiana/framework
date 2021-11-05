@@ -6,7 +6,8 @@
   (:import
     (com.opentable.db.postgres.embedded
       EmbeddedPostgres)
-    (java.lang AutoCloseable)))
+    (java.lang
+      AutoCloseable)))
 
 (defn embedded-postgres!
   [config init-sql]
@@ -39,18 +40,18 @@
     (tc/wait {:wait-strategy :log
               :message "Accepting Connections"} container)
     (let [db-config (assoc postgres-cfg
-                      :dbname "postgres"
-                      :user "postgres"
-                      :password "postgres"
-                      :port (get mapped-ports 5432)
-                      :embedded (reify AutoCloseable
-                                  (close [this]
-                                    (tc/stop! container-component)))
-                      :subname (str "//localhost:"
-                                    (get mapped-ports 5432)
-                                    "/postgres"))]
-        (jdbc/execute! db-config init-sql)
-        (assoc config :framework.db.storage/postgresql db-config))))
+                           :dbname "postgres"
+                           :user "postgres"
+                           :password "postgres"
+                           :port (get mapped-ports 5432)
+                           :embedded (reify AutoCloseable
+                                       (close [this]
+                                         (tc/stop! container-component)))
+                           :subname (str "//localhost:"
+                                         (get mapped-ports 5432)
+                                         "/postgres"))]
+      (jdbc/execute! db-config init-sql)
+      (assoc config :framework.db.storage/postgresql db-config))))
 
 (defn migrate!
   [{{:keys [port

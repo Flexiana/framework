@@ -1,12 +1,12 @@
 (ns framework-fixture
   (:require
+    [framework.app :as-alias app]
     [framework.config.core :as config]
     [framework.db.core :as db.core]
     [framework.db.test-support :as test-support]
     [framework.route.core :as routes]
     [framework.session.core :as session-backend]
     [framework.webserver.core :as ws]
-    [framework.app :as-alias app]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]))
 
 (defn ->system
@@ -21,15 +21,15 @@
     :or        {session-backend (session-backend/init-in-memory)}}]
   (let [{:keys [datasource]} (db.core/start config)
         {:keys [web-server]} (ws/start config)]
-   {:routes                  (routes/reset routes)
-    :role-set                role-set
-    :auth                    auth
-    :session-backend         session-backend
-    :router-interceptors     router-interceptors
-    :web-socket-interceptors web-socket-interceptors
-    :controller-interceptors controller-interceptors
-    :db datasource
-    :web-server web-server}))
+    {:routes                  (routes/reset routes)
+     :role-set                role-set
+     :auth                    auth
+     :session-backend         session-backend
+     :router-interceptors     router-interceptors
+     :web-socket-interceptors web-socket-interceptors
+     :controller-interceptors controller-interceptors
+     :db datasource
+     :web-server web-server}))
 
 (defn std-system-fixture
   [config f]
