@@ -1,6 +1,7 @@
 # Tutorials
 
 - [Dependencies and configuration](#dependencies-and-configuration)
+- [Database migration](#database-migration)
 - [Interceptors typical use-case, and ordering](#interceptors-typical-use-case-and-ordering)
 - [Defining new interceptors](#defining-new-interceptors)
     - [Interceptor example](#interceptor-example)
@@ -30,7 +31,9 @@ The system configuration and start-up:
 ```clojure
 (defn system
   [config]
-  (let [deps {:webserver               (:framework.app/web-server config)
+  (let [db-cfg (:framework.app/postgresql config)
+        migration-cfg (assoc (:framework.db.storage/migration config) :db db-cfg)
+        deps {:webserver               (:framework.app/web-server config)
               :routes                  (routes/reset (:routes config))
               :role-set                (:framework.app/role-set config)
               :auth                    (:framework.app/auth config)
@@ -38,10 +41,41 @@ The system configuration and start-up:
               :router-interceptors     []
               :web-socket-interceptors []
               :controller-interceptors []
-              :db                      (db-core/start
-                                         (:framework.app/postgresql config))}]
-    (assoc deps :webserver (ws/start deps))))
+              :db                      (db-core/start db-cfg)}]
+    (migratus/migrate migration-cfg)
+    (update deps :webserver (ws/start deps))))
 ```
+
+## Database migration
+
+In migratus library there is an Achilles point:
+
+It has no option to define separate migrations by profiles. Xiana
+decorates [Migratus](https://github.com/yogthos/migratus), to handle this weakness.
+
+You can run `lein migrate` with migratus parameters like: `create`, `destroy`, `up`, `down`, `init`, `reset`, `migrate`
+, `rollback`. It will do the same as migratus, except one more thing: you can use `with profile` lein parameter to
+define settings of migratus to. So instead of having only one migration folder you can define one for all your profiles.
+
+```shell
+lein with-profile +test migrate create default-users
+```
+
+Will create `up` and `down` SQL files in `resources/test_migrations` folder, and
+
+```shell
+lein with-profile +test migrate migrate
+```
+
+will use it.
+
+But without profile:
+
+```shell
+lein migrate migrate
+```
+
+will use only migrations from `resources/dev_migrations`.
 
 ## Interceptors typical use-case, and ordering
 

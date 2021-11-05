@@ -2,8 +2,8 @@
   (:require
     [cli-chat.controller-behaviors.chat :as behave]
     [cli-chat.views.chat :as views]
-    [framework.interceptor.core :as interceptors]
     [framework.db.sql :as db]
+    [framework.interceptor.core :as interceptors]
     [framework.websockets.core :refer [router string->]]
     [reitit.core :as r]
     [xiana.core :as xiana]))
