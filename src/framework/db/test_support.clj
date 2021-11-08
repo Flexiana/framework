@@ -19,9 +19,7 @@
                       :framework.db.storage/postgresql
                       (assoc
                         :port pg-port
-                        :embedded (reify AutoCloseable
-                                    (close [this]
-                                      (.stop pg)))
+                        :embedded pg
                         :subname (str "//localhost:" pg-port db-name)))]
     (jdbc/execute! (dissoc db-config :dbname) init-sql)
     (assoc config :framework.db.storage/postgresql db-config)))

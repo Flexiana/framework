@@ -29,7 +29,7 @@
                :parameterizer      :postgresql
                :return-param-names false}))
 
-(defn execute!
+(defn execute
   "Gets datasource, parse the given sql-map (query) and
   execute it using `jdbc/execute!`, and returns the modified keys"
   [datasource sql-map]
@@ -49,7 +49,7 @@
   (if transaction?
     (jdbc/with-transaction [tx datasource]
                            (mapv #(in-transaction tx %) queries))
-    (mapv #(execute! datasource %) queries)))
+    (mapv #(execute datasource %) queries)))
 
 (def db-access
   "Database access interceptor, works from `:query` and from `db-queries` keys
@@ -64,7 +64,7 @@
          :as        state}]
      (let [datasource (get-in state [:deps :db :datasource])
            db-data (cond-> []
-                     query (into (execute! datasource query))
+                     query (into (execute datasource query))
                      db-queries (into (multi-execute! datasource db-queries))
                      :always seq)]
        (xiana/ok
