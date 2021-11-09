@@ -41,13 +41,8 @@
   [["/ws" {:ws-action echo
            :action    hello}]])
 
-(def backend
-  (:session-backend (session/init-in-memory {})))
-
 (def system-config
   {:routes                   routes
-   :session-backend          backend
-   :framework.app/web-server (:framework.app/web-server (config/env))
    :web-socket-interceptors  [interceptors/params]
    :controller-interceptors  [interceptors/params
                               (session/protected-interceptor "/api" "/login")

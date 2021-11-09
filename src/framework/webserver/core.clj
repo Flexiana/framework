@@ -8,7 +8,8 @@
     (java.lang
       AutoCloseable)))
 
-(defrecord webserver [options server]
+(defrecord webserver
+  [options server]
   AutoCloseable
   (close [this]
     (logger/info "Stop webserver" (:options this))

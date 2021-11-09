@@ -5,6 +5,7 @@
     [framework.rbac.core :as rbac]
     [framework.route.core :as routes]
     [framework.session.core :as session-backend]
+    [framework.sse.core :as sse]
     [framework.webserver.core :as ws]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [xiana.commons :refer [update-key]]))
@@ -19,10 +20,18 @@
         (db-core/migrate!)
         routes/reset
         rbac/init
+        sse/init
         ws/start)))
 
 (defn std-system-fixture
   [config f]
   (with-open [test-system (system (config/env config))]
-    (try (f)
-         (finally (.close test-system)))))
+    (f)))
+
+(defonce ttest (atom nil))
+
+(comment
+
+  (reset! ttest (system (config/env)))
+
+  (comment (.close @ttest)))

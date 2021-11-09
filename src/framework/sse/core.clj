@@ -6,6 +6,8 @@
     [org.httpkit.server :as server]
     [xiana.core :as xiana])
   (:import
+    (java.lang
+      AutoCloseable)
     (java.util
       Date)))
 
@@ -16,7 +18,15 @@
 (defn ->message [data]
   (str "data: " (json/write-str data) EOL EOL))
 
-(defn init []
+(defrecord closable-events-channel
+  [channel clients]
+  AutoCloseable
+  (close [this]
+    (.close! (:channel this))
+    (doseq [c @(:clients this)]
+      (.close c))))
+
+(defn init [config]
   (let [channel (async/chan 5)
         clients (atom #{})]
     (go-loop [i 0]
@@ -31,8 +41,9 @@
         (doseq [c @clients]
           (server/send! c (->message data) false))
         (recur)))
-    {:channel channel
-     :clients clients}))
+    (assoc config :events-channel (->closable-events-channel
+                                    channel
+                                    clients))))
 
 (defn server-event-channel [state]
   (let [clients (get-in state [:deps :events-channel :clients])]
