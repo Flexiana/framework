@@ -44,4 +44,4 @@
 
   (reset! ttest (system (config/config)))
 
-  (comment (.close @ttest)))
+  (.close @ttest))

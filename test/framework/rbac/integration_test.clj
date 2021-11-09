@@ -38,6 +38,9 @@
     ["/image" {:delete {:action     delete-action
                         :permission :image/delete}}]]])
 
+(def backend
+  (:session-backend (session/init-in-memory {})))
+
 (def role-set
   (-> (b/add-resource {} :image)
       (b/add-action :image [:upload :download :delete])
@@ -46,9 +49,6 @@
       (b/add-permission :guest :image :download :all)
       (b/add-permission :member :image :upload :all)
       (b/add-permission :member :image :delete :own)))
-
-(def backend
-  (:session-backend (session/init-in-memory {})))
 
 (def system-config
   {:routes                  routes

@@ -52,7 +52,8 @@
         datasource (get-in db-instance [:framework.db.storage/postgresql :datasource]
                            (get-datasource db-instance))
         db-config (assoc db-instance :datasource datasource)]
-    (assoc config :framework.db.storage/postgresql db-config
+    (assoc config
+           :framework.db.storage/postgresql db-config
            :db db-config)))
 
 (defn migrate!
@@ -94,8 +95,9 @@
 (defn multi-execute!
   [datasource {:keys [queries transaction?]}]
   (if transaction?
-    (jdbc/with-transaction [tx datasource]
-                           (mapv #(in-transaction tx %) queries))
+    (jdbc/with-transaction
+      [tx datasource]
+      (mapv #(in-transaction tx %) queries))
     (mapv #(execute datasource %) queries)))
 
 (def db-access
