@@ -8,12 +8,12 @@
     [framework.sse.core :as sse]
     [framework.webserver.core :as ws]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
-    [xiana.commons :refer [update-key]]))
+    [xiana.commons :refer [rename-key]]))
 
 (defn system
   [config]
   (-> config
-      (update-key :framework.app/auth :auth)
+      (rename-key :framework.app/auth :auth)
       session-backend/init-in-memory
       db-core/start
       db-core/migrate!
