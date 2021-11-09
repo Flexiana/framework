@@ -12,16 +12,26 @@
 
 (defn system
   [config]
-  (closeable-map
-    (-> config
-        (update-key :framework.app/auth :auth)
-        (session-backend/init-in-memory)
-        (db-core/start)
-        (db-core/migrate!)
-        routes/reset
-        rbac/init
-        sse/init
-        ws/start)))
+  (-> config
+      (update-key :framework.app/auth :auth)
+      session-backend/init-in-memory
+      db-core/start
+      db-core/migrate!
+      routes/reset
+      rbac/init
+      sse/init
+      ws/start
+      (select-keys [:auth
+                    :session-backend
+                    :db
+                    :routes
+                    :rbac
+                    :events-channel
+                    :controller-interceptors
+                    :web-socket-interceptors
+                    :router-interceptors
+                    :webserver])
+      closeable-map))
 
 (defn std-system-fixture
   [config f]
