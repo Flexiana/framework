@@ -33,13 +33,3 @@
   (let [f (handler-fn (route/reset sample-routes))]
     ;; verify if it's the right response
     (is (= (f sample-request) {:status 200, :body ":action"}))))
-
-(deftest stop-webserver
-  (ws/stop)
-  (is (or (empty? @webserver/-webserver)
-          (= :stopped (-> @webserver/-webserver
-                          :server
-                          meta
-                          :server
-                          server-status)))))
-

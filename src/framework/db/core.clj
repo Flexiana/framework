@@ -31,9 +31,13 @@
       (.close emb))))
 
 (defn- get-datasource
-  [config]
-  (try (jdbc/get-datasource (:framework.db.storage/postgresql config))
-       (catch Exception _ (get-datasource config))))
+  ([config]
+   (get-datasource config 0))
+  ([config count]
+   (try (jdbc/get-datasource (:framework.db.storage/postgresql config))
+        (catch Exception e (if (< count 10)
+                             (get-datasource config (inc count))
+                             (throw e))))))
 
 (defn start
   "Creates datasource.
@@ -52,12 +56,16 @@
            :db db-config)))
 
 (defn migrate!
-  [config]
-  (try (let [db (:framework.db.storage/postgresql config)
-             mig-config (assoc (:framework.db.storage/migration config) :db db)]
-         (migratus/migrate mig-config))
-       (catch Exception _ (migrate! config)))
-  config)
+  ([config]
+   (migrate! config 0))
+  ([config count]
+   (try (let [db (:framework.db.storage/postgresql config)
+              mig-config (assoc (:framework.db.storage/migration config) :db db)]
+          (migratus/migrate mig-config))
+        (catch Exception e (if (< count 10)
+                             (migrate! config (inc count))
+                             (throw e))))
+   config))
 
 (defn ->sql-params
   "Parse sql-map using honeysql format function with pre-defined

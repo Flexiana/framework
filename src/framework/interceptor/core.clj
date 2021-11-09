@@ -86,12 +86,12 @@
   []
   {:enter
    (fn [{request :request :as state}]
-     (let [session-instance (-> state :deps :session-backend)
+     (let [session-backend (-> state :deps :session-backend)
            session-id (try (UUID/fromString
                              (get-in request [:headers :session-id]))
                            (catch Exception _ nil))
            session-data (when session-id
-                          (session/fetch session-instance
+                          (session/fetch session-backend
                                          session-id))]
        (xiana/ok
          (if session-data
@@ -102,11 +102,11 @@
                (assoc-in [:session-data :new-session] true))))))
    :leave
    (fn [state]
-     (let [session-instance (-> state :deps :session-backend)
+     (let [session-backend (-> state :deps :session-backend)
            session-id (get-in state [:session-data :session-id])]
        ;; add the session id to the session instance and
        ;; dissociate the new-session from the current state
-       (session/add! session-instance
+       (session/add! session-backend
                      session-id
                      (dissoc (:session-data state) :new-session))
        ;; associate the session id
