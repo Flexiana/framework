@@ -25,7 +25,6 @@
     [malli.registry :as mr]
     [malli.util :as mu]
     [reitit.coercion :as coercion]
-    [reitit.core :as r]
     [xiana.core :as xiana]))
 
 (defn registry

@@ -10,7 +10,7 @@
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [xiana.commons :refer [rename-key]]))
 
-(defn system
+(defn ->system
   [config]
   (-> config
       (rename-key :framework.app/auth :auth)
@@ -35,13 +35,13 @@
 
 (defn std-system-fixture
   [config f]
-  (with-open [test-system (system (config/config config))]
+  (with-open [test-system (->system (config/config config))]
     (f)))
 
 (defonce ttest (atom nil))
 
 (comment
 
-  (reset! ttest (system (config/config)))
+  (reset! ttest (->system (config/config)))
 
   (.close @ttest))

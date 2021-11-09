@@ -1,6 +1,6 @@
 (ns framework.sse.core
   (:require
-    [clojure.core.async :as async :refer (go <! go-loop)]
+    [clojure.core.async :as async :refer (<! go-loop)]
     [clojure.data.json :as json]
     [clojure.tools.logging :as log]
     [org.httpkit.server :as server]

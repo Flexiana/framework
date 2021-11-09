@@ -1,15 +1,15 @@
 (ns framework.db.core
   "Data source builder"
   (:require
-    [framework.db.test-support :refer [docker-postgres!
-                                       embedded-postgres!]]
+    [clj-test-containers.core :as tc]
     [honeysql-postgres.format]
     [honeysql.core :as sql]
     [migratus.core :as migratus]
     [next.jdbc :as jdbc]
-    [next.jdbc :as jdbc]
     [xiana.core :as xiana])
   (:import
+    (com.opentable.db.postgres.embedded
+      EmbeddedPostgres)
     (java.lang
       AutoCloseable)
     (javax.sql
@@ -39,6 +39,58 @@
                              (get-datasource config (inc count))
                              (throw e))))))
 
+(defn embedded-postgres!
+  [config init-sql]
+  (let [pg (-> (EmbeddedPostgres/builder)
+               (.start))
+        ds (.getPostgresDatabase pg)
+        pg-port (.getPort pg)
+        db-config (-> config
+                      :framework.db.storage/postgresql
+                      (assoc
+                        :port pg-port
+                        :dbname "postgres"
+                        :user "postgres"
+                        :embedded pg
+                        :datasource ds))]
+    (when (seq init-sql) (jdbc/execute! (dissoc db-config :dbname) init-sql))
+    (assoc config :framework.db.storage/postgresql db-config)))
+
+(defn docker-postgres!
+  [config init-sql]
+  (let [{db-name  :dbname
+         user     :user
+         password :password} (:framework.db.storage/postgresql config)
+        container (-> (tc/create {:image-name    "postgres:11.5-alpine"
+                                  :exposed-ports [5432]
+                                  :env-vars      {"POSTGRES_DB"       db-name
+                                                  "POSTGRES_USER"     user
+                                                  "POSTGRES_PASSWORD" password}})
+                      (tc/start!))
+        port (get (:mapped-ports container) 5432)
+        db-config (-> config
+                      :framework.db.storage/postgresql
+                      (assoc
+                        :port port
+                        :embedded container
+                        :subname (str "//localhost:" port "/" db-name)))]
+    (tc/wait {:wait-strategy :log
+              :message       "accept connections"} (:container container))
+    (when (seq init-sql) (jdbc/execute! (dissoc db-config :dbname) init-sql))
+    (assoc config :framework.db.storage/postgresql db-config)))
+
+(defn migrate!
+  ([config]
+   (migrate! config 0))
+  ([config count]
+   (try (let [db (:framework.db.storage/postgresql config)
+              mig-config (assoc (:framework.db.storage/migration config) :db db)]
+          (migratus/migrate mig-config))
+        (catch Exception e (if (< count 10)
+                             (migrate! config (inc count))
+                             (throw e))))
+   config))
+
 (defn start
   "Creates datasource.
   When no parameter given, then resolves database specs from configuration"
@@ -55,18 +107,6 @@
     (assoc config
            :framework.db.storage/postgresql db-config
            :db db-config)))
-
-(defn migrate!
-  ([config]
-   (migrate! config 0))
-  ([config count]
-   (try (let [db (:framework.db.storage/postgresql config)
-              mig-config (assoc (:framework.db.storage/migration config) :db db)]
-          (migratus/migrate mig-config))
-        (catch Exception e (if (< count 10)
-                             (migrate! config (inc count))
-                             (throw e))))
-   config))
 
 (defn ->sql-params
   "Parse sql-map using honeysql format function with pre-defined

@@ -6,10 +6,7 @@
     [reitit.coercion :as coercion]
     [reitit.core :as r]
     [xiana.commons :refer [?assoc-in]]
-    [xiana.core :as xiana])
-  (:import
-    (java.lang
-      AutoCloseable)))
+    [xiana.core :as xiana]))
 
 (defn reset
   "Update routes."
