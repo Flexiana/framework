@@ -1,23 +1,63 @@
 (ns framework.db.core
   "Data source builder"
   (:require
+    [framework.db.test-support :refer [docker-postgres!
+                                       embedded-postgres!]]
     [honeysql-postgres.format]
     [honeysql.core :as sql]
+    [migratus.core :as migratus]
     [next.jdbc :as jdbc]
     [next.jdbc :as jdbc]
     [xiana.core :as xiana])
   (:import
+    (java.lang
+      AutoCloseable)
     (javax.sql
       DataSource)
     (org.postgresql.jdbc
       PgConnection)))
 
+(defrecord db
+  [dbtype
+   classname
+   port
+   dbname
+   user
+   embedded
+   datasource]
+  AutoCloseable
+  (close [this]
+    (when-let [emb (embedded this)]
+      (.close emb))))
+
+(defn- get-datasource
+  [config]
+  (try (jdbc/get-datasource (:framework.db.storage/postgresql config))
+       (catch Exception _ (get-datasource config))))
+
 (defn start
   "Creates datasource.
   When no parameter given, then resolves database specs from configuration"
-  [db-spec]
-  (if (:datasource db-spec) db-spec
-    (assoc db-spec :datasource (jdbc/get-datasource db-spec))))
+  [config]
+  (let [db-spec (:framework.db.storage/postgresql config config)
+        init-sql [(some-> (:init-script db-spec) slurp)]
+        db-instance (case (:deployment db-spec)
+                      :container (docker-postgres! config init-sql)
+                      :embedded (embedded-postgres! config init-sql)
+                      config)
+        datasource (get-in db-instance [:framework.db.storage/postgresql :datasource]
+                           (get-datasource db-instance))
+        db-config (assoc db-instance :datasource datasource)]
+    (assoc config :framework.db.storage/postgresql db-config
+           :db db-config)))
+
+(defn migrate!
+  [config]
+  (try (let [db (:framework.db.storage/postgresql config)
+             mig-config (assoc (:framework.db.storage/migration config) :db db)]
+         (migratus/migrate mig-config))
+       (catch Exception _ (migrate! config)))
+  config)
 
 (defn ->sql-params
   "Parse sql-map using honeysql format function with pre-defined
@@ -47,7 +87,7 @@
   [datasource {:keys [queries transaction?]}]
   (if transaction?
     (jdbc/with-transaction [tx datasource]
-      (mapv #(in-transaction tx %) queries))
+                           (mapv #(in-transaction tx %) queries))
     (mapv #(execute datasource %) queries)))
 
 (def db-access
@@ -63,8 +103,8 @@
          :as        state}]
      (let [datasource (get-in state [:deps :db :datasource])
            db-data (cond-> []
-                           query (into (execute datasource query))
-                           db-queries (into (multi-execute! datasource db-queries))
-                           :always seq)]
+                     query (into (execute datasource query))
+                     db-queries (into (multi-execute! datasource db-queries))
+                     :always seq)]
        (xiana/ok
          (assoc-in state [:response-data :db-data] db-data))))})

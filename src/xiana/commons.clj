@@ -13,3 +13,7 @@
   [f m]
   (zipmap (map f (keys m))
           (vals m)))
+
+(defn update-key
+  [config from to]
+  (assoc config to (get config from)))

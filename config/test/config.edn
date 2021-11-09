@@ -1,9 +1,11 @@
-{:framework.db.storage/postgresql {:port     5432
-                                   :dbname   "framework"
-                                   :host     "localhost"
-                                   :dbtype   "postgresql"
-                                   :user     "postgres"
-                                   :password "postgres"}
+{:framework.db.storage/postgresql {:deployment  :embedded   ;; :embedded or :container
+                                   :init-script "docker/sql-scripts/init.sql"
+                                   :port        5432
+                                   :dbname      "framework"
+                                   :host        "localhost"
+                                   :dbtype      "postgresql"
+                                   :user        "postgres"
+                                   :password    "postgres"}
  :framework.app/web-server        {:port  3333
                                    :join? false}
  :framework.db.storage/migration  {:store                :database

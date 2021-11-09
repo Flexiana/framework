@@ -82,37 +82,38 @@
   Leave: Verify if the state has a session id, if so add it to
   the session instance and remove the new session property of the current state.
   The final step is the association of the session id to the response header."
-  ([] (session-user-id (session/init-in-memory)))
-  ([session-instance]
-   {:enter
-    (fn [{request :request :as state}]
 
-      (let [session-id (try (UUID/fromString
-                              (get-in request [:headers :session-id]))
-                            (catch Exception _ nil))
-            session-data (when session-id
-                           (session/fetch session-instance
-                                          session-id))]
-        (xiana/ok
-          (if session-data
-            ;; associate session data into state
-            (assoc state :session-data session-data)
-            ;; else, associate a new session
-            (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
-                (assoc-in [:session-data :new-session] true))))))
-    :leave
-    (fn [state]
-      (let [session-id (get-in state [:session-data :session-id])]
-        ;; add the session id to the session instance and
-        ;; dissociate the new-session from the current state
-        (session/add! session-instance
-                      session-id
-                      (dissoc (:session-data state) :new-session))
-        ;; associate the session id
-        (xiana/ok
-          (assoc-in state
-                    [:response :headers :session-id]
-                    (str session-id)))))}))
+  []
+  {:enter
+   (fn [{request :request :as state}]
+     (let [session-instance (-> state :deps :session-backend)
+           session-id (try (UUID/fromString
+                             (get-in request [:headers :session-id]))
+                           (catch Exception _ nil))
+           session-data (when session-id
+                          (session/fetch session-instance
+                                         session-id))]
+       (xiana/ok
+         (if session-data
+           ;; associate session data into state
+           (assoc state :session-data session-data)
+           ;; else, associate a new session
+           (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
+               (assoc-in [:session-data :new-session] true))))))
+   :leave
+   (fn [state]
+     (let [session-instance (-> state :deps :session-backend)
+           session-id (get-in state [:session-data :session-id])]
+       ;; add the session id to the session instance and
+       ;; dissociate the new-session from the current state
+       (session/add! session-instance
+                     session-id
+                     (dissoc (:session-data state) :new-session))
+       ;; associate the session id
+       (xiana/ok
+         (assoc-in state
+                   [:response :headers :session-id]
+                   (str session-id)))))})
 
 (defn -user-role
   "Update the user role."

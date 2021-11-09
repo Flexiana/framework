@@ -3,6 +3,7 @@
     [clojure.test :refer :all]
     [framework.db.core :as db]
     [framework.interceptor.core :as interceptor]
+    [framework.session.core :as session]
     [xiana.core :as xiana]))
 
 (def sample-session-id
@@ -29,7 +30,8 @@
 
 (def sample-state
   "State with the sample request."
-  {:request sample-request})
+  {:request sample-request
+   :deps    (session/init-in-memory {})})
 
 (def simple-state
   "State with the simple/minimal request."

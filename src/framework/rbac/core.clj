@@ -7,8 +7,8 @@
 
 (defn init
   "Initialize and validates a role-set"
-  [role-set]
-  (b/init role-set))
+  [config]
+  (update config :role-set b/init))
 
 (defn permissions
   "Gathers the necessary parameters from xiana state for permission resolution.

@@ -2,6 +2,7 @@
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.test :refer :all]
+    [clojure.tools.logging :as logger]
     [framework-fixture :as fixture]
     [framework.config.core :as config]
     [framework.handler.core :refer [handler-fn]]
@@ -20,16 +21,16 @@
   (xiana/ok
     (assoc-in state [:response-data :channel]
               {:on-receive (fn [ch msg]
-                             (println "Message: " msg)
+                             (logger/info "Message: " msg)
                              (server/send! ch msg))
-               :on-open    #(println "OPEN: - - - - - " %)
+               :on-open    #(logger/info "OPEN: - - - - - " %)
                :on-ping    (fn [ch data]
-                             (println "Ping"))
+                             (logger/info "Ping"))
                :on-close   (fn [ch status]
-                             (println "\nCLOSE=============="))
+                             (logger/info "\nCLOSE=============="))
                :init       (fn [ch]
-                             (prn "INIT: " ch)
-                             (prn "Session-Id: " (get-in req [:headers :session-id])))})))
+                             (logger/info "INIT: " ch)
+                             (logger/info "Session-Id: " (get-in req [:headers :session-id])))})))
 
 (defn hello
   [state]
@@ -41,12 +42,12 @@
            :action    hello}]])
 
 (def backend
-  (session/init-in-memory))
+  (:session-backend (session/init-in-memory {})))
 
 (def system-config
   {:routes                   routes
    :session-backend          backend
-   :framework.app/web-server (config/get-spec :framework.app/web-server)
+   :framework.app/web-server (:framework.app/web-server (config/env))
    :web-socket-interceptors  [interceptors/params]
    :controller-interceptors  [interceptors/params
                               (session/protected-interceptor "/api" "/login")
@@ -63,11 +64,11 @@
                                  :text (fn [con mesg]
                                          (deliver latch mesg))
                                  :close (fn [con & status]
-                                          (println "close:" con status))
+                                          (logger/info "close:" con status))
                                  :error (fn [& args]
-                                          (println "ERROR:" args))
+                                          (logger/info "ERROR:" args))
                                  :open (fn [con]
-                                         (println "opened:" con)))]
+                                         (logger/info "opened:" con)))]
       (a-client/send ws :text session-id)
       (is (= session-id @latch))
       (a-client/close ws))))
