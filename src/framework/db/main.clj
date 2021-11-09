@@ -18,7 +18,7 @@
 
 (defn -main [& args]
   (let [[command param] args
-        cfg (config/env)
+        cfg (config/config)
         db (:framework.db.storage/postgresql cfg)
         config (assoc (:framework.db.storage/migration cfg) :db db)]
     (log/debug config)

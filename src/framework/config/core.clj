@@ -16,9 +16,9 @@
       (merge config (edn/read (PushbackReader. r))))
     config))
 
-(defn env
+(defn config
   ([]
-   (env {}))
+   (config {}))
   ([config]
    (-> (load-env)
        (merge config)

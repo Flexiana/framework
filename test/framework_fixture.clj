@@ -35,13 +35,13 @@
 
 (defn std-system-fixture
   [config f]
-  (with-open [test-system (system (config/env config))]
+  (with-open [test-system (system (config/config config))]
     (f)))
 
 (defonce ttest (atom nil))
 
 (comment
 
-  (reset! ttest (system (config/env)))
+  (reset! ttest (system (config/config)))
 
   (comment (.close @ttest)))
