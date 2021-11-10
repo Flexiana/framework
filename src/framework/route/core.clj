@@ -2,18 +2,16 @@
   "Do the routing, and inject request data to the xiana state"
   (:require
     [framework.route.helpers :as helpers]
+    [piotr-yuxuan.closeable-map]
     [reitit.coercion :as coercion]
     [reitit.core :as r]
     [xiana.commons :refer [?assoc-in]]
     [xiana.core :as xiana]))
 
-;; routes reference
-(defonce -routes (atom []))
-
 (defn reset
   "Update routes."
-  [routes]
-  (reset! -routes (r/router routes {:compile coercion/compile-request-coercers})))
+  [config]
+  (update config :routes r/router {:compile coercion/compile-request-coercers}))
 
 (defmacro -get-in-template
   "Simple macro to get the values from the match template."
@@ -50,5 +48,5 @@
   "Associate router match template data into the state.
   Return the wrapped state container."
   [{request :request :as state}]
-  (let [match (r/match-by-path @-routes (:uri request))]
+  (let [match (r/match-by-path (-> state :deps :routes) (:uri request))]
     (-update match state)))

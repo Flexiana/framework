@@ -1,4 +1,6 @@
-{:framework.db.storage/postgresql {:dbname   "acl"
+{:framework.db.storage/postgresql {:deployment  :embedded   ;; :embedded or :container else already deployed
+                                   :init-script "Docker/init.sql"
+                                   :dbname   "acl"
                                    :host     "localhost"
                                    :dbtype   "postgresql"
                                    :user     "postgres"
@@ -24,7 +26,7 @@
                                               :responses {:not-modified-responses true
                                                           :absolute-redirects     true
                                                           :content-types          true}}}
- :framework.app/web-server        {:port  3000
+ :framework.app/web-server        {:port  3333
                                    :join? false}
  :framework.app/role-set          {:resources [:posts :comments :users]
                                    :actions   {:posts    [:read :create :update :delete :comment :react]

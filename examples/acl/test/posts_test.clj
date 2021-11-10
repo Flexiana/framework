@@ -23,7 +23,7 @@
   (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
     (is (= [(count orig-ids) orig-ids]
-           (-> {:url                  "http://localhost:3000/posts"
+           (-> {:url                  "http://localhost:3333/posts"
                 :unexceptional-status (constantly true)
                 :method               :get}
                http/request
@@ -31,7 +31,7 @@
                post-ids
                ((juxt count identity)))) "Guest can read all posts")
     (is (= [1 (first orig-ids)]
-           (-> {:url                  "http://localhost:3000/posts"
+           (-> {:url                  "http://localhost:3333/posts"
                 :unexceptional-status (constantly true)
                 :query-params         {:id (first orig-ids)}
                 :method               :get}
@@ -44,13 +44,13 @@
   (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
     (is (= [403 "Forbidden"]
-           (-> {:url                  "http://localhost:3000/posts"
+           (-> {:url                  "http://localhost:3333/posts"
                 :unexceptional-status (constantly true)
                 :method               :delete}
                http/request
                ((juxt :status :body)))) "Guest cannot delete all posts")
     (is (= [403 "Forbidden"]
-           (-> {:url                  "http://localhost:3000/posts"
+           (-> {:url                  "http://localhost:3333/posts"
                 :unexceptional-status (constantly true)
                 :query-params         {:id (first orig-ids)}
                 :method               :delete}
@@ -60,7 +60,7 @@
 (deftest guest-cannot-create-post
   (init-db-with-two-posts)
   (is (= [403 "Forbidden"]
-         (-> {:url                  "http://localhost:3000/posts"
+         (-> {:url                  "http://localhost:3333/posts"
               :unexceptional-status (constantly true)
               :form-params          {:content "It doesn't save anyway"}
               :method               :put}
@@ -71,7 +71,7 @@
   (init-db-with-two-posts)
   (let [orig-ids (all-post-ids)]
     (is (= [403 "Forbidden"]
-           (-> {:url                  "http://localhost:3000/posts"
+           (-> {:url                  "http://localhost:3333/posts"
                 :unexceptional-status (constantly true)
                 :query-params         {:id (first orig-ids)}
                 :form-params          {:content "It doesn't save anyway"}
@@ -147,7 +147,7 @@
   (put :posts {:content "Fourth test post"})
   (let [ids (all-post-ids)]
     (is (= (dec (count ids))
-           (-> {:url                  "http://localhost:3000/posts/ids"
+           (-> {:url                  "http://localhost:3333/posts/ids"
                 :headers              {"Authorization" test_admin
                                        "Content-Type" "application/json;charset=utf-8"}
                 :unexceptional-status (constantly true)

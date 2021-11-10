@@ -6,13 +6,14 @@
     [controllers.re-frame :as re-frame]
     [controllers.users :as users-controllers]
     [framework.config.core :as config]
-    [framework.db.core :as db]
+    [framework.db.core :as db-core]
     [framework.handler.core :as handler]
     [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
     [framework.route.core :as routes]
     [framework.webserver.core :as ws]
     [interceptors.load-user :as user]
+    [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [reitit.ring :as ring]))
 
 (def routes
@@ -53,23 +54,31 @@
     ["/users/posts/comments" {:get {:action     users-controllers/fetch-with-posts-comments
                                     :permission :users/read}}]]])
 
-(defn system
-  [config]
-  (let [deps {:webserver               (:framework.app/web-server config)
-              :routes                  (routes/reset routes)
-              :role-set                (rbac/init (:framework.app/role-set config))
-              :router-interceptors     []
-              :controller-interceptors [(interceptors/muuntaja)
-                                        interceptors/params
-                                        user/load-user!
-                                        interceptors/view
-                                        db/db-access
-                                        rbac/interceptor]
-              :db                      (db/start
-                                         (:framework.db.storage/postgresql config))}]
-    (assoc deps :web-server (ws/start deps))))
+(defn ->system
+  [app-config]
+  (-> (config/config)
+      (merge app-config)
+      db-core/start
+      db-core/migrate!
+      routes/reset
+      rbac/init
+      ws/start
+      (select-keys [:db
+                    :routes
+                    :rbac
+                    :controller-interceptors
+                    :webserver])
+      closeable-map))
+
+(def app-cfg
+  {:routes                  routes
+   :controller-interceptors [(interceptors/muuntaja)
+                             interceptors/params
+                             user/load-user!
+                             interceptors/view
+                             db-core/db-access
+                             rbac/interceptor]})
 
 (defn -main
   [& _args]
-  (let [config (config/env)]
-    (system config)))
+  (->system app-cfg))

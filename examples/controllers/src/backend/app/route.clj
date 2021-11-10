@@ -1,5 +1,5 @@
 ;TODO rename to routes
-(ns router
+(ns route
   (:require
     [clojure.data.xml :as xml]
     [controllers.index :as index]

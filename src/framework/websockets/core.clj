@@ -1,7 +1,6 @@
 (ns framework.websockets.core
   (:require
     [clojure.data.json :refer [read-str]]
-    [clojure.data.json :as json]
     [clojure.edn :as edn]
     [clojure.string :as str]
     [clojure.tools.logging :as log]

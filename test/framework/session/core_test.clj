@@ -7,7 +7,7 @@
       UUID)))
 
 ;; initial session-instance instance
-(def session-instance (session/init-in-memory))
+(def session-instance (:session-backend (session/init-in-memory {})))
 
 ;; test add and fetch reify implementations
 (deftest session-protocol-add!-fetch

@@ -1,16 +1,14 @@
 (ns cli-chat-test
   (:require
     [cli-chat-fixture :refer [std-system-fixture]]
-    [cli-chat.core]
+    [cli-chat.core :refer [app-cfg]]
     [clj-http.client :as http]
     [clojure.edn :as edn]
     [clojure.string :as str]
     [clojure.test :refer [deftest is use-fixtures]]
     [http.async.client :as a-client]))
 
-(def config {})
-
-(use-fixtures :once (partial std-system-fixture config))
+(use-fixtures :once (partial std-system-fixture app-cfg))
 
 (deftest index-test
   (is (= {:body   "Index page"

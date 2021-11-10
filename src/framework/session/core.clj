@@ -23,23 +23,26 @@
 
 (defn init-in-memory
   "Initialize session in memory."
-  ([] (init-in-memory (atom {})))
-  ([m]
+  ([cfg] (init-in-memory cfg (atom {})))
+  ([cfg m]
    ;; implement the Session protocol
-   (reify Session
-     ;; fetch session key:element
-     (fetch [_ k] (get @m k))
-     ;; fetch all elements (no side effect)
-     (dump [_] @m)
-     ;; add session key:element
-     (add!
-       [_ k v]
-       (let [k (or k (UUID/randomUUID))]
-         (swap! m assoc k v)))
-     ;; delete session key:element
-     (delete! [_ k] (swap! m dissoc k))
-     ;; erase session
-     (erase! [_] (reset! m {})))))
+   (if (:session-backend cfg)
+     cfg
+     (assoc cfg :session-backend
+            (reify Session
+                  ;; fetch session key:element
+              (fetch [_ k] (get @m k))
+                  ;; fetch all elements (no side effect)
+              (dump [_] @m)
+                  ;; add session key:element
+              (add!
+                [_ k v]
+                (let [k (or k (UUID/randomUUID))]
+                  (swap! m assoc k v)))
+                  ;; delete session key:element
+              (delete! [_ k] (swap! m dissoc k))
+                  ;; erase session
+              (erase! [_] (reset! m {})))))))
 
 (defn ->session-id
   [{{headers      :headers

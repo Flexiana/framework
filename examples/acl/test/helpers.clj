@@ -10,13 +10,13 @@
 
 (defn delete
   ([uri]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" test_admin}
         :unexceptional-status (constantly true)
         :method               :delete}
        request))
   ([uri user id]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" user}
         :query-params         {:id id}
         :unexceptional-status (constantly true)
@@ -25,20 +25,20 @@
 
 (defn fetch
   ([uri user id]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" user}
         :unexceptional-status (constantly true)
         :query-params         {:id id}
         :method               :get}
        request))
   ([uri user]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" user}
         :unexceptional-status (constantly true)
         :method               :get}
        request))
   ([uri]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" test_admin}
         :unexceptional-status (constantly true)
         :method               :get}
@@ -46,7 +46,7 @@
 
 (defn put
   ([uri content]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" test_admin
                                "Content-Type" "application/json;charset=utf-8"}
         :unexceptional-status (constantly true)
@@ -54,7 +54,7 @@
         :method               :put}
        request))
   ([uri user content]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" user
                                "Content-Type" "application/json;charset=utf-8"}
         :unexceptional-status (constantly true)
@@ -64,7 +64,7 @@
 
 (defn post
   [uri user id content]
-  (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+  (-> {:url                  (format "http://localhost:3333/%s" (name uri))
        :headers              {"Authorization" user
                               "Content-Type" "application/json;charset=utf-8"}
        :unexceptional-status (constantly true)

@@ -13,3 +13,9 @@
   [f m]
   (zipmap (map f (keys m))
           (vals m)))
+
+(defn rename-key
+  [config from to]
+  (-> config
+      (assoc to (get config from))
+      (dissoc from)))

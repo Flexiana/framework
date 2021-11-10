@@ -14,29 +14,27 @@
 
 (def sample-routes
   "Sample routes structure."
-  [["/" {:action :action}]])
+  {:routes [["/" {:action :action}]]})
 
 (def sample-routes-with-handler
   "Sample routes structure."
-  [["/" {:handler :handler}]])
+  {:routes [["/" {:handler :handler}]]})
 
 (def sample-routes-without-action
   "Sample routes structure (without action or handler)."
-  [["/" {}]])
+  {:routes [["/" {}]]})
 
-;; test reset routes functionality
+; test reset routes functionality
 (deftest contains-sample-routes
-  ;; set sample routes
-  (route/reset sample-routes)
-  ;; test if sample routes was registered correctly
-  (is (= sample-routes (.routes @route/-routes))))
+  (let [routes (route/reset sample-routes)]
+    (is (= (:routes sample-routes) (.routes (:routes routes))))))
 
 ;; test route match update request-data (state) functionality
 (deftest contains-updated-request-data
-  ;; set sample routes
-  (route/reset sample-routes)
   ;; get state from sample request micro/match flow
-  (let [state (-> (state/make {} sample-request)
+  (let [state (-> (state/make
+                    (route/reset sample-routes)
+                    sample-request)
                   (route/match)
                   (xiana/extract))
         ;; expected request data
@@ -53,10 +51,10 @@
 
 ;; test if the updated request-data (state) data handles the
 (deftest contains-not-found-action
-  ;; set sample routes
-  (route/reset sample-routes)
   ;; get action from sample request micro/match flow
-  (let [action (-> (state/make {} sample-not-found-request)
+  (let [action (-> (state/make
+                     (route/reset sample-routes)
+                     sample-not-found-request)
                    (route/match)
                    (xiana/extract)
                    (:request-data)
@@ -68,10 +66,10 @@
 
 ;; test if the updated request-data contains the right action
 (deftest route-contains-default-action
-  ;; (re)set routes
-  (route/reset sample-routes-with-handler)
   ;; get action from the updated state/match (micro) flow computation
-  (let [action (-> (state/make {} sample-request)
+  (let [action (-> (state/make
+                     (route/reset sample-routes-with-handler)
+                     sample-request)
                    (route/match)
                    (xiana/extract)
                    (:request-data)
@@ -83,10 +81,10 @@
 
 ;; test if the route/match flow handles a route without a handler or action
 (deftest handles-route-without-action-or-handler
-  ;; (re)set routes
-  (route/reset sample-routes-without-action)
   ;; get action from the updated state/match (micro) flow computation
-  (let [action (-> (state/make {} sample-request)
+  (let [action (-> (state/make
+                     (route/reset sample-routes-without-action)
+                     sample-request)
                    (route/match)
                    (xiana/extract)
                    (:request-data)
