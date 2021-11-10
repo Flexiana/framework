@@ -10,7 +10,9 @@
     [framework.route.core :as routes]
     [framework.session.core :as session]
     [framework.webserver.core :as ws]
-    [reitit.ring :as ring]))
+    [piotr-yuxuan.closeable-map :refer [closeable-map]]
+    [reitit.ring :as ring]
+    [xiana.commons :refer [rename-key]]))
 
 (def routes
   [["/" {:action index/handle-index}]
@@ -18,33 +20,40 @@
    ["/assets/*" (ring/create-resource-handler {:path "/"})]
    ["/chat" {:ws-action chat-action}]])
 
-(defn system
-  [config]
-  (let [deps {:routes                  (routes/reset routes)
-              :db                      (db/start (:framework.db.storage/postgresql config))
-              :webserver               (:framework.app/web-server config)
-              :role-set                (rbac/init (:framework.app/role-set config))
-              :auth                    (:framework.app/auth config)
-              :session-backend         (session/init-in-memory)
-              :router-interceptors     []
-              :web-socket-interceptors [interceptors/params
-                                        session/guest-session-interceptor]
-              :controller-interceptors [(interceptors/muuntaja)
-                                        interceptors/params
-                                        session/guest-session-interceptor
-                                        interceptors/view
-                                        interceptors/side-effect
-                                        db/db-access
-                                        rbac/interceptor]}]
-    (assoc deps :webserver (ws/start deps))))
+(defn ->system
+  [app-cfg]
+  (-> (config/config)
+      (merge app-cfg)
+      routes/reset
+      db/start
+      db/migrate!
+      rbac/init
+      (rename-key :framework.app/auth :auth)
+      session/init-in-memory
+      ws/start
+      (select-keys [:routes
+                    :db
+                    :rbac
+                    :auth
+                    :session-backend
+                    :webserver])
+      closeable-map))
 
-(defonce system-map (atom {}))
+(def app-cfg
+  {:routes routes
+   :router-interceptors     []
+   :web-socket-interceptors [interceptors/params
+                             session/guest-session-interceptor]
+   :controller-interceptors [(interceptors/muuntaja)
+                             interceptors/params
+                             session/guest-session-interceptor
+                             interceptors/view
+                             interceptors/side-effect
+                             db/db-access
+                             rbac/interceptor]})
 
 (defn -main
   [& _args]
-  {:pre (even? (count _args))}
-  (reset! system-map (-> (config/env)
-                         (merge _args)
-                         system)))
+  (->system app-cfg))
 
 (comment (-main))

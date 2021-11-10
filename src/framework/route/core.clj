@@ -11,8 +11,7 @@
 (defn reset
   "Update routes."
   [config]
-  (piotr-yuxuan.closeable-map/closeable-map
-    (update config :routes r/router {:compile coercion/compile-request-coercers})))
+  (update config :routes r/router {:compile coercion/compile-request-coercers}))
 
 (defmacro -get-in-template
   "Simple macro to get the values from the match template."
