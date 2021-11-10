@@ -11,8 +11,9 @@
     [xiana.commons :refer [rename-key]]))
 
 (defn ->system
-  [config]
-  (-> config
+  [app-cfg]
+  (-> (config/config)
+      (merge app-cfg)
       (rename-key :framework.app/auth :auth)
       session-backend/init-in-memory
       db-core/start
@@ -35,7 +36,7 @@
 
 (defn std-system-fixture
   [config f]
-  (with-open [test-system (->system (config/config config))]
+  (with-open [_ (->system config)]
     (f)))
 
 (defonce ttest (atom nil))
