@@ -26,7 +26,7 @@
 
 ; test reset routes functionality
 (deftest contains-sample-routes
-  (with-open [routes (route/reset sample-routes)]
+  (let [routes (route/reset sample-routes)]
     (is (= (:routes sample-routes) (.routes (:routes routes))))))
 
 ;; test route match update request-data (state) functionality

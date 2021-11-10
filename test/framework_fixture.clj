@@ -26,7 +26,7 @@
                     :session-backend
                     :db
                     :routes
-                    :rbac
+                    :role-set
                     :events-channel
                     :controller-interceptors
                     :web-socket-interceptors

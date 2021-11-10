@@ -53,7 +53,7 @@
 (def system-config
   {:routes                  routes
    :session-backend         backend
-   :role-set                role-set
+   :framework.app/role-set  role-set
    :controller-interceptors [interceptors/params
                              session/interceptor
                              rbac/interceptor]})
@@ -70,16 +70,14 @@
 
 (deftest delete-request-by-member
   (let [session-id (UUID/randomUUID)]
-    (session/add! backend session-id (assoc member
-                                            :session-id session-id))
+    (session/add! backend session-id (assoc member :session-id session-id))
     (is (= 200 (:status (http/delete "http://localhost:3333/api/image"
                                      {:throw-exceptions false
                                       :headers          {"Session-id" (str session-id)}}))))))
 
 (deftest delete-request-by-guest
   (let [session-id (UUID/randomUUID)]
-    (session/add! backend session-id (assoc guest
-                                            :session-id session-id))
+    (session/add! backend session-id (assoc guest :session-id session-id))
     (is (= 403 (:status (http/delete "http://localhost:3333/api/image"
                                      {:throw-exceptions false
                                       :headers          {"Session-id" (str session-id)}}))))))
