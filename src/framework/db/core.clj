@@ -96,7 +96,7 @@
   When no parameter given, then resolves database specs from configuration"
   [config]
   (let [db-spec (:framework.db.storage/postgresql config config)
-        init-sql [(some-> (:init-script db-spec) slurp)]
+        init-sql (into [] (some-> (:init-script db-spec) slurp))
         db-instance (case (:deployment db-spec)
                       :container (docker-postgres! config init-sql)
                       :embedded (embedded-postgres! config init-sql)
