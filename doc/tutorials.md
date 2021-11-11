@@ -27,24 +27,41 @@ Almost all components that you need on runtime should be reachable via the passe
 should be part of the :deps map in the state. Any other configuration what you need in runtime should be part of this
 map too.
 
-The system configuration and start-up:
+The system configuration and start-up with the chainable set-up:
 
 ```clojure
-(defn system
+(defn ->system
+  [app-cfg]
+  (-> (config/config)
+      (merge app-cfg)
+      (rename-key :framework.app/auth :auth)
+      (rename-key :framework.app/uploads :uploads)
+      routes/reset
+      session/init-in-memory
+      sse/init
+      db/start
+      db/migrate!
+      (scheduler/start actions/ping 10000)
+      (scheduler/start actions/execute-scheduled-actions (* 60 1000))
+      ws/start
+      closeable-map))
+
+(defn app-cfg
   [config]
-  (let [db-cfg (:framework.app/postgresql config)
-        migration-cfg (assoc (:framework.db.storage/migration config) :db db-cfg)
-        deps {:webserver               (:framework.app/web-server config)
-              :routes                  (routes/reset (:routes config))
-              :role-set                (:framework.app/role-set config)
-              :auth                    (:framework.app/auth config)
-              :session-backend         (session-backend/init-in-memory)
-              :router-interceptors     []
-              :web-socket-interceptors []
-              :controller-interceptors []
-              :db                      (db-core/start db-cfg)}]
-    (migratus/migrate migration-cfg)
-    (update deps :webserver (ws/start deps))))
+  {:routes                  routes
+   :router-interceptors     [(spa-index/wrap-default-spa-index "/re-frame")]
+   :controller-interceptors (concat [(xiana-interceptors/muuntaja)
+                                     cookies/interceptor
+                                     xiana-interceptors/params
+                                     (session/protected-interceptor "/api" "/login")
+                                     xiana-interceptors/view
+                                     xiana-interceptors/side-effect
+                                     db/db-access]
+                                    (:controller-interceptors config))})
+
+(defn -main
+  [& _args]
+  (->system (app-cfg {})))
 ```
 
 ## Database migration
@@ -353,12 +370,12 @@ the action for your endpoint in [router](#routes) definition:
 and add your role-set into your app's [dependencies](#dependencies-and-configuration):
 
 ```clojure
-(defn system
-  [config]
-  (let [deps {:role-set  (framework.rbac.core/init (:framework.app/role-set config))
-              :webserver (:framework.app/web-server config)
-              ...        ...}]
-    (update deps :webserver ws/start)))
+(defn ->system
+  [app-cfg]
+  (-> (config/config)
+      (merge app-cfg)
+      framework.rbac.core/init
+      ws/start))
 ```
 
 On `:enter` the interceptor do the permission check if it's allowed for the user found
@@ -482,8 +499,8 @@ You can define your own, and use it as parameter of `framework.websockets.core/r
 Xiana contains a simple SSE solution over [http-kit](https://github.com/http-kit/http-kit) server's `Channel`
 protocol.
 
-The initialization and message push loop starts via calling `framework.sse.core/init`, clients can subscribe with
-routing them to `framework.sse.core/sse-action`, and messages are sent via `framework.sse.core/put!` function.
+The initialization starts via calling `framework.sse.core/init`, clients can subscribe with routing them
+to `framework.sse.core/sse-action`, and messages are sent via `framework.sse.core/put!` function.
 
 ```clojure
 (ns app.core
@@ -497,19 +514,22 @@ routing them to `framework.sse.core/sse-action`, and messages are sent via `fram
 (def routes
   [["/sse" {:action sse/sse-action}]
    ["/broadcast" {:action (fn [state]
-                            (sse/put! {:message "This is not a drill!"})
+                            (sse/put! state {:message "This is not a drill!"})
                             (xiana/ok state))}]])
 
-(defn system
-  [config]
-  (let [deps {:webserver      (:framework.app/web-server config)
-              :routes         (route/reset routes)
-              :events-channel (sse/init)}]
-    (assoc deps :webserver (ws/start deps))))
+(defn ->system
+  [app-cfg]
+  (-> (config/config)
+      (merge app-cfg)
+      sse/init
+      ws/start))
+
+(def app-cfg
+  {:routes routes})
 
 (defn -main
   [& _args]
-  (system (config/env)))
+  (->system app-cfg))
 ```
 
 ## Scheduler

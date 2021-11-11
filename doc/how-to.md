@@ -24,8 +24,8 @@ will be interrupted before the flow reaches the action function, and responds wi
  :body   "Invalid or missing session"}
 ```
 
-To implement login functionality, you must [skip](tutorials.md#interceptor-overriding) use the session interceptor in route
-definition and make a session manually:
+To implement login functionality, you must [skip](tutorials.md#interceptor-overriding) use the session interceptor in
+route definition and make a session manually:
 
 ```clojure
 (let [;create
@@ -35,6 +35,7 @@ definition and make a session manually:
   ;Be sure the session-id will be part of the response
   (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
 ```
+or use the `guest-session` interceptor, which creates a guest session for unknown, or missing sessions. 
 
 If you want to use role-based access control, you need to store the actual user in your session data. To get your user
 from the database, you will create a query in the models/user namespace ex:
@@ -52,8 +53,8 @@ from the database, you will create a query in the models/user namespace ex:
                  [:= :username login]]]))))
 ```
 
-and execute it with the `db-access` interceptor, which injects the query result into the state. 
-If you already have this in the state, you can modify your create session function:
+and execute it with the `db-access` interceptor, which injects the query result into the state. If you already have this
+in the state, you can modify your create session function:
 
 ```clojure
 (let [;get user from database result
@@ -169,8 +170,9 @@ And finally the [view](tutorials.md#view) is injected in the action function:
 
 ## Logout implementation
 
-To do a logout is much easier than a login implementation. The `session-interceptor` does half of the work, and if you have a running
-session, then it will not complain. The only thing you should do is to remove the actual session from the `state`
+To do a logout is much easier than a login implementation. The `session-interceptor` does half of the work, and if you
+have a running session, then it will not complain. The only thing you should do is to remove the actual session from
+the `state`
 and form session storage. Something like this:
 
 ```clojure
@@ -277,24 +279,27 @@ defined here:
                :delete {:action     delete-image
                         :permission :image/delete}}]]])
 
-(defn system
-  [config]
-  (let [session-backend (:session-backend config (session-backend/init-in-memory))
-        deps {:webserver               (:framework.app/web-server config)
-              :routes                  (routes/reset routes)
-              :session-backend         session-backend
-              :role-set                role-set
-              :controller-interceptors [interceptors/params
-                                        session/interceptor
-                                        rbac/interceptor
-                                        interceptors/db-access]
-              :db                      (db-core/start
-                                         (:framework.app/postgresql config))}]
-    (update deps :webserver (ws/start deps))))
+(defn ->system
+  [app-cfg]
+  (-> (config/config)
+      (merge app-cfg)
+      session-backend/init-in-memory
+      routes/reset
+      db-core/start
+      db-core/migrate!
+      ws/start))
+      
+(def app-cfg
+  {:routes                  routes
+   :role-set                role-set
+   :controller-interceptors [interceptors/params
+                             session/interceptor
+                             rbac/interceptor
+                             interceptors/db-access]})
 
 (defn -main
   [& _args]
-  (system (config/env)))
+  (->system app-cfg))
 
 ```
 
@@ -336,7 +341,8 @@ execution flow, and will create a response:
 
 Data ownership control is about tightening the database result for those elements where the user is able to do the given
 action. For staying the example above, it means a `:member` only able to delete `:image`s if it owned by the `:member`.
-At this point, you can use the result of the [access control](#access-control) from the state. Let's stay in the example:
+At this point, you can use the result of the [access control](#access-control) from the state. Let's stay in the
+example:
 
 From
 
