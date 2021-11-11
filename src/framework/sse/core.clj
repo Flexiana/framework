@@ -7,9 +7,7 @@
     [xiana.core :as xiana])
   (:import
     (java.lang
-      AutoCloseable)
-    (java.util
-      Date)))
+      AutoCloseable)))
 
 (def headers {"Content-Type" "text/event-stream"})
 
@@ -29,12 +27,6 @@
 (defn init [config]
   (let [channel (async/chan 5)
         clients (atom #{})]
-    (go-loop [i 0]
-      (if-not (async/>! channel {:type :ping :id i :timestamp (.getTime (Date.))})
-        (log/error "the events channel was closed!")
-        (do
-          (async/<! (async/timeout 10000))
-          (recur (inc i)))))
     (go-loop []
       (when-let [data (<! channel)]
         (log/debug "Sending data via SSE: " data)

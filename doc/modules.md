@@ -1,6 +1,5 @@
 # Modules
 
-- Frontend
 - [Backend](#backend)
     - [Core](#core)
     - [ACL](#acl)
@@ -19,6 +18,7 @@
     - [Mail](#mail)
     - [RBAC](#rbac-1)
     - [Route](#route)
+    - [Scheduler](#scheduler)
     - [SSE](#sse)
     - [Session](#session)
     - [State](#state-1)
@@ -98,6 +98,10 @@ contains an interceptor too, to deal with permissions and restrictions.
 
 Contains all functions to deal with route dependent functionality. Use reitit matcher and router. Collects request-data
 for processing it via controller interceptors and action.
+
+### Scheduler
+
+Repeatable execution of function. The function get the `:deps` as parameter.
 
 ### SSE
 

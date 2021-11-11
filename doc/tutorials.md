@@ -19,6 +19,7 @@
     - [WebSockets routing](#websockets-routing)
     - [Route matching](#route-matching)
 - [Server-Sent Events (SSE)](#server-sent-events-sse)
+- [Scheduler](#scheduler)
 
 ## Dependencies and configuration
 
@@ -509,4 +510,31 @@ routing them to `framework.sse.core/sse-action`, and messages are sent via `fram
 (defn -main
   [& _args]
   (system (config/env)))
+```
+
+## Scheduler
+
+To repeatable execute a function you can use the `framework.scheduler.core/start` function. To implement a ping method
+for SSE you should define a function and execute it like:
+
+```clojure
+(ns app.core
+  (:require
+    [framework.scheduler.core :as scheduler]
+    [clojure.core.async :as async]))
+
+(defn ping [deps]
+  (let [channel (get-in deps [:events-channel :channel])]
+    (async/>!! channel {:type      :ping
+                        :id        (str (UUID/randomUUID))
+                        :timestamp (.getTime (Date.))})))
+
+(defn ->system
+  [app-cfg]
+  (-> (config/config)
+      (merge app-cfg)
+      ...
+      sse/init
+      (scheduler/start ping 10000)
+      ...))
 ```
