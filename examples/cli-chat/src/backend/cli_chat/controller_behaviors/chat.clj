@@ -4,9 +4,9 @@
     [cli-chat.views.chat :as views]
     [clojure.string :as str]
     [clojure.tools.logging :as log]
-    [framework.auth.hash :as auth]
-    [framework.db.core :as sql]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.db :as sql]
+    [xiana.hash :as hash]))
 
 (defn gen-username []
   (let [id (apply str (take 4 (repeatedly #(char (+ (rand 26) 65)))))]
@@ -64,7 +64,7 @@
         encrypted (-> db-data
                       first
                       :users/passwd)]
-    (try (auth/check state password encrypted)
+    (try (hash/check state password encrypted)
          (catch Exception _ false))))
 
 (defn password-side
@@ -103,7 +103,7 @@
           (xiana/ok (assoc
                       state
                       :query {:insert-into :users
-                              :values      [{:name user-name :passwd (auth/make state passwd) :role "member"}]}
+                              :values      [{:name user-name :passwd (hash/make state passwd) :role "member"}]}
                       :side-effect update-user!))
           exists
           (xiana/ok (update state :response-data merge {:reply-fn views/send-multi-line

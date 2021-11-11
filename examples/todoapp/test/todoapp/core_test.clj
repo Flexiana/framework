@@ -4,9 +4,9 @@
     [clojure.string :as str]
     [clojure.test :refer [deftest is testing use-fixtures]]
     [com.stuartsierra.component :as component]
-    [framework.config.core :as config]
     [jsonista.core :as json]
-    [todoapp.core :as todoapp]))
+    [todoapp.core :as todoapp]
+    [xiana.config :as config]))
 
 (defn json-read
   [v]

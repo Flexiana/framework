@@ -106,7 +106,7 @@ Next, we check if the credentials are correct, so we use an `if` statement.
                                        :body   "Login failed"})))
 ```
 
-Xiana provides `framework.auth.hash` to check user credentials:
+Xiana provides `xiana.hash` to check user credentials:
 
 ```clojure
 (defn- valid-credentials?

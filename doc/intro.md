@@ -7,7 +7,7 @@ TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)
 ## Email configuration
 
 The framework has support for sending email messages.
-For this functionality to work, a `:framework.app/emails` key has to be added to the application 
+For this functionality to work, a `:xiana/emails` key has to be added to the application 
 config e.g. `config/dev/config.edn`. 
 `:from` is a required key. `:host :user :pass :tls :port` are optional, if they are not present, 
 the app will default to the mail sender present on the host, but you can use any SMTP of your 
@@ -16,7 +16,7 @@ choice.
 Full configuration looks like this
 
 ```clojure
-:framework.app/emails             {:host "smtp.some.mail.com"
+:xiana/emails             {:host "smtp.some.mail.com"
                                    :user  "john.user"
                                    :pass  "secret@password"
                                    :tls true
@@ -26,11 +26,11 @@ Full configuration looks like this
 
 ## Hashing
 
-The module `framework.auth.hash` provides secure Bcrypt, Scrypt and Pbkdf2 hashing for storing user passwords.
+The module `xiana.hash` provides secure Bcrypt, Scrypt and Pbkdf2 hashing for storing user passwords.
 If you'd like to define someone of them, their keys are: `:bcrypt :scrypt :pbkdf2`. If you don't define one of them, Bcrypt will be defined by default. You can setup the key within `config` derectory as well as its corresponding optional configuration. The values by default for each algorithm are defined as follows:
 
 ```clojure
-:framework.app/auth {:hash-algorithm :bcrypt ;; Available values: :bcrypt, :scrypt, and :pbkdf2
+:xiana/auth {:hash-algorithm :bcrypt ;; Available values: :bcrypt, :scrypt, and :pbkdf2
                      :bcrypt-settings {:work-factor 11}
                      :scrypt-settings {:cpu-cost 32768 ;; Must be a power of 2
                                        :memory-cost 8

@@ -34,8 +34,8 @@ The system configuration and start-up with the chainable set-up:
   [app-cfg]
   (-> (config/config)
       (merge app-cfg)
-      (rename-key :framework.app/auth :auth)
-      (rename-key :framework.app/uploads :uploads)
+      (rename-key :xiana/auth :auth)
+      (rename-key :xiana/uploads :uploads)
       routes/reset
       session/init-in-memory
       sse/init
@@ -239,7 +239,7 @@ If any of interceptors are in :except will be skipped.
 ## Routes
 
 Route definition is done via [reitit's routing](https://github.com/metosin/reitit) library. Route processing is done
-with `framework.route.core` namespace. At route definition you can define.
+with `xiana.route` namespace. At route definition you can define.
 
 - The [action](#action) what should be executed
 - [Interceptor overriding](#interceptor-overriding)
@@ -374,7 +374,7 @@ and add your role-set into your app's [dependencies](#dependencies-and-configura
   [app-cfg]
   (-> (config/config)
       (merge app-cfg)
-      framework.rbac.core/init
+      xiana.rbac/init
       ws/start))
 ```
 
@@ -505,10 +505,10 @@ to `framework.sse.core/sse-action`, and messages are sent via `framework.sse.cor
 ```clojure
 (ns app.core
   (:require
-    [framework.config.core :as config]
-    [framework.sse.core :as sse]
-    [framework.route.core :as route]
-    [framework.webserver.core :as ws]
+    [xiana.config :as config]
+    [xiana.sse :as sse]
+    [xiana.route :as route]
+    [xiana.webserver :as ws]
     [xiana.core :as xiana]))
 
 (def routes

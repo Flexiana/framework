@@ -4,21 +4,20 @@
     [clojure.data.xml :as xml]
     [controllers.index :as index]
     [controllers.re-frame :as re-frame]
-    [framework.handler.core :as handler]
-    [framework.webserver.core :as ws]
     [malli.core :as m]
     [malli.registry :as mr]
     [malli.util :as mu]
+    [muuntaja.format.core]
     [my-domain-logic.siege-machines :as mydomain.siege-machines]
     [reitit.coercion.malli :as rcm]
-    [reitit.ring :as ring])
+    [reitit.ring :as ring]
+    [xiana.handler :as handler]
+    [xiana.webserver :as ws])
   (:import
     (clojure.data.xml
       Event)
     (clojure.lang
-      Keyword)
-    (muuntaja.format.core
-      EncodeToBytes)))
+      Keyword)))
 
 (def registry
   (merge
@@ -56,8 +55,9 @@
                             (xml/element f {} s)))
                         (seq %)))]
     (reify
-      EncodeToBytes
-      (encode-to-bytes [_ data charset]
+      muuntaja.format.core/EncodeToBytes
+      (encode-to-bytes
+        [_ data charset]
         (.getBytes ^String (helper data) ^String charset)))))
 
 (def routes

@@ -2,7 +2,7 @@
   (:require
     [clojure.test :refer :all]
     [components]
-    [framework.handler.core :refer [handler-fn]]))
+    [xiana.handler :refer [handler-fn]]))
 
 (deftest status-test
   (with-open [deps (components/->system components/app-cfg)]

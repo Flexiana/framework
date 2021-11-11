@@ -1,5 +1,5 @@
-(defproject com.flexiana/framework "0.3.0"
-  :description "Framework"
+(defproject com.flexiana/xiana "0.3.0"
+  :description "Xiana framework from Flexiana"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
   :dependencies [[clj-http "3.12.0"]
@@ -32,7 +32,7 @@
                  [yogthos/config "1.1.7"]]
   :source-paths ["src"]
   :target "target/%s/"
-  :profiles {:dev      {:resource-paths         ["config/dev"]}
+  :profiles {:dev      {:resource-paths ["config/dev"]}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}

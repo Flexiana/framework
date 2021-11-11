@@ -3,16 +3,16 @@
     [cli-chat.controllers.chat :refer [chat-action]]
     [cli-chat.controllers.index :as index]
     [cli-chat.controllers.re-frame :as re-frame]
-    [framework.config.core :as config]
-    [framework.db.core :as db]
-    [framework.interceptor.core :as interceptors]
-    [framework.rbac.core :as rbac]
-    [framework.route.core :as routes]
-    [framework.session.core :as session]
-    [framework.webserver.core :as ws]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [reitit.ring :as ring]
-    [xiana.commons :refer [rename-key]]))
+    [xiana.commons :refer [rename-key]]
+    [xiana.config :as config]
+    [xiana.db :as db]
+    [xiana.interceptor :as interceptors]
+    [xiana.rbac :as rbac]
+    [xiana.route :as routes]
+    [xiana.session :as session]
+    [xiana.webserver :as ws]))
 
 (def routes
   [["/" {:action index/handle-index}]
@@ -28,7 +28,7 @@
       db/start
       db/migrate!
       rbac/init
-      (rename-key :framework.app/auth :auth)
+      (rename-key :xiana/auth :auth)
       session/init-in-memory
       ws/start
       (select-keys [:routes

@@ -1,7 +1,7 @@
 (ns app.interceptors
   (:require
-    [framework.session.core :refer [delete! fetch]]
-    [xiana.core :as x])
+    [xiana.core :as x]
+    [xiana.session :refer [delete! fetch]])
   (:import
     (java.util
       UUID)))
