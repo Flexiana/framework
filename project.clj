@@ -32,7 +32,14 @@
                  [yogthos/config "1.1.7"]]
   :source-paths ["src"]
   :target "target/%s/"
-  :profiles {:dev      {:resource-paths         ["config/dev"]}
+  :profiles {:dev      {:resource-paths         ["config/dev"]
+                        :plugins [[lein-codox "0.10.7"]]
+                        :jvm-opts ["--add-opens" "java.base/java.lang=ALL-UNNAMED"]
+                        :codox {:output-path "docs/new/"
+                                :themes [:default :xiana]
+                                :namespaces [#"framework" #"xiana"]
+                                :source-uri "https://github.com/Flexiana/framework/blob/{git-commit}/{filepath}#L{line}"
+                                :doc-files ["doc/Getting-Started.md", "doc/How-To.md", "doc/Development-Guide.md"]}}
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
