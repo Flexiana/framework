@@ -25,8 +25,8 @@
       routes/reset
       rbac/init
       session/init-in-memory
-      db/start
-      db/migrate!
+      ;db/start
+      ;db/migrate!
       ws/start
       closeable-map))
 
