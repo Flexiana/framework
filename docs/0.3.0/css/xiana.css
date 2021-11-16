@@ -1,0 +1,20 @@
+.sidebar.primary {
+    background: #f8cc00;
+    width: 200px;
+}
+
+.sidebar.primary::-webkit-scrollbar {
+  display: none;
+}
+
+.logo {
+    float: left;
+    padding-left: 10px;
+    padding-right:10px;
+    margin:0px;
+}
+
+.logo h3{
+    margin:0px;
+    color: #f8cc00;
+}
