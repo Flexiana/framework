@@ -457,11 +457,10 @@ reactive functions have the whole [state](conventions.md#state) to work with.
 
 ### WebSockets routing
 
-`framework.websockets.core` gives you a router function, with supporting the same concepts what Xiana already have. You
-can define a reitit route, and use it inside WebSockets reactive functions. With Xiana [monad](conventions.md#monads)
-, [state](conventions.md#state), and support of [interceptors](conventions.md#interceptors),
-with [interceptor override](#interceptor-overriding). You can define a [fallback function](#websockets), to handle
-missing actions.
+`framework.websockets.core` offers a router function, which supports Xiana concepts. You can define a reitit route and
+use it inside WebSockets reactive functions. With Xiana [monad](conventions.md#monads), [state](conventions.md#state)
+and support of [interceptors](conventions.md#interceptors), with [interceptor override](#interceptor-overriding). You
+can define a [fallback function](#websockets), to handle missing actions.
 
 ```clojure
 (def routes
@@ -490,17 +489,17 @@ For route matching Xiana provides a couple of modes:
 
 - Probe
 
-  It's tries to decode the message as JSON, then as EDN, and at the end, as single string.
+  It tries to decode the message as JSON, then as EDN, then as string.
 
-You can define your own, and use it as parameter of `framework.websockets.core/router`
+You can also define your own matching, and use it as a parameter to `framework.websockets.core/router`
 
 ## Server-Sent Events (SSE)
 
 Xiana contains a simple SSE solution over [http-kit](https://github.com/http-kit/http-kit) server's `Channel`
 protocol.
 
-The initialization starts via calling `framework.sse.core/init`, clients can subscribe with routing them
-to `framework.sse.core/sse-action`, and messages are sent via `framework.sse.core/put!` function.
+Initialization is done by calling `framework.sse.core/init`. Clients can subscribe by routing
+to `framework.sse.core/sse-action`. Messages are sent with `framework.sse.core/put!` function.
 
 ```clojure
 (ns app.core
@@ -534,8 +533,8 @@ to `framework.sse.core/sse-action`, and messages are sent via `framework.sse.cor
 
 ## Scheduler
 
-To repeatable execute a function you can use the `framework.scheduler.core/start` function. To implement a ping method
-for SSE you should define a function and execute it like:
+To repeatedly execute a function, you can use the `framework.scheduler.core/start` function. Below is an implementation
+of SSE ping:
 
 ```clojure
 (ns app.core

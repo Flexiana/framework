@@ -207,7 +207,7 @@
     in a given time, remember this structure is very volatile, i.e,
     will be updated quite often on the application's life cycle.
 
-    The main modules that updates the *state* are:
+    The main modules that update the *state* are:
 
     - Routes:
       Add information from the match route to the *state* map,
@@ -260,7 +260,7 @@
 
     The routes structure is defined and should use this module interfaces to
     register it, it's also possible to update the routes at run time without
-    the necessity of restart other resources.
+    the necessity of restarting other resources.
 
     #+BEGIN_SRC clojure
     ;; define root route handler

@@ -52,7 +52,7 @@ This is done by the functions: `xiana/ok` and `xiana/error` respectively defined
 The container will travel through the application and dictates how it will operate based on its binary direction values
 and the state map.
 
-It's easier to get use to it, if you make an analogue for it: it looks and works like railway programming:
+It's easier to get used to with the following analogy. Xiana it looks and works like railway programming:
 If the execution is flawless, the state goes through the whole link of interceptors and action, if the execution fails
 at any point, the monadic system short circuits the execution, and preventing us to make any other errors.
 
