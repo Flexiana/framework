@@ -26,6 +26,7 @@
       (merge app-cfg)
       routes/reset
       db/start
+      db/migrate!
       rbac/init
       (rename-key :framework.app/auth :auth)
       session/init-in-memory
