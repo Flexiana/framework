@@ -7,12 +7,9 @@
 (defn ->event
   [state]
   (let [body (-> state :request :body)
-        payload (json/write-value-as-string body)
+        payload (json/write-value-as-string (dissoc body :action))
         creator (-> state :session-data :users/id)
-        action (case (-> state :request :method)
-                 :put :create
-                 :post :modify
-                 :delete :undo)
+        action (:action body)
         event {:payload     payload
                :resource    (:resource body)
                :resource-id (:id body)
