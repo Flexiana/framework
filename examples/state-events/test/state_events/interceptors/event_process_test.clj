@@ -60,11 +60,6 @@
                                   :resource :persons
                                   :city     "Fiorenze"}
                          :method :post}
-                        {:body   {:action    :modify
-                                  :id        resource-uuid
-                                  :resource  :persons
-                                  :last-name "Doe"}
-                         :method :post}
                         {:body   {:action   :modify
                                   :id       resource-uuid
                                   :resource :persons
@@ -228,6 +223,101 @@
                                    :first-name "John"
                                    :id         "68849768-fc9f-4602-814e-8b6cbeedd4b3"
                                    :resource   "persons"}
+                     :resource    :persons
+                     :resource-id "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
+    (is (= expectation
+           (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] events))
+               xiana/extract
+               :response-data
+               :event-aggregate
+               (dissoc :modified_at))))))
+
+(deftest event-interceptor-delete
+  (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
+        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        event-requests [{:body   {:action   :create
+                                  :id       resource-uuid
+                                  :resource :persons}
+                         :method :put}
+                        {:body   {:action     :modify
+                                  :id         resource-uuid
+                                  :resource   :persons
+                                  :first-name "John"}
+                         :method :post}
+                        {:body   {:action    :modify
+                                  :id        resource-uuid
+                                  :resource  :persons
+                                  :last-name "Doe"}
+                         :method :post}
+                        {:body   {:action   :delete
+                                  :id       resource-uuid
+                                  :resource :persons}
+                         :method :post}]
+
+        states (map (fn [request] {:request      request
+                                   :session-data {:users/id user-id}}) event-requests)
+        events (map (fn [state] (-> state
+                                    pr/->event
+                                    xiana/extract
+                                    :request-data
+                                    :event)) states)
+        expectation {:payload nil}]
+    (is (= expectation
+           (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] events))
+               xiana/extract
+               :response-data
+               :event-aggregate
+               (dissoc :modified_at))))))
+
+(deftest event-interceptor-delete-and-modify
+  (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
+        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        event-requests [{:body   {:id       resource-uuid
+                                  :action   :create
+                                  :resource :persons}
+                         :method :put}
+                        {:body   {:action     :modify
+                                  :id         resource-uuid
+                                  :resource   :persons
+                                  :first-name "John"}
+                         :method :post}
+                        {:body   {:action   :modify
+                                  :id       resource-uuid
+                                  :resource :persons
+                                  :email    "Doe@john.it"}
+                         :method :post}
+                        {:body   {:action   :modify
+                                  :id       resource-uuid
+                                  :resource :persons
+                                  :city     "Fiorenze"}
+                         :method :post}
+                        {:body   {:action   :delete
+                                  :id       resource-uuid
+                                  :resource :persons}
+                         :method :post}
+                        {:body   {:action    :modify
+                                  :id        resource-uuid
+                                  :resource  :persons
+                                  :last-name "Doe"}
+                         :method :post}
+                        {:body   {:action   :modify
+                                  :id       resource-uuid
+                                  :resource :persons
+                                  :phone    "+123465789"}
+                         :method :post}]
+        states (map (fn [request] {:request      request
+                                   :session-data {:users/id user-id}}) event-requests)
+        events (map (fn [state] (-> state
+                                    pr/->event
+                                    xiana/extract
+                                    :request-data
+                                    :event)) states)
+        expectation {:action      :modify
+                     :creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
+                     :payload     {:id        "68849768-fc9f-4602-814e-8b6cbeedd4b3"
+                                   :last-name "Doe"
+                                   :phone     "+123465789"
+                                   :resource  "persons"}
                      :resource    :persons
                      :resource-id "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation

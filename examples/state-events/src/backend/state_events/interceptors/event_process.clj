@@ -2,7 +2,10 @@
   (:require
     [jsonista.core :as json]
     [tick.core :as t]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana])
+  (:import
+    (java.sql
+      Timestamp)))
 
 (defn ->event
   [state]
@@ -13,16 +16,17 @@
         event {:payload     payload
                :resource    (:resource body)
                :resource-id (:id body)
-               :modified_at (t/now)
+               :modified_at (Timestamp/from (t/now))
                :action      action
                :creator     creator}]
     (xiana/ok (assoc-in state [:request-data :event] event))))
 
-(defn undo-process
+(defn process-actions
   [events]
   (reduce (fn [acc event]
             (case (:action event)
               :undo (butlast acc)
+              :delete []
               (conj acc event)))
           [] events))
 
@@ -31,8 +35,8 @@
   (let [events (->> state
                     :response-data
                     :db-data
-                    (sort-by :events/created-at)
-                    undo-process)
+                    (sort-by :modified_at)
+                    process-actions)
         payloads (map #(json/read-value (:payload %) json/keyword-keys-object-mapper) events)
         event-aggregate (apply merge events)
         payload-aggregate (apply merge payloads)]
