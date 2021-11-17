@@ -1,7 +1,7 @@
 {:framework.db.storage/postgresql {:deployment :container
                                    :init-script "Docker/init.sql"
                                    :port     5433
-                                   :dbname   "cli_chat_testt"
+                                   :dbname   "cli_chat_test"
                                    :host     "localhost"
                                    :dbtype   "postgresql"
                                    :user     "postgres"

@@ -1,4 +1,4 @@
-nnn{:framework.db.storage/postgresql {:deployment  :container
+{:framework.db.storage/postgresql {:deployment  :container
                                    :init-script "Docker/init.sql"
                                    :dbname   "acl"
                                    :host     "localhost"
