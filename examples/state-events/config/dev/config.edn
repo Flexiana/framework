@@ -1,4 +1,6 @@
-{:framework.db.storage/postgresql {:port     5433
+{:framework.db.storage/postgresql {:deployment :embedded
+                                   :init-script "Docker/init.sql"
+                                   :port     5433
                                    :dbname   "state_events"
                                    :host     "localhost"
                                    :dbtype   "postgresql"
