@@ -73,13 +73,14 @@ decorates [Migratus](https://github.com/yogthos/migratus), to handle this weakne
 
 You can run `lein migrate` with migratus parameters like: `create`, `destroy`, `up`, `down`, `init`, `reset`, `migrate`
 , `rollback`. It will do the same as migratus, except one more thing: you can use `with profile` lein parameter to
-define settings of migratus to. So instead of having only one migration folder you can define one for all your profiles.
+define settings migratus should use. So instead of having only one migration folder you can define one for each of your
+profiles.
 
 ```shell
 lein with-profile +test migrate create default-users
 ```
 
-Will create `up` and `down` SQL files in `resources/test_migrations` folder, and
+Will create `up` and `down` SQL files in folder configured in `config/test/config.edn`, and
 
 ```shell
 lein with-profile +test migrate migrate
@@ -93,7 +94,7 @@ But without profile:
 lein migrate migrate
 ```
 
-will use only migrations from `resources/dev_migrations`.
+migratus will use the migrations from a folder, what is configured in `config/dev/config.edn`.
 
 ## Interceptors typical use-case, and ordering
 
@@ -114,7 +115,7 @@ Which means:
 1. executes app/route-override :enter function
 2. executes app/route-override :leave function
 3. The router injects :request-data, and decides what action should be executed
-4. Muuntaja do the request's encoding
+4. Muuntaja does the request's encoding
 5. parameters injected via reitit
 6. injecting session-data into the state
 7. view does nothing on :enter
@@ -155,8 +156,8 @@ xiana monad.
 
 #### Router and controller interceptors
 
-    The router and controller interceptors are executed in a same way (enter functions in order, leave functions in reversed
-    order), but not in the same place of the execution flow.
+    The router and controller interceptors are executed in the exact same order (enter functions in order, leave 
+    functions in reversed order), but not in the same place of the execution flow.
 
 The handler function executes interceptors in this order
 
@@ -168,7 +169,7 @@ The handler function executes interceptors in this order
 6. controller interceptors :leave functions in reversed order
 
 In router interceptors, you are able to interfere with the routing mechanism. Controller interceptors can be interfered
-via route definition.
+with via route definition.
 
 ## Providing default interceptors
 
@@ -183,7 +184,8 @@ contain two sequence of interceptors like
 ## Interceptor overriding
 
 On route definition you can interfere with the default controller interceptors. With the route definition you are able
-to set up a different controller interceptors what is already defined with the app. There are three ways to do it:
+to set up different controller interceptors other than the ones already defined with the app. There are three ways to do
+it:
 
 ```clojure
 ... {:action       #(do something)
@@ -234,19 +236,19 @@ The execution flow will look like this
 9. controller interceptors :leaves in reversed order
 10. around interceptors :leaves in reversed order
 
-If any of interceptors are in :except will be skipped.
+All interceptors in :except will be skipped.
 
 ## Routes
 
 Route definition is done via [reitit's routing](https://github.com/metosin/reitit) library. Route processing is done
 with `framework.route.core` namespace. At route definition you can define.
 
-- The [action](#action) what should be executed
+- The [action](#action) that should be executed
 - [Interceptor overriding](#interceptor-overriding)
 - The required permission for [rbac](#role-based-access-and-data-ownership-control)
 - [WebSocket](#websocket) action definition
 
-If any extra is provided here, it goes to
+If any extra parameter is provided here, it's injected into
 
 ```clojure
 (-> state :request-data :match)
@@ -257,7 +259,7 @@ in routing step.
 ## Action
 
 The action function in a single
-[CRUD application](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete#RESTful_APIs) is for define a
+[CRUD application](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete#RESTful_APIs) is for defining a
 [view](#view), a [database-query](#database-access) and optionally a [side-effect](#side-effects) function which will be
 executed in the following interceptor steps.
 
@@ -272,7 +274,7 @@ executed in the following interceptor steps.
 
 ## Database-access
 
-The `database.core`'s interceptor extracts the datasource from the provided state parameter, and the :query.
+The `database.core`'s interceptor extracts the datasource from the provided state parameter and the :query.
 
 The query should be in [honey SQL](https://github.com/nilenso/honeysql-postgres) format, it will be sql-formatted on
 execution:
@@ -300,7 +302,7 @@ without any transformation.
 
 ## View
 
-A view is a function to prepare the response final response into the state based on whatever happened before.
+A view is a function to prepare the final response and saving it into the state based on whatever happened before.
 
 ```clojure
 (defn success
@@ -316,11 +318,12 @@ A view is a function to prepare the response final response into the state based
 
 ## Side-effects
 
-Conventionally side-effects interceptor placed after the [action](#action) and [database-access](#database-access), just
-right before [view](#view). Here you already have the result of database execution, so you are able to do some extra
-refinements, like sending notifications, updating the application state, filtering or mapping the result and so on.
+Conventionally, side-effects interceptor is placed after [action](#action) and [database-access](#database-access), just
+right before [view](#view). At this point, we already have the result of database execution, so we are able to do some
+extra refinements, like sending notifications, updating the application state, filtering or mapping the result and so
+on.
 
-To keep continue with the previous examples:
+Adding to the previous examples:
 
 ```clojure
 (defn update-sessions-and-db!
@@ -342,12 +345,12 @@ To keep continue with the previous examples:
 
 ## Session management
 
-The actual session interceptor loads and saves the actual session data from its backend to the app state.
+Session interceptor interchanges session data between the session-backend and the app state.
 
 On `:enter` it loads the session by its session-id, into `(-> state :session-data)`
 
-The session-id can be provided in headers, cookies, or as query-param. When the session-id is not provided or invalid
-UUID, or the session is not stored in the storage, then the response will be:
+The session-id can be provided either in headers, cookies, or as query-param. When session-id is found nowhere or is an
+invalid UUID, or the session is not stored in the storage, then the response will be:
 
 ```clojure
 {:status 401
@@ -378,19 +381,19 @@ and add your role-set into your app's [dependencies](#dependencies-and-configura
       ws/start))
 ```
 
-On `:enter` the interceptor do the permission check if it's allowed for the user found
-in `(-> state :session-data :user)`. If the user has no permit on the resource/action then the response will be:
+On `:enter`, the interceptor performs the permission check. It determines if the action allowed for the user found
+in `(-> state :session-data :user)`. If access to the resource/action isn't permitted, then the response is:
 
 ```clojure
 {:status 403
  :body   "Forbidden"}
 ```
 
-If it has the permission, then it goes to `(-> state :request-data :user-permissions)` as a parameter for data
-ownership.
+If a permission is found, then it goes into `(-> state :request-data :user-permissions)` as a parameter for data
+ownership processing.
 
-On `:leave` executes the restriction function from `(-> state :request-data :restriction-fn)`, when it's provided.
-The `restriction-fn` would look like this:
+On `:leave`, executes the restriction function found in `(-> state :request-data :restriction-fn)`. The `restriction-fn`
+should look like this:
 
 ```clojure
 (defn restriction-fn
@@ -405,12 +408,13 @@ The `restriction-fn` would look like this:
                                         (update state :query sql/merge-where [:= :owner.id user-id]))))))
 ```
 
-The rbac interceptor must between the [action](#action) and the [db-access](#database-access) interceptors in
+The rbac interceptor must be placed between the [action](#action) and the [db-access](#database-access) interceptors in
 the [interceptor chain](#interceptors-typical-use-case-and-ordering).
 
 ## WebSockets
 
-To use an endpoint to serve WebSockets connection, you can define it on route-definition beside the restfull action:
+To use an endpoint to serve a WebSockets connection, you can define it on route-definition alongside the restfull
+action:
 
 ```clojure
 (def routes
@@ -419,7 +423,7 @@ To use an endpoint to serve WebSockets connection, you can define it on route-de
            :action    restfull/hello}]])
 ```
 
-And in your `:ws-action` function you can provide your reactive functions in `(-> state :response-data :channel)`
+In `:ws-action` function you can provide the reactive functions in `(-> state :response-data :channel)`
 
 ```clojure
 (:require
@@ -452,8 +456,8 @@ And in your `:ws-action` function you can provide your reactive functions in `(-
                :init       (fn [ch])})))
 ```
 
-The creation of the actual channel has been done in the framework's [handler](conventions.md#handler) and all your
-reactive functions have the whole [state](conventions.md#state) to work with.
+The creation of the actual channel happens in framework's [handler](conventions.md#handler). All provided reactive
+functions have the entire [state](conventions.md#state) to work with.
 
 ### WebSockets routing
 

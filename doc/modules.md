@@ -48,16 +48,16 @@ Database handling functions.
 
 #### Database/main
 
-Migratus wrapper to get rid of migratus lein plugin, and support profile dependent configuration of migratus.
+Migratus wrapper to get rid of lein migratus plugin. As well as support profile dependent configuration of migratus.
 
 #### Database/core
 
-Start function, to get the datasource based on given configuration. Query executor functions and the db-access
+Start function, which gets the data source based on given configuration. Query executor functions and the db-access
 interceptor.
 
 ### Interceptor
 
-Some provided interceptors, and other helpers.
+Some default interceptors and helpers.
 
 #### Interceptor/core
 
@@ -78,8 +78,8 @@ Default settings, and format instance of content negotiation.
 
 #### Interceptor/queue
 
-The queue is the interceptor executor. It contains all the functions what is necessary to the handler to deal with
-interceptors, interceptor overrides.
+The queue is the interceptor executor. It contains all functions necessary to the handler to deal with interceptors and
+interceptor overrides.
 
 #### Interceptor/wrap
 
@@ -91,17 +91,17 @@ Helps you to send an email message based on configuration.
 
 ### RBAC
 
-Wrapper package for tiny-RBAC lib, with initialize role-set, gathering permissions from the actual state, and it
-contains an interceptor too, to deal with permissions and restrictions.
+Wrapper package for tiny-RBAC lib. It initializes role-set and gathers permissions from the actual state. It contains an
+interceptor too, to deal with permissions and restrictions.
 
 ### Route
 
-Contains all functions to deal with route dependent functionality. Use reitit matcher and router. Collects request-data
+Contains all functions to deal with route dependent functionality. Uses reitit matcher and router. Collects request-data
 for processing it via controller interceptors and action.
 
 ### Scheduler
 
-Repeatable execution of function. The function get the `:deps` as parameter.
+Repeated function execution. The function gets `:deps` as parameter.
 
 ### SSE
 

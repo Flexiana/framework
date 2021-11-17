@@ -1,4 +1,5 @@
 # Contribution
+
 - [Development dependencies](#development-dependencies)
 - [Setup](#setup)
 - [Deps](#deps)
@@ -11,9 +12,6 @@
 - Clojure 1.10
 - Postgresql >= 11.5
 - leiningen >= 2.9.0
-
-### Optional
-
 - Docker >= 19.03.11
 - Docker-compose >= 1.21.0
 
@@ -60,20 +58,14 @@ calls `auto.sh` script to perform the following sequence of steps:
 
 See `./script/auto.sh help` for more advanced options.
 
-Remember it's necessary to have `docker/docker-compose` installed in your host machine. Docker daemon should be
-initialized a priori, otherwise the chain of commands fails.
-
-It should also be noted that after the first installation everything will be cached preventing unnecessary rework, it's
-possible to run only the tests, if your development environment is already up, increasing the overall productivity.
+Remember it's necessary to have `docker` & `docker-compose` installed in your host machine. Docker daemon should be
+running. The chain of commands fails otherwise. It should also be noted that after the first installation everything
+will be cached preventing unnecessary rework, it's possible to run only the tests, if your development environment is
+already up, increasing the overall productivity.
 
 ```shell
 ./script/auto.sh -y tests
 ```
-
-## Deps
-
-We define some aliases to make possible to use `deps.edn` directly
-(recommend).
 
 ## leiningen
 

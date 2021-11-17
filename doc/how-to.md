@@ -12,33 +12,35 @@
 
 ## Login implementation
 
-Xiana framework does not have login and logout functions because the application can differ on user management. The
-session interceptor can validate a request only if the session already exists in session storage. So to log in a user,
-you need to add its session to the storage. All sessions should have a unique, valid UUID as session-id and this ID
-should be part of an active session. The active session goes to the `(-> state :session-data)`. It is loaded and stored
-in session storage before/after reaching the action. But if a referred session is not in the storage, the execution flow
-will be interrupted before the flow reaches the action function, and responds with:
+Xiana framework does not have any login or logout functions, as every application has its own user management logic.
+Though Xiana offers all the tools to easily implement them. One of the default interceptors is the session interceptor.
+If included, it can validate a request only if the session already exists in session storage. To log in a user, simply
+add its session data to the storage. (TODO: where? What is the exact key to modify?). All sessions should have a unique
+UUID as session-id. The active session lives under `(-> state :session-data)`. On every request, before reaching the
+action defined by the route, the interceptor checks `[:headers :session-id]` among other things. Which is the id of the
+current session. The session is then loaded in session storage. If the id is not found, the execution flow is
+interrupted with the response:
 
 ```clojure
 {:status 401
  :body   "Invalid or missing session"}
 ```
 
-To implement login functionality, you must [skip](tutorials.md#interceptor-overriding) use the session interceptor in
-route definition and make a session manually:
+To implement login, you need to [use the session interceptor](tutorials.md#interceptor-overriding) in
 
 ```clojure
-(let [;create
+(let [;; Create a unique ID
       session-id (UUID/randomUUID)]
-  ;store a new session in session storage,
+  ;; Store a new session in session storage
   (add! session-storage session-id {:session-id session-id})
-  ;Be sure the session-id will be part of the response
+  ;; Make sure session-id is part of the response
   (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
 ```
-or use the `guest-session` interceptor, which creates a guest session for unknown, or missing sessions. 
 
-If you want to use role-based access control, you need to store the actual user in your session data. To get your user
-from the database, you will create a query in the models/user namespace ex:
+or use the `guest-session` interceptor, which creates a guest session for unknown, or missing sessions.
+
+For role-based access control, you need to store the actual user in your session data. First, you'll have to query it
+from the database. It is best placed in models/user namespace. Here's an example:
 
 ```clojure
 (defn fetch-query
@@ -53,35 +55,35 @@ from the database, you will create a query in the models/user namespace ex:
                  [:= :username login]]]))))
 ```
 
-and execute it with the `db-access` interceptor, which injects the query result into the state. If you already have this
-in the state, you can modify your create session function:
+To execute it, place `db-access` interceptor in the interceptors list. It injects the query result into the state. If
+you already have this injected, you can modify your create session function like this:
 
 ```clojure
-(let [;get user from database result
+(let [;; Get user from database result
       user (-> state :response-data :db-data first)
-      ;create session
+      ;; Create session
       session-id (UUID/randomUUID)]
-  ;store a new session in session storage,
+  ;; Store the new session in session storage. Notice the addition of user. 
   (add! session-storage session-id (assoc user :session-id session-id))
-  ;and be sure the session-id will be part of the response
+  ;; Make sure session-id is part of the response
   (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
 ```
 
-Be sure to remove the user's password and any other sensitive information that will be stored:
+Be sure to remove user's password and any other sensitive information before storing it:
 
 ```clojure
-(let [;get user from database result
+(let [;; Get user from database result
       user (-> state
                :response-data
                :db-data
                first
-               ;remove password for session storage
+               ;; Remove password for session storage
                (dissoc :users/password))
-      ;create session
+      ;; Create session id
       session-id (UUID/randomUUID)]
-  ;store a new session in session storage,
+  ;; Store the new session in session storage
   (add! session-storage session-id (assoc user :session-id session-id))
-  ;and be sure the session-id will be part of the response
+  ;; Make sure session-id is part of the response
   (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
 ```
 
@@ -89,18 +91,18 @@ Next, we check if the credentials are correct, so we use an `if` statement.
 
 ```clojure
 (if (valid-credentials?)
-  (let [;get user from database result
+  (let [;; Get user from database result
         user (-> state
                  :response-data
                  :db-data
                  first
-                 ;remove password for session storage
+                 ;; Remove password for session storage
                  (dissoc :users/password))
-        ;create session
+        ;; Create session ID
         session-id (UUID/randomUUID)]
-    ;store a new session in session storage,
+    ;; Store the new session in session storage
     (add! session-storage session-id (assoc user :session-id session-id))
-    ;and be sure the session-id will be part of the response
+    ;; Make sure session-id is part of the response
     (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
   (xiana/error (assoc state :response {:status 401
                                        :body   "Login failed"})))
@@ -121,10 +123,10 @@ Xiana provides `framework.auth.hash` to check user credentials:
 
 The login logic is done, but where to place it?
 
-Do you remember [side effect interceptor?](interceptors.md#side-effect) It's running after we have the query result from
-the database, and before rendering the final response with [view interceptor.](interceptors.md#view) The place of the
-function defined above is in the interceptor chain. How it goes there? Let see an [action](conventions.md#action)
-.
+Do you remember the [side effect interceptor](interceptors.md#side-effect)? It's running after we have the query result
+from the database, and before the final response is rendered with the [view interceptor](interceptors.md#view). The
+place for the function defined above is in the interceptor chain. How does it go there? Let's see
+an [action](conventions.md#action)
 
 ```clojure
 (defn action
@@ -133,7 +135,7 @@ function defined above is in the interceptor chain. How it goes there? Let see a
     (assoc state :side-effect side-effects/login)))
 ```
 
-This is the place for inject the database query too:
+This is the place for injecting the database query, too:
 
 ```clojure
 (defn action
@@ -173,7 +175,7 @@ And finally the [view](tutorials.md#view) is injected in the action function:
 To do a logout is much easier than a login implementation. The `session-interceptor` does half of the work, and if you
 have a running session, then it will not complain. The only thing you should do is to remove the actual session from
 the `state`
-and form session storage. Something like this:
+and from session storage. Something like this:
 
 ```clojure
 (defn logout
@@ -184,7 +186,7 @@ and form session storage. Something like this:
     (xiana/ok (dissoc state :session-data))))
 ```
 
-Adding the `ok` response
+Add the `ok` response
 
 ```clojure
 (defn logout-view
@@ -195,7 +197,7 @@ Adding the `ok` response
                 (assoc-in [:response :status] 200))))
 ```
 
-and using it:
+and use it:
 
 ```clojure
 (defn logout
@@ -216,11 +218,11 @@ should be placed [inside](tutorials.md#interceptor-overriding) [db-access](inter
 ### Role set definition
 
 For [tiny-RBAC](https://github.com/Flexiana/tiny-rbac) you should provide
-a [role-set](https://github.com/Flexiana/tiny-rbac#builder), a map, which defines the application resources, the actions
-on it, the roles with the different granted actions, and restrictions for data ownership control. This map must be
-in [deps](conventions.md#dependencies).
+a [role-set](https://github.com/Flexiana/tiny-rbac#builder). It's a map which defines the application resources, the
+actions on it, the roles with the different granted actions, and restrictions for data ownership control. This map must
+be in placed [deps](conventions.md#dependencies).
 
-An example role-set can be defined for an image service:
+Here's an example role-set for an image service:
 
 ```clojure
 (def role-set
@@ -238,7 +240,7 @@ It defines a role-set with:
 - an `:image` resource,
 - `:upload :download :delete` actions on `:image` resource
 - a `:guest` role, who can download all the images
-- a `:member` role, who inherits `:guest`'s roles, and it can upload `:all` images, and delete `:own` images.
+- a `:member` role, who inherits all of `:guest`'s roles, can upload `:all` images, and delete `:own` images.
 
 ### Provide resource/action at routing
 
@@ -288,7 +290,7 @@ defined here:
       db-core/start
       db-core/migrate!
       ws/start))
-      
+
 (def app-cfg
   {:routes                  routes
    :role-set                role-set
@@ -311,13 +313,12 @@ Prerequisites:
 - route definition has `:permission` key
 - user's role is in `(-> state :session-data :users/role)`
 
-If the `:permission` key is missing, all requests going to be **granted**. If `role-set` or `:users/role` is missing ,
-all requests going to be **denied**.
+If the `:permission` key is missing, all requests are going to be **granted**. If `role-set` or `:users/role` is
+missing, all requests are going to be **denied**.
 
-When `rbac/interceptor` `:enter` executed it will check if the user has any permission on the
-pre-defined `resource/action`
-pair. If any, it will collect all of them (including inherited permissions) into a set of format:
-`:resource/restriction`.
+When `rbac/interceptor` `:enter` is executed, it checks if the user has any permission on the
+pre-defined `resource/action` pair. If there is any, it collects all of them (including inherited permissions) into a
+set of format: `:resource/restriction`.
 
 For example:
 
@@ -325,12 +326,12 @@ For example:
 :image/own
 ```
 
-means the given user granted to do the given `action` on `:own` `:image` resource. This will help you to
-implement [data ownership](#data-ownership) functions. This set is associated
+means the given user is granted the permission to do the given `action` on `:own` `:image` resource. This will help you
+to implement [data ownership](#data-ownership) functions. This set is associated
 in `(-> state :request-data :user-permissions)`
 
-If the user cannot do the given action on the given resource (neither by inheritance) the interceptor will interrupt the
-execution flow, and will create a response:
+If user cannot perform the given action on the given resource (neither by inheritance nor by direct permission), the
+interceptor will interrupt the execution flow with the response:
 
 ```clojure
 {:status 403
@@ -339,12 +340,12 @@ execution flow, and will create a response:
 
 ### Data ownership
 
-Data ownership control is about tightening the database result for those elements where the user is able to do the given
-action. For staying the example above, it means a `:member` only able to delete `:image`s if it owned by the `:member`.
-At this point, you can use the result of the [access control](#access-control) from the state. Let's stay in the
-example:
+Data ownership control is about restricting database results only to the elements on which the user is able to perform
+the given action. In the context of the example above, it means `:member`s are able to delete only the owned `:image`s.
+At this point, you can use the result of the [access control](#access-control) from the state. Continuing with the same
+example.
 
-From
+From this generic query
 
 ```clojure
 {:delete [:*]
@@ -352,7 +353,7 @@ From
  :where  [:= :id (get-in state [:params :image-id])]}
 ```
 
-database query you want to generate something like this:
+you want to switch to something like this:
 
 ```clojure
 {:delete [:*]
@@ -375,7 +376,7 @@ The `user-permissions` is a set, so it can be easily used for making conditions:
       :else (xiana/ok state))))
 ```
 
-And finally the only missing piece of code: the model, and the action
+And finally, the only missing piece of code: the model, and the action
 
 ```clojure
 

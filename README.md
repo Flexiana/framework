@@ -24,15 +24,15 @@ Add it to your project as a dependency from clojars:
 
 ## Docs
 
-- Everyone should read about [conventions](./doc/conventions.md).
-- To start working with xiana, read [tutorials](./doc/tutorials.md).
-- When you are interested in advised [how-to](./doc/how-to.md)s.
-- Readings about provided [modules](./doc/modules.md), and [interceptors](./doc/interceptors.md).
-- To contribute check [contribution](./doc/contribution.md) docs.
+- First check out the [conventions](./doc/conventions.md).
+- To start working with xiana, read the [tutorials](./doc/tutorials.md).
+- A hands-on approach in the [how-to](./doc/how-to.md)s.
+- Check the available [modules](./doc/modules.md), and [interceptors](./doc/interceptors.md).
+- To contribute, see the [contribution](./doc/contribution.md) docs.
 
 ### Examples
 
-Visit [examples folder](examples), and see how you can do
+Visit [examples folder](examples), to see how you can perform
 
 - [Access and data ownership control](examples/acl/README.md)
 - [Request coercion and response validation](examples/controllers/README.md)
