@@ -8,8 +8,7 @@
                  [clj-http "3.12.1"]
                  [reagent "0.10.0"]
                  [re-frame "1.1.2"]
-                 [com.fzakaria/slf4j-timbre "0.3.21"]
-                 [com.opentable.components/otj-pg-embedded "0.13.3"]]
+                 [com.fzakaria/slf4j-timbre "0.3.21"]]
   :plugins [[lein-shadow "0.3.1"]
             [migratus-lein "0.7.3"]]
   :main ^:skip-aot cli-chat.core

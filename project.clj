@@ -7,7 +7,6 @@
                  [com.draines/postal "2.0.4"]
                  [com.flexiana/tiny-rbac "0.1.1"]
                  [com.fzakaria/slf4j-timbre "0.3.21"]
-                 [com.opentable.components/otj-pg-embedded "0.13.3"]
                  [com.wsscode/pathom3 "2021.10.20-alpha"]
                  [com.wsscode/tailwind-garden "2021.04.09"]
                  [crypto-password "0.2.1"]

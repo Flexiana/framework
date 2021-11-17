@@ -8,8 +8,6 @@
     [next.jdbc :as jdbc]
     [xiana.core :as xiana])
   (:import
-    (com.opentable.db.postgres.embedded
-      EmbeddedPostgres)
     (java.lang
       AutoCloseable)
     (javax.sql
@@ -38,23 +36,6 @@
         (catch Exception e (if (< count 10)
                              (get-datasource config (inc count))
                              (throw e))))))
-
-(defn embedded-postgres!
-  [config init-sql]
-  (let [pg (-> (EmbeddedPostgres/builder)
-               (.start))
-        ds (.getPostgresDatabase pg)
-        pg-port (.getPort pg)
-        db-config (-> config
-                      :framework.db.storage/postgresql
-                      (assoc
-                        :port pg-port
-                        :dbname "postgres"
-                        :user "postgres"
-                        :embedded pg
-                        :datasource ds))]
-    (when (seq init-sql) (jdbc/execute! (dissoc db-config :dbname) init-sql))
-    (assoc config :framework.db.storage/postgresql db-config)))
 
 (defn docker-postgres!
   [config init-sql]
@@ -99,7 +80,6 @@
         init-sql (when-let [sql (some-> (:init-script db-spec) slurp)] [sql])
         db-instance (case (:deployment db-spec)
                       :container (docker-postgres! config init-sql)
-                      :embedded (embedded-postgres! config init-sql)
                       config)
         datasource (get-in db-instance [:framework.db.storage/postgresql :datasource]
                            (get-datasource db-instance))

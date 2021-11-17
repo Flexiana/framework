@@ -1,2 +1,5 @@
 CREATE DATABASE cli_chat;
 GRANT ALL PRIVILEGES ON DATABASE cli_chat TO postgres;
+
+CREATE DATABASE cli_chat_testt;
+GRANT ALL PRIVILEGES ON DATABASE cli_chat_testt TO postgres;
