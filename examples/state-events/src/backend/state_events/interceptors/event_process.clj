@@ -9,13 +9,13 @@
 
 (defn ->event
   [state]
-  (let [body (-> state :request :body)
-        payload (json/write-value-as-string (dissoc body :action))
+  (let [params (-> state :request :params)
+        payload (dissoc params :action)
         creator (-> state :session-data :users/id)
-        action (:action body)
+        action (:action params)
         event {:payload     payload
-               :resource    (:resource body)
-               :resource-id (:id body)
+               :resource    (:resource params)
+               :resource-id (:id params)
                :modified-at (Timestamp/from (t/now))
                :action      action
                :creator     creator}]

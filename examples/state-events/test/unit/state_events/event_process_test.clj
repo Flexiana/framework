@@ -1,4 +1,4 @@
-(ns state-events.interceptors.event-process-test
+(ns unit.state-events.event-process-test
   (:require
     [clojure.test :refer :all]
     [state-events.interceptors.event-process :as pr]
