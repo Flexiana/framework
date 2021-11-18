@@ -220,7 +220,7 @@ should be placed [inside](tutorials.md#interceptor-overriding) [db-access](inter
 For [tiny-RBAC](https://github.com/Flexiana/tiny-rbac) you should provide
 a [role-set](https://github.com/Flexiana/tiny-rbac#builder). It's a map which defines the application resources, the
 actions on it, the roles with the different granted actions, and restrictions for data ownership control. This map must
-be in placed [deps](conventions.md#dependencies).
+be placed in [deps](conventions.md#dependencies).
 
 Here's an example role-set for an image service:
 
