@@ -12,8 +12,8 @@
     [reitit.ring :as ring]
     [state-events.controllers.index :as index]
     [state-events.controllers.person :as person]
-    [state-events.interceptors.event-process :as events]
     [state-events.controllers.re-frame :as re-frame]
+    [state-events.interceptors.event-process :as events]
     [xiana.commons :refer [rename-key]]))
 
 (def routes
@@ -40,14 +40,19 @@
 (def app-cfg
   {:routes                  routes
    :router-interceptors     []
-   :controller-interceptors [(interceptors/muuntaja)
+   :controller-interceptors [(interceptors/message 0)
+                             (interceptors/muuntaja)
+                             (interceptors/message 1)
                              interceptors/params
+                             (interceptors/message 2)
                              session/guest-session-interceptor
+                             (interceptors/message 3)
                              interceptors/side-effect
+                             (interceptors/message 4)
                              events/interceptor
-                             interceptors/view
+                             (interceptors/message 5)
                              db/db-access
-                             rbac/interceptor]})
+                             (interceptors/message 6)]})
 
 (defn -main
   [& _args]

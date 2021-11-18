@@ -18,11 +18,13 @@
       (is (nil? response)))
 
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
-        response @(http/put "http://localhost:3333/person"
-                            {:as :text
-                             :form-params {:id       resource-uuid
-                                           :action   :create
-                                           :resource :persons}})]
+        response @(http/request
+                    {:method      :put
+                     :url         "http://localhost:3333/person"
+                     :as :auto
+                     :form-params {:id       resource-uuid
+                                   :action   :create
+                                   :resource :persons}})]
     (println response)
 
     (is (nil? (-> response)))))
