@@ -15,9 +15,10 @@
         (f state)
         (catch Exception e
           (let [f (or (:error interceptor) xiana/error)]
-            (f (-> state (assoc :response
-                                {:status 500
-                                 :body   (Throwable->map e)})))))))))
+            (f (assoc state
+                      :response {:status 500
+                                 :body   (Throwable->map e)}
+                      :exception e))))))))
 
 (defn- -execute
   "Execute interceptors functions (the enter/leave procedures)
