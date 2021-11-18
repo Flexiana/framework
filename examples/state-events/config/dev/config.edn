@@ -1,14 +1,14 @@
-{:framework.db.storage/postgresql {:deployment :embedded
-                                   :init-script "Docker/init.sql"
-                                   :port     5433
-                                   :dbname   "state_events"
-                                   :host     "localhost"
-                                   :dbtype   "postgresql"
-                                   :user     "postgres"
-                                   :password "postgres"}
+{:framework.db.storage/postgresql {:deployment :container
+                                   ;:init-script "Docker/init.sql"
+                                   :port       5433
+                                   :dbname     "state_events"
+                                   :host       "localhost"
+                                   :dbtype     "postgresql"
+                                   :user       "postgres"
+                                   :password   "postgres"}
 
  :framework.db.storage/migration  {:store                :database
-                                   :migration-dir        "dev_migrations"
+                                   :migration-dir        "migrations"
                                    :init-in-transaction? false
                                    :migration-table-name "migrations"}
 

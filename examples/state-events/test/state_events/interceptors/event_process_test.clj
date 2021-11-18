@@ -274,7 +274,7 @@
                (dissoc :modified-at))))))
 
 (deftest event-interceptor-delete-and-modify
-  (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
+  (let [resource-uuid (UUID/fromString "68849768-fc9f-4602-814e-8b6cbeedd4b3")
         user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:body   {:id       resource-uuid
                                   :action   :create
@@ -323,7 +323,7 @@
                                    :phone     "+123465789"
                                    :resource  "persons"}
                      :resource    :persons
-                     :resource-id "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
+                     :resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] events))
                xiana/extract
