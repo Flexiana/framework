@@ -16,7 +16,7 @@
         event {:payload     payload
                :resource    (:resource body)
                :resource-id (:id body)
-               :modified_at (Timestamp/from (t/now))
+               :modified-at (Timestamp/from (t/now))
                :action      action
                :creator     creator}]
     (xiana/ok (assoc-in state [:request-data :event] event))))
@@ -26,7 +26,7 @@
   (reduce (fn [acc event]
             (case (:action event)
               :undo (butlast acc)
-              :delete []
+              :delete (mapv #(assoc % :payload "{}") (conj acc event))
               (conj acc event)))
           [] events))
 
@@ -35,11 +35,11 @@
   (let [events (->> state
                     :response-data
                     :db-data
-                    (sort-by :modified_at)
+                    (sort-by :modified-at)
                     process-actions)
         payloads (map #(json/read-value (:payload %) json/keyword-keys-object-mapper) events)
-        event-aggregate (apply merge events)
-        payload-aggregate (apply merge payloads)]
+        event-aggregate (reduce merge events)
+        payload-aggregate (reduce merge payloads)]
     (xiana/ok
       (assoc-in state [:response-data :event-aggregate] (assoc event-aggregate :payload payload-aggregate)))))
 

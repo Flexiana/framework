@@ -31,7 +31,7 @@
                xiana/extract
                :response-data
                :event-aggregate
-               (dissoc :modified_at))))))
+               (dissoc :modified-at))))))
 
 (deftest event-interceptor-aggregates-events
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
@@ -88,7 +88,7 @@
                xiana/extract
                :response-data
                :event-aggregate
-               (dissoc :modified_at))))))
+               (dissoc :modified-at))))))
 
 (deftest event-interceptor-one-undo-events
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
@@ -130,7 +130,7 @@
                xiana/extract
                :response-data
                :event-aggregate
-               (dissoc :modified_at))))))
+               (dissoc :modified-at))))))
 
 (deftest event-interceptor-two-undo-events
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
@@ -181,7 +181,7 @@
                xiana/extract
                :response-data
                :event-aggregate
-               (dissoc :modified_at))))))
+               (dissoc :modified-at))))))
 
 (deftest event-interceptor-modify-after-undo
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
@@ -230,7 +230,7 @@
                xiana/extract
                :response-data
                :event-aggregate
-               (dissoc :modified_at))))))
+               (dissoc :modified-at))))))
 
 (deftest event-interceptor-delete
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
@@ -261,13 +261,17 @@
                                     xiana/extract
                                     :request-data
                                     :event)) states)
-        expectation {:payload nil}]
+        expectation {:action      :delete
+                     :creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
+                     :payload     {}
+                     :resource    :persons
+                     :resource-id "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] events))
                xiana/extract
                :response-data
                :event-aggregate
-               (dissoc :modified_at))))))
+               (dissoc :modified-at))))))
 
 (deftest event-interceptor-delete-and-modify
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
@@ -325,4 +329,4 @@
                xiana/extract
                :response-data
                :event-aggregate
-               (dissoc :modified_at))))))
+               (dissoc :modified-at))))))
