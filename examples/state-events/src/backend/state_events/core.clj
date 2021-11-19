@@ -10,8 +10,8 @@
     [framework.webserver.core :as ws]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [reitit.ring :as ring]
+    [state-events.controllers.event :as event]
     [state-events.controllers.index :as index]
-    [state-events.controllers.person :as person]
     [state-events.controllers.re-frame :as re-frame]
     [state-events.interceptors.event-process :as events]
     [xiana.commons :refer [rename-key]]))
@@ -20,8 +20,8 @@
   [["/" {:action index/handle-index}]
    ["/re-frame" {:action re-frame/handle-index}]
    ["/assets/*" (ring/create-resource-handler {:path "/"})]
-   ["/person" {:put  {:action person/add}
-               :post {:action person/modify}}]
+   ["/person" {:put  {:action event/add}
+               :post {:action event/add}}]
    ["/sse" {:ws-action sse/sse-action}]])
 
 (defn ->system
@@ -40,17 +40,12 @@
 (def app-cfg
   {:routes                  routes
    :router-interceptors     []
-   :controller-interceptors [(interceptors/message 0)
-                             (interceptors/muuntaja)
-                             (interceptors/message 1)
+   :controller-interceptors [(interceptors/muuntaja)
                              interceptors/params
-                             (interceptors/message 2)
                              session/guest-session-interceptor
-                             (interceptors/message 3)
+                             interceptors/view
                              interceptors/side-effect
-                             (interceptors/message 4)
                              events/interceptor
-                             (interceptors/message 5)
                              db/db-access
                              (interceptors/message 6)]})
 
