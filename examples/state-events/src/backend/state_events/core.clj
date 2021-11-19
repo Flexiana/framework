@@ -21,7 +21,7 @@
    ["/re-frame" {:action re-frame/handle-index}]
    ["/assets/*" (ring/create-resource-handler {:path "/"})]
    ["/person" {:put  {:action event/add}
-               :post {:action event/add}}]
+               :post {:action event/modify}}]
    ["/sse" {:ws-action sse/sse-action}]])
 
 (defn ->system
@@ -46,8 +46,7 @@
                              interceptors/view
                              interceptors/side-effect
                              events/interceptor
-                             db/db-access
-                             (interceptors/message 6)]})
+                             db/db-access]})
 
 (defn -main
   [& _args]
