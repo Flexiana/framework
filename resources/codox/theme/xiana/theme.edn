@@ -1,3 +1,6 @@
 {:transforms [[:head] [:append [:link {:rel "stylesheet", :type "text/css" :href "css/xiana.css"}]]
-              [:div#header] [:prepend [:div.logo [:h3 "Xiana logo here"]]]]
+              [:div.namespace-index :h1 :span.project-title] [:substitute [:div.logo [:img {:src "../../resources/images/Xiana.png"}]]]
+              [:div.namespace-index :h5] [:substitute [:div]]
+              [:div.namespace-index :div.doc] [:substitute [:div]]]
+
  :resources ["css/xiana.css"]}
