@@ -30,18 +30,18 @@
      cfg
      (assoc cfg :session-backend
             (reify Session
-                  ;; fetch session key:element
+              ;; fetch session key:element
               (fetch [_ k] (get @m k))
-                  ;; fetch all elements (no side effect)
+              ;; fetch all elements (no side effect)
               (dump [_] @m)
-                  ;; add session key:element
+              ;; add session key:element
               (add!
                 [_ k v]
                 (let [k (or k (UUID/randomUUID))]
                   (swap! m assoc k v)))
-                  ;; delete session key:element
+              ;; delete session key:element
               (delete! [_ k] (swap! m dissoc k))
-                  ;; erase session
+              ;; erase session
               (erase! [_] (reset! m {})))))))
 
 (defn ->session-id
@@ -120,8 +120,10 @@
           (catch Exception _
             (let [session-backend (-> state :deps :session-backend)
                   session-id (UUID/randomUUID)
+                  user-id (UUID/randomUUID)
                   session-data {:session-id session-id
-                                :user       {:users/role :guest}}]
+                                :users/role :guest
+                                :users/id user-id}]
               (add! session-backend session-id session-data)
               (xiana/ok (assoc state :session-data session-data))))))
    :leave on-leave})
