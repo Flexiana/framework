@@ -25,7 +25,7 @@
      channels   :channels
      income-msg :income-msg} :request-data
     :as                      state}]
-  (let [username (get-in @channels [ch :user :users/name])]
+  (let [username (get-in @channels [ch :users/name])]
     (xiana/ok (update state :response-data merge {:reply-fn broadcast-to-others
                                                   :reply    (str username ": " income-msg)}))))
 

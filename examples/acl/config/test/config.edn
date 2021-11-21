@@ -1,6 +1,6 @@
 {:framework.db.storage/postgresql {:deployment  :container
-                                   :init-script "Docker/init.sql"
                                    :dbname   "acl"
+                                   :port 5433
                                    :host     "localhost"
                                    :dbtype   "postgresql"
                                    :user     "postgres"

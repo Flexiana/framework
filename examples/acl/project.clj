@@ -22,8 +22,7 @@
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [[kerodon "0.9.1"]
-                                      [com.opentable.components/otj-pg-embedded "0.13.3"]]}}
+                     :dependencies   [[kerodon "0.9.1"]]}}
   :shadow-cljs {:nrepl  {:port 8777}
                 :builds {:app {:target     :browser
                                :output-dir "resources/public/js/compiled"
