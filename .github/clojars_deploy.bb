@@ -1,22 +1,27 @@
 #!/usr/bin/env bb
 ;; credits: https://github.com/mauricioszabo/clj-lib-deployer/blob/master/deploy-lein.bb
 
-(defn- get-project! []
-  (-> "project.clj"
-      slurp
-      edn/read-string
-      (nth 1)))
+(def first-line
+    (-> (slurp  "project.clj")
+         str/split-lines
+         first
+         (str/split #"\s")))
 
-(defn- get-version! []
-  (-> "project.clj"
-      slurp
-      edn/read-string
-      (nth 2)))
+(def project
+   (second first-line))
+
+(println "Project: " project)
+
+(def version
+   (last first-line))
+
+(println "Version: " version)
+
 
 (defn- can-deploy? []
-  (let [curr-version (get-version!)
-        status (:status (curl/get (str "https://clojars.org/" (get-project!)
-                                       "/versions/" (get-version!))
+  (let [curr-version version
+        status (:status (curl/get (str "https://clojars.org/" project
+                                       "/versions/" version)
                                   {:throw false}))]
     (= 404 status)))
 
@@ -47,12 +52,12 @@
   (let [tag (not-empty (tag-name))]
     (when-not (can-deploy?)
       (throw (ex-info "Can't deploy this version - release version already exist on clojars"
-                      {:version (get-version!)})))
+                      {:version version})))
 
-    (when (some-> tag (str/replace-first #"v" "") (not= (get-version!)))
+    (when (some-> tag (str/replace-first #"v" "") (not= version))
       (throw (ex-info "Tag version mismatches with project.clj"
                       {:tag-name tag
-                       :version (get-version!)})))
+                       :version version})))
 
     (if tag
       (do
