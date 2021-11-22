@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 echo "Running lein codox"
-lein codox
+lein with-profile codox codox
 
 PROJECT_VERSION=$(script/project-version)
 VERSION_PATH="docs/$PROJECT_VERSION"
