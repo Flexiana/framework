@@ -58,16 +58,11 @@
   [app-config]
   (-> (config/config)
       (merge app-config)
-      db/start
+      db/connect
       db/migrate!
       routes/reset
       rbac/init
       ws/start
-      (select-keys [:db
-                    :routes
-                    :rbac
-                    :controller-interceptors
-                    :webserver])
       closeable-map))
 
 (def app-cfg

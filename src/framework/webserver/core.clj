@@ -17,10 +17,11 @@
 
 (defn- make
   "Web server instance."
-  [options dependencies]
-  (map->webserver
-    {:options options
-     :server  (server/run-server (handler-fn dependencies) options)}))
+  [dependencies]
+  (let [options (:webserver dependencies (:framework.app/web-server dependencies))]
+    (map->webserver
+      {:options options
+       :server  (server/run-server (handler-fn dependencies) options)})))
 
 (defn start
   "Start web server."
@@ -29,7 +30,6 @@
   (when-let [webserver (get-in dependencies [:webserver :server])]
     (webserver))
   ;; get server options
-  (when-let [options (:webserver dependencies (:framework.app/web-server dependencies))]
-    (when-let [server (make options dependencies)]
-      (logger/info "Server started with options: " options)
-      (assoc dependencies :webserver server))))
+  (when-let [server (make dependencies)]
+    (logger/info "Server started with options: " (:options server))
+    (assoc dependencies :webserver server)))

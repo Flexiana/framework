@@ -25,22 +25,16 @@
   (-> (config/config)
       (merge app-cfg)
       routes/reset
-      db/start
+      db/connect
       db/migrate!
       rbac/init
       (rename-key :framework.app/auth :auth)
       session/init-in-memory
       ws/start
-      (select-keys [:routes
-                    :db
-                    :rbac
-                    :auth
-                    :session-backend
-                    :webserver])
       closeable-map))
 
 (def app-cfg
-  {:routes routes
+  {:routes                  routes
    :router-interceptors     []
    :web-socket-interceptors [interceptors/params
                              session/guest-session-interceptor]
@@ -56,4 +50,3 @@
   [& _args]
   (->system app-cfg))
 
-(comment (-main))

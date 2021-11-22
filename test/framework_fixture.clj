@@ -17,22 +17,12 @@
       (rename-key :framework.app/auth :auth)
       session-backend/init-in-memory
       db-core/docker-postgres!
-      db-core/start
+      db-core/connect
       db-core/migrate!
       routes/reset
       rbac/init
       sse/init
       ws/start
-      (select-keys [:auth
-                    :session-backend
-                    :db
-                    :routes
-                    :role-set
-                    :events-channel
-                    :controller-interceptors
-                    :web-socket-interceptors
-                    :router-interceptors
-                    :webserver])
       closeable-map))
 
 (defn std-system-fixture

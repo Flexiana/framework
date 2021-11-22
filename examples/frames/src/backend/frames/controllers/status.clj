@@ -1,4 +1,4 @@
-(ns controllers.status
+(ns frames.controllers.status
   (:require
     [corpus.responses :as responses]
     [xiana.core :as xiana]))

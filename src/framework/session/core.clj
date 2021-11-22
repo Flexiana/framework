@@ -25,10 +25,10 @@
   "Initialize session in memory."
   ([cfg] (init-in-memory cfg (atom {})))
   ([cfg m]
-   ;; implement the Session protocol
    (if (:session-backend cfg)
      cfg
      (assoc cfg :session-backend
+            ;; implement the Session protocol
             (reify Session
               ;; fetch session key:element
               (fetch [_ k] (get @m k))

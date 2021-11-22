@@ -8,7 +8,7 @@
     [xiana.core :as xiana]))
 
 (defn handler-fn
-  "Returns handler function for jetty, which  do the routing, and executes interceptors and given action.
+  "Returns handler function for server, which  do the routing, and executes interceptors and given action.
 
    Execution order:
     router interceptors: enters in order

@@ -69,7 +69,7 @@
                              (throw e))))
    config))
 
-(defn start ;; TODO: rename to create maybe? (it doesn't start anything)
+(defn connect
   "Adds `:datasource` key to the `:framework.db.storage/postgresql` config section
   and duplicates `:framework.db.storage/postgresql` under the top-level `:db` key."
   [{pg-config :framework.db.storage/postgresql :as config}]

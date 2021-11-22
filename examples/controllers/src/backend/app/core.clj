@@ -15,9 +15,6 @@
       (merge app-cfg)
       routes/reset
       ws/start
-      (select-keys [:routes
-                    :controller-interceptors
-                    :webserver])
       closeable-map))
 
 (def app-cfg

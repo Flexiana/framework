@@ -33,10 +33,6 @@
       x-routes/reset
       x-session/init-in-memory
       ws/start
-      (select-keys [:routes
-                    :session-backend
-                    :controller-interceptors
-                    :webserver])
       closeable-map))
 
 (def app-cfg

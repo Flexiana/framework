@@ -10,7 +10,7 @@
   (with-open [_ (comps/->system comps/app-cfg)]
     (f)))
 
-(use-fixtures :each std-system-fixture)
+(use-fixtures :once std-system-fixture)
 
 (deftest testing-controllers
   (is (= {:body   "Unauthorized"
@@ -59,7 +59,7 @@
          (-> {:url                  "http://localhost:3333/api/siege-machines/1"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]
-              ;:accept               :application/json
+              ;; :accept               :application/json
               :method               :get}
              http/request
              (select-keys [:status :body]))))

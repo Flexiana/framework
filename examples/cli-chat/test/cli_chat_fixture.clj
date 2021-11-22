@@ -1,8 +1,8 @@
 (ns cli-chat-fixture
   (:require
-   [framework.db.core :as db]
-   [framework.config.core :as config]
-   [cli-chat.core :refer [->system]]))
+    [cli-chat.core :refer [->system]]
+    [framework.config.core :as config]
+    [framework.db.core :as db]))
 
 (defn std-system-fixture
   [app-cfg f]

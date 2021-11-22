@@ -1,4 +1,4 @@
-(ns controllers.index
+(ns frames.controllers.index
   (:require
     [corpus.responses :as responses]
     [ring.util.response :as response]

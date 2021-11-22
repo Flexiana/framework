@@ -15,7 +15,7 @@
           (vals m)))
 
 (defn rename-key
-  [config from to]
-  (-> config
-      (assoc to (get config from))
+  [m from to]
+  (-> m
+      (assoc to (get m from))
       (dissoc from)))

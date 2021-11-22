@@ -21,17 +21,17 @@
   [state]
   (xiana/ok state))
 
-;(defn comment-action []
-;  (controller->
-;    (validator/process-form)
-;    (model/save-to-database)
-;    (session/set-flash-message "Comment was saved")
-;    (response/redirect :HERE)
-;
-;    :invalid-comment (controller->
-;                       (response/populate-form)
-;                       (view/set :error "Comment is invalid"))
-;    ))
+;; (defn comment-action []
+;;  (controller->
+;;    (validator/process-form)
+;;    (model/save-to-database)
+;;    (session/set-flash-message "Comment was saved")
+;;    (response/redirect :HERE)
+;;
+;;    :invalid-comment (controller->
+;;                       (response/populate-form)
+;;                       (view/set :error "Comment is invalid"))
+;;    ))
 
 (defn index
   [state]

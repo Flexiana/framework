@@ -24,7 +24,7 @@
   "Sample routes structure (without action or handler)."
   {:routes [["/" {}]]})
 
-; test reset routes functionality
+;; test reset routes functionality
 (deftest contains-sample-routes
   (let [routes (route/reset sample-routes)]
     (is (= (:routes sample-routes) (.routes (:routes routes))))))

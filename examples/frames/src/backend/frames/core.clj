@@ -1,7 +1,7 @@
-(ns components
+(ns frames.core
   (:require
-    [controllers.index :as index]
-    [controllers.status :as status]
+    [frames.controllers.index :as index]
+    [frames.controllers.status :as status]
     [framework.config.core :as config]
     [framework.interceptor.core :as interceptor]
     [framework.route.core :as router]
