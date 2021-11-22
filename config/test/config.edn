@@ -1,5 +1,4 @@
-{:framework.db.storage/postgresql {:deployment  :container   ;; :container or already deployed
-                                   :init-script "docker/sql-scripts/init.sql"
+{:framework.db.storage/postgresql {:image-name "postgres:11.5-alpine"
                                    :port        5432
                                    :dbname      "framework"
                                    :host        "localhost"

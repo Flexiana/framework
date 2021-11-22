@@ -1,10 +1,10 @@
-{:framework.db.storage/postgresql {:deployment  :container
-                                   :init-script "Docker/init.sql"
-                                   :dbname   "acl"
-                                   :host     "localhost"
-                                   :dbtype   "postgresql"
-                                   :user     "postgres"
-                                   :password "postgres"}
+{:framework.db.storage/postgresql {:image-name "postgres:11.5-alpine"
+                                   :port       5433
+                                   :dbname     "acl"
+                                   :host       "localhost"
+                                   :dbtype     "postgresql"
+                                   :user       "postgres"
+                                   :password   "postgres"}
  :framework.db.storage/migration  {:store                :database
                                    :migration-dir        "resources/migrations"
                                    :init-in-transaction? false

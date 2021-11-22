@@ -16,6 +16,7 @@
       (merge app-cfg)
       (rename-key :framework.app/auth :auth)
       session-backend/init-in-memory
+      db-core/docker-postgres!
       db-core/start
       db-core/migrate!
       routes/reset

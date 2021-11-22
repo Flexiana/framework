@@ -25,9 +25,9 @@
     session-data         :session-data
     :as                  state}]
   (let [username (gen-username)
-        session (if (-> session-data :user :users/name)
+        session (if (-> session-data :users/name)
                   session-data
-                  (assoc-in session-data [:user :users/name] username))]
+                  (assoc-in session-data [:users/name] username))]
     (swap! channels assoc ch session)
     (xiana/ok (update state :response-data merge {:reply-fn views/send-multi-line
                                                   :reply    (welcome-message username)}))))
@@ -117,8 +117,8 @@
      channels   :channels
      income-msg :income-msg} :request-data
     :as                      state}]
-  (let [user (get-in @channels [ch :user])
-        username (get-in @channels [ch :user :users/name])
+  (let [user (get @channels ch)
+        username (get-in @channels [ch :users/name])
         msg (str/split income-msg #"\s")]
     (if (second msg)
       (xiana/ok (update state :response-data merge {:reply-fn views/broadcast-to-others
@@ -129,7 +129,7 @@
 (defn user->ch
   [channels name]
   (->> @channels
-       (filter (fn [[_ v]] (= name (get-in v [:user :users/name]))))
+       (filter (fn [[_ v]] (= name (get v :users/name))))
        first))
 
 (defn to
@@ -138,7 +138,7 @@
      income-msg :income-msg} :request-data
     :as                      state}]
   (let [[_ to] (str/split income-msg #"\s")
-        from (get-in @channels [ch :user :users/name])
+        from (get-in @channels [ch :users/name])
         user-ch (some->> to
                          (user->ch channels)
                          key)

@@ -9,7 +9,7 @@
       PushbackReader)))
 
 (defn read-edn-file
-  "Read edn configuration file."
+  "Reads edn configuration file."
   [config]
   (if-let [edn-file (:framework-edn-config config)]
     (with-open [r (io/reader edn-file)]
@@ -17,6 +17,11 @@
     config))
 
 (defn config
+  "Returns a new config instance.
+
+  You can pass path to the config file with the `:framework-edn-config` key.
+  It's useful for choosing an environment different from the current one
+  (e.g. `test` or `production` while in the `dev` repl)."
   ([]
    (config {}))
   ([config]
