@@ -1,52 +1,35 @@
 (ns framework.webserver.core
+  "Lifecycle management of the webserver"
   (:require
-    [framework.config.core :as config]
-    [framework.interceptor.queue :as interceptor.queue]
-    [framework.route.core :as route]
-    [framework.state.core :as state]
-    [ring.adapter.jetty :as jetty]
-    [xiana.core :as xiana]))
+    [clojure.tools.logging :as logger]
+    [framework.handler.core :refer [handler-fn]]
+    [org.httpkit.server :as server])
+  (:import
+    (java.lang
+      AutoCloseable)))
 
-;; web server reference
-(defonce -webserver (atom {}))
-
-(defn handler-fn
-  "Return jetty server handler function."
-  [deps]
-  (fn handle*
-    ([http-request]
-     (let [state (state/make deps http-request)
-           queue (list #(interceptor.queue/execute % (:router-interceptors deps))
-                       #(route/match %)
-                       #(interceptor.queue/execute % (:controller-interceptors deps)))]
-       (-> (xiana/apply-flow-> state queue)
-           ;; extract
-           (xiana/extract)
-           ;; get the response
-           (get :response))))
-    ([request respond _]
-     (respond (handle* request)))))
+(defrecord webserver
+  [options server]
+  AutoCloseable
+  (close [this]
+    (logger/info "Stop webserver" (:options this))
+    ((:server this))))
 
 (defn- make
   "Web server instance."
-  [options dependencies]
-  {:options options
-   :server  (jetty/run-jetty (handler-fn dependencies) options)})
-
-(defn stop
-  "Stop web server."
-  []
-  ;; stop the server if necessary
-  (when (not (empty? @-webserver))
-    (.stop (get @-webserver :server))))
+  [dependencies]
+  (let [options (:webserver dependencies (:framework.app/web-server dependencies))]
+    (map->webserver
+      {:options options
+       :server  (server/run-server (handler-fn dependencies) options)})))
 
 (defn start
   "Start web server."
   [dependencies]
   ;; stop the server
-  (stop)
+  (when-let [webserver (get-in dependencies [:webserver :server])]
+    (webserver))
   ;; get server options
-  (when-let [options (merge (config/get-spec :webserver) (:webserver dependencies))]
-    ;; tries to initialize the web-server if we have the
-    ;; server specification (its options)
-    (swap! -webserver merge (make options dependencies))))
+  (when-let [server (make dependencies)]
+    (logger/info "Server started with options: " (:options server))
+    (assoc dependencies :webserver server)))

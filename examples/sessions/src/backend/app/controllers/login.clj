@@ -1,45 +1,53 @@
-(ns controllers.login
+(ns app.controllers.login
   (:require
     [clojure.data.json :as json]
     [ring.util.request :refer [body-string]]
-    [xiana.core :as xiana]))
+    [xiana.core :as x])
+  (:import
+    (java.util
+      UUID)))
 
 (def db
-  [{:id "piotr@example.com"
+  [{:id         1
+    :email      "piotr@example.com"
     :first-name "Piotr"
-    :last-name "Developer"
-    :password "topsecret"}])
+    :last-name  "Developer"
+    :password   "topsecret"}])
 
 (defn find-user
   [email]
-  (first  (filter (fn [i]
-                    (= email (:id i))) db)))
+  (first (filter (fn [i]
+                   (= email (:email i))) db)))
+
+(defn missing-credentials
+  [state]
+  (x/error (assoc state :response {:status 401
+                                   :body   "Missing credentials"})))
 
 (defn login-view
-  [{request :http-request :as state}]
-  (let [rbody (-> request
-                  body-string
-                  (json/read-str :key-fn keyword))
-        user (find-user (-> rbody
-                            :email))
-        session-id (str (java.util.UUID/randomUUID))]
-    (if (= (:password user) (:password rbody))
-      (xiana/ok (assoc state
-                       :login-data (merge  {:session-id (str session-id)}
-                                           (dissoc user :password))
-                       :response
-                       {:status  200
-                        :headers {"Content-Type" "application/json"}
-                        :body   (json/write-str
-                                  (merge (dissoc user :password)
-                                         {:session-id session-id}))}))
+  [{request :request :as state}]
+  (try (let [rbody (or (some-> request
+                               body-string
+                               (json/read-str :key-fn keyword))
+                       (throw (ex-message "Missing body")))
+             user (find-user (-> rbody
+                                 :email))
+             session-id (UUID/randomUUID)
+             session-data {:session-id session-id
+                           :user       (dissoc user :password)}]
+         (if (and user (= (:password user) (:password rbody)))
+           (x/ok (assoc state
+                        :session-data session-data
+                        :response {:status  200
+                                   :headers {"Content-Type" "application/json"}
+                                   :body    (json/write-str (update session-data :session-id str))}))
 
-      (xiana/error (assoc state :response {:status 401
-                                           :body "Incorrect credentials"})))))
+           (x/error (assoc state :response {:status 401
+                                            :body   "Incorrect credentials"}))))
+       (catch Exception _ (missing-credentials state))))
 
 (defn login-controller
   [state]
-
-  (xiana/flow-> state
-                login-view))
+  (x/flow-> state
+            login-view))
 

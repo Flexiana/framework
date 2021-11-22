@@ -1,16 +1,15 @@
 (defproject acl "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.10.1"]
-                 [com.flexiana/framework "0.1.7"]
+  :dependencies [[org.clojure/clojure "1.10.3"]
+                 [com.flexiana/framework "0.3.0"]
                  [thheller/shadow-cljs "2.11.7"]
-                 [migratus "1.3.3"]
+                 [migratus "1.3.5"]
                  [clj-http "3.12.0"]
                  [reagent "0.10.0"]
                  [re-frame "1.1.2"]
                  [org.clojure/data.xml "0.0.8"]
-                 [com.fzakaria/slf4j-timbre "0.3.21"]
-                 [com.opentable.components/otj-pg-embedded "0.13.3"]]
+                 [com.fzakaria/slf4j-timbre "0.3.21"]]
   :plugins [[lein-shadow "0.3.1"]
             [migratus-lein "0.7.3"]]
   :jvm-opts ["-Dmalli.registry/type=custom"]

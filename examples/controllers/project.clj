@@ -2,9 +2,9 @@
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [com.flexiana/framework "0.1.4"]
-                 [metosin/reitit "0.5.12"]
-                 [metosin/malli "0.2.1"]
+                 [com.flexiana/framework "0.3.0"]
+                 [metosin/reitit "0.5.15"]
+                 [metosin/malli "0.6.2"]
                  [duct/server.http.jetty "0.2.1"]
                  [thheller/shadow-cljs "2.11.7"]
                  [reagent "0.10.0"]
@@ -14,7 +14,7 @@
   :plugins [[lein-shadow "0.3.1"]
             [lein-shell "0.5.0"]
             [migratus-lein "0.7.3"]]
-  :main ^:skip-aot components
+  :main ^:skip-aot core
   :uberjar-name "frames.jar"
   :source-paths ["src/backend/app" "src/backend/components" "src/frontend" "src/shared"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
@@ -32,10 +32,10 @@
                                :asset-path "/js/compiled"
                                :modules    {:app {:init-fn  controllers.core/init
                                                   :preloads [devtools.preload]}}}}}
-                                        ;:devtools {:http-root "resources/public"
-                                        ;           :http-port 8280
-                                        ;           :http-handler controllers.handler/dev-handler
-                                        ;           }
+  ;; :devtools {:http-root "resources/public"
+  ;;           :http-port 8280
+  ;;           :http-handler controllers.handler/dev-handler
+  ;;           }
 
 
   :aliases {"ci"      ["do" "clean," "cloverage," "lint," "uberjar"]

@@ -1,12 +1,10 @@
 (ns framework.interceptor.core-test
   (:require
     [clojure.test :refer :all]
+    [framework.db.core :as db]
     [framework.interceptor.core :as interceptor]
     [framework.session.core :as session]
-    [xiana.core :as xiana])
-  (:import
-    (java.util
-      UUID)))
+    [xiana.core :as xiana]))
 
 (def sample-session-id
   "Sample session id."
@@ -32,7 +30,8 @@
 
 (def sample-state
   "State with the sample request."
-  {:request sample-request})
+  {:request sample-request
+   :deps    (session/init-in-memory {})})
 
 (def simple-state
   "State with the simple/minimal request."
@@ -103,21 +102,21 @@
     ;; expected request value?
     (is (= request expected))))
 
-;(deftest contains-sql-query-result
-;  (let [response-data (-> sample-query
-;                          (fetch-execute interceptor/db-access :leave)
-;                          (:response-data)) ; interceptor execution
-;        ;; expected value
-;        expected {:db-data [#:users{:role "admin"}]}]
-;    ;; expected response data value?
-;    (is (= expected response-data))))
+;; (deftest contains-sql-query-result
+;;  (let [response-data (-> sample-query
+;;                          (fetch-execute interceptor/db-access :leave)
+;;                          (:response-data)) ; interceptor execution
+;;        ;; expected value
+;;        expected {:db-data [#:users{:role "admin"}]}]
+;;    ;; expected response data value?
+;;    (is (= expected response-data))))
 
 (deftest contains-sql-empty-result
-  (let [result (fetch-execute {} interceptor/db-access :leave)
+  (let [result (fetch-execute {} db/db-access :leave)
         ;; expected value
-        expected {}]
+        expected {:response-data {:db-data nil}}]
     ;; expected response data value?
-    (is (= result expected))))
+    (is (= expected result))))
 
 (deftest msg-interceptor-execution
   (let [interceptor (interceptor/message "")

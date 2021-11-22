@@ -1,0 +1,3 @@
+#!/usr/bin/env bb
+
+(print (nth (read-string (slurp "project.clj")) 2))

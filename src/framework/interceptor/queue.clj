@@ -1,4 +1,6 @@
 (ns framework.interceptor.queue
+  "Interceptor executor.
+  Collects and executes interceptors and the given action in between."
   (:require
     [xiana.core :as xiana]))
 
@@ -13,9 +15,10 @@
         (f state)
         (catch Exception e
           (let [f (or (:error interceptor) xiana/error)]
-            (f (-> state (assoc :response
-                                {:status 500
-                                 :body   (Throwable->map e)})))))))))
+            (f (assoc state
+                      :response {:status 500
+                                 :body   (Throwable->map e)}
+                      :exception e))))))))
 
 (defn- -execute
   "Execute interceptors functions (the enter/leave procedures)
@@ -32,14 +35,17 @@
 (defn- -concat
   "Concatenate routes interceptors with the defaults ones,
   or override it if its type isn't a map."
-  [interceptors default-interceptors]
+  [{except-interceptors :except
+    around-interceptors :around
+    inside-interceptors :inside
+    :as                 interceptors}
+   default-interceptors]
   (if (map? interceptors)
     ;; get around/inside interceptors
-    (let [around-interceptors (get interceptors :around)
-          inside-interceptors (get interceptors :inside)]
-      (concat around-interceptors
-              default-interceptors
-              inside-interceptors))
+    (remove (into #{} except-interceptors)
+            (concat around-interceptors
+                    default-interceptors
+                    inside-interceptors))
     ;; else override
     (or interceptors default-interceptors)))
 

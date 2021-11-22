@@ -1,13 +1,12 @@
 (ns framework.interceptor.core
+  "Collection of useful interceptors"
   (:require
     [clojure.pprint :refer [pprint]]
+    [clojure.tools.logging :as log]
     [clojure.walk :refer [keywordize-keys]]
-    [framework.acl.core :as acl]
-    [framework.db.sql :as db.sql]
     [framework.interceptor.muuntaja :as muuntaja]
     [framework.interceptor.wrap :as wrap]
     [framework.session.core :as session]
-    [honeysql.core :as sql]
     [ring.middleware.params :as middleware.params]
     [xiana.core :as xiana])
   (:import
@@ -20,6 +19,15 @@
   Leave: Print 'Leave:' followed by the complete state map."
   {:enter (fn [state] (pprint ["Enter: " state]) (xiana/ok state))
    :leave (fn [state] (pprint ["Leave: " state]) (xiana/ok state))})
+
+(defn keyceptor
+  [& keyz]
+  {:enter (fn [state]
+            (log/info keyz (get-in state keyz))
+            (xiana/ok state))
+   :leave (fn [state]
+            (log/info keyz (get-in state keyz))
+            (xiana/ok state))})
 
 (def side-effect
   "Side-effect interceptor.
@@ -58,24 +66,6 @@
               (xiana/ok
                 (update state :request f))))})
 
-(def db-access
-  "Database access interceptor.
-  Enter: nil.
-  Leave: Fetch and execute a given query using the chosen database
-  driver, if succeeds associate its results into state response data.
-  Remember the entry query must be a sql-map, e.g:
-  {:select [:*] :from [:users]}."
-  {:leave
-   (fn [{query :query :as state}]
-     (xiana/ok
-       (if query
-         (assoc-in state
-                   [:response-data :db-data]
-                   ;; returns the result of the database-query
-                   ;; execution or empty ({})
-                   (db.sql/execute! (get-in state [:deps :db :datasource]) (sql/format query)))
-         state)))})
-
 (defn message
   "This interceptor creates a function that prints predefined message.
   Enter: Print an arbitrary message.
@@ -92,37 +82,38 @@
   Leave: Verify if the state has a session id, if so add it to
   the session instance and remove the new session property of the current state.
   The final step is the association of the session id to the response header."
-  ([] (session-user-id (session/init-in-memory)))
-  ([session-instance]
-   {:enter
-    (fn [{request :request :as state}]
 
-      (let [session-id (try (UUID/fromString
-                              (get-in request [:headers :session-id]))
-                            (catch Exception _ nil))
-            session-data (when session-id
-                           (session/fetch session-instance
-                                          session-id))]
-        (xiana/ok
-          (if session-data
+  []
+  {:enter
+   (fn [{request :request :as state}]
+     (let [session-backend (-> state :deps :session-backend)
+           session-id (try (UUID/fromString
+                             (get-in request [:headers :session-id]))
+                           (catch Exception _ nil))
+           session-data (when session-id
+                          (session/fetch session-backend
+                                         session-id))]
+       (xiana/ok
+         (if session-data
            ;; associate session data into state
-            (assoc state :session-data session-data)
+           (assoc state :session-data session-data)
            ;; else, associate a new session
-            (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
-                (assoc-in [:session-data :new-session] true))))))
-    :leave
-    (fn [state]
-      (let [session-id (get-in state [:session-data :session-id])]
-        ;; add the session id to the session instance and
-        ;; dissociate the new-session from the current state
-        (session/add! session-instance
-                      session-id
-                      (dissoc (:session-data state) :new-session))
-        ;; associate the session id
-        (xiana/ok
-          (assoc-in state
-                    [:response :headers :session-id]
-                    (str session-id)))))}))
+           (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
+               (assoc-in [:session-data :new-session] true))))))
+   :leave
+   (fn [state]
+     (let [session-backend (-> state :deps :session-backend)
+           session-id (get-in state [:session-data :session-id])]
+       ;; add the session id to the session instance and
+       ;; dissociate the new-session from the current state
+       (session/add! session-backend
+                     session-id
+                     (dissoc (:session-data state) :new-session))
+       ;; associate the session id
+       (xiana/ok
+         (assoc-in state
+                   [:response :headers :session-id]
+                   (str session-id)))))})
 
 (defn -user-role
   "Update the user role."
@@ -144,9 +135,9 @@
       (let [auth (get-in request [:headers :authorization])]
         (xiana/ok
           (->
-          ;; f: function to update/associate the user role
+            ;; f: function to update/associate the user role
             (f state role)
-          ;; associate authorization into session-data
+            ;; associate authorization into session-data
             (assoc-in [:session-data :authorization] auth)))))}))
 
 (defn muuntaja

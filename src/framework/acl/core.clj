@@ -1,4 +1,6 @@
 (ns framework.acl.core
+  "This package will be removed in the next version, use rbac instead"
+  {:deprecated true}
   (:require
     [clojure.string :as str]
     [framework.acl.core-functions :refer [has-access]]

@@ -1,8 +1,7 @@
 (ns helpers
   (:require
-    [clj-http.client :as http]
-    [clojure.data.json :as json]
-    [clojure.test :refer :all]))
+    [clj-http.client :refer [request]]
+    [clojure.data.json :refer [write-str]]))
 
 (def test_member "611d7f8a-456d-4f3c-802d-4d869dcd89bf")
 (def test_admin "b651939c-96e6-4fbb-88fb-299e728e21c8")
@@ -11,66 +10,66 @@
 
 (defn delete
   ([uri]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" test_admin}
         :unexceptional-status (constantly true)
         :method               :delete}
-       http/request))
+       request))
   ([uri user id]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" user}
         :query-params         {:id id}
         :unexceptional-status (constantly true)
         :method               :delete}
-       http/request)))
+       request)))
 
 (defn fetch
   ([uri user id]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" user}
         :unexceptional-status (constantly true)
         :query-params         {:id id}
         :method               :get}
-       http/request))
+       request))
   ([uri user]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" user}
         :unexceptional-status (constantly true)
         :method               :get}
-       http/request))
+       request))
   ([uri]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" test_admin}
         :unexceptional-status (constantly true)
         :method               :get}
-       http/request)))
+       request)))
 
 (defn put
   ([uri content]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" test_admin
                                "Content-Type" "application/json;charset=utf-8"}
         :unexceptional-status (constantly true)
-        :body                 (json/write-str content)
+        :body                 (write-str content)
         :method               :put}
-       http/request))
+       request))
   ([uri user content]
-   (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+   (-> {:url                  (format "http://localhost:3333/%s" (name uri))
         :headers              {"Authorization" user
                                "Content-Type" "application/json;charset=utf-8"}
         :unexceptional-status (constantly true)
-        :body                 (json/write-str content)
+        :body                 (write-str content)
         :method               :put}
-       http/request)))
+       request)))
 
 (defn post
   [uri user id content]
-  (-> {:url                  (format "http://localhost:3000/%s" (name uri))
+  (-> {:url                  (format "http://localhost:3333/%s" (name uri))
        :headers              {"Authorization" user
                               "Content-Type" "application/json;charset=utf-8"}
        :unexceptional-status (constantly true)
-       :body                 (json/write-str content)
+       :body                 (write-str content)
        :query-params         {:id id}
        :method               :post}
-      http/request))
+      request))
 

@@ -3,7 +3,7 @@
     [clojure.test :refer :all]
     [framework.config.core :as config]))
 
-(def config-map (config/read-edn-file nil))
+(def config-map (config/config))
 
 ;; test if the configuration map is not empty
 (deftest config-map-not-empty

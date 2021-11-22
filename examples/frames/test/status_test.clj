@@ -1,16 +1,15 @@
 (ns status-test
   (:require
-    [app]
     [clojure.test :refer :all]
-    [framework.config.core :as config]
-    [kerodon.core :refer :all]
-    [kerodon.test :refer :all]))
+    [frames.core :as frames]
+    [framework.handler.core :refer [handler-fn]]))
 
 (deftest status-test
-  (let [config (config/edn)
-        app-cfg (:framework.app/ring config)
-        handler (app/ring-app app-cfg)]
-    (-> (session handler)
-        (visit "/status")
-        (has (status? 200))
-        (has (some-regex? "^.*OK.*$")))))
+  (with-open [deps (frames/->system frames/app-cfg)]
+    (let [request {:uri            "/status"
+                   :request-method :get}
+          handle (handler-fn deps)
+          visit (-> (handle request)
+                    (update :body slurp))]
+      (is (= 200 (:status visit)))
+      (is (= "{\"status\":\"OK\"}" (:body visit))))))
