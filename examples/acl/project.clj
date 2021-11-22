@@ -1,10 +1,10 @@
 (defproject acl "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.10.1"]
+  :dependencies [[org.clojure/clojure "1.10.3"]
                  [com.flexiana/framework "0.3.0"]
                  [thheller/shadow-cljs "2.11.7"]
-                 [migratus "1.3.3"]
+                 [migratus "1.3.5"]
                  [clj-http "3.12.0"]
                  [reagent "0.10.0"]
                  [re-frame "1.1.2"]
@@ -22,8 +22,7 @@
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [[kerodon "0.9.1"]
-                                      [com.opentable.components/otj-pg-embedded "0.13.3"]]}}
+                     :dependencies   [[kerodon "0.9.1"]]}}
   :shadow-cljs {:nrepl  {:port 8777}
                 :builds {:app {:target     :browser
                                :output-dir "resources/public/js/compiled"

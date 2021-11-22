@@ -6,7 +6,7 @@
     [controllers.re-frame :as re-frame]
     [controllers.users :as users-controllers]
     [framework.config.core :as config]
-    [framework.db.core :as db-core]
+    [framework.db.core :as db]
     [framework.handler.core :as handler]
     [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
@@ -58,8 +58,8 @@
   [app-config]
   (-> (config/config)
       (merge app-config)
-      db-core/start
-      db-core/migrate!
+      db/start
+      db/migrate!
       routes/reset
       rbac/init
       ws/start
@@ -76,7 +76,7 @@
                              interceptors/params
                              user/load-user!
                              interceptors/view
-                             db-core/db-access
+                             db/db-access
                              rbac/interceptor]})
 
 (defn -main
