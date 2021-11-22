@@ -39,11 +39,3 @@
   [config f]
   (with-open [_ (->system config)]
     (f)))
-
-(defonce ttest (atom nil))
-
-(comment
-
-  (reset! ttest (->system (config/config)))
-
-  (.close @ttest))
