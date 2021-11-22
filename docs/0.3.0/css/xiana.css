@@ -4,17 +4,15 @@
 }
 
 .sidebar.primary::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
 .logo {
-    float: left;
-    padding-left: 10px;
-    padding-right:10px;
+    padding-top: 10px;
     margin:0px;
 }
 
-.logo h3{
-    margin:0px;
-    color: #f8cc00;
+.logo img {
+    height: 65px;
 }
+
