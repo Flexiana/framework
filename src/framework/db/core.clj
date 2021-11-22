@@ -38,27 +38,24 @@
                              (throw e))))))
 
 (defn docker-postgres!
-  [config init-sql]
-  (let [{db-name  :dbname
-         user     :user
-         password :password} (:framework.db.storage/postgresql config)
-        container (-> (tc/create {:image-name    "postgres:11.5-alpine"
-                                  :exposed-ports [5432]
-                                  :env-vars      {"POSTGRES_DB"       db-name
-                                                  "POSTGRES_USER"     user
-                                                  "POSTGRES_PASSWORD" password}})
-                      (tc/start!))
-        port (get (:mapped-ports container) 5432)
-        db-config (-> config
-                      :framework.db.storage/postgresql
-                      (assoc
-                        :port port
-                        :embedded container
-                        :subname (str "//localhost:" port "/" db-name)))]
+  [{pg-config :framework.db.storage/postgresql :as config}]
+  (let [{:keys [dbname user password image-name]} pg-config
+        container            (-> (tc/create
+                                   {:image-name    image-name
+                                    :exposed-ports [5432]
+                                    :env-vars      {"POSTGRES_DB"       dbname
+                                                    "POSTGRES_USER"     user
+                                                    "POSTGRES_PASSWORD" password}})
+                                 (tc/start!))
+        port                 (get (:mapped-ports container) 5432)
+        pg-config            (assoc
+                               pg-config
+                               :port port
+                               :embedded container
+                               :subname (str "//localhost:" port "/" dbname))]
     (tc/wait {:wait-strategy :log
               :message       "accept connections"} (:container container))
-    (when (seq init-sql) (jdbc/execute! (dissoc db-config :dbname) init-sql))
-    (assoc config :framework.db.storage/postgresql db-config)))
+    (assoc config :framework.db.storage/postgresql pg-config)))
 
 (defn migrate!
   ([config]
@@ -72,21 +69,14 @@
                              (throw e))))
    config))
 
-(defn start
-  "Creates datasource.
-  When no parameter given, then resolves database specs from configuration"
-  [config]
-  (let [db-spec (:framework.db.storage/postgresql config config)
-        init-sql (when-let [sql (some-> (:init-script db-spec) slurp)] [sql])
-        db-instance (case (:deployment db-spec)
-                      :container (docker-postgres! config init-sql)
-                      config)
-        datasource (get-in db-instance [:framework.db.storage/postgresql :datasource]
-                           (get-datasource db-instance))
-        db-config (assoc db-instance :datasource datasource)]
+(defn start ;; TODO: rename to create maybe? (it doesn't start anything)
+  "Adds `:datasource` key to the `:framework.db.storage/postgresql` config section
+  and duplicates `:framework.db.storage/postgresql` under the top-level `:db` key."
+  [{pg-config :framework.db.storage/postgresql :as config}]
+  (let [pg-config (assoc pg-config :datasource (get-datasource config))]
     (assoc config
-           :framework.db.storage/postgresql db-config
-           :db db-config)))
+           :framework.db.storage/postgresql pg-config
+           :db pg-config)))
 
 (defn ->sql-params
   "Parse sql-map using honeysql format function with pre-defined

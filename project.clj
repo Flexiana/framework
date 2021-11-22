@@ -25,6 +25,7 @@
                  [org.clojure/clojure "1.10.1"]
                  [org.clojure/data.xml "0.0.8"]
                  [org.postgresql/postgresql "42.2.2"]
+                 [org.testcontainers/testcontainers "1.16.2"]
                  [piotr-yuxuan/closeable-map "0.35.0"]
                  [potemkin "0.4.5"]
                  [seancorfield/next.jdbc "1.1.613"]

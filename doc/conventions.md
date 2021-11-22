@@ -18,7 +18,7 @@ A state record. It is created for each HTTP request and represents the current s
 
 This structure is very volatile, will be updated quite often on the application's life cycle.
 
-The main modules that updates the state are:
+The main modules that update the state are:
 
 - Routes:
 
@@ -38,7 +38,7 @@ The state is renewed on every request.
 
 ## Monads
 
-"Monad is a simple and powerful mechanism for function composition that helps us to solve very common IT problems such
+"Monads are a simple and powerful mechanism for function composition that helps us to solve very common IT problems such
 as input/output, exception handling, parsing, concurrency and other. Application becomes less error-prone. Code becomes
 reusable and more readable."
 
@@ -69,7 +69,7 @@ Actions are defined in the routes vector
 
 ## Handler
 
-The framework provided handler does all the processing job. It runs on every request and does the following. It creates
+The framework provided handler does all the processing. It runs on every request and does the following. It creates
 the state for every request, matches the appropriate route, executes the interceptors, handles interceptor overrides,
 and not-found cases. It handles websocket requests too.
 
