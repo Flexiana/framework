@@ -121,6 +121,3 @@ pom.xml.asc
 !/.lein-git-deps/
 .clj-kondo/
 *.iml
-/examples/state-events/.shadow-cljs/
-/examples/state-events/node_modules/
-/examples/state-events/resources/public/assets/js/compiled/
