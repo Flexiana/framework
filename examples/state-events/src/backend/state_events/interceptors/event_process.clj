@@ -30,7 +30,7 @@
   "Transform PGobject containing `json` or `jsonb` value to Clojure
   data."
   [^PGobject v]
-  (let [type  (.getType v)
+  (let [type (.getType v)
         value (.getValue v)]
     (if (#{"jsonb" "json"} type)
       (when value
@@ -52,12 +52,24 @@
 
 (defn process-actions
   [events]
-  (reduce (fn [acc event]
-            (case (:events/action event)
-              :undo (butlast acc)
-              :delete (mapv #(dissoc % :events/payload) (conj acc event))
-              (conj acc event)))
-          [] events))
+  (let [do-redo (reduce (fn [acc event]
+                          (if (and (= :redo (:events/action event))
+                                   (= :undo (:events/action (last acc))))
+                            (butlast acc)
+                            (conj acc event)))
+                        []
+                        events)
+        do-undo (reduce (fn [acc event]
+                          (if (= :undo (:events/action event))
+                            (conj (butlast acc) event)
+                            (conj acc event)))
+                        []
+                        do-redo)]
+    (reduce (fn [acc event]
+              (if (= :delete (:events/action event))
+                (mapv #(dissoc % :events/payload) (conj acc event))
+                (conj acc event)))
+            [] do-undo)))
 
 (defn ->aggregate
   [state]
@@ -65,7 +77,7 @@
                     :response-data
                     :db-data
                     second
-                    ;; (sort-by :modified-at)
+                    (sort-by :modified-at)
                     process-actions)
         payloads (map #(or (some-> % :events/payload <-pgobject) {}) events)
         event-aggregate (reduce merge events)

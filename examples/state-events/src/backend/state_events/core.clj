@@ -31,7 +31,8 @@
       routes/reset
       rbac/init
       session/init-in-memory
-      db/start
+      db/docker-postgres!
+      db/connect
       db/migrate!
       sse/init
       ws/start

@@ -165,8 +165,8 @@
                          :method :post}
                         {:params {:action   :undo
                                   :id       resource-uuid
-                                  :resource :persons
-                                  :method   :post}}
+                                  :resource :persons}
+                         :method :post}
                         {:params {:action   :undo
                                   :id       resource-uuid
                                   :resource :persons}
@@ -335,6 +335,102 @@
                                           :last-name "Doe"
                                           :phone     "+123465789"
                                           :resource  "persons"}
+                     :events/resource    :persons
+                     :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
+    (is (= expectation
+           (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
+               xiana/extract
+               :response-data
+               :event-aggregate
+               (dissoc :events/modified-at))))))
+
+(deftest event-interceptor-one-undo-and-redo
+  (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
+        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        event-requests [{:params {:action   :create
+                                  :id       resource-uuid
+                                  :resource :persons}
+                         :method :put}
+                        {:params {:action     :modify
+                                  :id         resource-uuid
+                                  :resource   :persons
+                                  :first-name "John"}
+                         :method :post}
+                        {:params {:action    :modify
+                                  :id        resource-uuid
+                                  :resource  :persons
+                                  :last-name "Doe"}
+                         :method :post}
+                        {:params {:action   :undo
+                                  :id       resource-uuid
+                                  :resource :persons}
+                         :method :post}
+                        {:params {:action   :redo
+                                  :id       resource-uuid
+                                  :resource :persons}
+                         :method :post}]
+        states (map (fn [request] {:request      request
+                                   :session-data {:users/id user-id}}) event-requests)
+        events (map (fn [state] (-> state
+                                    pr/->event
+                                    xiana/extract
+                                    :request-data
+                                    :event
+                                    <-db)) states)
+        expectation {:events/action      :modify
+                     :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
+                     :events/payload     {:first-name "John"
+                                          :last-name  "Doe"
+                                          :id         "68849768-fc9f-4602-814e-8b6cbeedd4b3"
+                                          :resource   "persons"}
+                     :events/resource    :persons
+                     :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
+    (is (= expectation
+           (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
+               xiana/extract
+               :response-data
+               :event-aggregate
+               (dissoc :events/modified-at))))))
+
+(deftest event-interceptor-delete-and-undo
+  (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
+        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        event-requests [{:params {:action   :create
+                                  :id       resource-uuid
+                                  :resource :persons}
+                         :method :put}
+                        {:params {:action     :modify
+                                  :id         resource-uuid
+                                  :resource   :persons
+                                  :first-name "John"}
+                         :method :post}
+                        {:params {:action    :modify
+                                  :id        resource-uuid
+                                  :resource  :persons
+                                  :last-name "Doe"}
+                         :method :post}
+                        {:params {:action   :delete
+                                  :id       resource-uuid
+                                  :resource :persons}
+                         :method :post}
+                        {:params {:action   :undo
+                                  :id       resource-uuid
+                                  :resource :persons}
+                         :method :post}]
+        states (map (fn [request] {:request      request
+                                   :session-data {:users/id user-id}}) event-requests)
+        events (map (fn [state] (-> state
+                                    pr/->event
+                                    xiana/extract
+                                    :request-data
+                                    :event
+                                    <-db)) states)
+        expectation {:events/action      :modify
+                     :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
+                     :events/payload     {:first-name "John"
+                                          :last-name  "Doe"
+                                          :id         "68849768-fc9f-4602-814e-8b6cbeedd4b3"
+                                          :resource   "persons"}
                      :events/resource    :persons
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
