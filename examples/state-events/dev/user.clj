@@ -2,6 +2,7 @@
   (:gen-class)
   (:require
     [clojure.tools.logging :refer [*tx-agent-levels*]]
+    [clojure.tools.namespace.repl :refer [refresh]]
     [shadow.cljs.devtools.api :as shadow.api]
     [shadow.cljs.devtools.server :as shadow.server]
     [state-events.core :refer [->system app-cfg]]))
@@ -21,6 +22,7 @@
 (defn- start-dev-system
   []
   (stop-dev-system)
+  (refresh)
   (shadow.server/start!)
   (shadow.api/watch :app)
   (reset! dev-sys (->system dev-app-config)))

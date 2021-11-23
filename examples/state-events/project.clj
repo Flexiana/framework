@@ -4,6 +4,7 @@
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [com.flexiana/framework "0.3.0"]
                  [thheller/shadow-cljs "2.11.26"]
+                 [org.clojure/tools.namespace "1.1.0"]
                  [migratus "1.3.5"]
                  [clj-http "3.12.1"]
                  [reagent "0.10.0"]
