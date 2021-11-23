@@ -1,13 +1,15 @@
 version: "3.3"
 services:
   db:
-    build:
-      context: ./Docker
-      dockerfile: db.Dockerfile
+    image: postgres:11.5-alpine
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    environment:
+      - POSTGRES_DB=state_events
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
 volumes:
   db-data:

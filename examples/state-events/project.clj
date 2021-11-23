@@ -15,7 +15,7 @@
   :uberjar-name "state-events.jar"
   :source-paths ["src/backend" "src/frontend" "src/shared"]
   :clean-targets ^{:protect false} ["resources/public/assets/js/compiled" "target"]
-  :profiles {:dev   {:resource-paths ["config/dev"]
+  :profiles {:dev   {:resource-paths ["dev" "config/dev"]
                      :dependencies   [[binaryage/devtools "1.0.3"]]}
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}

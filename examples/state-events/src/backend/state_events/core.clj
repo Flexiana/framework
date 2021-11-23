@@ -14,21 +14,39 @@
     [state-events.controllers.index :as index]
     [state-events.controllers.re-frame :as re-frame]
     [state-events.interceptors.event-process :as events]
-    [xiana.commons :refer [rename-key]]))
+    [xiana.commons :refer [rename-key]]
+    [xiana.core :as xiana]))
+
+(defn resource-handler [state]
+  (let [f (ring/create-resource-handler  {:path "/"})]
+    (prn (get-in state [:request :uri]))
+    (xiana/ok (assoc state :response (f (:request state))))))
 
 (def routes
-  [["/" {:action index/handle-index}]
-   ["/re-frame" {:action re-frame/handle-index}]
-   ["/assets/*" (ring/create-resource-handler {:path "/"})]
+  [["/" {:action       index/handle-index
+         :interceptors {:except [events/interceptor]}}]
+   ["/re-frame" {:action re-frame/handle-index
+                 :interceptors {:except [events/interceptor]}}]
+   ["/assets/*" {:action resource-handler
+                 :interceptors {:except [events/interceptor]}}]
    ["/person" {:put  {:action event/add}
                :post {:action event/modify}}]
-   ["/sse" {:ws-action sse/sse-action}]])
+   ["/sse" {:ws-action sse/sse-action
+            :interceptors {:except [events/interceptor]}}]])
 
 (defn docker?
   [state]
   (if (get-in state [:framework.db.storage/postgresql :image-name])
     (db/docker-postgres! state)
     state))
+
+(def asset-router
+  {:enter (fn [{{uri :uri} :request
+                :as        state}]
+            (xiana/ok
+              (case uri
+                "/favicon.ico" (assoc-in state [:request :uri] "/assets/favicon.ico")
+                state)))})
 
 (defn ->system
   [app-cfg]
@@ -46,7 +64,7 @@
 
 (def app-cfg
   {:routes                  routes
-   :router-interceptors     []
+   :router-interceptors     [asset-router]
    :controller-interceptors [(interceptors/muuntaja)
                              interceptors/params
                              session/guest-session-interceptor
