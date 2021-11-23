@@ -8,7 +8,7 @@
     (java.util
       UUID)))
 
-(use-fixtures :once (partial fixture/std-system-fixture {}))
+(use-fixtures :once fixture/std-system-fixture)
 
 (deftest new-event
   (let [resource-uuid (UUID/randomUUID)

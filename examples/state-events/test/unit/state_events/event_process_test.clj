@@ -7,7 +7,8 @@
     (java.util
       UUID)))
 
-(defn <-db
+(defn- <-db
+  "Mimics database store and query"
   [event]
   (into {} (map (fn [[k v]]
                   [(keyword "events" (name k)) v])

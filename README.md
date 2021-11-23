@@ -38,6 +38,7 @@ Visit [examples folder](examples), to see how you can perform
 - [Request coercion and response validation](examples/controllers/README.md)
 - [Session handling with varying interceptors](examples/sessions/README.md)
 - [Chat platform with WebSocket](examples/cli-chat/README.md)
+- [Event based resource handling](examples/state-events/README.md)
 
 ## References
 
