@@ -13,10 +13,9 @@
 (println "Project: " project)
 
 (def version
-   (last first-line))
+   (str/replace (last first-line) #"\"" ""))
 
 (println "Version: " version)
-
 
 (defn- can-deploy? []
   (let [curr-version version
