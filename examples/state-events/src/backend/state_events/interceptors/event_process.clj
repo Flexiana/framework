@@ -38,6 +38,7 @@
       value)))
 
 (defn ->event
+  "Inject event int the state"
   [state]
   (let [params (-> state :request :params)
         payload (->pgobject (dissoc params :action))
@@ -51,20 +52,19 @@
     (xiana/ok (assoc-in state [:request-data :event] event))))
 
 (defn process-actions
+  "Process actions for `:delete` `:undo` `:redo`"
   [events]
   (let [do-redo (reduce (fn [acc event]
                           (if (and (= :redo (:events/action event))
                                    (= :undo (:events/action (last acc))))
                             (butlast acc)
                             (conj acc event)))
-                        []
-                        events)
+                        [] events)
         do-undo (reduce (fn [acc event]
                           (if (= :undo (:events/action event))
                             (conj (butlast acc) event)
                             (conj acc event)))
-                        []
-                        do-redo)]
+                        [] do-redo)]
     (reduce (fn [acc event]
               (if (= :delete (:events/action event))
                 (mapv #(dissoc % :events/payload) (conj acc event))
@@ -72,6 +72,7 @@
             [] do-undo)))
 
 (defn ->aggregate
+  "Aggregates events and payloads into a resource"
   [state]
   (let [events (->> state
                     :response-data
@@ -86,6 +87,9 @@
       (assoc-in state [:response-data :event-aggregate] (assoc event-aggregate :events/payload payload-aggregate)))))
 
 (def interceptor
+  "Event processing interceptor
+  :enter injects request parameters as events
+  :leave aggregates events from database into a resource"
   {:name  :event-process
    :enter ->event
    :leave ->aggregate

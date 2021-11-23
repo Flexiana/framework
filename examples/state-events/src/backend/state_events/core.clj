@@ -24,6 +24,12 @@
                :post {:action event/modify}}]
    ["/sse" {:ws-action sse/sse-action}]])
 
+(defn docker?
+  [state]
+  (if (get-in state [:framework.db.storage/postgresql :image-name])
+    (db/docker-postgres! state)
+    state))
+
 (defn ->system
   [app-cfg]
   (-> (config/config app-cfg)
@@ -31,7 +37,7 @@
       routes/reset
       rbac/init
       session/init-in-memory
-      db/docker-postgres!
+      docker?
       db/connect
       db/migrate!
       sse/init
