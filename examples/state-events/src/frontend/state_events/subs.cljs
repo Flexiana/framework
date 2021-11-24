@@ -6,3 +6,12 @@
   ::name
   (fn [db]
     (:name db)))
+
+(re-frame/reg-sub
+  :selected
+  (fn [db]
+    (:selected db)))
+
+(re-frame/reg-sub
+  :persons
+  :persons)

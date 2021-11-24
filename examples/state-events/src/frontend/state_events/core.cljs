@@ -5,9 +5,9 @@
     [state-events.config :as config]
     [state-events.effects :as effects]
     [state-events.events :as events]
+    [state-events.subs :as subs]
     [state-events.views :as views]))
 
-(defonce atm (reagent.core/atom {}))
 
 (defn dev-setup []
   (when config/debug?
@@ -17,7 +17,7 @@
   (re-frame/clear-subscription-cache!)
   (let [root-el (.getElementById js/document "app")]
     (rdom/unmount-component-at-node root-el)
-    (rdom/render [views/main-panel atm] root-el)))
+    (rdom/render [views/main-panel] root-el)))
 
 (defn init []
   (re-frame/dispatch-sync [::events/initialize-db])
