@@ -1,10 +1,11 @@
 (ns state-events.core
   (:require
-   [reagent.dom :as rdom]
-   [re-frame.core :as re-frame]
-   [state-events.events :as events]
-   [state-events.views :as views]
-   [state-events.config :as config]))
+    [re-frame.core :as re-frame]
+    [reagent.dom :as rdom]
+    [state-events.config :as config]
+    [state-events.effects :as effects]
+    [state-events.events :as events]
+    [state-events.views :as views]))
 
 (defonce atm (reagent.core/atom {}))
 

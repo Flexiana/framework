@@ -18,8 +18,8 @@
                          :value     (get @st k)
                          ;; :aria-label (name k)
                          :on-change (fn [e] (swap! st assoc k (.. e -target -value)))}]
-   [:button {:type     "button" :label "Last name"
-             :on-click #(swap! atm merge {k (get @st k)})} "Add"]])
+   [:button {:type     "button" :label (key->str k)
+             :on-click #(re-frame/dispatch [k (get @st k)])} "Add"]])
 
 (defn info-panel [atm]
   [:div {:style {:margin-left 50}}
@@ -49,7 +49,7 @@
     "Redo"]])
 
 (defn inputs [atm]
-  (let [input-groups [:first-name :last-name :e-mail :phone :city]]
+  (let [input-groups [:persons/first-name :last-name :e-mail :phone :city]]
     [:div {:style {:width 600}}
      (if (:id @atm)
        (doall (map (partial input-gr atm) input-groups))
@@ -58,7 +58,7 @@
                          :height 58}
                  :on-click
                  (fn [_]
-                   (swap! atm assoc :id (random-uuid)))}
+                   (re-frame/dispatch [:persons/create (random-uuid)]))}
         "Create new person resource"])]))
 
 (defn main-panel [atm]

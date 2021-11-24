@@ -31,8 +31,8 @@
         expectation {:events/payload     {:id       (str resource-uuid)
                                           :resource "persons"},
                      :events/resource-id resource-uuid
-                     :events/resource    :persons
-                     :events/action      :create,
+                     :events/resource    ":persons"
+                     :events/action      ":create",
                      :events/creator     user-id}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil [event]]))
@@ -81,7 +81,7 @@
                                      :request-data
                                      :event
                                      <-db)) states)
-        expectation {:events/action      :modify
+        expectation {:events/action      ":modify"
                      :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
                      :events/payload     {:city       "Fiorenze"
                                           :email      "Doe@john.it"
@@ -90,7 +90,7 @@
                                           :phone      "+123465789"
                                           :id         "68849768-fc9f-4602-814e-8b6cbeedd4b3"
                                           :resource   "persons"}
-                     :events/resource    :persons
+                     :events/resource    ":persons"
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
@@ -128,12 +128,12 @@
                                     :request-data
                                     :event
                                     <-db)) states)
-        expectation {:events/action      :modify
+        expectation {:events/action      ":modify"
                      :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
                      :events/payload     {:first-name "John"
                                           :id         "68849768-fc9f-4602-814e-8b6cbeedd4b3"
                                           :resource   "persons"}
-                     :events/resource    :persons
+                     :events/resource    ":persons"
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
@@ -180,12 +180,12 @@
                                     :request-data
                                     :event
                                     <-db)) states)
-        expectation {:events/action      :modify
+        expectation {:events/action      ":modify"
                      :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
                      :events/payload     {:first-name "John"
                                           :id         "68849768-fc9f-4602-814e-8b6cbeedd4b3"
                                           :resource   "persons"}
-                     :events/resource    :persons
+                     :events/resource    ":persons"
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
@@ -229,13 +229,13 @@
                                     :request-data
                                     :event
                                     <-db)) states)
-        expectation {:events/action      :modify
+        expectation {:events/action      ":modify"
                      :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
                      :events/payload     {:email      "Doe@john.it"
                                           :first-name "John"
                                           :id         "68849768-fc9f-4602-814e-8b6cbeedd4b3"
                                           :resource   "persons"}
-                     :events/resource    :persons
+                     :events/resource    ":persons"
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
@@ -274,10 +274,10 @@
                                     :request-data
                                     :event
                                     <-db)) states)
-        expectation {:events/action      :delete
+        expectation {:events/action      ":delete"
                      :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
                      :events/payload     {}
-                     :events/resource    :persons
+                     :events/resource    ":persons"
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
@@ -330,13 +330,13 @@
                                     :request-data
                                     :event
                                     <-db)) states)
-        expectation {:events/action      :modify
+        expectation {:events/action      ":modify"
                      :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
                      :events/payload     {:id        "68849768-fc9f-4602-814e-8b6cbeedd4b3"
                                           :last-name "Doe"
                                           :phone     "+123465789"
                                           :resource  "persons"}
-                     :events/resource    :persons
+                     :events/resource    ":persons"
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
@@ -378,13 +378,13 @@
                                     :request-data
                                     :event
                                     <-db)) states)
-        expectation {:events/action      :modify
+        expectation {:events/action      ":modify"
                      :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
                      :events/payload     {:first-name "John"
                                           :last-name  "Doe"
                                           :id         "68849768-fc9f-4602-814e-8b6cbeedd4b3"
                                           :resource   "persons"}
-                     :events/resource    :persons
+                     :events/resource    ":persons"
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
@@ -426,13 +426,13 @@
                                     :request-data
                                     :event
                                     <-db)) states)
-        expectation {:events/action      :modify
+        expectation {:events/action      ":modify"
                      :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
                      :events/payload     {:first-name "John"
                                           :last-name  "Doe"
                                           :id         "68849768-fc9f-4602-814e-8b6cbeedd4b3"
                                           :resource   "persons"}
-                     :events/resource    :persons
+                     :events/resource    ":persons"
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))

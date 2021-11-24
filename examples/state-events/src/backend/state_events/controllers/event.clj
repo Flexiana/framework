@@ -46,7 +46,7 @@
 
 (defn add
   [state]
-  (let [action (-> state :request-data :event :action)]
+  (let [action (-> state :request-data :event :action str)]
     (cond
       (not= ":create" action) (invalid-action state)
       (exists state) (resource-exist-error state "Resource already exists")

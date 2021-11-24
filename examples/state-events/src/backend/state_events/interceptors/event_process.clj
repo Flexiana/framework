@@ -40,14 +40,17 @@
 (defn ->event
   "Inject event int the state"
   [state]
-  (let [params (-> state :request :params)
+  (let [params (if (empty? (-> state :request :params))
+                 (-> state :request :body-params)
+                 (-> state :request :params))
         payload (->pgobject (dissoc params :action))
         creator (-> state :session-data :users/id)
+        _ (prn "params" params)
         event {:payload     payload
-               :resource    (:resource params)
+               :resource    (str (:resource params))
                :resource-id (UUID/fromString (:id params))
                :modified-at (Timestamp/from (t/now))
-               :action      (:action params)
+               :action      (str (:action params))
                :creator     creator}]
     (xiana/ok (assoc-in state [:request-data :event] event))))
 
@@ -55,18 +58,18 @@
   "Process actions for `:delete` `:undo` `:redo`"
   [events]
   (let [do-redo (reduce (fn [acc event]
-                          (if (and (= :redo (:events/action event))
-                                   (= :undo (:events/action (last acc))))
+                          (if (and (= ":redo" (:events/action event))
+                                   (= ":undo" (:events/action (last acc))))
                             (butlast acc)
                             (conj acc event)))
                         [] events)
         do-undo (reduce (fn [acc event]
-                          (if (= :undo (:events/action event))
+                          (if (= ":undo" (:events/action event))
                             (conj (butlast acc) event)
                             (conj acc event)))
                         [] do-redo)]
     (reduce (fn [acc event]
-              (if (= :delete (:events/action event))
+              (if (= ":delete" (:events/action event))
                 (mapv #(dissoc % :events/payload) (conj acc event))
                 (conj acc event)))
             [] do-undo)))

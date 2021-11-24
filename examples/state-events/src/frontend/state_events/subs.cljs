@@ -1,8 +1,8 @@
 (ns state-events.subs
   (:require
-   [re-frame.core :as re-frame]))
+    [re-frame.core :as re-frame]))
 
 (re-frame/reg-sub
- ::name
- (fn [db]
-   (:name db)))
+  ::name
+  (fn [db]
+    (:name db)))

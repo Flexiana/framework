@@ -27,5 +27,5 @@
     (-> (sqlh/select (sql/call :count :*))
         (sqlh/from :events)
         (sqlh/where [:and
-                     [:= :resource resource]
-                     [:= :resource-id resource-id]]))))
+                     [:= :events.resource resource]
+                     [:= :events.resource-id resource-id]]))))
