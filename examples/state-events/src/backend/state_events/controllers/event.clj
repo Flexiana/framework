@@ -57,7 +57,12 @@
   [state]
   (let [action (-> state :request-data :event :action)]
     (cond
-      (nil? (#{":modify" ":undo"} action)) (invalid-action state)
+      (nil? (#{":modify" ":undo" ":redo"} action)) (invalid-action state)
       (exists state) (xiana/flow-> (assoc state :view view/view)
                                    model/add)
       :default (resource-exist-error state "Resource does not exists"))))
+
+(defn collect
+  [state]
+  (xiana/flow-> (assoc state :view view/fetch-all)
+                model/fetch))

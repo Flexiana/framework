@@ -74,20 +74,25 @@
                 (conj acc event)))
             [] do-undo)))
 
+(defn event->agg
+  [events]
+  (let [actions (->> events
+                     (sort-by :events/modified_at)
+                     process-actions)
+        payloads (map #(or (some-> % :events/payload <-pgobject) {}) actions)
+        event-aggregate (reduce merge actions)
+        payload-aggregate (reduce merge payloads)]
+    (assoc event-aggregate :events/payload payload-aggregate)))
+
 (defn ->aggregate
   "Aggregates events and payloads into a resource"
   [state]
-  (let [events (->> state
-                    :response-data
-                    :db-data
-                    second
-                    (sort-by :modified-at)
-                    process-actions)
-        payloads (map #(or (some-> % :events/payload <-pgobject) {}) events)
-        event-aggregate (reduce merge events)
-        payload-aggregate (reduce merge payloads)]
+  (let [events (-> state
+                   :response-data
+                   :db-data
+                   second)]
     (xiana/ok
-      (assoc-in state [:response-data :event-aggregate] (assoc event-aggregate :events/payload payload-aggregate)))))
+      (assoc-in state [:response-data :event-aggregate] (event->agg events)))))
 
 (def interceptor
   "Event processing interceptor

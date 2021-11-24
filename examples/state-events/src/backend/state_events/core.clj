@@ -18,20 +18,22 @@
     [xiana.core :as xiana]))
 
 (defn resource-handler [state]
-  (let [f (ring/create-resource-handler  {:path "/"})]
+  (let [f (ring/create-resource-handler {:path "/"})]
     (prn (get-in state [:request :uri]))
     (xiana/ok (assoc state :response (f (:request state))))))
 
 (def routes
   [["/" {:action       index/handle-index
          :interceptors {:except [events/interceptor]}}]
-   ["/re-frame" {:action re-frame/handle-index
+   ["/re-frame" {:action       re-frame/handle-index
                  :interceptors {:except [events/interceptor]}}]
-   ["/assets/*" {:action resource-handler
+   ["/assets/*" {:action       resource-handler
                  :interceptors {:except [events/interceptor]}}]
    ["/person" {:put  {:action event/add}
                :post {:action event/modify}}]
-   ["/sse" {:ws-action sse/sse-action
+   ["/events" {:get  {:action       event/collect
+                      :interceptors {:except [events/interceptor]}}}]
+   ["/sse" {:ws-action    sse/sse-action
             :interceptors {:except [events/interceptor]}}]])
 
 (defn docker?

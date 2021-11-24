@@ -29,3 +29,11 @@
         (sqlh/where [:and
                      [:= :events.resource resource]
                      [:= :events.resource-id resource-id]]))))
+
+(defn fetch
+  [state]
+  (xiana/ok
+    (assoc state
+           :query
+           (-> (sqlh/select :*)
+               (sqlh/from :events)))))
