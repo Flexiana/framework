@@ -10,7 +10,7 @@
 
 (alter-var-root #'*tx-agent-levels* conj :debug :trace)
 
-(disable-unload!)
+;; (disable-unload!)
 
 (defonce dev-sys (atom (closeable-map {})))
 
@@ -19,13 +19,13 @@
 
 (defn- stop-dev-system
   []
-  (when (:webserver @dev-sys) (.close @dev-sys))
+  (when (:webserver @dev-sys) (do (.close @dev-sys)
+                                  (refresh)))
   (reset! dev-sys (closeable-map {})))
 
 (defn- start-dev-system
   []
   (stop-dev-system)
-  (refresh)
   (shadow.server/start!)
   (shadow.api/watch :app)
   (reset! dev-sys (->system dev-app-config)))
