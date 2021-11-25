@@ -26,7 +26,7 @@
   "Parses request and response cookies"
   (letfn [(move-cookies
             [req]
-            (if (-> req :headers "cookie")
+            (if (get-in req [:headers "cookie"])
               req
               (assoc-in req [:headers "cookie"]
                         (get-in req [:headers :cookie]))))
