@@ -1,13 +1,17 @@
 (ns state-events.controllers.event
   (:require
     [clojure.tools.logging :as logger]
+    [clojure.walk :refer [keywordize-keys]]
     [framework.db.core :as db]
     [framework.sse.core :as sse]
     [honeysql.core :as sql]
     [jsonista.core :as json]
     [state-events.models.event :as model]
     [state-events.views.event :as view]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana])
+  (:import
+    (java.sql
+      Timestamp)))
 
 (defn exists
   [state]
@@ -27,7 +31,7 @@
     (xiana/error (assoc state :response
                         {:status 400
                          :body   (json/write-value-as-string
-                                   {:error     "Action and method not matching"
+                                   {:error       "Action and method not matching"
                                     :resource    resource
                                     :resource-id resource-id
                                     :action      action})}))))
@@ -40,9 +44,24 @@
     (xiana/error (assoc state :response
                         {:status 403
                          :body   (json/write-value-as-string
-                                   {:error     message
+                                   {:error       message
                                     :resource    resource
                                     :resource-id resource-id})}))))
+
+(defn ->json
+  [m]
+  (reduce
+    (fn [acc [k v]]
+      (into acc {k (cond (uuid? v) (str v)
+                         (instance? Timestamp v) (.getTime v)
+                         :else v)})) {} m))
+
+(defn send-event!
+  [state]
+  (prn "EVENT")
+  (let [agg-event (get-in state [:response-data :event-aggregate])]
+    (sse/put! state (->json (assoc agg-event :type :modify))))
+  (xiana/ok state))
 
 (defn add
   [state]
@@ -50,7 +69,8 @@
     (cond
       (not= ":create" action) (invalid-action state)
       (exists state) (resource-exist-error state "Resource already exists")
-      :default (xiana/flow-> (assoc state :view view/view)
+      :default (xiana/flow-> (assoc state :view view/view
+                                    :side-effect send-event!)
                              model/add))))
 
 (defn modify
