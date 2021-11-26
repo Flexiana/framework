@@ -10,16 +10,16 @@
   [k]
   (apply str (str/upper-case (first (name k))) (rest (name k))))
 
-(defn input-gr [selected k]
-  [:div.input-group {:key    k
-                     :hidden (some? (get selected k))}
-   [:span.input-group-text (key->str k)]
-   [:input.form-control {:type      "text"
-                         :value     (get @st k)
-                         ;; :aria-label (name k)
-                         :on-change (fn [e] (swap! st assoc k (.. e -target -value)))}]
-   [:button {:type     "button" :label (key->str k)
-             :on-click #(re-frame/dispatch [k (get @st k)])} "Add"]])
+(defn input-gr [k]
+  (let [selected @(re-frame/subscribe [:selected])]
+    [:div.input-group {:key    k
+                       :hidden (some? (get selected k))}
+     [:span.input-group-text (key->str k)]
+     [:input.form-control {:type      "text"
+                           :on-change (fn [e] (swap! st assoc k (.. e -target -value)))}]
+     [:button {:type     "button" :label (key->str k)
+               :disabled (empty? selected)
+               :on-click #(re-frame/dispatch [k (get @st k)])} "Add"]]))
 
 (defn info-panel []
   (let [atm @(re-frame/subscribe [:selected])]
@@ -35,13 +35,13 @@
                                [:td v]])
                             atm))]]
        [:button
-        {:on-click #(re-frame/dispatch [:clean])}
+        {:on-click #(re-frame/dispatch [:selected/clean])}
         "Clean"]
        [:button
-        {:on-click #(re-frame/dispatch [:undo])}
+        {:on-click #(re-frame/dispatch [:selected/undo])}
         "Undo"]
        [:button
-        {:on-click #(re-frame/dispatch [:redo])}
+        {:on-click #(re-frame/dispatch [:selected/redo])}
         "Redo"]])))
 
 (defn inputs []
@@ -49,7 +49,7 @@
         input-groups [:persons/first-name :persons/last-name :persons/e-mail :persons/phone :persons/city]]
     (if selected
       [:div {:style {:width 600}}
-       (doall (map (partial input-gr selected) input-groups))])))
+       (doall (map input-gr input-groups))])))
 
 (defn list-persons []
   (let [persons (seq @(re-frame/subscribe [:persons]))]
@@ -57,12 +57,11 @@
       [:div
        [:table {:class :table-bordered
                 :style {:min-width 350}}
-        [:thead [:tr [:th "Key"] [:th "Value"]]]
         [:tbody (doall (map (fn [[k v]]
                               ^{:key k}
-                              [:tr
-                               [:td (key->str k)]
-                               [:td v]])
+                              [:tr {:on-click #(re-frame/dispatch [:table/click k])}
+                               [:td (name k)]
+                               [:td (str (:first-name v) " " (:last-name v))]])
                             persons))]]])))
 
 (def new-person

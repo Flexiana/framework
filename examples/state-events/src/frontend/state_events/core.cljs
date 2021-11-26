@@ -22,6 +22,6 @@
 
 (defn init []
   (re-frame/dispatch-sync [::events/initialize-db])
-  (ws/connect! (str "ws://" (.-host js/location) "/sse") ws/handle-response!)
+  (ws/connect! (str "ws://" (.-host js/location) "/sse"))
   (dev-setup)
   (mount-root))

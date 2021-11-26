@@ -58,8 +58,8 @@
 
 (defn send-event!
   [state]
-  (prn "EVENT")
   (let [agg-event (get-in state [:response-data :event-aggregate])]
+    (prn "EVENT" agg-event)
     (sse/put! state (->json (assoc agg-event :type :modify))))
   (xiana/ok state))
 
@@ -67,9 +67,10 @@
   [state]
   (let [action (-> state :request-data :event :action str)]
     (cond
-      (not= ":create" action) (invalid-action state)
+      (not= "create" action) (invalid-action state)
       (exists state) (resource-exist-error state "Resource already exists")
-      :default (xiana/flow-> (assoc state :view view/view
+      :default (xiana/flow-> (assoc state
+                                    :view view/view
                                     :side-effect send-event!)
                              model/add))))
 
@@ -77,8 +78,10 @@
   [state]
   (let [action (-> state :request-data :event :action)]
     (cond
-      (nil? (#{":modify" ":undo" ":redo"} action)) (invalid-action state)
-      (exists state) (xiana/flow-> (assoc state :view view/view)
+      (nil? (#{"modify" "undo" "redo" "delete"} action)) (invalid-action state)
+      (exists state) (xiana/flow-> (assoc state
+                                          :view view/view
+                                          :side-effect send-event!)
                                    model/add)
       :default (resource-exist-error state "Resource does not exists"))))
 

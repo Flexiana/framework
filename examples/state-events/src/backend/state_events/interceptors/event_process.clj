@@ -40,49 +40,60 @@
 (defn ->event
   "Inject event int the state"
   [state]
-  (let [params (if (empty? (-> state :request :params))
-                 (-> state :request :body-params)
-                 (-> state :request :params))
-        payload (->pgobject (dissoc params :action))
+  (let [params (reduce (fn [acc [k v]] (into acc {(keyword (name k)) v}))
+                       {} (if (empty? (-> state :request :params))
+                            (-> state :request :body-params)
+                            (-> state :request :params)))
+        action (name (:action params))
+        p (cond-> (dissoc params :action)
+            (some? (#{"undo" "redo" "delete"} action)) (select-keys [:id :resource]))
+        payload (->pgobject p)
         creator (-> state :session-data :users/id)
-        _ (prn "params" params)
         event {:payload     payload
-               :resource    (str (:resource params))
+               :resource    (name (:resource params))
                :resource-id (UUID/fromString (:id params))
                :modified-at (Timestamp/from (t/now))
-               :action      (str (:action params))
+               :action      action
                :creator     creator}]
     (xiana/ok (assoc-in state [:request-data :event] event))))
+
+(defn clean-pg
+  [^PGobject obj]
+  (-> obj
+      <-pgobject
+      (select-keys [:id :resource])
+      ->pgobject))
 
 (defn process-actions
   "Process actions for `:delete` `:undo` `:redo`"
   [events]
   (let [do-redo (reduce (fn [acc event]
-                          (if (and (= ":redo" (:events/action event))
-                                   (= ":undo" (:events/action (last acc))))
-                            (butlast acc)
+                          (if (and (= "redo" (:events/action event))
+                                   (= "undo" (:events/action (last acc))))
+                            (vec (butlast acc))
                             (conj acc event)))
                         [] events)
         do-undo (reduce (fn [acc event]
-                          (if (= ":undo" (:events/action event))
-                            (conj (butlast acc) event)
+                          (if (and (= "undo" (:events/action event))
+                                   (not= "create" (:events/action (last acc))))
+                            (vec (butlast acc))
                             (conj acc event)))
-                        [] do-redo)]
-    (reduce (fn [acc event]
-              (if (= ":delete" (:events/action event))
-                (mapv #(dissoc % :events/payload) (conj acc event))
-                (conj acc event)))
-            [] do-undo)))
+                        [] do-redo)
+        do-delete (reduce (fn [acc event]
+                            (if (= "delete" (:events/action event))
+                              (mapv #(update % :events/payload clean-pg) (conj acc event))
+                              (conj acc event)))
+                          [] do-undo)]
+    (prn (prn-str do-delete))
+    do-delete))
 
 (defn event->agg
   [events]
-  (let [actions (->> events
-                     (sort-by :events/modified_at)
-                     process-actions)
+  (let [sorted (sort-by :events/modified_at events)
+        actions (process-actions sorted)
         payloads (map #(or (some-> % :events/payload <-pgobject) {}) actions)
-        event-aggregate (reduce merge actions)
         payload-aggregate (reduce merge payloads)]
-    (assoc event-aggregate :events/payload payload-aggregate)))
+    (assoc (last sorted) :events/payload payload-aggregate)))
 
 (defn ->aggregate
   "Aggregates events and payloads into a resource"
