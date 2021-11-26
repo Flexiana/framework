@@ -1,10 +1,8 @@
 (ns state-events.controllers.event
   (:require
-    [clojure.tools.logging :as logger]
     [clojure.walk :refer [keywordize-keys]]
     [framework.db.core :as db]
     [framework.sse.core :as sse]
-    [honeysql.core :as sql]
     [jsonista.core :as json]
     [state-events.models.event :as model]
     [state-events.views.event :as view]
@@ -13,17 +11,14 @@
     (java.sql
       Timestamp)))
 
-(defn exists
+(defn last-event
   [state]
-  (let [query (model/exists state)
-        datasource (-> state :deps :db :datasource)
-        c (-> (db/execute datasource query)
-              first
-              :count)]
-    (not= 0 c)))
+  (let [query (model/last-event state)
+        datasource (-> state :deps :db :datasource)]
+    (first (db/execute datasource query))))
 
 (defn invalid-action
-  [state]
+  [state msg]
   (let [event (-> state :request-data :event)
         resource (:resource event)
         resource-id (:resource-id event)
@@ -31,7 +26,7 @@
     (xiana/error (assoc state :response
                         {:status 400
                          :body   (json/write-value-as-string
-                                   {:error       "Action and method not matching"
+                                   {:error       msg
                                     :resource    resource
                                     :resource-id resource-id
                                     :action      action})}))))
@@ -59,31 +54,47 @@
 (defn send-event!
   [state]
   (let [agg-event (get-in state [:response-data :event-aggregate])]
-    (prn "EVENT" agg-event)
     (sse/put! state (->json (assoc agg-event :type :modify))))
   (xiana/ok state))
 
-(defn add
+(defn create-resource
   [state]
-  (let [action (-> state :request-data :event :action str)]
+  (let [action (-> state :request-data :event :action str)
+        last-event (last-event state)]
     (cond
-      (not= "create" action) (invalid-action state)
-      (exists state) (resource-exist-error state "Resource already exists")
+      (not= "create" action) (invalid-action state "Action and method not matching")
+      (some? last-event) (resource-exist-error state "Resource already exists")
       :default (xiana/flow-> (assoc state
-                                    :view view/view
+                                    :view view/aggregate
                                     :side-effect send-event!)
                              model/add))))
 
+(defn ok
+  [state]
+  (xiana/flow-> (assoc state
+                       :view view/aggregate
+                       :side-effect send-event!)
+                model/add))
+
 (defn modify
   [state]
-  (let [action (-> state :request-data :event :action)]
-    (cond
-      (nil? (#{"modify" "undo" "redo" "clean"} action)) (invalid-action state)
-      (exists state) (xiana/flow-> (assoc state
-                                          :view view/view
-                                          :side-effect send-event!)
-                                   model/add)
-      :default (resource-exist-error state "Resource does not exists"))))
+  (let [{:keys [:action :creator]} (-> state :request-data :event)
+        last-event (last-event state)
+        last-action (:events/action last-event)
+        last-creator (:events/creator last-event)]
+    (if (some? last-event)
+      (case action
+        "modify" (ok state)
+        "clean" (ok state)
+        "undo" (if (= last-creator creator)
+                 (ok state)
+                 (invalid-action state "Cannot undo, resource already modified by someone else!"))
+        "redo" (cond
+                 (not= last-creator creator) (invalid-action state "Cannot redo, resource already modified by someone else!")
+                 (= last-action action) (invalid-action state "Cannot redo, last action wasn't undo!")
+                 :default (ok state))
+        (invalid-action state "Action and method not matching"))
+      (resource-exist-error state "Resource does not exists"))))
 
 (defn collect
   [state]

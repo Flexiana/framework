@@ -56,7 +56,7 @@
   [["/" {:action index/handle-index}]
    ["/re-frame" {:action re-frame/handle-index}]
    ["/assets/*" {:action resource-handler}]
-   ["/person" {:put  {:action       event/add
+   ["/person" {:put  {:action       event/create-resource
                       :interceptors event-interceptors}
                :post {:action       event/modify
                       :interceptors event-interceptors}}]

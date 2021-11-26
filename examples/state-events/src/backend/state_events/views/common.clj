@@ -13,3 +13,7 @@
 (defn not-allowed
   [state]
   (xiana/error (assoc state :response {:status 401 :body "You don't have rights to do this"})))
+
+(defn _403
+  [state]
+  (xiana/error (assoc state :response {:status 403 :body "You don't have rights to do this"})))

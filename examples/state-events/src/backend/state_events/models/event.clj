@@ -19,16 +19,18 @@
                                   [:= :resource resource]
                                   [:= :resource-id resource-id]]))]))))
 
-(defn exists
+(defn last-event
   [state]
   (let [event (-> state :request-data :event)
         resource (:resource event)
         resource-id (:resource-id event)]
-    (-> (sqlh/select (sql/call :count :*))
+    (-> (sqlh/select :*)
         (sqlh/from :events)
         (sqlh/where [:and
                      [:= :events.resource resource]
-                     [:= :events.resource-id resource-id]]))))
+                     [:= :events.resource-id resource-id]])
+        (sqlh/order-by [:events/modified_at :desc])
+        (sqlh/limit 1))))
 
 (defn fetch
   [state]

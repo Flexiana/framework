@@ -4,7 +4,7 @@
     [state-events.interceptors.event-process :refer [event->agg]]
     [xiana.core :as xiana]))
 
-(def view
+(def aggregate
   (fn [state]
     (xiana/ok
       (assoc-in state

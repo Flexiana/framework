@@ -11,7 +11,9 @@
   :persons/modify
   (fn [cofx event]
     (let [[_ k v] event
-          payload (assoc (:payload v) :last-action (:action v))
+          payload (assoc (:payload v)
+                         :--last-action (:action v)
+                         :--last-modified-by (:creator v))
           db (:db cofx)]
       {:db (cond->
              (assoc-in db [:persons k] payload)
