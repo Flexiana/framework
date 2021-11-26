@@ -40,7 +40,7 @@
   (fn [{:keys [db]} event]
     (let [[_ v] event]
       (POST "/person" {:params (merge (:selected db)
-                                      {:action   :delete
+                                      {:action   :clean
                                        :resource :persons})}))
     {:db db}))
 

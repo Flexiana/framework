@@ -46,7 +46,7 @@
                             (-> state :request :params)))
         action (name (:action params))
         p (cond-> (dissoc params :action)
-            (some? (#{"undo" "redo" "delete"} action)) (select-keys [:id :resource]))
+            (some? (#{"undo" "redo" "clean"} action)) (select-keys [:id :resource]))
         payload (->pgobject p)
         creator (-> state :session-data :users/id)
         event {:payload     payload
@@ -65,7 +65,7 @@
       ->pgobject))
 
 (defn process-actions
-  "Process actions for `:delete` `:undo` `:redo`"
+  "Process actions for `clean` `undo` `redo`"
   [events]
   (let [do-redo (reduce (fn [acc event]
                           (if (and (= "redo" (:events/action event))
@@ -78,14 +78,12 @@
                                    (not= "create" (:events/action (last acc))))
                             (vec (butlast acc))
                             (conj acc event)))
-                        [] do-redo)
-        do-delete (reduce (fn [acc event]
-                            (if (= "delete" (:events/action event))
-                              (mapv #(update % :events/payload clean-pg) (conj acc event))
-                              (conj acc event)))
-                          [] do-undo)]
-    (prn (prn-str do-delete))
-    do-delete))
+                        [] do-redo)]
+    (reduce (fn [acc event]
+              (if (= "clean" (:events/action event))
+                (mapv #(update % :events/payload clean-pg) (conj acc event))
+                (conj acc event)))
+            [] do-undo)))
 
 (defn event->agg
   [events]

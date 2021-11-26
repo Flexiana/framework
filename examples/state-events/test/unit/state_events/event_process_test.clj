@@ -244,7 +244,7 @@
                :event-aggregate
                (dissoc :events/modified-at))))))
 
-(deftest event-interceptor-delete
+(deftest event-interceptor-clean
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
         user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:action   :create
@@ -261,7 +261,7 @@
                                   :resource  :persons
                                   :last-name "Doe"}
                          :method :post}
-                        {:params {:action   :delete
+                        {:params {:action   :clean
                                   :id       resource-uuid
                                   :resource :persons}
                          :method :post}]
@@ -274,7 +274,7 @@
                                     :request-data
                                     :event
                                     <-db)) states)
-        expectation {:events/action      "delete"
+        expectation {:events/action      "clean"
                      :events/creator     #uuid "54749a36-8305-4adb-a69c-d447ea19de45"
                      :events/payload     {:id "68849768-fc9f-4602-814e-8b6cbeedd4b3"
                                           :resource "persons"}
@@ -287,7 +287,7 @@
                :event-aggregate
                (dissoc :events/modified-at))))))
 
-(deftest event-interceptor-delete-and-modify
+(deftest event-interceptor-clean-and-modify
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
         user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:id       resource-uuid
@@ -309,7 +309,7 @@
                                   :resource :persons
                                   :city     "Fiorenze"}
                          :method :post}
-                        {:params {:action   :delete
+                        {:params {:action   :clean
                                   :id       resource-uuid
                                   :resource :persons}
                          :method :post}
@@ -394,7 +394,7 @@
                :event-aggregate
                (dissoc :events/modified-at))))))
 
-(deftest event-interceptor-delete-and-undo
+(deftest event-interceptor-clean-and-undo
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
         user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:action   :create
@@ -411,7 +411,7 @@
                                   :resource  :persons
                                   :last-name "Doe"}
                          :method :post}
-                        {:params {:action   :delete
+                        {:params {:action   :clean
                                   :id       resource-uuid
                                   :resource :persons}
                          :method :post}

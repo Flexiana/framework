@@ -23,7 +23,7 @@
 
 (defn info-panel []
   (let [atm @(re-frame/subscribe [:selected])]
-    (when atm
+    (when (seq atm)
       [:div {:style {:margin-left 50}}
        [:table {:class :table-bordered
                 :style {:min-width 350}}
@@ -55,14 +55,14 @@
   (let [persons (seq @(re-frame/subscribe [:persons]))]
     (when persons
       [:div
-       [:table {:class :table-bordered
-                :style {:min-width 350}}
-        [:tbody (doall (map (fn [[k v]]
-                              ^{:key k}
-                              [:tr {:on-click #(re-frame/dispatch [:table/click k])}
-                               [:td (name k)]
-                               [:td (str (:first-name v) " " (:last-name v))]])
-                            persons))]]])))
+       [:table.table.table-hover {:style {:width 600}}
+        [:tbody
+         (doall (map (fn [[k v]]
+                       ^{:key k}
+                       [:tr {:on-click #(re-frame/dispatch [:table/click k])}
+                        [:td (name k)]
+                        [:td (str (:first-name v) " " (:last-name v))]])
+                     persons))]]])))
 
 (def new-person
   [:button {:type  "button"

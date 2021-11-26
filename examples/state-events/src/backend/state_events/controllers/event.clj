@@ -78,7 +78,7 @@
   [state]
   (let [action (-> state :request-data :event :action)]
     (cond
-      (nil? (#{"modify" "undo" "redo" "delete"} action)) (invalid-action state)
+      (nil? (#{"modify" "undo" "redo" "clean"} action)) (invalid-action state)
       (exists state) (xiana/flow-> (assoc state
                                           :view view/view
                                           :side-effect send-event!)
