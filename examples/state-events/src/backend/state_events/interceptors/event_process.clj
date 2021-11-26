@@ -70,13 +70,13 @@
   (let [do-redo (reduce (fn [acc event]
                           (if (and (= "redo" (:events/action event))
                                    (= "undo" (:events/action (last acc))))
-                            (vec (butlast acc))
+                            (vec (butlast acc)) ; TODO undo for same user?
                             (conj acc event)))
                         [] events)
         do-undo (reduce (fn [acc event]
                           (if (and (= "undo" (:events/action event))
                                    (not= "create" (:events/action (last acc))))
-                            (vec (butlast acc))
+                            (vec (butlast acc)) ; TODO undo for same user?
                             (conj acc event)))
                         [] do-redo)]
     (reduce (fn [acc event]

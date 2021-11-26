@@ -20,8 +20,7 @@
       :ping (prn "ping")
       :modify (let [k (keyword (apply str (rest (:resource data)))
                                (:resource_id data))]
-                (prn k)
-                (re-frame/dispatch [:persons/modify k (:payload data)]))
+                (re-frame/dispatch [:persons/modify k data]))
       (constantly nil))))
 
 (defn connect! [url]

@@ -11,12 +11,13 @@
   :persons/modify
   (fn [cofx event]
     (let [[_ k v] event
+          payload (assoc (:payload v) :last-action (:action v))
           db (:db cofx)]
       {:db (cond->
-             (assoc-in db [:persons k] v)
+             (assoc-in db [:persons k] payload)
              (= (name k)
                 (get-in db [:selected :id]))
-             (assoc :selected v))})))
+             (assoc :selected payload))})))
 
 (re-frame/reg-event-fx
   :persons/create
