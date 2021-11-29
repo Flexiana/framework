@@ -16,5 +16,4 @@
   ::update-db
   (fn [db [_ v]]
     (let [value (keywordize-keys v)]
-      (prn "Hello v" value)
       (assoc db :persons (:data value)))))

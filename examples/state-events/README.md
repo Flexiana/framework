@@ -9,7 +9,7 @@ See the tests for an example resource. try it out on frontend
 
 ### Start dockerized PostgreSQL
 
-    ./postgres-start.sh
+    docker-compose up -d
 
 ### Log into psql console
 

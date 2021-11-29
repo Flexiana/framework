@@ -12,6 +12,25 @@
     (org.postgresql.util
       PGobject)))
 
+(defn- clean-pg
+  [^PGobject obj]
+  (-> obj
+      <-pgobject
+      (select-keys [:id :resource])
+      ->pgobject))
+
+(defn- rem-k
+  [^PGobject obj k]
+  (-> obj
+      <-pgobject
+      (dissoc (keyword k))
+      ->pgobject))
+
+(defn- remove-key
+  [acc event]
+  (let [rm-k (:remove (<-pgobject (:events/payload event)))]
+    (mapv #(update % :events/payload rem-k rm-k) acc)))
+
 (defn ->event
   "Inject event int the state"
   [state]
@@ -32,25 +51,6 @@
                :action      action
                :creator     creator}]
     (xiana/ok (assoc-in state [:request-data :event] event))))
-
-(defn clean-pg
-  [^PGobject obj]
-  (-> obj
-      <-pgobject
-      (select-keys [:id :resource])
-      ->pgobject))
-
-(defn rem-k
-  [^PGobject obj k]
-  (-> obj
-      <-pgobject
-      (dissoc (keyword k))
-      ->pgobject))
-
-(defn remove-key
-  [acc event]
-  (let [rm-k (:remove (<-pgobject (:events/payload event)))]
-    (mapv #(update % :events/payload rem-k rm-k) acc)))
 
 (defn process-actions
   "Process actions for `clean` `undo` `redo` `dissoc-key`"

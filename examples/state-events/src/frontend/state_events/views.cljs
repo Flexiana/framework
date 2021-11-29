@@ -26,7 +26,6 @@
       [:div {:style {:min-width 350
                      :margin-left 80}}
        [:table.table.table-hover
-
         [:thead [:tr [:th "Key"] [:th "Value"] [:th]]]
         [:tbody (doall (map (fn [[k v]]
                               ^{:key k}
@@ -35,15 +34,9 @@
                                [:td v]
                                [:td [:button {:on-click #(re-frame/dispatch [:field/remove k])} "Rm"]]])
                             atm))]]
-       [:button
-        {:on-click #(re-frame/dispatch [:selected/clean])}
-        "Clean"]
-       [:button
-        {:on-click #(re-frame/dispatch [:selected/undo])}
-        "Undo"]
-       [:button
-        {:on-click #(re-frame/dispatch [:selected/redo])}
-        "Redo"]])))
+       [:button {:on-click #(re-frame/dispatch [:selected/clean])} "Clean"]
+       [:button {:on-click #(re-frame/dispatch [:selected/undo])} "Undo"]
+       [:button {:on-click #(re-frame/dispatch [:selected/redo])} "Redo"]])))
 
 (defn inputs []
   (let [selected @(re-frame/subscribe [:selected])
@@ -71,9 +64,7 @@
   [:button {:type  "button"
             :style {:min-width 350
                     :margin-left 80}
-            :on-click
-            (fn [_]
-              (re-frame/dispatch [:persons/create (random-uuid)]))}
+            :on-click (fn [_] (re-frame/dispatch [:persons/create (random-uuid)]))}
    "Create new person resource"])
 
 (defn main-panel []

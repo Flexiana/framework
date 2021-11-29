@@ -1,6 +1,5 @@
 (ns state-events.core
   (:require
-    [clojure.core.async :as async]
     [framework.config.core :as config]
     [framework.cookies.core :as cookies]
     [framework.db.core :as db]
@@ -13,6 +12,7 @@
     [framework.webserver.core :as ws]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [reitit.ring :as ring]
+    [state-events.controller-behaviors.sse :as sseb]
     [state-events.controllers.event :as event]
     [state-events.controllers.index :as index]
     [state-events.controllers.re-frame :as re-frame]
@@ -20,10 +20,7 @@
                                        session-id->cookie]]
     [state-events.interceptors.event-process :as events]
     [xiana.commons :refer [rename-key]]
-    [xiana.core :as xiana])
-  (:import
-    (java.util
-      Date)))
+    [xiana.core :as xiana]))
 
 (defn resource-handler [state]
   (let [f (ring/create-resource-handler {:path "/"})]
@@ -70,12 +67,6 @@
     (db/docker-postgres! state)
     state))
 
-(defonce ^{:private true} ping-id (atom 0))
-
-(defn ping [deps]
-  (let [channel (get-in deps [:events-channel :channel])]
-    (async/>!! channel {:type :ping :id (swap! ping-id inc) :timestamp (.getTime (Date.))})))
-
 (defn ->system
   [app-cfg]
   (-> (config/config app-cfg)
@@ -87,7 +78,7 @@
       db/connect
       db/migrate!
       sse/init
-      (scheduler/start ping 10000)
+      (scheduler/start sseb/ping 10000)
       ws/start
       closeable-map))
 

@@ -109,10 +109,7 @@
 (re-frame/reg-event-db
   :table/click
   (fn [db event]
-    (prn "event" event)
     (let [id (second event)]
-      (prn "ID" (name id))
-      (prn (get-in db [:persons id]))
       (if (= (name id) (get-in db [:selected :id]))
         (assoc db :selected {})
         (assoc db :selected (get-in db [:persons id]))))))

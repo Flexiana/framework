@@ -2,14 +2,11 @@
   (:require
     [clojure.walk :refer [keywordize-keys]]
     [framework.db.core :as db]
-    [framework.sse.core :as sse]
     [jsonista.core :as json]
+    [state-events.controller-behaviors.sse :as sse]
     [state-events.models.event :as model]
     [state-events.views.event :as view]
-    [xiana.core :as xiana])
-  (:import
-    (java.sql
-      Timestamp)))
+    [xiana.core :as xiana]))
 
 (defn last-event
   [state]
@@ -43,20 +40,6 @@
                                     :resource    resource
                                     :resource-id resource-id})}))))
 
-(defn ->json
-  [m]
-  (reduce
-    (fn [acc [k v]]
-      (into acc {k (cond (uuid? v) (str v)
-                         (instance? Timestamp v) (.getTime v)
-                         :else v)})) {} m))
-
-(defn send-event!
-  [state]
-  (let [agg-event (get-in state [:response-data :event-aggregate])]
-    (sse/put! state (->json (assoc agg-event :type :modify))))
-  (xiana/ok state))
-
 (defn create-resource
   [state]
   (let [action (-> state :request-data :event :action str)
@@ -66,14 +49,14 @@
       (some? last-event) (resource-exist-error state "Resource already exists")
       :default (xiana/flow-> (assoc state
                                     :view view/aggregate
-                                    :side-effect send-event!)
+                                    :side-effect sse/send-event!)
                              model/add))))
 
 (defn ok
   [state]
   (xiana/flow-> (assoc state
                        :view view/aggregate
-                       :side-effect send-event!)
+                       :side-effect sse/send-event!)
                 model/add))
 
 (defn modify

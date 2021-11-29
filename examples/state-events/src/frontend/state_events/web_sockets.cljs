@@ -15,7 +15,6 @@
   (let [data (-> (.parse js/JSON (str/replace-first (.-data response) #"data: " ""))
                  (js->clj :keywordize-keys true)
                  (update :type keyword))]
-    (prn "data " data)
     (case (:type data)
       :ping (prn "ping")
       :modify (let [k (keyword (apply str (rest (:resource data)))
