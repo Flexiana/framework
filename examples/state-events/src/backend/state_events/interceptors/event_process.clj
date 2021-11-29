@@ -1,7 +1,7 @@
 (ns state-events.interceptors.event-process
   (:require
     [clojure.tools.logging :as logging]
-    [jsonista.core :as json]
+    [state-events.models.event :refer [<-pgobject ->pgobject]]
     [tick.core :as t]
     [xiana.core :as xiana])
   (:import
@@ -12,31 +12,6 @@
     (org.postgresql.util
       PGobject)))
 
-(def mapper (json/object-mapper {:decode-key-fn keyword}))
-(def ->json json/write-value-as-string)
-(def <-json #(json/read-value % mapper))
-
-(defn ->pgobject
-  "Transforms Clojure data to a PGobject that contains the data as
-  JSON. PGObject type defaults to `jsonb` but can be changed via
-  metadata key `:pgtype`"
-  [x]
-  (let [pgtype (or (:pgtype (meta x)) "jsonb")]
-    (doto (PGobject.)
-      (.setType pgtype)
-      (.setValue (->json x)))))
-
-(defn <-pgobject
-  "Transform PGobject containing `json` or `jsonb` value to Clojure
-  data."
-  [^PGobject v]
-  (let [type (.getType v)
-        value (.getValue v)]
-    (if (#{"jsonb" "json"} type)
-      (when value
-        (with-meta (<-json value) {:pgtype type}))
-      value)))
-
 (defn ->event
   "Inject event int the state"
   [state]
@@ -46,7 +21,8 @@
                             (-> state :request :params)))
         action (name (:action params))
         p (cond-> (dissoc params :action)
-            (some? (#{"undo" "redo" "clean"} action)) (select-keys [:id :resource]))
+            (some? (#{"undo" "redo" "clean"} action)) (select-keys [:id :resource])
+            (= "dissoc-key" action) (select-keys [:id :resource :remove]))
         payload (->pgobject p)
         creator (-> state :session-data :users/id)
         event {:payload     payload
@@ -64,24 +40,37 @@
       (select-keys [:id :resource])
       ->pgobject))
 
+(defn rem-k
+  [^PGobject obj k]
+  (-> obj
+      <-pgobject
+      (dissoc (keyword k))
+      ->pgobject))
+
+(defn remove-key
+  [acc event]
+  (let [rm-k (:remove (<-pgobject (:events/payload event)))]
+    (mapv #(update % :events/payload rem-k rm-k) acc)))
+
 (defn process-actions
-  "Process actions for `clean` `undo` `redo`"
+  "Process actions for `clean` `undo` `redo` `dissoc-key`"
   [events]
   (let [do-redo (reduce (fn [acc event]
                           (if (and (= "redo" (:events/action event))
                                    (= "undo" (:events/action (last acc))))
-                            (vec (butlast acc)) ; TODO undo for same user?
+                            (vec (butlast acc))             ; TODO undo for same user?
                             (conj acc event)))
                         [] events)
         do-undo (reduce (fn [acc event]
                           (if (and (= "undo" (:events/action event))
                                    (not= "create" (:events/action (last acc))))
-                            (vec (butlast acc)) ; TODO undo for same user?
+                            (vec (butlast acc))             ; TODO undo for same user?
                             (conj acc event)))
                         [] do-redo)]
     (reduce (fn [acc event]
-              (if (= "clean" (:events/action event))
-                (mapv #(update % :events/payload clean-pg) (conj acc event))
+              (case (:events/action event)
+                "clean" (mapv #(update % :events/payload clean-pg) (conj acc event))
+                "dissoc-key" (remove-key acc event)
                 (conj acc event)))
             [] do-undo)))
 

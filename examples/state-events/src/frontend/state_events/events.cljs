@@ -8,7 +8,7 @@
 (re-frame/reg-event-db
   ::initialize-db
   (fn [_ _]
-    (GET "/events"
+    (GET "/person"
          {:handler #(re-frame/dispatch [::update-db %])})
     db/default-db))
 

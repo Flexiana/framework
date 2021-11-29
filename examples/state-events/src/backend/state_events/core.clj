@@ -59,8 +59,9 @@
    ["/person" {:put  {:action       event/create-resource
                       :interceptors event-interceptors}
                :post {:action       event/modify
-                      :interceptors event-interceptors}}]
-   ["/events" {:get {:action event/collect}}]
+                      :interceptors event-interceptors}
+               :get  {:action event/persons}}]
+   ["/events" {:get {:action event/raw}}]
    ["/sse" {:ws-action sse/sse-action}]])
 
 (defn docker?

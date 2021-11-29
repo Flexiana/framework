@@ -1,8 +1,35 @@
 (ns state-events.models.event
   (:require
-    [honeysql.core :as sql]
     [honeysql.helpers :as sqlh]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [jsonista.core :as json])
+  (:import (org.postgresql.util PGobject)))
+
+
+(def mapper (json/object-mapper {:decode-key-fn keyword}))
+(def ->json json/write-value-as-string)
+(def <-json #(json/read-value % mapper))
+
+(defn ->pgobject
+  "Transforms Clojure data to a PGobject that contains the data as
+  JSON. PGObject type defaults to `jsonb` but can be changed via
+  metadata key `:pgtype`"
+  [x]
+  (let [pgtype (or (:pgtype (meta x)) "jsonb")]
+    (doto (PGobject.)
+      (.setType pgtype)
+      (.setValue (->json x)))))
+
+(defn <-pgobject
+  "Transform PGobject containing `json` or `jsonb` value to Clojure
+  data."
+  [^PGobject v]
+  (let [type (.getType v)
+        value (.getValue v)]
+    (if (#{"jsonb" "json"} type)
+      (when value
+        (with-meta (<-json value) {:pgtype type}))
+      value)))
 
 (defn add [state]
   (let [event (-> state :request-data :event)

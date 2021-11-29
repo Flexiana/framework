@@ -78,15 +78,21 @@
 
 (defn modify
   [state]
-  (let [{:keys [:action :creator]} (-> state :request-data :event)
+  (let [{:keys [:action :creator :payload]} (-> state :request-data :event)
         last-event (last-event state)
         last-action (:events/action last-event)
         last-creator (:events/creator last-event)]
     (if (some? last-event)
       (case action
+        "dissoc-key" (let [k (-> payload model/<-pgobject :remove)]
+                       (case k
+                         "resource" (invalid-action state "Cannot delete resource type")
+                         "id" (invalid-action state "Cannot delete id of resource")
+                         (ok state)))
         "modify" (ok state)
         "clean" (ok state)
-        "undo" (if (= last-creator creator)
+        "undo" (if (and (= last-creator creator)
+                        (not= "create" last-action))
                  (ok state)
                  (invalid-action state "Cannot undo, resource already modified by someone else!"))
         "redo" (cond
@@ -96,7 +102,12 @@
         (invalid-action state "Action and method not matching"))
       (resource-exist-error state "Resource does not exists"))))
 
-(defn collect
+(defn persons
   [state]
-  (xiana/flow-> (assoc state :view view/fetch-all)
+  (xiana/flow-> (assoc state :view view/persons)
+                model/fetch))
+
+(defn raw
+  [state]
+  (xiana/flow-> (assoc state :view view/raw)
                 model/fetch))

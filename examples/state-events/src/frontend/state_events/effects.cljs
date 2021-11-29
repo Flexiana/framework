@@ -1,11 +1,16 @@
 (ns state-events.effects
   (:require
     [ajax.core :refer [GET POST PUT]]
+    [clojure.walk :refer [keywordize-keys]]
     [re-frame.core :as re-frame]))
 
-(defn modify
-  [event]
-  (prn event))
+(defn on-error
+  [response]
+  (js/alert (str (->> response :response
+                      (.parse js/JSON)
+                      js->clj
+                      keywordize-keys
+                      :error))))
 
 (re-frame/reg-event-fx
   :persons/modify
@@ -25,44 +30,60 @@
   :persons/create
   (fn [{:keys [db]} event]
     (let [[_ v] event]
-      (PUT "/person" {:params {:action   :create
-                               :resource :persons
-                               :id       (str v)}}))
+      (PUT "/person" {:params        {:action   :create
+                                      :resource :persons
+                                      :id       (str v)}
+                      :error-handler on-error}))
     {:db db}))
 
 (defn modify-person
   [{:keys [db]} event]
-  (POST "/person" {:params (merge {:action   :modify
-                                   :resource :persons
-                                   :id       (get-in db [:selected :id])}
-                                  event)})
+  (POST "/person" {:params        (merge {:action   :modify
+                                          :resource :persons
+                                          :id       (get-in db [:selected :id])}
+                                         event)
+                   :error-handler on-error})
   {:db db})
 
 (re-frame/reg-event-fx
   :selected/clean
   (fn [{:keys [db]} event]
     (let [[_ v] event]
-      (POST "/person" {:params (merge (:selected db)
-                                      {:action   :clean
-                                       :resource :persons})}))
+      (POST "/person" {:params        (merge (:selected db)
+                                             {:action   :clean
+                                              :resource :persons})
+                       :error-handler on-error}))
     {:db db}))
 
 (re-frame/reg-event-fx
   :selected/undo
   (fn [{:keys [db]} event]
     (let [[_ v] event]
-      (POST "/person" {:params (merge (:selected db)
-                                      {:action   :undo
-                                       :resource :persons})}))
+      (POST "/person" {:params        (merge (:selected db)
+                                             {:action   :undo
+                                              :resource :persons})
+                       :error-handler on-error}))
     {:db db}))
 
 (re-frame/reg-event-fx
   :selected/redo
   (fn [{:keys [db]} event]
     (let [[_ v] event]
-      (POST "/person" {:params (merge (:selected db)
-                                      {:action   :redo
-                                       :resource :persons})}))
+      (POST "/person" {:params        (merge (:selected db)
+                                             {:action   :redo
+                                              :resource :persons})
+                       :error-handler on-error}))
+    {:db db}))
+
+(re-frame/reg-event-fx
+  :field/remove
+  (fn
+    [{:keys [db]} event]
+    (POST "/person" {:params        (merge {:action   :dissoc-key
+                                            :resource :persons
+                                            :id       (get-in db [:selected :id])}
+                                           event)
+                     :error-handler on-error})
     {:db db}))
 
 (re-frame/reg-event-fx

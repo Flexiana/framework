@@ -11,14 +11,22 @@
                 [:response :body :data]
                 (-> state :response-data :event-aggregate)))))
 
-(defn fetch-all
+(defn group-events
   [state]
-  (let [data (->> state :response-data :db-data
-                  (group-by #(format "%s/%s" (apply str (rest (:events/resource %))) (:events/resource_id %)))
-                  keywordize-keys)
-        aggregates (reduce (fn [acc [k v]]
-                             (into acc {k (:events/payload (event->agg v))}))
-                           {} data)]
-    (xiana/ok
-      (assoc-in state [:response :body :data]
-                aggregates))))
+  (->> state :response-data :db-data
+       (group-by #(format "%s/%s" (apply str (rest (:events/resource %))) (:events/resource_id %)))
+       keywordize-keys))
+
+(defn persons
+  [state]
+  (xiana/ok
+    (assoc-in state [:response :body :data]
+              (reduce (fn [acc [k v]] (into acc {k (:events/payload (event->agg v))}))
+                      {} (group-events state)))))
+
+(defn raw
+  [state]
+  (xiana/ok
+    (assoc-in state [:response :body :data]
+              (group-events state))))
+
