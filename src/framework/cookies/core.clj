@@ -7,22 +7,16 @@
 
 (def interceptor
   "Parses request and response cookies"
-  (letfn [(move-cookies
-            [req]
-            (if (get-in req [:headers "cookie"])
-              req
-              (assoc-in req [:headers "cookie"]
-                        (get-in req [:headers :cookie]))))
-          (parse-request-cookies
-            [req]
-            (keywordize-keys
-              (cookies/cookies-request (move-cookies req))))
-          (parse-response-cookies
-            [resp]
-            (cookies/cookies-response resp))]
+  (letfn [(move-cookies [{headers :headers :as req}]
+            (cond-> req
+              (not (get headers "cookie")) (assoc-in
+                                             [:headers "cookie"]
+                                             (:cookie headers))))
+          (parse-request-cookies [req]
+            (-> req move-cookies cookies/cookies-request keywordize-keys))]
     {:enter (fn [state]
               (xiana/ok
                 (update state :request
                         parse-request-cookies)))
      :leave (fn [state]
-              (xiana/ok (update state :response parse-response-cookies)))}))
+              (xiana/ok (update state :response cookies/cookies-response)))}))
