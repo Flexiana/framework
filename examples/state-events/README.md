@@ -4,7 +4,6 @@ Example application for event based resource handling. Supporting `undo`, `redo`
 
 See the tests for an example resource. try it out on frontend
 
-
 ## Usage
 
 ### Start dockerized PostgreSQL

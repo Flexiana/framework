@@ -1,5 +1,4 @@
-{:framework.db.storage/postgresql {:image-name "postgres:11.5-alpine"
-                                   :port       5433
+{:framework.db.storage/postgresql {:port       5433
                                    :dbname     "state_events"
                                    :host       "localhost"
                                    :dbtype     "postgresql"
