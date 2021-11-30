@@ -2,7 +2,7 @@
   (:gen-class)
   (:require
     [clojure.tools.logging :refer [*tx-agent-levels*]]
-    [clojure.tools.namespace.repl :refer [refresh]]
+    [clojure.tools.namespace.repl :refer [refresh-all]]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [shadow.cljs.devtools.api :as shadow.api]
     [shadow.cljs.devtools.server :as shadow.server]
@@ -17,10 +17,10 @@
 (defn- stop-dev-system
   []
   (when (:webserver @dev-sys) (do (.close @dev-sys)
-                                  (refresh)))
+                                  (refresh-all)))
   (reset! dev-sys (closeable-map {})))
 
-(defn- start-dev-system
+(defn start-dev-system
   []
   (stop-dev-system)
   (shadow.server/start!)

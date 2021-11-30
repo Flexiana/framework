@@ -40,7 +40,7 @@
                             (-> state :request :params)))
         action (name (:action params))
         p (cond-> (dissoc params :action)
-            (some? (#{"undo" "redo" "clean"} action)) (select-keys [:id :resource])
+            (some? (#{"undo" "redo" "clean" "delete"} action)) (select-keys [:id :resource])
             (= "dissoc-key" action) (select-keys [:id :resource :remove]))
         payload (->pgobject p)
         creator (-> state :session-data :users/id)

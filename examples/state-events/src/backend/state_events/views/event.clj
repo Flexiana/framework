@@ -14,15 +14,17 @@
 (defn group-events
   [state]
   (->> state :response-data :db-data
-       (group-by #(format "%s/%s" (apply str (rest (:events/resource %))) (:events/resource_id %)))
+       (group-by #(format "%s/%s" (apply str (:events/resource %)) (:events/resource_id %)))
        keywordize-keys))
 
 (defn persons
   [state]
-  (xiana/ok
-    (assoc-in state [:response :body :data]
-              (reduce (fn [acc [k v]] (into acc {k (:events/payload (event->agg v))}))
-                      {} (group-events state)))))
+  (let [persons (group-events state)
+        not-deleted (remove (fn [p] (#{"delete"} (-> p second last :events/action))) persons)]
+    (xiana/ok
+      (assoc-in state [:response :body :data]
+                (reduce (fn [acc [k v]] (into acc {k (:events/payload (event->agg v))}))
+                        {} not-deleted)))))
 
 (defn raw
   [state]

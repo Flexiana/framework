@@ -1,6 +1,6 @@
 (ns state
   (:require
-    [clojure.tools.namespace.repl :refer [refresh disable-reload!]]
+    [clojure.tools.namespace.repl :refer [disable-reload!]]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]))
 
 (disable-reload!)

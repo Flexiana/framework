@@ -18,8 +18,11 @@
     (case (:type data)
       :ping (prn "ping")
       :modify (let [k (keyword (apply str (rest (:resource data)))
-                               (:resource_id data))]
-                (re-frame/dispatch [:persons/modify k data]))
+                               (:resource_id data))
+                    a (:action data)]
+                (case a
+                  "delete" (re-frame/dispatch [:persons/delete k])
+                  (re-frame/dispatch [:persons/modify k data])))
       (constantly nil))))
 
 (defn connect! [url]

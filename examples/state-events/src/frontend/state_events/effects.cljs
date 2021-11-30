@@ -1,6 +1,6 @@
 (ns state-events.effects
   (:require
-    [ajax.core :refer [GET POST PUT]]
+    [ajax.core :refer [DELETE GET POST PUT]]
     [clojure.walk :refer [keywordize-keys]]
     [re-frame.core :as re-frame]))
 
@@ -16,15 +16,22 @@
   :persons/modify
   (fn [cofx event]
     (let [[_ k v] event
-          payload (assoc (:payload v)
-                         :--last-action (:action v)
-                         :--last-modified-by (:creator v))
+          payload (:payload v)
           db (:db cofx)]
       {:db (cond->
              (assoc-in db [:persons k] payload)
              (= (name k)
                 (get-in db [:selected :id]))
              (assoc :selected payload))})))
+
+(re-frame/reg-event-fx
+  :persons/delete
+  (fn [cofx event]
+    (let [[_ k] event
+          db (:db cofx)]
+      {:db (->
+             (update db :persons dissoc k)
+             (assoc :selected {}))})))
 
 (re-frame/reg-event-fx
   :persons/create
@@ -84,6 +91,16 @@
                                             :id       (get-in db [:selected :id])}
                                            event)
                      :error-handler on-error})
+    {:db db}))
+
+(re-frame/reg-event-fx
+  :selected/delete
+  (fn [{:keys [db]} event]
+    (let [[_ v] event]
+      (DELETE "/person" {:params        (merge (:selected db)
+                                               {:action   :delete
+                                                :resource :persons})
+                         :error-handler on-error}))
     {:db db}))
 
 (re-frame/reg-event-fx

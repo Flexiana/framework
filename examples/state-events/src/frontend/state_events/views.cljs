@@ -34,9 +34,13 @@
                                [:td v]
                                [:td [:button {:on-click #(re-frame/dispatch [:field/remove k])} "Rm"]]])
                             atm))]]
-       [:button {:on-click #(re-frame/dispatch [:selected/clean])} "Clean"]
-       [:button {:on-click #(re-frame/dispatch [:selected/undo])} "Undo"]
-       [:button {:on-click #(re-frame/dispatch [:selected/redo])} "Redo"]])))
+       [:div {:class "d-flex justify-content-between"}
+        [:div
+         [:button {:on-click #(re-frame/dispatch [:selected/clean])} "Clean"]
+         [:button {:on-click #(re-frame/dispatch [:selected/undo])} "Undo"]
+         [:button {:on-click #(re-frame/dispatch [:selected/redo])} "Redo"]]
+        [:div
+         [:button {:on-click #(re-frame/dispatch [:selected/delete])} "Delete"]]]])))
 
 (defn inputs []
   (let [selected @(re-frame/subscribe [:selected])

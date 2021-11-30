@@ -57,6 +57,8 @@
                       :interceptors event-interceptors}
                :post {:action       event/modify
                       :interceptors event-interceptors}
+               :delete {:action       event/delete
+                        :interceptors event-interceptors}
                :get  {:action event/persons}}]
    ["/events" {:get {:action event/raw}}]
    ["/sse" {:ws-action sse/sse-action}]])

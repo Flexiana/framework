@@ -65,7 +65,7 @@
         last-event (last-event state)
         last-action (:events/action last-event)
         last-creator (:events/creator last-event)]
-    (if (nil? last-event)
+    (if (or (nil? last-event) (= "delete" last-action))
       (resource-exist-error state "Resource does not exists")
       (case action
         "dissoc-key" (let [k (-> payload model/<-pgobject :remove)]
@@ -83,6 +83,15 @@
                  (not= last-creator creator) (invalid-action state "Cannot redo, resource already modified by someone else!")
                  (not= "undo" last-action) (invalid-action state "Cannot redo, last action wasn't undo!")
                  :default (ok state))
+        (invalid-action state "Action and method not matching")))))
+
+(defn delete
+  [state]
+  (let [{:keys [:action :creator :payload]} (-> state :request-data :event)]
+    (if (nil? last-event)
+      (resource-exist-error state "Resource does not exists")
+      (case action
+        "delete" (ok state)
         (invalid-action state "Action and method not matching")))))
 
 (defn persons
