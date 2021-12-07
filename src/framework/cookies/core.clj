@@ -5,20 +5,18 @@
     [ring.middleware.cookies :as cookies]
     [xiana.core :as xiana]))
 
-(defn- parse-request-cookies
-  [req]
-  (keywordize-keys
-    (cookies/cookies-request req)))
-
-(defn- parse-response-cookies
-  [resp]
-  (cookies/cookies-response resp))
-
 (def interceptor
   "Parses request and response cookies"
-  {:enter (fn [state]
-            (xiana/ok
-              (update state :request
-                      parse-request-cookies)))
-   :exit  (fn [state]
-            (xiana/ok (update state :response parse-response-cookies)))})
+  (letfn [(move-cookies [{headers :headers :as req}]
+            (cond-> req
+              (not (get headers "cookie")) (assoc-in
+                                             [:headers "cookie"]
+                                             (:cookie headers))))
+          (parse-request-cookies [req]
+            (-> req move-cookies cookies/cookies-request keywordize-keys))]
+    {:enter (fn [state]
+              (xiana/ok
+                (update state :request
+                        parse-request-cookies)))
+     :leave (fn [state]
+              (xiana/ok (update state :response cookies/cookies-response)))}))

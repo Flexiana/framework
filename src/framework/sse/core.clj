@@ -22,7 +22,7 @@
   (close [this]
     (.close! (:channel this))
     (doseq [c @(:clients this)]
-      (.close c))))
+      (server/close c))))
 
 (defn init [config]
   (let [channel (async/chan 5)
@@ -42,7 +42,8 @@
     (server/as-channel (:request state)
                        {:init       (fn [ch]
                                       (swap! clients conj ch)
-                                      (server/send! ch {:headers headers} false))
+                                      (server/send! ch {:headers headers
+                                                        :body (json/write-str {})}) false)
                         :on-receive (fn [ch message])
                         :on-ping    (fn [ch data])
                         :on-close   (fn [ch status] (swap! clients disj ch))
