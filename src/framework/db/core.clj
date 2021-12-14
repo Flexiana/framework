@@ -66,13 +66,12 @@
   ([config]
    (migrate! config 0))
   ([config count]
-   (try (let [db-conf {:datasource (-> config
-                                       :framework.db.storage/postgresql
-                                       :datasource
-                                       jdbc/get-datasource)}
+   (try (let [db-conf    {:datasource (-> config
+                                          :framework.db.storage/postgresql
+                                          :datasource
+                                          jdbc/get-datasource)}
               mig-config (assoc (:framework.db.storage/migration config)
                                 :db db-conf)]
-          (def mc mig-config)
           (migratus/migrate mig-config))
         (catch Exception e (if (< count 10)
                              (migrate! config (inc count))
