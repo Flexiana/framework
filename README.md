@@ -16,7 +16,7 @@ Xiana has its own leiningen template, so you can create a skeleton project with
 ```shell
 lein new xiana app
 ```
-[getting-started](./doc/getting-started) explains how to use this to create a very simple app with a db, a backend offering an API, and a frontend that displays something from the database.
+[getting-started](./doc/getting-started.md) explains how to use this to create a very simple app with a db, a backend offering an API, and a frontend that displays something from the database.
 
 ### As a dependency
 
