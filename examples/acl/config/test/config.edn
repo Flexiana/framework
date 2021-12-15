@@ -1,4 +1,4 @@
-{:framework.db.storage/postgresql {:image-name "postgres:11.5-alpine"
+{:framework.db.storage/postgresql {:image-name "postgres:14-alpine"
                                    :port       5433
                                    :dbname     "acl"
                                    :host       "localhost"
