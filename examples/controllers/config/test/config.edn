@@ -1,4 +1,5 @@
-{:framework.db.storage/postgresql {:port     5432
+{:framework.db.storage/postgresql {:image-name "postgres:14-alpine"
+                                   :port     5432
                                    :dbname   "controllers"
                                    :host     "localhost"
                                    :dbtype   "postgresql"
