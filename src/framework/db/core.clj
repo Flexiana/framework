@@ -10,8 +10,6 @@
   (:import
     (java.lang
       AutoCloseable)
-    (javax.sql
-      DataSource)
     (org.postgresql.jdbc
       PgConnection)))
 
@@ -28,14 +26,21 @@
     (when-let [emb (embedded this)]
       (.close emb))))
 
+(def default-opts {:return-keys true})
+
 (defn- get-datasource
   ([config]
    (get-datasource config 0))
   ([config count]
-   (try (jdbc/get-datasource (:framework.db.storage/postgresql config))
-        (catch Exception e (if (< count 10)
-                             (get-datasource config (inc count))
-                             (throw e))))))
+   (let [jdbc-opts (merge default-opts
+                          (:framework.db.storage/jdbc-opts config))]
+     (try (-> config
+              :framework.db.storage/postgresql
+              jdbc/get-datasource
+              (jdbc/with-options jdbc-opts))
+          (catch Exception e (if (< count 10)
+                               (get-datasource config (inc count))
+                               (throw e)))))))
 
 (defn docker-postgres!
   [{pg-config :framework.db.storage/postgresql :as config}]
@@ -61,8 +66,12 @@
   ([config]
    (migrate! config 0))
   ([config count]
-   (try (let [db (:framework.db.storage/postgresql config)
-              mig-config (assoc (:framework.db.storage/migration config) :db db)]
+   (try (let [db-conf    {:datasource (-> config
+                                          :framework.db.storage/postgresql
+                                          :datasource
+                                          jdbc/get-datasource)}
+              mig-config (assoc (:framework.db.storage/migration config)
+                                :db db-conf)]
           (migratus/migrate mig-config))
         (catch Exception e (if (< count 10)
                              (migrate! config (inc count))
@@ -91,23 +100,23 @@
   "Gets datasource, parse the given sql-map (query) and
   execute it using `jdbc/execute!`, and returns the modified keys"
   [datasource sql-map]
-  {:pre [(instance? DataSource datasource)]}
-  (with-open [connection (.getConnection datasource)]
-    (let [sql-params (->sql-params sql-map)]
-      (jdbc/execute! connection sql-params {:return-keys true}))))
+  (let [sql-params (->sql-params sql-map)]
+    (jdbc/execute! datasource sql-params default-opts)))
 
 (defn in-transaction
-  [tx sql-map]
-  {:pre [(instance? PgConnection tx)]}
-  (let [sql-params (->sql-params sql-map)]
-    (jdbc/execute! tx sql-params {:return-keys true})))
+  ([tx sql-map]
+   (in-transaction tx sql-map nil))
+  ([tx sql-map jdbc-opts]
+   {:pre [(instance? PgConnection tx)]}
+   (let [sql-params (->sql-params sql-map)]
+     (jdbc/execute! tx sql-params (merge default-opts jdbc-opts)))))
 
 (defn multi-execute!
   [datasource {:keys [queries transaction?]}]
   (if transaction?
     (jdbc/with-transaction
       [tx datasource]
-      (mapv #(in-transaction tx %) queries))
+      (mapv #(in-transaction tx % (:options datasource)) queries))
     (mapv #(execute datasource %) queries)))
 
 (def db-access
@@ -122,9 +131,9 @@
          db-queries :db-queries
          :as        state}]
      (let [datasource (get-in state [:deps :db :datasource])
-           db-data (cond-> []
-                     query (into (execute datasource query))
-                     db-queries (into (multi-execute! datasource db-queries))
-                     :always seq)]
+           db-data    (cond-> []
+                        query      (into (execute datasource query))
+                        db-queries (into (multi-execute! datasource db-queries))
+                        :always    seq)]
        (xiana/ok
          (assoc-in state [:response-data :db-data] db-data))))})
