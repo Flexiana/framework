@@ -1,8 +1,8 @@
 ![Xiana logo](resources/images/Xiana.png)
 # Xiana framework
 
-Xiana is a lightweight web-application framework written in clojure, for clojure. The goal is to be simple, fast, and
-most important - a welcoming platform for web programmers with different backgrounds who want to experience the wonders
+Xiana is a lightweight web-application framework written in Clojure, for Clojure. The goal is to be simple, fast, and
+most importantly - a welcoming platform for web programmers with different backgrounds who want to experience the wonders
 of functional programming!
 
 It's easy to install, fun to experiment with, and a powerful tool to produce monolithic web applications.
@@ -11,7 +11,7 @@ It's easy to install, fun to experiment with, and a powerful tool to produce mon
 
 ### From template
 
-Xiana has its own leiningen template, so you can create a skeleton project with
+Xiana has its own Leiningen template, so you can create a skeleton project with
 
 ```shell
 lein new xiana app
@@ -45,4 +45,4 @@ Visit [examples folder](examples), to see how you can perform
 
 1. http://funcool.github.io/cats/latest/
 2. https://medium.com/@yuriigorbylov/monads-and-why-do-they-matter-9a285862e8b4
-3. http://pedestal.io/reference/interceptors.
+3. http://pedestal.io/reference/interceptors
