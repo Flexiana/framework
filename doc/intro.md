@@ -39,5 +39,5 @@ If you'd like to define some of them, their keys are: `:bcrypt :scrypt :pbkdf2`.
                                        :iterations 100000}}
 ```
 
-The module has `make` (it generate a hashed password) and `check` (it verify encrypted password against current string) functions to deal with hashing process.
+The module has `make` (it generate a hashed password) and `check` (it verifies the encrypted password against the current string) functions to deal with hashing process.
 
