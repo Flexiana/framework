@@ -35,8 +35,7 @@
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-  (is (= {:body   "Not Found"
-          :status 404}
+  (is (= {:status 404, :body "Not found"}
          (-> {:url                  "http://localhost:3333/wrong"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]
@@ -72,7 +71,6 @@
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-
   (is (= {:status 400
           :body "Request coercion failed"}
          (-> {:url                  "http://localhost:3333/api/siege-machines/1c"
@@ -82,7 +80,6 @@
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-
   (is (= {:status 400
           :body "Response validation failed"}
          (-> {:url                  "http://localhost:3333/api/siege-machines/3"
@@ -92,7 +89,6 @@
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-
   (is (= {:body   "{\"id\":2,\"name\":\"battering-ram\",\"created\":\"2021-03-05\"}"
           :status 200}
          (-> {:url                  "http://localhost:3333/api/siege-machines/2"

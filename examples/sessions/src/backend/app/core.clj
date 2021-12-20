@@ -36,7 +36,7 @@
       closeable-map))
 
 (def app-cfg
-  {:routes routes
+  {:routes                  routes
    :controller-interceptors [x-interceptors/params
                              (x-session/protected-interceptor "" "/login")]})
 

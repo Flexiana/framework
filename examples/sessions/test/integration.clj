@@ -30,13 +30,14 @@
              http/request
              (select-keys [:status :body])))
       "Should login to see the secret page")
-  (is (= {:status 401, :body "{\"message\":\"Invalid or missing session\"}"}
+  (is (= {:body   "Not found"
+          :status 404}
          (-> {:url                  "http://localhost:3333/wrong"
               :unexceptional-status (constantly true)
               :method               :get}
              http/request
              (select-keys [:status :body])))
-      "A missing page is hidden too"))
+      "A missing page is missing"))
 
 (deftest login-fails-on-empty-body
   (let [login-request {:url                  "http://localhost:3333/login"
@@ -44,7 +45,7 @@
                        :method               :post}
         login-response (http/request login-request)]
     (is (= {:status 401
-            :body "Missing credentials"}
+            :body   "Missing credentials"}
            (select-keys login-response [:status :body])))))
 
 (deftest testing-with-login
@@ -86,7 +87,7 @@
                http/request
                (select-keys [:status :body])))
         "The secret page is visible with login")
-    (is (= {:body   "Not Found"
+    (is (= {:body   "Not found"
             :status 404}
            (-> {:url                  "http://localhost:3333/wrong"
                 :unexceptional-status (constantly true)
@@ -139,11 +140,12 @@
                http/request
                (select-keys [:status :body])))
         "The secret page gets hidden")
-    (is (= {:status 401, :body "{\"message\":\"Invalid or missing session\"}"}
+    (is (= {:body   "Not found"
+            :status 404}
            (-> {:url                  "http://localhost:3333/wrong"
                 :unexceptional-status (constantly true)
                 :headers              {:session-id session-id}
                 :method               :get}
                http/request
                (select-keys [:status :body])))
-        "Do not reveal if a page is missing")))
+        "A missing page is missing")))
