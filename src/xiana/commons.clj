@@ -1,5 +1,8 @@
 (ns xiana.commons)
 
+(def x-name (comp keyword name))
+(def x-namespace (comp keyword namespace))
+
 (defn ?assoc-in
   "Same as assoc-in, but skip the assoc if v is nil"
   [m [k & ks] v]
