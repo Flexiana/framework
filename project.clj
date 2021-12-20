@@ -1,4 +1,4 @@
-(defproject com.flexiana/framework "0.3.3"
+(defproject com.flexiana/framework "0.3.4"
   :description "Framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
@@ -28,8 +28,7 @@
                  [org.testcontainers/testcontainers "1.16.2"]
                  [piotr-yuxuan/closeable-map "0.35.0"]
                  [potemkin "0.4.5"]
-                 [seancorfield/next.jdbc "1.1.613"]
-                 [yogthos/config "1.1.7"]]
+                 [seancorfield/next.jdbc "1.1.613"]]
   :source-paths ["src"]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths         ["config/dev"]}
@@ -49,26 +48,11 @@
                         :dependencies   [[lambdaisland/kaocha "1.0.732"]
                                          [stylefruits/gniazdo "1.2.0"]
                                          [lambdaisland/kaocha-cloverage "1.0.75"]
-                                         [mvxcvi/cljstyle "0.14.0"
+                                         [mvxcvi/cljstyle "0.15.0"
                                           :exclusions [org.clojure/clojure]]
                                          [clj-kondo "2021.01.20"]
                                          [nubank/matcher-combinators "3.1.4"]]}}
-  :aliases {"check-style" ["with-profile"
-                           "+test"
-                           "run"
-                           "-m"
-                           "cljstyle.main"
-                           "check"]
-            "fix-style"   ["with-profile"
-                           "+test"
-                           "run"
-                           "-m"
-                           "cljstyle.main"
-                           "fix"]
-            "test"        ["with-profile"
-                           "+test"
-                           "run"
-                           "-m"
-                           "kaocha.runner"
-                           "--plugin" "cloverage"]
+  :aliases {"check-style" ["with-profile" "+test" "run" "-m" "cljstyle.main" "check"]
+            "fix-style"   ["with-profile" "+test" "run" "-m" "cljstyle.main" "fix"]
+            "test"        ["with-profile" "+test" "run" "-m" "kaocha.runner" "--plugin" "cloverage"]
             "pre-hook"    ["do" ["check-style"] ["do" "test"]]})

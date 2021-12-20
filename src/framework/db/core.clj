@@ -33,9 +33,10 @@
    (get-datasource config 0))
   ([config count]
    (let [jdbc-opts (merge default-opts
-                          (:framework.db.storage/jdbc-opts config))]
+                          (get-in config [:framework.db.storage :jdbc-opts]))]
      (try (-> config
-              :framework.db.storage/postgresql
+              :framework.db.storage
+              :postgresql
               jdbc/get-datasource
               (jdbc/with-options jdbc-opts))
           (catch Exception e (if (< count 10)
@@ -43,34 +44,36 @@
                                (throw e)))))))
 
 (defn docker-postgres!
-  [{pg-config :framework.db.storage/postgresql :as config}]
+  [{{pg-config :postgresql} :framework.db.storage
+    :as                     config}]
   (let [{:keys [dbname user password image-name]} pg-config
-        container            (-> (tc/create
-                                   {:image-name    image-name
-                                    :exposed-ports [5432]
-                                    :env-vars      {"POSTGRES_DB"       dbname
-                                                    "POSTGRES_USER"     user
-                                                    "POSTGRES_PASSWORD" password}})
-                                 (tc/start!))
-        port                 (get (:mapped-ports container) 5432)
-        pg-config            (assoc
-                               pg-config
-                               :port port
-                               :embedded container
-                               :subname (str "//localhost:" port "/" dbname))]
+        container (-> (tc/create
+                        {:image-name    image-name
+                         :exposed-ports [5432]
+                         :env-vars      {"POSTGRES_DB"       dbname
+                                         "POSTGRES_USER"     user
+                                         "POSTGRES_PASSWORD" password}})
+                      (tc/start!))
+        port (get (:mapped-ports container) 5432)
+        pg-config (assoc
+                    pg-config
+                    :port port
+                    :embedded container
+                    :subname (str "//localhost:" port "/" dbname))]
     (tc/wait {:wait-strategy :log
               :message       "accept connections"} (:container container))
-    (assoc config :framework.db.storage/postgresql pg-config)))
+    (assoc-in config [:framework.db.storage :postgresql] pg-config)))
 
 (defn migrate!
   ([config]
    (migrate! config 0))
   ([config count]
-   (try (let [db-conf    {:datasource (-> config
-                                          :framework.db.storage/postgresql
-                                          :datasource
-                                          jdbc/get-datasource)}
-              mig-config (assoc (:framework.db.storage/migration config)
+   (try (let [db-conf {:datasource (-> config
+                                       :framework.db.storage
+                                       :postgresql
+                                       :datasource
+                                       jdbc/get-datasource)}
+              mig-config (assoc (get-in config [:framework.db.storage :migration])
                                 :db db-conf)]
           (migratus/migrate mig-config))
         (catch Exception e (if (< count 10)
@@ -81,10 +84,11 @@
 (defn connect
   "Adds `:datasource` key to the `:framework.db.storage/postgresql` config section
   and duplicates `:framework.db.storage/postgresql` under the top-level `:db` key."
-  [{pg-config :framework.db.storage/postgresql :as config}]
+  [{{pg-config :postgresql} :framework.db.storage :as config}]
   (let [pg-config (assoc pg-config :datasource (get-datasource config))]
-    (assoc config
-           :framework.db.storage/postgresql pg-config
+    (assoc (assoc-in config
+                     [:framework.db.storage :postgresql]
+                     pg-config)
            :db pg-config)))
 
 (defn ->sql-params
@@ -131,9 +135,9 @@
          db-queries :db-queries
          :as        state}]
      (let [datasource (get-in state [:deps :db :datasource])
-           db-data    (cond-> []
-                        query      (into (execute datasource query))
-                        db-queries (into (multi-execute! datasource db-queries))
-                        :always    seq)]
+           db-data (cond-> []
+                     query (into (execute datasource query))
+                     db-queries (into (multi-execute! datasource db-queries))
+                     :always seq)]
        (xiana/ok
          (assoc-in state [:response-data :db-data] db-data))))})

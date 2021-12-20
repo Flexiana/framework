@@ -16,6 +16,15 @@
 
 (defn rename-key
   [m from to]
-  (-> m
-      (assoc to (get m from))
-      (dissoc from)))
+  (let [v (if (qualified-keyword? from)
+            (get-in m [(x-namespace from) (x-name from)])
+            (get m from))]
+    (assoc m to v)))
+
+(defn deep-merge [& maps]
+  (apply merge-with
+         (fn [& args]
+           (if (every? map? args)
+             (apply deep-merge args)
+             (last args)))
+         maps))

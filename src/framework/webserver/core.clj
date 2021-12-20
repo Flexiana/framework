@@ -18,7 +18,7 @@
 (defn- make
   "Web server instance."
   [dependencies]
-  (let [options (:webserver dependencies (:framework.app/web-server dependencies))]
+  (let [options (:webserver dependencies (get-in dependencies [:framework.app :web-server]))]
     (map->webserver
       {:options options
        :server  (server/run-server (handler-fn dependencies) options)})))

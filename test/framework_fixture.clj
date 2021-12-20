@@ -12,8 +12,7 @@
 
 (defn ->system
   [app-cfg]
-  (-> (config/config)
-      (merge app-cfg)
+  (-> (config/config app-cfg)
       (rename-key :framework.app/auth :auth)
       session-backend/init-in-memory
       db-core/docker-postgres!
