@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  tests:
+  check-examples:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,8 +26,5 @@ jobs:
         restore-keys: |
           m2-
 
-    - name: Run cljstyle
-      run: lein check-style src test
-
-    - name: Run tests
-      run: lein test
+    - name: Checking examples
+      run: ./example-tests.sh
