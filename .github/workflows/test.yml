@@ -31,3 +31,6 @@ jobs:
 
     - name: Run tests
       run: lein test
+
+    - name: Checking examples
+      run: ./example-tests.sh
