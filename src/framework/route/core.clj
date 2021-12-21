@@ -132,8 +132,10 @@
       (empty? act) (not-found)
       :else (let [action (get acts request-method acts)
                   action (if websocket? (rename-key action :ws-action :action) action)]
-              {:request-data (assoc action :match {:data action :path-params params})
-               :request      {:params (assoc params :path params)}}))))
+              (if (:action action)
+                {:request-data (assoc action :match {:data action :path-params params})
+                 :request      {:params (assoc params :path params)}}
+                (not-found))))))
 
 (defn router
   "Matches uri and method with defined routes. Returns defined subs"
