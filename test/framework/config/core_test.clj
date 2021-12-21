@@ -46,7 +46,7 @@
     (is (= {:dbname     "framework"
             :dbtype     "postgresql"
             :host       "localhost"
-            :image-name "postgres:11.5-alpine"
+            :image-name "postgres:14-alpine"
             :password   "postgres"
             :port       5432
             :user       "Nobody"}
