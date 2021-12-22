@@ -44,7 +44,7 @@
 (def config-file
   (some-> (io/resource "config.edn") slurp edn/read-string))
 
-(defn config*
+(defn- config*
   "Returns a new config instance.
 
   You can pass path to the config file with the `:framework-edn-config` key.
