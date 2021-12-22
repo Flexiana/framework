@@ -9,7 +9,7 @@
   []
   (throw (ex-info "Not found"
                   {:status 404
-                   :body "Not found"})))
+                   :body   "Not found"})))
 
 (defn not-valid
   []
@@ -34,9 +34,10 @@
     (apply str
            (concat
              (map
-               (fn [v] (if (or (keyword? (extract v))
-                               (= "/*" v))
-                         "/([-a-zA-Z0-9._~!$&'()*+,;=:@]*)" v))
+               (fn [v] (cond
+                         (keyword? (extract v)) "/([-a-zA-Z0-9._~!$&'()*+,;=:@]*)"
+                         (= "/*" v) "(/.*)"
+                         :else v))
                (uri->seq uri))
              ["$"]))))
 
@@ -60,6 +61,11 @@
       :else [act (into {} (map (fn [k v]
                                  [(extract k) v])
                                ks (rest m)))])))
+
+(defn group-routes
+  [routes]
+  (assoc (group-by #(-> % first uri->seq count) (remove #(str/ends-with? (first %) "/*") routes))
+         ::* (filter #(str/ends-with? (first %) "/*") routes)))
 
 (defn prepare
   "Preparing routes. Collecting the paths and actions from definition"
@@ -137,16 +143,20 @@
                  :request      {:params (assoc params :path params)}}
                 (not-found))))))
 
+(defn get-possible [length-grouped-routes length]
+  (concat (get length-grouped-routes length)
+          (get length-grouped-routes ::*)))
+
 (defn router
   "Matches uri and method with defined routes. Returns defined subs"
   [routes]
   ;; prepared routes are grouped via number of path elements for faster resolution
-  (let [length-grouped-routes (group-by #(-> % first uri->seq count) (prepare (unpack-var routes)))]
+  (let [grouped-routes (group-routes (prepare (unpack-var routes)))]
     (fn router**
       [{req :request :as state}]
       (xiana/ok (let [uri (:uri req)
                       matching-routes (->> uri uri->seq count
-                                           (get length-grouped-routes)
+                                           (get-possible grouped-routes)
                                            (map #(uri-match % uri))
                                            (remove nil?))
                       new-state (case (count matching-routes)
@@ -154,5 +164,5 @@
                                   1 (routing matching-routes req)
                                   (throw (ex-info "Invalid routing"
                                                   {:status 500
-                                                   :body "Invalid routing configuration"})))]
+                                                   :body   "Invalid routing configuration"})))]
                   (deep-merge state new-state))))))

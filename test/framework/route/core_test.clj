@@ -28,7 +28,8 @@
              :put {:action :new-todo}}
     ["/:id" {:get    {:action :get-one-todo}
              :post   {:action :modify-todo}
-             :delete {:action :delete-todo}}]]])
+             :delete {:action :delete-todo}}]]
+   ["/assets/*" {:action :asset-handler}]])
 
 (deftest contains-updated-request-data
   (let [router* (route/router simple-routes)
@@ -81,3 +82,14 @@
             :match  {:data        {:action :new-todo}
                      :path-params {:id "123"}}}
            (request-data router* {:uri "/todo/123" :request-method :put})))))
+
+(deftest assets-test
+  (let [router* (route/router complex-routes)]
+    (is (= {:action :asset-handler
+            :match  {:data        {:action :asset-handler}
+                     :path-params {:* "/123"}}}
+           (request-data router* {:uri "/assets/123" :request-method :put})))
+    (is (= {:action :asset-handler
+            :match  {:data        {:action :asset-handler}
+                     :path-params {:* "/123/456"}}}
+           (request-data router* {:uri "/assets/123/456" :request-method :put})))))
