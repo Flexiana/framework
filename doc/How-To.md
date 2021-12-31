@@ -280,8 +280,8 @@ CREATE TABLE sessions (
   ```
     - Creating new datasource
 
-  If no datasource provided on initialization, the `init-backend` function merging the database config with session
-  backend configuration,and creates a new datasource from the result.
+  If no datasource is provided on initialization, the `init-backend` function merges the database config with the 
+  session backend configuration, and creates a new datasource from the result.
 
 ### Session interceptors
 [See interceptors](interceptors.md#session)
