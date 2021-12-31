@@ -2,6 +2,7 @@
 
 - [Login implementation](#login-implementation)
 - [Logout implementation](#logout-implementation)
+- [Session management](#session-management)
 - [Access and data ownership control](#access-and-data-ownership-control)
     - [Role set definition](#role-set-definition)
     - [Provide resource/action at routing](#provide-resourceaction-at-routing)
@@ -209,6 +210,82 @@ and use it:
                   (assoc :view views/logout-view)))))
 ```
 
+## Session management
+
+Session management is done via two components
+
+- session backend, which can be
+    - in-memory
+    - persistent
+- session interceptors
+
+### In memory session backend
+
+Basically it's an atom backed session protocol implementation, allows you to `fetch` `add!` `delete!` `dump`
+and `erase!` session data, or the whole session storage. It doesn't require any additional configuration, and this is
+the default set up for handling session storage. All stored session data is wiped out on system restart.
+
+### Persistent session backend
+
+Instead of atom, it uses a postgresql table to store session data. Has the same protocol as in-memory. Configuration is
+necessary to use it.
+
+- it's necessary to have a table in postgres:
+
+```postgres-sql
+CREATE TABLE sessions (
+    session_data json not null,
+    session_id uuid primary key,
+    modified_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+- you need to define the session's configuration in you `config.edn` files:
+
+```clojure
+ :framework.app/session-backend {:storage            :database
+                                 :session-table-name :sessions}
+```
+
+- in case of
+    - missing `:storage` key, `in-memory` session backend will be used
+    - missing `:session-table-name` key, `:sessions` table will be used
+
+- the database connection can be configured in three ways:
+
+  In resolution order
+    - via additional configuration
+  ```clojure
+   :framework.app/session-backend   {:storage            :database
+                                     :session-table-name :sessions
+                                     :port               5433
+                                     :dbname             "app-db"
+                                     :host               "localhost"
+                                     :dbtype             "postgresql"
+                                     :user               "db-user"
+                                     :password           "db-password"}
+  ```
+    - using the same datasource as the application use:
+
+  Just init the backend after the database connection
+  ```clojure
+  (defn ->system
+    [app-cfg]
+    (-> (config/config app-cfg)
+        routes/reset
+        db-core/connect
+        db-core/migrate!
+        session/init-backend
+        ws/start))
+  ```
+    - Creating new datasource
+
+  If no datasource provided on initialization, the `init-backend` function merging the database config with session
+  backend configuration,and creates a new datasource from the result.
+
+### Session interceptors
+[See interceptors](interceptors.md#session)
+
 ## Access and data ownership control
 
 [RBAC](tutorials.md#role-based-access-and-data-ownership-control) is a handy way to restrict user actions on different
@@ -285,9 +362,9 @@ defined here:
   [app-cfg]
   (-> (config/config)
       (merge app-cfg)
-      session-backend/init-in-memory
+      session-backend/init-backend
       routes/reset
-      db-core/start
+      db-core/connect
       db-core/migrate!
       ws/start))
 

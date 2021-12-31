@@ -72,7 +72,7 @@ exclude. For example
 ## guest-session
 
 Same as  [session](#session), except that if session is missing or not provided, creates a new session for `:guest`
-user.
+user, with random UUID user-id.
 
 ## rbac
 

@@ -109,7 +109,7 @@ Server-sent events implementation based on HTTP-kit's Channel protocol.
 
 ### Session
 
-Contains Session protocol definition, an in-memory session backend, and the session interceptor.
+Contains Session protocol definition, an in-memory, and persistent (postgres) session backend, and the session interceptor.
 
 ### State
 
