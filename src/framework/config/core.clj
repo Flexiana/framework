@@ -3,7 +3,8 @@
   (:require
     [clojure.edn :as edn]
     [clojure.java.io :as io]
-    [config.core :refer [load-env]])
+    [config.core :refer [load-env]]
+    [xiana.commons :refer [deep-merge]])
   (:import
     (java.io
       PushbackReader)))
@@ -13,7 +14,7 @@
   [config]
   (if-let [edn-file (:framework-edn-config config)]
     (with-open [r (io/reader edn-file)]
-      (merge config (edn/read (PushbackReader. r))))
+      (deep-merge config (edn/read (PushbackReader. r))))
     config))
 
 (defn config
@@ -26,5 +27,5 @@
    (config {}))
   ([config]
    (-> (load-env)
-       (merge config)
+       (deep-merge config)
        read-edn-file)))

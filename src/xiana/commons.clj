@@ -19,3 +19,14 @@
   (-> m
       (assoc to (get m from))
       (dissoc from)))
+
+(defn deep-merge
+  "Same as clojure.core/merge, except that 
+  it recursively applies itself to every nested map."
+  [& maps]
+  (apply merge-with
+         (fn [& args]
+           (if (every? map? args)
+             (apply deep-merge args)
+             (last args)))
+         maps))
