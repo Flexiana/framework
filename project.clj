@@ -20,6 +20,7 @@
                  [http.async.client "1.3.1"]
                  [metosin/reitit "0.5.15"]
                  [migratus "1.3.3"]
+                 [metosin/malli "0.7.5"]
                  [nilenso/honeysql-postgres "0.2.6"]
                  [nubank/matcher-combinators "3.1.4"]
                  [org.clojure/clojure "1.10.1"]

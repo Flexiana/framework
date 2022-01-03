@@ -35,7 +35,7 @@
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-  (is (= {:body   "Not Found"
+  (is (= {:body   "Not found"
           :status 404}
          (-> {:url                  "http://localhost:3333/wrong"
               :unexceptional-status (constantly true)

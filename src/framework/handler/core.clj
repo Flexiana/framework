@@ -2,7 +2,7 @@
   "Provides the default handler function"
   (:require
     [framework.interceptor.queue :as interceptor.queue]
-    [framework.route.core :as route]
+    [framework.route.core :as router]
     [framework.state.core :as state]
     [org.httpkit.server :refer [as-channel]]
     [xiana.core :as xiana]))
@@ -22,26 +22,23 @@
     controller interceptors leaves in reversed order
     around interceptors leaves in reversed order"
   [deps]
-  (fn handle*
-    ([http-request]
-     (if (:websocket? http-request)
-       (let [state (state/make deps http-request)
-             queue (list #(interceptor.queue/execute % (:router-interceptors deps))
-                         #(route/match %)
-                         #(interceptor.queue/execute % (:web-socket-interceptors deps)))
-             flow (-> (xiana/apply-flow-> state queue)
-                      (xiana/extract))
-             channel (get-in flow [:response-data :channel])]
-         (if channel
-           (as-channel http-request channel)
-           (:response flow)))
-       (let [state (state/make deps http-request)
-             queue (list #(interceptor.queue/execute % (:router-interceptors deps))
-                         #(route/match %)
-                         #(interceptor.queue/execute % (:controller-interceptors deps)))]
-         (-> (xiana/apply-flow-> state queue)
-             (xiana/extract)
-             :response))))
-
-    ([request respond _]
-     (respond (handle* request)))))
+  (let [router (router/router (:routes deps))]
+    (fn handle*
+      ([http-request]
+       (try (let [websocket? (:websocket? http-request)
+                  state (state/make deps http-request)
+                  queue (list #(interceptor.queue/execute % (:router-interceptors deps))
+                              #(router %)
+                              #(interceptor.queue/execute % (if websocket?
+                                                              (:web-socket-interceptors deps)
+                                                              (:controller-interceptors deps))))
+                  flow (-> (xiana/apply-flow-> state queue)
+                           (xiana/extract))
+                  channel (get-in flow [:response-data :channel])]
+              (if (and websocket? channel)
+                (as-channel http-request channel)
+                (:response flow)))
+            (catch Exception e (or (ex-data e)
+                                   (.getMessage e)))))
+      ([request respond _]
+       (respond (handle* request))))))

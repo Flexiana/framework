@@ -2,9 +2,12 @@
   (:require
     [clojure.test :refer :all]
     [framework.route.core :as route]
-    [framework.route.helpers :as helpers]
     [framework.state.core :as state]
     [xiana.core :as xiana]))
+
+(defn request-data
+  [router req]
+  (:request-data (xiana/extract (router (state/make {} req)))))
 
 (def sample-request
   {:uri "/" :request-method :get})
@@ -12,84 +15,80 @@
 (def sample-not-found-request
   {:uri "/not-found" :request-method :get})
 
-(def sample-routes
+(def simple-routes
   "Sample routes structure."
-  {:routes [["/" {:action :action}]]})
+  [["/" {:action :action}]])
 
-(def sample-routes-with-handler
-  "Sample routes structure."
-  {:routes [["/" {:handler :handler}]]})
+(def complex-routes
+  [["/api" {}
+    ["/posts" {:get  {:action :do-get}
+               :post {:action :do-post}}]]
+   ["/todo" {:get {:action :get-all-todos}
+             :put {:action :new-todo}}
+    ["/:id" {:get    {:action :get-one-todo}
+             :post   {:action :modify-todo}
+             :delete {:action :delete-todo}}]]
+   ["/assets/*" {:action :asset-handler}]])
 
-(def sample-routes-without-action
-  "Sample routes structure (without action or handler)."
-  {:routes [["/" {}]]})
-
-;; test reset routes functionality
-(deftest contains-sample-routes
-  (let [routes (route/reset sample-routes)]
-    (is (= (:routes sample-routes) (.routes (:routes routes))))))
-
-;; test route match update request-data (state) functionality
 (deftest contains-updated-request-data
-  ;; get state from sample request micro/match flow
-  (let [state (-> (state/make
-                    (route/reset sample-routes)
-                    sample-request)
-                  (route/match)
-                  (xiana/extract))
-        ;; expected request data
-        expected {:method :get
-                  :match  #reitit.core.Match{:template    "/"
-                                             :data        {:action :action}
-                                             :result      nil
-                                             :path-params {}
-                                             :path        "/"}
-                  :action :action}]
-    ;; verify if updated request-data
-    ;; is equal to the expected value
-    (is (= expected (:request-data state)))))
+  (let [router* (route/router simple-routes)
+        expected {:action :action
+                  :match  {:data        {:action :action}
+                           :path-params {}}}]
+    (is (= expected (request-data router* sample-request)))))
 
-;; test if the updated request-data (state) data handles the
 (deftest contains-not-found-action
-  ;; get action from sample request micro/match flow
-  (let [action (-> (state/make
-                     (route/reset sample-routes)
-                     sample-not-found-request)
-                   (route/match)
-                   (xiana/extract)
-                   (:request-data)
-                   (:action))
-        ;; expected action
-        expected helpers/not-found]
-    ;; verify if action has the expected value
-    (is (= action expected))))
+  (let [router* (route/router simple-routes)
+        state (state/make {} sample-not-found-request)]
+    (is (thrown? Exception (router* state)))))
 
-;; test if the updated request-data contains the right action
-(deftest route-contains-default-action
-  ;; get action from the updated state/match (micro) flow computation
-  (let [action (-> (state/make
-                     (route/reset sample-routes-with-handler)
-                     sample-request)
-                   (route/match)
-                   (xiana/extract)
-                   (:request-data)
-                   (:action))
-        ;; expected action
-        expected helpers/action]
-    ;; verify if action has the expected value
-    (is (= action expected))))
+(deftest complex-routes-test-api
+  (let [router* (route/router complex-routes)]
+    (is (thrown? Exception
+          (router* (state/make {} {:uri "/api" :request-method :get}))))
+    (is (thrown? Exception (router*
+                             (state/make
+                               {}
+                               {:uri "/api" :request-method :post}))))
+    (is (= {:action :do-post
+            :match  {:data        {:action :do-post}
+                     :path-params {}}}
+           (request-data router* {:uri "/api/posts" :request-method :post})))
+    (is (= {:action :do-get
+            :match  {:data        {:action :do-get}
+                     :path-params {}}}
+           (request-data router* {:uri "/api/posts" :request-method :get})))
+    (is (thrown? Exception (router*
+                             (state/make
+                               {}
+                               {:uri "/api/posts" :request-method :delete}))))))
 
-;; test if the route/match flow handles a route without a handler or action
-(deftest handles-route-without-action-or-handler
-  ;; get action from the updated state/match (micro) flow computation
-  (let [action (-> (state/make
-                     (route/reset sample-routes-without-action)
-                     sample-request)
-                   (route/match)
-                   (xiana/extract)
-                   (:request-data)
-                   (:action))
-        ;; expected action? TODO: research
-        expected helpers/not-found]
-    ;; verify if action has the expected value
-    (is (= action expected))))
+(deftest complex-routes-test-todos
+  (let [router* (route/router complex-routes)]
+    (is (= {:action :get-all-todos
+            :match  {:data        {:action :get-all-todos}
+                     :path-params {}}}
+           (request-data router* {:uri "/todo" :request-method :get})))
+    (is (= {:action :new-todo
+            :match  {:data        {:action :new-todo}
+                     :path-params {}}}
+           (request-data router* {:uri "/todo" :request-method :put})))
+    (is (= {:action :get-one-todo
+            :match  {:data        {:action :get-one-todo}
+                     :path-params {:id "123"}}}
+           (request-data router* {:uri "/todo/123" :request-method :get})))
+    (is (= {:action :new-todo
+            :match  {:data        {:action :new-todo}
+                     :path-params {:id "123"}}}
+           (request-data router* {:uri "/todo/123" :request-method :put})))))
+
+(deftest assets-test
+  (let [router* (route/router complex-routes)]
+    (is (= {:action :asset-handler
+            :match  {:data        {:action :asset-handler}
+                     :path-params {:* "/123"}}}
+           (request-data router* {:uri "/assets/123" :request-method :put})))
+    (is (= {:action :asset-handler
+            :match  {:data        {:action :asset-handler}
+                     :path-params {:* "/123/456"}}}
+           (request-data router* {:uri "/assets/123/456" :request-method :put})))))
