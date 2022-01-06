@@ -59,7 +59,7 @@
   (let [events-channel (get-in state [:deps :events-channel :channel])]
     (async/put! events-channel message)))
 
-(defn- put->session
+(defn put->session
   [deps session-id message]
   (let [clients @(get-in deps [:events-channel :clients])]
     (some-> (get clients session-id)
