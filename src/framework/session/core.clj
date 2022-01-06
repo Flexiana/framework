@@ -37,7 +37,7 @@
               ;; add session key:element
               (add!
                 [_ k v]
-                (let [k (or k (UUID/randomUUID))]
+                (when (and k v)
                   (swap! m assoc k v)))
               ;; delete session key:element
               (delete! [_ k] (swap! m dissoc k))
@@ -83,17 +83,18 @@
     (xiana/ok state)))
 
 (defn- on-leave
-  [state]
-  (let [session-backend (-> state :deps :session-backend)
-        session-id (get-in state [:session-data :session-id])]
-    (add! session-backend
-          session-id
-          (:session-data state))
-    ;; associate the session id
-    (xiana/ok
-      (assoc-in state
-                [:response :headers "Session-id"]
-                (str session-id)))))
+  [{{session-id :session-id} :session-data :as state}]
+  (if session-id
+    (let [session-backend (-> state :deps :session-backend)]
+      (add! session-backend
+            session-id
+            (:session-data state))
+      ;; associate the session id
+      (xiana/ok
+        (assoc-in state
+                  [:response :headers "Session-id"]
+                  (str session-id))))
+    (xiana/ok state)))
 
 (defn protected-interceptor
   "On enter allows a resource to be served when
@@ -123,7 +124,7 @@
                   user-id (UUID/randomUUID)
                   session-data {:session-id session-id
                                 :users/role :guest
-                                :users/id user-id}]
+                                :users/id   user-id}]
               (add! session-backend session-id session-data)
               (xiana/ok (assoc state :session-data session-data))))))
    :leave on-leave})
