@@ -31,7 +31,7 @@
 (def sample-state
   "State with the sample request."
   {:request sample-request
-   :deps    (session/init-in-memory {})})
+   :deps    (session/init-backend {})})
 
 (def simple-state
   "State with the simple/minimal request."

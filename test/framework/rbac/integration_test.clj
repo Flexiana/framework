@@ -39,7 +39,7 @@
                         :permission :image/delete}}]]])
 
 (def backend
-  (:session-backend (session/init-in-memory {})))
+  (:session-backend (session/init-backend {})))
 
 (def role-set
   (-> (b/add-resource {} :image)

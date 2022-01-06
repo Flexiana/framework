@@ -75,7 +75,7 @@
       (rename-key :framework.app/auth :auth)
       routes/reset
       rbac/init
-      session/init-in-memory
+      session/init-backend
       docker?
       db/connect
       db/migrate!
