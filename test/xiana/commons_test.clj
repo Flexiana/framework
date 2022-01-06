@@ -1,7 +1,7 @@
 (ns xiana.commons-test
   (:require
-   [clojure.test :refer [deftest are]]
-   [xiana.commons :refer [deep-merge]]))
+    [clojure.test :refer [deftest are]]
+    [xiana.commons :refer [deep-merge]]))
 
 (deftest deep-merge-test
   (are [res a b] (= res (deep-merge a b))
