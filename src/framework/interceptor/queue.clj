@@ -16,8 +16,7 @@
         (catch Exception e
           (let [f (or (:error interceptor) xiana/error)]
             (f (assoc state
-                      :response {:status 500
-                                 :body   (Throwable->map e)}
+                      :response (or (ex-data e) {:status 500 :body (Throwable->map e)})
                       :exception e))))))))
 
 (defn- -execute
@@ -49,6 +48,18 @@
     ;; else override
     (or interceptors default-interceptors)))
 
+(defn action->try
+  [action]
+  (fn [state]
+    (when action
+      (try (action state)
+           (catch Exception e
+             (xiana/error
+               (assoc state
+                      :response
+                      (or (ex-data e)
+                          {:status 500 :body (Throwable->map e)}))))))))
+
 (defn execute
   "Execute the interceptors queue and invoke the
   action procedure between its enter-leave stacks."
@@ -56,7 +67,7 @@
   (let [interceptors (-concat
                        (get-in state [:request-data :interceptors])
                        default-interceptors)
-        action (vector (get-in state [:request-data :action]))]
+        action [(action->try (get-in state [:request-data :action]))]]
     ;; execute the interceptors queue calling the action
     ;; between its enter/leave stacks
     (-execute state interceptors action)))
