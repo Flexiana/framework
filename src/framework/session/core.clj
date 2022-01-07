@@ -4,6 +4,7 @@
     [clojure.string :as string]
     [framework.db.core :as db]
     [jsonista.core :as json]
+    [next.jdbc.result-set :refer [as-kebab-maps]]
     [xiana.core :as xiana])
   (:import
     (java.util
@@ -55,7 +56,6 @@
   (let [{session-data (keyword (name table) "session-data")
          session-id   (keyword (name table) "session-id")
          modified-at  (keyword (name table) "modified-at")} data]
-
     {session-id (some-> session-data
                         <-pgobject
                         (assoc :modified-at modified-at))}))
@@ -65,15 +65,21 @@
     (let [[_ data] (first (un-objectify table session-data))]
       data)))
 
+(defn connect
+  [{backend-config :framework.app/session-backend :as cfg}]
+  (let [ds-config {:framework.db.storage/postgresql backend-config
+                   :framework.db.storage/jdbc-opts  {:builder-fn as-kebab-maps}}
+        connection (cond (every? backend-config [:port :dbname :host :dbtype :user :password]) (db/connect ds-config)
+                         (get-in cfg [:db :datasource]) cfg
+                         :else (db/connect {:framework.db.storage/postgresql
+                                            (assoc (merge (:framework.db.storage/postgresql cfg) backend-config)
+                                                   :framework.db.storage/jdbc-opts {:builder-fn as-kebab-maps})}))]
+    (get-in connection [:db :datasource])))
+
 (defn- init-in-db
   "Initialize persistent database session storage."
   [{backend-config :framework.app/session-backend :as cfg}]
-  (let [ds (cond (every? backend-config [:port :dbname :host :dbtype :user :password])
-                 (db/get-datasource (select-keys backend-config [:port :dbname :host :dbtype :user :password]))
-                 (get-in cfg [:db :datasource]) (get-in cfg [:db :datasource])
-                 :else (db/get-datasource
-                         (select-keys (merge (:framework.db.storage/postgresql cfg) backend-config)
-                                      [:port :dbname :host :dbtype :user :password])))
+  (let [ds (connect cfg)
         table (:session-table-name backend-config :sessions)
         get-all {:select [:*]
                  :from   [table]}

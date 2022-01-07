@@ -28,7 +28,7 @@
                  [org.testcontainers/testcontainers "1.16.2"]
                  [piotr-yuxuan/closeable-map "0.35.0"]
                  [potemkin "0.4.5"]
-                 [seancorfield/next.jdbc "1.1.613"]
+                 [seancorfield/next.jdbc "1.2.659"]
                  [yogthos/config "1.1.7"]]
   :source-paths ["src"]
   :target "target/%s/"
