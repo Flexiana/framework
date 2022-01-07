@@ -51,14 +51,13 @@
 (defn action->try
   [action]
   (fn [state]
-    (when action
-      (try (action state)
-           (catch Exception e
-             (xiana/error
-               (assoc state
-                      :response
-                      (or (ex-data e)
-                          {:status 500 :body (Throwable->map e)}))))))))
+    (try (action state)
+         (catch Exception e
+           (xiana/error
+             (assoc state
+                    :response
+                    (or (ex-data e)
+                        {:status 500 :body (Throwable->map e)})))))))
 
 (defn execute
   "Execute the interceptors queue and invoke the
@@ -67,7 +66,7 @@
   (let [interceptors (-concat
                        (get-in state [:request-data :interceptors])
                        default-interceptors)
-        action [(action->try (get-in state [:request-data :action]))]]
+        action [(action->try (get-in state [:request-data :action] xiana/ok))]]
     ;; execute the interceptors queue calling the action
     ;; between its enter/leave stacks
     (-execute state interceptors action)))
