@@ -1,6 +1,6 @@
 (ns app.interceptors
   (:require
-    [framework.session.core :refer [delete! fetch dump]]
+    [framework.session.core :refer [delete! fetch]]
     [xiana.core :as x])
   (:import
     (java.util
