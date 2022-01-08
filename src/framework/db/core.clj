@@ -28,7 +28,7 @@
 
 (def default-opts {:return-keys true})
 
-(defn- get-datasource
+(defn get-datasource
   ([config]
    (get-datasource config 0))
   ([config count]

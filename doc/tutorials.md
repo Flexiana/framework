@@ -37,7 +37,7 @@ The system configuration and start-up with the chainable set-up:
       (rename-key :framework.app/auth :auth)
       (rename-key :framework.app/uploads :uploads)
       routes/reset
-      session/init-in-memory
+      session/init-backend
       sse/init
       db/start
       db/migrate!

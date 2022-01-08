@@ -1,23 +1,34 @@
-# sessions
+# Sessions
 
 Example that showcase the use of session interceptors using Xiana framework.
 
-## Usage
+## Advice to test:
 
-`lein install` in the framework's root directory
+Observe what happens when the backend application is restarting. Check if already logged-in user is still logged in, or
+it's lost his/her session data?
 
-### Run the backend
+## Spin up database
+
+```bash
+docker-compose up -d
+```
+
+starts the database for persisting sessions. See `docker-compose.yml` and `init.sql` how the the database and
+the `sessions` table is setting up.
+
+## Run the backend
 
 ```bash 
 lein run
-```    
+```
 
-### Run manual tests against the application
+## Run manual tests against the application
 
 There are 4 endpoints provided:
 
 - localhost:3000/
->if you don't have valid session it returns
+
+> if you don't have valid session it returns
 >
 > ```clojure
 > {:status 200, :body "Index page"}
@@ -31,7 +42,7 @@ There are 4 endpoints provided:
 
 - localhost:3000/secret
 
->if you don't have valid session it returns
+> if you don't have valid session it returns
 >
 > ```clojure
 > {:status 401, :body "Invalid or missing session"}
@@ -43,8 +54,9 @@ There are 4 endpoints provided:
 > {:status 200, :body "Hello Piotr"}
 > ```
 
-- localhost:3000/login 
->request should look like:
+- localhost:3000/login
+
+> request should look like:
 >```clojure
 >  {:method :post
 >   :body {:email "piotr@example.com"
@@ -68,20 +80,20 @@ There are 4 endpoints provided:
 
 - localhost:3000/logout
 
->if you have valid session it returns
+> if you have valid session it returns
 >
 > ```clojure
 > {:status 200 :body "Piotr logged out"}
 > ```
-> 
+>
 > and it clears the session you had.
 
 You can provide the session-id from login response in the request's headers
->```clojure
+> ```clojure
 > {:headers {:session-id {{session-id}}}}
 >```
 
-### Run integration tests
+## Run integration tests
 
 ```bash 
 lein test

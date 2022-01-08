@@ -210,9 +210,9 @@
   [app-cfg]
   (-&gt; (config/config)
       (merge app-cfg)
-      session-backend/init-in-memory
+      session-backend/init-backend
       routes/reset
-      db-core/start
+      db-core/connect
       db-core/migrate!
       ws/start))
 

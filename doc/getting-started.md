@@ -36,7 +36,7 @@ docker-compose up -d
 This should spin up a PostgreSQL database on port 5433. Name of the DB is `todo_app` You can verify that the database is running by connecting to it. Value of `username` and `password` is *`postgres`.*  
 
 ```bash
-docker exec -it todo-app-db-1 psql -U postgres -d todo_app
+docker exec -it todo-app_db_1 psql -U postgres -d todo_app
 ```
 
 which should open a PostgreSQL shell if successful.

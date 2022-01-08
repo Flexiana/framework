@@ -37,7 +37,7 @@
 (defn state
   [user permission]
   (let [session-id (str (UUID/randomUUID))
-        session-backend (:session-backend (session/init-in-memory {}))]
+        session-backend (:session-backend (session/init-backend {}))]
     (session/add! session-backend session-id user)
     (-> (assoc-in {} [:request-data :permission] permission)
         (assoc-in [:request :headers "session-id"] session-id)

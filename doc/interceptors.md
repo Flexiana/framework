@@ -1,6 +1,5 @@
 # Interceptors implemented in Xiana
 
-- [~~acl-restrict~~](#acl-restrict)
 - [log](#log)
 - [side-effect](#side-effect)
 - [view](#view)
@@ -14,15 +13,6 @@
 - [rbac](#rbac)
 - [coercion](#coercion)
 - [cookies](#cookies)
-
-## ~~acl-restrict~~
-
-_^deprecated_
-
-Access control layer interceptor.
-
-`Enter:` A lambda function that checks access control.       
-`Leave:` A lambda function for tightening db query via provided owner-fn.
 
 ## log
 
@@ -72,7 +62,7 @@ exclude. For example
 ## guest-session
 
 Same as  [session](#session), except that if session is missing or not provided, creates a new session for `:guest`
-user.
+user, with random UUID user-id.
 
 ## rbac
 
