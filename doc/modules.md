@@ -2,7 +2,6 @@
 
 - [Backend](#backend)
     - [Core](#core)
-    - [ACL](#acl)
     - [Auth](#auth)
     - [Config](#config)
     - [Database](#database)
@@ -29,10 +28,6 @@
 ### Core
 
 Xiana.core contains the State record, the monad helpers, and flow macros to deal with the monadic structure.
-
-### ~~ACL~~
-
-^deprecated use [RBAC](#rbac) instead.
 
 ### Auth
 
