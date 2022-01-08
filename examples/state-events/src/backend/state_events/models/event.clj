@@ -1,10 +1,11 @@
 (ns state-events.models.event
   (:require
     [honeysql.helpers :as sqlh]
-    [xiana.core :as xiana]
-    [jsonista.core :as json])
-  (:import (org.postgresql.util PGobject)))
-
+    [jsonista.core :as json]
+    [xiana.core :as xiana])
+  (:import
+    (org.postgresql.util
+      PGobject)))
 
 (def mapper (json/object-mapper {:decode-key-fn keyword}))
 (def ->json json/write-value-as-string)

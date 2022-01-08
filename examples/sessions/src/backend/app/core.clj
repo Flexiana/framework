@@ -31,7 +31,7 @@
   (-> (config/config)
       (merge app-cfg)
       x-routes/reset
-      x-session/init-in-memory
+      x-session/init-backend
       ws/start
       closeable-map))
 

@@ -2,7 +2,6 @@
 
 - [Backend](#backend)
     - [Core](#core)
-    - [ACL](#acl)
     - [Auth](#auth)
     - [Config](#config)
     - [Database](#database)
@@ -29,10 +28,6 @@
 ### Core
 
 Xiana.core contains the State record, the monad helpers, and flow macros to deal with the monadic structure.
-
-### ~~ACL~~
-
-^deprecated use [RBAC](#rbac) instead.
 
 ### Auth
 
@@ -109,7 +104,7 @@ Server-sent events implementation based on HTTP-kit's Channel protocol.
 
 ### Session
 
-Contains Session protocol definition, an in-memory session backend, and the session interceptor.
+Contains Session protocol definition, an in-memory, and persistent (postgres) session backend, and the session interceptor.
 
 ### State
 

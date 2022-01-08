@@ -29,7 +29,7 @@
       db/migrate!
       rbac/init
       (rename-key :framework.app/auth :auth)
-      session/init-in-memory
+      session/init-backend
       ws/start
       closeable-map))
 

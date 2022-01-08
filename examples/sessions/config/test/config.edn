@@ -1,28 +1,10 @@
-{:framework.db.storage/postgresql {:image-name "postgres:14-alpine"
-                                   :port     5432
-                                   :dbname   "controllers"
-                                   :host     "localhost"
-                                   :dbtype   "postgresql"
-                                   :user     "postgres"
-                                   :password "postgres"}
-
- :framework.app/ring {:defaults {:params    {:urlencoded true
-                                             :multipart  true
-                                             :nested     true
-                                             :keywordize true}
-                                 :cookies   true
-                                 :session   {:flash true
-                                             :cookie-attrs
-                                             {:http-only true, :same-site :strict}}
-                                 :security  {:anti-forgery         true
-                                             :xss-protection
-                                             {:enable? true, :mode :block}
-                                             :frame-options        :sameorigin
-                                             :content-type-options :nosniff}
-                                 :static    {:resources "public"}
-                                 :responses {:not-modified-responses true
-                                             :absolute-redirects     true
-                                             :content-types          true}}}
-
- :framework.app/web-server {:port  3333
-                            :join? false}}
+{:framework.app/session-backend {:storage            :database
+                                 :session-table-name :sessions
+                                 :port               5432
+                                 :dbname             "sessions"
+                                 :host               "localhost"
+                                 :dbtype             "postgresql"
+                                 :user               "sessions"
+                                 :password           "postgres"}
+ :framework.app/web-server      {:port  3333
+                                 :join? false}}
