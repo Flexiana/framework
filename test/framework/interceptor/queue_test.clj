@@ -60,6 +60,10 @@
   #(xiana/error
      (assoc % :response {:status 500 :body "Internal Server error"})))
 
+(def throw-action
+  "Auxiliary error container function."
+  (fn [_] (throw (ex-info "Some error" {:status 500 :body "Exception thrown"}))))
+
 (defn make-state
   "Return a simple state request data."
   [action interceptors]
@@ -92,6 +96,31 @@
         expected {:status 500 :body "Internal Server error"}]
     ;; verify if response is equal to the expected
     (is (= response expected))))
+
+(deftest queue-simple-thrown-execution
+  ;; construct a simple request data state
+  (let [state (make-state throw-action [])
+        ;; get response using a simple micro flow
+        response (-> state
+                     (queue/execute [])
+                     (xiana/extract)
+                     (:response))
+        expected {:body   "Exception thrown"
+                  :status 500}]
+    ;; verify if response is equal to the expected
+    (is (= response expected))))
+
+(deftest queue-simple-thrown-div0
+  ;; construct a simple request data state
+  (let [state (make-state (fn [_] (/ 1 0)) [])
+        ;; get response using a simple micro flow
+        response (-> state
+                     (queue/execute [])
+                     (xiana/extract)
+                     (:response))]
+    ;; verify if response is equal to the expected
+    (is (= 500 (:status response)))
+    (is (= "Divide by zero" (get-in response [:body :cause])))))
 
 ;; test default interceptors queue execution
 (deftest queue-default-interceptors-execution
