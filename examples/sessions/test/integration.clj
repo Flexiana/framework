@@ -3,14 +3,31 @@
     [app.core :as app]
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
-    [jsonista.core :as json])
+    [framework.config.core :as config]
+    [framework.db.core :as db]
+    [jsonista.core :as json]
+    [next.jdbc :as jdbc]
+    [xiana.commons :as commons])
   (:import
     (java.util
       UUID)))
 
+(defn merge-connection
+  [config]
+  (assoc config :framework.app/session-backend
+         (commons/deep-merge (:framework.app/session-backend config)
+                             (:framework.db.storage/postgresql config))))
+
 (defn std-system-fixture
   [f]
-  (with-open [_ (app/->system app/app-cfg)]
+  (with-open [system (-> (config/config app/app-cfg)
+                         (assoc :framework.db.storage/postgresql (:framework.app/session-backend (config/config)))
+                         (assoc-in [:framework.db.storage/postgresql :image-name] "postgres:14-alpine")
+                         db/docker-postgres!
+                         db/connect
+                         merge-connection
+                         app/->system)]
+    (jdbc/execute! (jdbc/get-datasource (get-in system [:db :datasource])) [(slurp "init.sql")])
     (f)))
 
 (use-fixtures :once std-system-fixture)
