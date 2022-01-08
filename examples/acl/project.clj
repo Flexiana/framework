@@ -22,14 +22,17 @@
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [[kerodon "0.9.1"]]}}
+                     :dependencies   [[kerodon "0.9.1"]
+                                      [mvxcvi/cljstyle "0.15.0"
+                                       :exclusions [org.clojure/clojure]]]}}
   :shadow-cljs {:nrepl  {:port 8777}
                 :builds {:app {:target     :browser
                                :output-dir "resources/public/js/compiled"
                                :asset-path "/js/compiled"
                                :modules    {:app {:init-fn  acl.core/init
                                                   :preloads [devtools.preload]}}}}}
-  :aliases {"ci"      ["do" "clean," "cloverage," "lint," "uberjar"]
+  :aliases {"check-style" ["with-profile" "+test" "run" "-m" "cljstyle.main" "check"]
+            "ci"      ["do" "clean," "cloverage," "lint," "uberjar"]
             "kondo"   ["run" "-m" "clj-kondo.main" "--lint" "src" "test"]
             "lint"    ["do" "kondo," "eastwood," "kibit"]
             "watch"   ["with-profile" "dev" "do"
