@@ -2,7 +2,7 @@
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.3"]
-                 [com.flexiana/framework "0.3.3"]
+                 [com.flexiana/framework "0.3.4"]
                  [thheller/shadow-cljs "2.11.7"]
                  [migratus "1.3.5"]
                  [clj-http "3.12.0"]
