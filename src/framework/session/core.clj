@@ -175,17 +175,18 @@
     (xiana/ok state)))
 
 (defn- on-leave
-  [state]
-  (let [session-backend (-> state :deps :session-backend)
-        session-id (get-in state [:session-data :session-id])]
-    (add! session-backend
-          session-id
-          (:session-data state))
-    ;; associate the session id
-    (xiana/ok
-      (assoc-in state
-                [:response :headers "Session-id"]
-                (str session-id)))))
+  [{{session-id :session-id} :session-data :as state}]
+  (if session-id
+    (let [session-backend (-> state :deps :session-backend)]
+      (add! session-backend
+            session-id
+            (:session-data state))
+      ;; associate the session id
+      (xiana/ok
+        (assoc-in state
+                  [:response :headers "Session-id"]
+                  (str session-id))))
+    (xiana/ok state)))
 
 (defn protected-interceptor
   "On enter allows a resource to be served when
