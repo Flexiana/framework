@@ -6,9 +6,8 @@
     - [Config](#config)
     - [Database](#database)
         - [Database/main](#databasemain)
+        - [Database/seed](#databaseseed)
         - [Database/core](#databasecore)
-        - [Database/postgresql](#databasepostgresql)
-        - [Database/sql](#databasesql)
     - [Migrations](#migrations)
     - [Interceptor](#interceptor)
         - [Interceptor/core](#interceptorcore)
@@ -44,6 +43,11 @@ Database handling functions.
 #### Database/main
 
 Migratus wrapper to get rid of lein migratus plugin. As well as support profile dependent configuration of migratus.
+
+#### Database/seed
+
+Migratus wrapper to support profile based separation of data seeding 
+
 
 #### Database/core
 
