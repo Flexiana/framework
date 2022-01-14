@@ -102,6 +102,7 @@ migratus will use the migrations from a folder, what is configured in `config/de
 With extending migration configuration with `seeds-dir` and `seeds-table-name` you can use
 
 ```shell
+lein seed create
 lein seed migrate
 lein seed reset
 lein seed destroy

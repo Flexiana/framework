@@ -27,8 +27,9 @@
 (defn -main [& args]
   (if (and (:migration-dir seed-config) (:migration-table-name seed-config))
     (case (first args)
+      "create" (migratus/create seed-config (second args))
       "reset" (migratus/reset seed-config)
       "destroy" (migratus/destroy seed-config)
       "migrate" (migratus/migrate seed-config)
-      (println "You can 'reset' 'destroy' or 'migrate' your seed data"))
+      (println "You can 'create' 'reset' 'destroy' or 'migrate' your seed data"))
     (println "No seed configuration found")))
