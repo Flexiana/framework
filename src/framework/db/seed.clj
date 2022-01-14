@@ -25,10 +25,10 @@
         (rename-key :seeds-table-name :migration-table-name))))
 
 (defn -main [& args]
-  (let [[command param] args]
+  (let [[command name type] args]
     (if (and (:migration-dir seed-config) (:migration-table-name seed-config))
       (case command
-        "create" (migratus/create seed-config param)
+        "create" (migratus/create seed-config name (keyword type))
         "reset" (migratus/reset seed-config)
         "destroy" (migratus/destroy seed-config)
         "migrate" (migratus/migrate seed-config)

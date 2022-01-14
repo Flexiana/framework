@@ -17,7 +17,8 @@
        "up"))
 
 (defn -main [& args]
-  (let [[command param] args
+  (let [[command name type] args
+        [_ & ids] args
         cfg (config/config)
         db (:framework.db.storage/postgresql cfg)
         config (assoc (:framework.db.storage/migration cfg) :db db)]
@@ -25,12 +26,12 @@
     (if (str/blank? command)
       (help)
       (case (str/lower-case command)
-        "create" (migratus/create config param)
+        "create" (migratus/create config name (keyword type))
         "destroy" (migratus/destroy config)
-        "down" (migratus/down config param)
+        "down" (apply migratus/down config (map #(Long/parseLong %) ids))
         "init" (migratus/init config)
         "migrate" (migratus/migrate config)
         "reset" (migratus/reset config)
         "rollback" (migratus/rollback config)
-        "up" (migratus/up config param)
+        "up" (apply migratus/up config (map #(Long/parseLong %) ids))
         (help)))))
