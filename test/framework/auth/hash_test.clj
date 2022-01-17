@@ -33,3 +33,14 @@
 (deftest test-assert-functionality
   (let [fragment {:deps {:auth {:hash-algorithm :argon2}}}]
     (is (thrown? java.lang.AssertionError (hash/make fragment password)))))
+
+(deftest hash-behavior
+  (let [pwd "not_nil"
+        state {:deps {:auth {:hash-algorithm  :bcrypt
+                             :bcrypt-settings {:work-factor 11}}}}
+        hash1 (hash/make state pwd)
+        hash2 (hash/make state pwd)]
+    (is (false? (hash/check state hash1 hash2)))
+    (is (not= hash1 hash2))
+    (is (true? (and (hash/check state pwd hash1)
+                    (hash/check state pwd hash2))))))

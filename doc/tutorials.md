@@ -2,6 +2,7 @@
 
 - [Dependencies and configuration](#dependencies-and-configuration)
 - [Database migration](#database-migration)
+- [Database seed with data](#database-seed-with-data)
 - [Interceptors typical use-case, and ordering](#interceptors-typical-use-case-and-ordering)
 - [Defining new interceptors](#defining-new-interceptors)
     - [Interceptor example](#interceptor-example)
@@ -95,6 +96,41 @@ lein migrate migrate
 ```
 
 migratus will use the migrations from a folder, what is configured in `config/dev/config.edn`.
+
+## Database seed with data
+
+With extending migration configuration with `seeds-dir` and `seeds-table-name` you can use
+
+```shell
+lein seed create
+lein seed migrate
+lein seed reset
+lein seed destroy
+```
+
+commands. Every defined profile can have a different seeds directory to have different dataset for different
+environments. If you're using this method to seed your data, keep your eye on the database structure is already updated
+when the seeding is happens.
+
+Example for configuration:
+
+```clojure
+:framework.db.storage/migration {:store                :database
+                                 :migration-dir        "migrations"
+                                 :seeds-dir            "dev_seeds"
+                                 :migration-table-name "migrations"
+                                 :seeds-table-name     "seeds"}
+```
+
+Example of using it from application start
+```clojure
+(-> (config/config app-cfg)
+    ...
+      db/connect
+      db/migrate!
+      seed/seed!
+      ...)
+```
 
 ## Interceptors typical use-case, and ordering
 
