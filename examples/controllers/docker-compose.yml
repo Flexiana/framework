@@ -6,6 +6,8 @@ services:
       dockerfile: db.Dockerfile
     volumes:
       - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=dev
     ports:
       - "5432:5432"
 
