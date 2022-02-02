@@ -3,7 +3,7 @@
                                    :host     "localhost"
                                    :dbtype   "postgresql"
                                    :user     "postgres"
-                                   :password "postgres"}
+                                   :password "dev"}
 
  :framework.db.storage/migration  {:store                :database
                                    :migration-dir        "resources/migrations"
@@ -29,5 +29,5 @@
                                                           :content-types          true}}}
 
  :framework.app/web-server        {:port  3000
-                                   :join? false}
- }
+                                   :join? false}}
+
