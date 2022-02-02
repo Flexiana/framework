@@ -8,7 +8,7 @@
 (defn init
   "Initialize and validates a role-set"
   [config]
-  (assoc config :role-set (b/init (:framework.app/role-set config))))
+  (assoc config :role-set (b/init (:xiana/role-set config))))
 
 (defn permissions
   "Gathers the necessary parameters from xiana state for permission resolution.

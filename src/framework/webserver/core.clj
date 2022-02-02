@@ -18,7 +18,7 @@
 (defn- make
   "Web server instance."
   [dependencies]
-  (let [options (:webserver dependencies (:framework.app/web-server dependencies))]
+  (let [options (:webserver dependencies (:xiana/web-server dependencies))]
     (map->webserver
       {:options options
        :server  (server/run-server (handler-fn dependencies) options)})))

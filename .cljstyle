@@ -1,4 +1,6 @@
-{:rules
+{:files {:ignore #{"checkouts" "target"}
+         :extensions #{"clj" "edn"}}
+:rules
  {:whitespace   {:remove-surrounding? true
                  :remove-trailing?    true
                  :insert-missing?     true}

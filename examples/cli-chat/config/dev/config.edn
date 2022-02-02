@@ -1,40 +1,40 @@
-{:framework.db.storage/postgresql {:port     5433
-                                   :dbname   "cli_chat"
-                                   :host     "localhost"
-                                   :dbtype   "postgresql"
-                                   :user     "postgres"
-                                   :password "postgres"}
+{:xiana/postgresql {:port     5433
+                    :dbname   "cli_chat"
+                    :host     "localhost"
+                    :dbtype   "postgresql"
+                    :user     "postgres"
+                    :password "postgres"}
 
- :framework.db.storage/migration  {:store                :database
-                                   :migration-dir        "resources/migrations"
-                                   :init-in-transaction? false
-                                   :migration-table-name "migrations"}
+ :xiana/migration  {:store                :database
+                    :migration-dir        "resources/migrations"
+                    :init-in-transaction? false
+                    :migration-table-name "migrations"}
 
- :framework.app/ring              {:defaults {:params    {:urlencoded true
-                                                          :multipart  true
-                                                          :nested     true
-                                                          :keywordize true}
-                                              :cookies   true
-                                              :session   {:flash true
-                                                          :cookie-attrs
-                                                                 {:http-only true, :same-site :strict}}
-                                              :security  {:anti-forgery         true
-                                                          :xss-protection
-                                                                                {:enable? true, :mode :block}
-                                                          :frame-options        :sameorigin
-                                                          :content-type-options :nosniff}
-                                              :static    {:resources "public"}
-                                              :responses {:not-modified-responses true
-                                                          :absolute-redirects     true
-                                                          :content-types          true}}}
+ :xiana/ring              {:defaults {:params    {:urlencoded true
+                                                  :multipart  true
+                                                  :nested     true
+                                                  :keywordize true}
+                                      :cookies   true
+                                      :session   {:flash true
+                                                  :cookie-attrs
+                                                  {:http-only true, :same-site :strict}}
+                                      :security  {:anti-forgery         true
+                                                  :xss-protection
+                                                  {:enable? true, :mode :block}
+                                                  :frame-options        :sameorigin
+                                                  :content-type-options :nosniff}
+                                      :static    {:resources "public"}
+                                      :responses {:not-modified-responses true
+                                                  :absolute-redirects     true
+                                                  :content-types          true}}}
 
- :framework.app/web-server        {:port  3000
-                                   :join? false}
+ :xiana/web-server        {:port  3000
+                           :join? false}
 
- :framework.app/auth              {:hash-algorithm  :bcrypt ;; Available values: :bcrypt, :scrypt, and :pbkdf2
-                                   :bcrypt-settings {:work-factor 11}
-                                   :scrypt-settings {:cpu-cost        32768 ;; Must be a power of 2
-                                                     :memory-cost     8
-                                                     :parallelization 1}
-                                   :pbkdf2-settings {:type       :sha1 ;; Available values: :sha1 and :sha256
-                                                     :iterations 100000}}}
+ :xiana/auth              {:hash-algorithm  :bcrypt ; Available values: :bcrypt, :scrypt, and :pbkdf2
+                           :bcrypt-settings {:work-factor 11}
+                           :scrypt-settings {:cpu-cost        32768 ; Must be a power of 2
+                                             :memory-cost     8
+                                             :parallelization 1}
+                           :pbkdf2-settings {:type       :sha1 ; Available values: :sha1 and :sha256
+                                             :iterations 100000}}}

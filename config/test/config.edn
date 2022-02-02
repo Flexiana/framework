@@ -1,26 +1,26 @@
-{:framework.db.storage/postgresql {:image-name "postgres:14-alpine"
-                                   :port        5432
-                                   :dbname      "framework"
-                                   :host        "localhost"
-                                   :dbtype      "postgresql"
-                                   :user        "postgres"
-                                   :password    "postgres"}
- :framework.app/web-server        {:port  3333
-                                   :join? false}
- :framework.db.storage/migration  {:store                :database
-                                   :migration-dir        "resources/migrations"
-                                   :init-in-transaction? false
-                                   :migration-table-name "migrations"}
- :framework.app/emails            {:host ""
-                                   :user ""
-                                   :pass ""
-                                   :tls  true
-                                   :port 587
-                                   :from ""}
- :framework.app/auth              {:hash-algorithm  :bcrypt ;; Available values: :bcrypt, :scrypt, and :pbkdf2
-                                   :bcrypt-settings {:work-factor 11}
-                                   :scrypt-settings {:cpu-cost        32768 ;; Must be a power of 2
-                                                     :memory-cost     8
-                                                     :parallelization 1}
-                                   :pbkdf2-settings {:type       :sha1 ;; Available values: :sha1 and :sha256
-                                                     :iterations 100000}}}
+{:xiana/postgresql {:image-name "postgres:14-alpine"
+                    :port        5432
+                    :dbname      "framework"
+                    :host        "localhost"
+                    :dbtype      "postgresql"
+                    :user        "postgres"
+                    :password    "postgres"}
+ :xiana/web-server        {:port  3333
+                           :join? false}
+ :xiana/migration  {:store                :database
+                    :migration-dir        "resources/migrations"
+                    :init-in-transaction? false
+                    :migration-table-name "migrations"}
+ :xiana/emails            {:host ""
+                           :user ""
+                           :pass ""
+                           :tls  true
+                           :port 587
+                           :from ""}
+ :xiana/auth              {:hash-algorithm  :bcrypt ; Available values: :bcrypt, :scrypt, and :pbkdf2
+                           :bcrypt-settings {:work-factor 11}
+                           :scrypt-settings {:cpu-cost        32768 ; Must be a power of 2
+                                             :memory-cost     8
+                                             :parallelization 1}
+                           :pbkdf2-settings {:type       :sha1 ; Available values: :sha1 and :sha256
+                                             :iterations 100000}}}

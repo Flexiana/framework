@@ -53,7 +53,7 @@
 (def system-config
   {:routes                  routes
    :session-backend         backend
-   :framework.app/role-set  role-set
+   :xiana/role-set  role-set
    :controller-interceptors [interceptors/params
                              session/interceptor
                              rbac/interceptor]})

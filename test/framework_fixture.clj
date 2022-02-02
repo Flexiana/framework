@@ -14,7 +14,7 @@
   [app-cfg]
   (-> (config/config)
       (merge app-cfg)
-      (rename-key :framework.app/auth :auth)
+      (rename-key :xiana/auth :auth)
       session-backend/init-backend
       db-core/docker-postgres!
       db-core/connect
