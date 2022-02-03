@@ -1,4 +1,4 @@
-(defproject com.flexiana/framework "0.3.4"
+(defproject com.flexiana/framework "0.4.0-rc1"
   :description "Framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
@@ -29,7 +29,7 @@
                  [piotr-yuxuan/closeable-map "0.35.0"]
                  [potemkin "0.4.5"]
                  [seancorfield/next.jdbc "1.2.659"]
-                 [yogthos/config "1.1.7"]]
+                 [yogthos/config "1.1.9"]]
   :source-paths ["src"]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths         ["config/dev"]}

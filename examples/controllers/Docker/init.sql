@@ -1,2 +1,0 @@
-CREATE DATABASE controllers;
-GRANT ALL PRIVILEGES ON DATABASE controllers TO postgres;

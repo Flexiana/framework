@@ -28,7 +28,7 @@
       db/connect
       db/migrate!
       rbac/init
-      (rename-key :framework.app/auth :auth)
+      (rename-key :xiana/auth :auth)
       session/init-backend
       ws/start
       closeable-map))

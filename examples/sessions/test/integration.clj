@@ -14,15 +14,15 @@
 
 (defn merge-connection
   [config]
-  (assoc config :framework.app/session-backend
-         (commons/deep-merge (:framework.app/session-backend config)
-                             (:framework.db.storage/postgresql config))))
+  (assoc config :xiana/session-backend
+         (commons/deep-merge (:xiana/session-backend config)
+                             (:xiana/postgresql config))))
 
 (defn std-system-fixture
   [f]
   (with-open [system (-> (config/config app/app-cfg)
-                         (assoc :framework.db.storage/postgresql (:framework.app/session-backend (config/config)))
-                         (assoc-in [:framework.db.storage/postgresql :image-name] "postgres:14-alpine")
+                         (assoc :xiana/postgresql (:xiana/session-backend (config/config)))
+                         (assoc-in [:xiana/postgresql :image-name] "postgres:14-alpine")
                          db/docker-postgres!
                          db/connect
                          merge-connection
