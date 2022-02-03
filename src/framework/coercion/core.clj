@@ -48,9 +48,11 @@
    :error (fn [state]
             (xiana/error (assoc state :response {:status 400
                                                  :body   "Request coercion failed"})))
-   :leave (fn [{{:keys [:status :body]} :response
-                :as                     state}]
-            (let [schema (get-in state [:request-data :match :data :responses status :body])]
+   :leave (fn [{{:keys [:status :body]}  :response
+                {method :request-method} :request
+                :as                      state}]
+            (let [schema (or (get-in state [:request-data :match :data method :responses status :body])
+                             (get-in state [:request-data :match :data :responses status :body]))]
               (cond (and schema body (m/validate schema body)) (xiana/ok state)
                     (and schema body) (xiana/error (assoc state :response {:status 400
                                                                            :body   "Response validation failed"}))
