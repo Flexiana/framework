@@ -20,8 +20,8 @@
   (let [[command name type] args
         [_ & ids] args
         cfg (config/config)
-        db (:framework.db.storage/postgresql cfg)
-        config (assoc (:framework.db.storage/migration cfg) :db db)]
+        db (:xiana/postgresql cfg)
+        config (assoc (:xiana/migration cfg) :db db)]
     (log/debug config)
     (if (str/blank? command)
       (help)
