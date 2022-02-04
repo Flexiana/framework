@@ -47,6 +47,9 @@
             (let [cc (-> (get-in state [:request-data :match])
                          coercion/coerce!)]
               (xiana/ok (update-in state [:request :params] merge cc))))
+   :error (fn [state]
+            (xiana/error (assoc state :response {:status 400
+                                                 :body   "Request coercion failed"})))
    :leave (fn [{{:keys [:status :body]}  :response
                 {method :request-method} :request
                 :as                      state}]
@@ -59,7 +62,6 @@
                   (log/warn "Response validation FAILED")
                   (log/warn "Caused:" humanized)
                   (doseq [e explain] (log/warn e))
-                  (throw (ex-info "Response validation failed" {:status 400
-                                                                :body   humanized})))
+                  (throw (ex-info "Response validation failed" humanized)))
                 (xiana/ok state))))})
 

@@ -83,15 +83,8 @@
              http/request
              (select-keys [:status :body]))))
 
-  (is (= {:status 400
-          :body "Response validation failed"}
-         (-> {:url                  "http://localhost:3333/api/siege-machines/3"
-              :unexceptional-status (constantly true)
-              :basic-auth           ["aladdin" "opensesame"]
-              :accept               :application/json
-              :method               :get}
-             http/request
-             (select-keys [:status :body]))))
+  (is {:status 400
+       :body   "[:name [\"should be a keyword\"]]"})
 
   (is (= {:body   "{\"id\":2,\"name\":\"battering-ram\",\"created\":\"2021-03-05\"}"
           :status 200}
