@@ -22,7 +22,6 @@
                                       [:attack {:optional true} int?]]})"
   (:require
     [clojure.tools.logging :as log]
-    [jsonista.core :as json]
     [malli.core :as m]
     [malli.error :as me]
     [malli.registry :as mr]
