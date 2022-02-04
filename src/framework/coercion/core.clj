@@ -21,7 +21,10 @@
                                       [:name keyword?]
                                       [:attack {:optional true} int?]]})"
   (:require
+    [clojure.tools.logging :as log]
+    [jsonista.core :as json]
     [malli.core :as m]
+    [malli.error :as me]
     [malli.registry :as mr]
     [malli.util :as mu]
     [reitit.coercion :as coercion]
@@ -45,15 +48,19 @@
             (let [cc (-> (get-in state [:request-data :match])
                          coercion/coerce!)]
               (xiana/ok (update-in state [:request :params] merge cc))))
-   :error (fn [state]
-            (xiana/error (assoc state :response {:status 400
-                                                 :body   "Request coercion failed"})))
    :leave (fn [{{:keys [:status :body]}  :response
                 {method :request-method} :request
                 :as                      state}]
             (let [schema (or (get-in state [:request-data :match :data method :responses status :body])
-                             (get-in state [:request-data :match :data :responses status :body]))]
-              (cond (and schema body (m/validate schema body)) (xiana/ok state)
-                    (and schema body) (xiana/error (assoc state :response {:status 400
-                                                                           :body   "Response validation failed"}))
-                    :else (xiana/ok state))))})
+                             (get-in state [:request-data :match :data :responses status :body]))
+                  valid? (some-> schema (m/validate body))]
+              (if (false? valid?)
+                (let [explain (m/explain schema body)
+                      humanized (me/humanize explain)]
+                  (log/warn "Response validation FAILED")
+                  (log/warn "Caused:" humanized)
+                  (doseq [e explain] (log/warn e))
+                  (throw (ex-info "Response validation failed" {:status 400
+                                                                :body   humanized})))
+                (xiana/ok state))))})
+
