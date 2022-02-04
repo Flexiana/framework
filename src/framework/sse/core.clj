@@ -16,12 +16,16 @@
 (defn ->message [data]
   (str "data: " (json/write-str data) EOL EOL))
 
+(defn- clients->channels
+  [clients]
+  (reduce into (vals clients)))
+
 (defrecord closable-events-channel
   [channel clients]
   AutoCloseable
   (close [this]
     (.close! (:channel this))
-    (doseq [c (apply into (vals @(:clients this)))]
+    (doseq [c (clients->channels @(:clients this))]
       (server/close c))))
 
 (defn init [config]
@@ -30,7 +34,7 @@
     (go-loop []
       (when-let [data (<! channel)]
         (log/debug "Sending data via SSE: " data)
-        (doseq [c (apply into (vals @clients))]
+        (doseq [c (clients->channels @clients)]
           (server/send! c (->message data) false))
         (recur)))
     (assoc config :events-channel (->closable-events-channel
