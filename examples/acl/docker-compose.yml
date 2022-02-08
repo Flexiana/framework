@@ -4,6 +4,8 @@ services:
     build:
       context: ./Docker
       dockerfile: db.Dockerfile
+    environment:
+      - POSTGRES_PASSWORD=dev
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:

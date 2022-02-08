@@ -4,7 +4,7 @@
                                    :host     "localhost"
                                    :dbtype   "postgresql"
                                    :user     "postgres"
-                                   :password "postgres"}
+                                   :password "dev"}
 
  :framework.app/ring {:defaults {:params    {:urlencoded true
                                              :multipart  true
