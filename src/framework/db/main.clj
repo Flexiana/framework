@@ -1,7 +1,7 @@
 (ns framework.db.main
   (:require
     [clojure.string :as str]
-    [clojure.tools.logging :as log]
+    [taoensso.timbre :as log]
     [framework.config.core :as config]
     [migratus.core :as migratus]))
 

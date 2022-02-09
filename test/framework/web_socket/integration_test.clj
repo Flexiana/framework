@@ -2,7 +2,7 @@
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.test :refer :all]
-    [clojure.tools.logging :as logger]
+    [taoensso.timbre :as log]
     [framework-fixture :as fixture]
     [framework.config.core :as config]
     [framework.handler.core :refer [handler-fn]]
@@ -21,16 +21,16 @@
   (xiana/ok
     (assoc-in state [:response-data :channel]
               {:on-receive (fn [ch msg]
-                             (logger/info "Message: " msg)
+                             (log/info "Message: " msg)
                              (server/send! ch msg))
-               :on-open    #(logger/info "OPEN: - - - - - " %)
+               :on-open    #(log/info "OPEN: - - - - - " %)
                :on-ping    (fn [ch data]
-                             (logger/info "Ping"))
+                             (log/info "Ping"))
                :on-close   (fn [ch status]
-                             (logger/info "\nCLOSE=============="))
+                             (log/info "\nCLOSE=============="))
                :init       (fn [ch]
-                             (logger/info "INIT: " ch)
-                             (logger/info "Session-Id: " (get-in req [:headers :session-id])))})))
+                             (log/info "INIT: " ch)
+                             (log/info "Session-Id: " (get-in req [:headers :session-id])))})))
 
 (defn hello
   [state]
@@ -59,11 +59,11 @@
                                  :text (fn [con mesg]
                                          (deliver latch mesg))
                                  :close (fn [con & status]
-                                          (logger/info "close:" con status))
+                                          (log/info "close:" con status))
                                  :error (fn [& args]
-                                          (logger/info "ERROR:" args))
+                                          (log/info "ERROR:" args))
                                  :open (fn [con]
-                                         (logger/info "opened:" con)))]
+                                         (log/info "opened:" con)))]
       (a-client/send ws :text session-id)
       (is (= session-id @latch))
       (a-client/close ws))))

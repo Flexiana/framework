@@ -3,7 +3,7 @@
     [clojure.data.json :refer [read-str]]
     [clojure.edn :as edn]
     [clojure.string :as str]
-    [clojure.tools.logging :as log]
+    [taoensso.timbre :as log]
     [framework.interceptor.queue :as queue]
     [reitit.core :as r]
     [xiana.core :as xiana]))

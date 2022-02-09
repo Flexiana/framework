@@ -2,7 +2,7 @@
   "Collection of useful interceptors"
   (:require
     [clojure.pprint :refer [pprint]]
-    [clojure.tools.logging :as log]
+    [taoensso.timbre :as log]
     [clojure.walk :refer [keywordize-keys]]
     [framework.interceptor.muuntaja :as muuntaja]
     [framework.interceptor.wrap :as wrap]
