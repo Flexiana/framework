@@ -3,7 +3,7 @@
     [cli-chat.models.users :as user]
     [cli-chat.views.chat :as views]
     [clojure.string :as str]
-    [clojure.tools.logging :as log]
+    [taoensso.timbre :as log]
     [framework.auth.hash :as auth]
     [framework.db.core :as sql]
     [xiana.core :as xiana]))

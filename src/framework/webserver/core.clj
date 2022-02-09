@@ -1,7 +1,7 @@
 (ns framework.webserver.core
   "Lifecycle management of the webserver"
   (:require
-    [clojure.tools.logging :as logger]
+    [taoensso.timbre :as log]
     [framework.handler.core :refer [handler-fn]]
     [org.httpkit.server :as server])
   (:import
@@ -12,7 +12,7 @@
   [options server]
   AutoCloseable
   (close [this]
-    (logger/info "Stop webserver" (:options this))
+    (log/info "Stop webserver" (:options this))
     ((:server this))))
 
 (defn- make
@@ -31,5 +31,5 @@
     (webserver))
   ;; get server options
   (when-let [server (make dependencies)]
-    (logger/info "Server started with options: " (:options server))
+    (log/info "Server started with options: " (:options server))
     (assoc dependencies :webserver server)))

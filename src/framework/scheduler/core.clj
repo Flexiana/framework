@@ -2,7 +2,7 @@
   (:require
     [clojure.core.async :as async :refer [<! chan timeout close! go-loop]]
     [clojure.core.async.impl.protocols :refer [closed?]]
-    [clojure.tools.logging :as logging])
+    [taoensso.timbre :as log])
   (:import
     (java.lang
       AutoCloseable)))
@@ -23,11 +23,11 @@
   (let [chan (chan)]
     (go-loop [chan chan]
       (async/<! (timeout interval-msecs))
-      (logging/debugf "Executing scheduled action %s" action)
+      (log/debugf "Executing scheduled action %s" action)
       (if (or
             (nil? chan)
             (closed? chan))
-        (logging/debugf "Stop %s execution" action)
+        (log/debugf "Stop %s execution" action)
         (do
           (action deps)
           (recur chan))))
