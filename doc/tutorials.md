@@ -54,7 +54,7 @@ The system configuration and start-up with the chainable set-up:
    :controller-interceptors (concat [(xiana-interceptors/muuntaja)
                                      cookies/interceptor
                                      xiana-interceptors/params
-                                     (session/protected-interceptor "/api" "/login")
+                                     (session/protected-interceptor "/api" ["/login"])
                                      xiana-interceptors/view
                                      xiana-interceptors/side-effect
                                      db/db-access]

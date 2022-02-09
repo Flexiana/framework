@@ -38,7 +38,7 @@
 (def app-cfg
   {:routes routes
    :controller-interceptors [x-interceptors/params
-                             (x-session/protected-interceptor "" "/login")]})
+                             (x-session/protected-interceptor "" ["/login"])]})
 
 (defn -main
   [& _args]

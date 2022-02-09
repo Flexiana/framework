@@ -164,13 +164,19 @@
                                    :body   (json/write-value-as-string
                                              {:message "Invalid or missing session"})})))))
 
+(defn- check-excluded-resources
+  [protected-path excluded-resources uri]
+  (not (some (fn [resources]
+               (= uri (str protected-path resources)))
+             excluded-resources)))
+
 (defn- protect
   [protected-path
-   excluded-resource
+   excluded-resources
    {{uri :uri} :request
     :as        state}]
   (if (and (string/starts-with? uri protected-path)
-           (not= uri (str protected-path excluded-resource)))
+           (check-excluded-resources protected-path excluded-resources uri))
     (on-enter state)
     (xiana/ok state)))
 
@@ -198,8 +204,8 @@
                        :body   \"Invalid or missing session\"}
    
    On leave, it updates the session storage from (-> state :session-data)"
-  [protected-path excluded-resource]
-  {:enter (partial protect protected-path excluded-resource)
+  [protected-path excluded-resources]
+  {:enter (partial protect protected-path excluded-resources)
    :leave on-leave})
 
 (def interceptor
