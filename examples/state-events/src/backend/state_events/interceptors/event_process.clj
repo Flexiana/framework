@@ -1,7 +1,7 @@
 (ns state-events.interceptors.event-process
   (:require
-    [taoensso.timbre :as log]
     [state-events.models.event :refer [<-pgobject ->pgobject]]
+    [taoensso.timbre :as log]
     [tick.core :as t]
     [xiana.core :as xiana])
   (:import

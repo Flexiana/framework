@@ -2,12 +2,12 @@
   "Collection of useful interceptors"
   (:require
     [clojure.pprint :refer [pprint]]
-    [taoensso.timbre :as log]
     [clojure.walk :refer [keywordize-keys]]
     [framework.interceptor.muuntaja :as muuntaja]
     [framework.interceptor.wrap :as wrap]
     [framework.session.core :as session]
     [ring.middleware.params :as middleware.params]
+    [taoensso.timbre :as log]
     [xiana.core :as xiana])
   (:import
     (java.util

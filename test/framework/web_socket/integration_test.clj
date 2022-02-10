@@ -2,7 +2,6 @@
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.test :refer :all]
-    [taoensso.timbre :as log]
     [framework-fixture :as fixture]
     [framework.config.core :as config]
     [framework.handler.core :refer [handler-fn]]
@@ -12,6 +11,7 @@
     [http.async.client :as a-client]
     [org.httpkit.client :as client]
     [org.httpkit.server :as server]
+    [taoensso.timbre :as log]
     [xiana.core :as xiana])
   (:import
     (java.util

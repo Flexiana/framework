@@ -5,6 +5,6 @@
                     :dbtype     "postgresql"
                     :user       "postgres"
                     :password   "postgres"}
- 
+
  :xiana/web-server {:port  3333
                     :join? false}}

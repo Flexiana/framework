@@ -2,8 +2,8 @@
   (:require
     [clojure.core.async :as async :refer (<! go-loop)]
     [clojure.data.json :as json]
-    [taoensso.timbre :as log]
     [org.httpkit.server :as server]
+    [taoensso.timbre :as log]
     [xiana.core :as xiana])
   (:import
     (java.lang
