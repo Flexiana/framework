@@ -52,7 +52,7 @@
                        {:init       (fn [ch]
                                       (swap! clients update session-id as-set ch)
                                       (server/send! ch {:headers headers :body (json/write-str {})} false))
-                        :on-receive (fn [ch _message])
+                        :on-receive (fn [_ch _message])
                         :on-ping    (fn [_ch _data])
                         :on-close   (fn [ch _status] (swap! clients update session-id disj ch))
                         :on-open    (fn [_ch])})))
