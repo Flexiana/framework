@@ -111,7 +111,6 @@ pom.xml.asc
 /.nrepl-port
 /.dir-locals.el
 /profiles.clj
-/.clj-kondo/cache/
 /dev/resources/local.edn
 /dev/src/local.clj
 .eastwood
@@ -119,5 +118,6 @@ pom.xml.asc
 .cpcache/
 .lsp/
 !/.lein-git-deps/
-.clj-kondo/
+.clj-kondo/*
+!.clj-kondo/config.edn
 *.iml

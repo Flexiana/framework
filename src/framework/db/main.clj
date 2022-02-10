@@ -1,9 +1,9 @@
 (ns framework.db.main
   (:require
     [clojure.string :as str]
-    [taoensso.timbre :as log]
     [framework.config.core :as config]
-    [migratus.core :as migratus]))
+    [migratus.core :as migratus]
+    [taoensso.timbre :as log]))
 
 (defn help []
   (println "Available migratus commands:")

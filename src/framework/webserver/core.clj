@@ -1,9 +1,9 @@
 (ns framework.webserver.core
   "Lifecycle management of the webserver"
   (:require
-    [taoensso.timbre :as log]
     [framework.handler.core :refer [handler-fn]]
-    [org.httpkit.server :as server])
+    [org.httpkit.server :as server]
+    [taoensso.timbre :as log])
   (:import
     (java.lang
       AutoCloseable)))
