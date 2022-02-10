@@ -73,8 +73,8 @@
              http/request
              (select-keys [:status :body]))))
 
-  (is (= {:status 400
-          :body "Request coercion failed"}
+  (is (= {:body   "Request coercion failed: #reitit.coercion.CoercionError{:schema [:map {:closed true} [:mydomain/id int?]], :value {:mydomain/id \"1c\"}, :errors (#Error{:path [:mydomain/id], :in [:mydomain/id], :schema int?, :value \"1c\"}), :transformed {:mydomain/id \"1c\"}}"
+          :status 400}
          (-> {:url                  "http://localhost:3333/api/siege-machines/1c"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]
@@ -83,8 +83,15 @@
              http/request
              (select-keys [:status :body]))))
 
-  (is {:status 400
-       :body   "[:name [\"should be a keyword\"]]"})
+  (is (= {:body   "[:explain {:schema :mydomain/SiegeMachine, :value {:id 3, :name \"puppet on strings\"}, :errors (#Error{:path [:name], :in [:name], :schema keyword?, :value \"puppet on strings\"})}][:humanized {:name [\"should be a keyword\"]}]"
+          :status 400}
+         (-> {:url                  "http://localhost:3333/api/siege-machines/3"
+              :unexceptional-status (constantly true)
+              :basic-auth           ["aladdin" "opensesame"]
+              :accept               :application/json
+              :method               :get}
+             http/request
+             (select-keys [:status :body]))))
 
   (is (= {:body   "{\"id\":2,\"name\":\"battering-ram\",\"created\":\"2021-03-05\"}"
           :status 200}

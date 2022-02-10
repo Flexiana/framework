@@ -44,12 +44,11 @@
   on request error: responds {:status 400, :body \"Request coercion failed\"}
   on response error: responds {:status 400, :body \"Response validation failed\"}"
   {:enter (fn [state]
-            (let [cc (-> (get-in state [:request-data :match])
-                         coercion/coerce!)]
-              (xiana/ok (update-in state [:request :params] merge cc))))
-   :error (fn [state]
-            (xiana/error (assoc state :response {:status 400
-                                                 :body   "Request coercion failed"})))
+            (try (let [cc (-> (get-in state [:request-data :match])
+                              coercion/coerce!)]
+                   (xiana/ok (update-in state [:request :params] merge cc)))
+                 (catch Exception e
+                   (xiana/error (assoc state :response {:status 400 :body (ex-message e)})))))
    :leave (fn [{{:keys [:status :body]}  :response
                 {method :request-method} :request
                 :as                      state}]
@@ -59,9 +58,8 @@
               (if (false? valid?)
                 (let [explain (m/explain schema body)
                       humanized (me/humanize explain)]
-                  (log/warn "Response validation FAILED")
-                  (log/warn "Caused:" humanized)
-                  (doseq [e explain] (log/warn e))
-                  (throw (ex-info "Response validation failed" humanized)))
+                  (xiana/error (assoc state :response {:status 400
+                                                       :body {:explain explain
+                                                              :humanized humanized}})))
                 (xiana/ok state))))})
 
