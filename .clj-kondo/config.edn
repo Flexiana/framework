@@ -1,4 +1,5 @@
-{:lint-as {xiana.core/flow-> clojure.core/->}
+{:lint-as {xiana.core/flow-> clojure.core/->
+           com.wsscode.pathom3.connect.operation/defresolver clojure.core/def}
  :linters
  {:unused-namespace {:level :error}
   :unresolved-var {:exclude [honeysql.helpers
