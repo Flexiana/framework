@@ -1,0 +1,10 @@
+{:lint-as {xiana.core/flow-> clojure.core/->}
+ :linters
+ {:unused-namespace {:level :error}
+  :unresolved-var {:exclude [honeysql.helpers
+                             honeysql-postgres.helpers
+                             honeysql.core]}
+
+  :consistent-alias
+  {:level   :error
+   :aliases {taoensso.timbre log}}}}
