@@ -21,7 +21,6 @@
                                       [:name keyword?]
                                       [:attack {:optional true} int?]]})"
   (:require
-    [clojure.tools.logging :as log]
     [malli.core :as m]
     [malli.error :as me]
     [malli.registry :as mr]
