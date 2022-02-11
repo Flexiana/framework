@@ -166,17 +166,17 @@
 
 (defn- check-excluded-resources
   [protected-path excluded-resources uri]
-  (not (some (fn [resources]
-               (= uri (str protected-path resources)))
-             excluded-resources)))
+  (and (string/starts-with? uri protected-path)
+       (not (some (fn [resources]
+                    (= uri (str protected-path resources)))
+                  excluded-resources))))
 
 (defn- protect
   [protected-path
    excluded-resources
    {{uri :uri} :request
     :as        state}]
-  (if (and (string/starts-with? uri protected-path)
-           (check-excluded-resources protected-path excluded-resources uri))
+  (if (check-excluded-resources protected-path excluded-resources uri)
     (on-enter state)
     (xiana/ok state)))
 
