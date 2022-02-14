@@ -73,7 +73,7 @@
              http/request
              (select-keys [:status :body]))))
 
-  (is (= {:body   "Request coercion failed: #reitit.coercion.CoercionError{:schema [:map {:closed true} [:mydomain/id int?]], :value {:mydomain/id \"1c\"}, :errors (#Error{:path [:mydomain/id], :in [:mydomain/id], :schema int?, :value \"1c\"}), :transformed {:mydomain/id \"1c\"}}"
+  (is (= {:body   "[:errors [\"[:mydomain/id] should be satisfies int?\"]]"
           :status 400}
          (-> {:url                  "http://localhost:3333/api/siege-machines/1c"
               :unexceptional-status (constantly true)

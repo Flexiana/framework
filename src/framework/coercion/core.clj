@@ -46,8 +46,14 @@
             (try (let [cc (-> (get-in state [:request-data :match])
                               coercion/coerce!)]
                    (xiana/ok (update-in state [:request :params] merge cc)))
-                 (catch Exception e
-                   (xiana/error (assoc state :response {:status 400 :body (ex-message e)})))))
+                 (catch Exception ex
+                   (xiana/error (assoc state :response {:status 400
+                                                        :body {:errors
+                                                               (mapv (fn [e]
+                                                                       (format  "%s should be satisfies %s"
+                                                                                (:in e)
+                                                                                (m/form (:schema e))))
+                                                                     (:errors (ex-data ex)))}})))))
    :leave (fn [{{:keys [:status :body]}  :response
                 {method :request-method} :request
                 :as                      state}]
@@ -58,7 +64,7 @@
                 (let [explain (m/explain schema body)
                       humanized (me/humanize explain)]
                   (xiana/error (assoc state :response {:status 400
-                                                       :body {:explain explain
-                                                              :humanized humanized}})))
+                                                       :body   {:explain   explain
+                                                                :humanized humanized}})))
                 (xiana/ok state))))})
 
