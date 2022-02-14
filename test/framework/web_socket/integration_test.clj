@@ -42,11 +42,10 @@
            :action    hello}]])
 
 (def system-config
-  {:routes                   routes
-   :web-socket-interceptors  [interceptors/params]
-   :controller-interceptors  [interceptors/params
-                              (session/protected-interceptor "/api" "/login")
-                              rbac/interceptor]})
+  {:routes                  routes
+   :web-socket-interceptors [interceptors/params]
+   :controller-interceptors [interceptors/params
+                             rbac/interceptor]})
 
 (use-fixtures :once (partial fixture/std-system-fixture system-config))
 

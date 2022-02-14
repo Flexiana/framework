@@ -29,7 +29,7 @@
 (def ->json json/write-value-as-string)
 (def <-json #(json/read-value % mapper))
 
-(defn ->pgobject
+(defn- ->pgobject
   "Transforms Clojure data to a PGobject that contains the data as
   JSON. PGObject type defaults to `jsonb` but can be changed via
   metadata key `:pgtype`"
@@ -39,7 +39,7 @@
       (.setType pgtype)
       (.setValue (->json x)))))
 
-(defn <-pgobject
+(defn- <-pgobject
   "Transform PGobject containing `json` or `jsonb` value to Clojure
   data."
   [^PGobject v]
@@ -51,7 +51,7 @@
               (with-meta {:pgtype type}))
       value)))
 
-(defn un-objectify
+(defn- un-objectify
   [table data]
   (let [{session-data (keyword (name table) "session-data")
          session-id   (keyword (name table) "session-id")
@@ -60,12 +60,12 @@
                         <-pgobject
                         (assoc :modified-at modified-at))}))
 
-(defn ->session-data [table rs]
+(defn- ->session-data [table rs]
   (when-let [session-data (first rs)]
     (let [[_ data] (first (un-objectify table session-data))]
       data)))
 
-(defn connect
+(defn- connect
   [{backend-config :framework.app/session-backend :as cfg}]
   (let [ds-config {:framework.db.storage/postgresql backend-config
                    :framework.db.storage/jdbc-opts  {:builder-fn as-kebab-maps}}
@@ -135,7 +135,7 @@
             ;; erase session
             (erase! [_] (reset! m {}))))))
 
-(defn ->session-id
+(defn- ->session-id
   [{{headers      :headers
      cookies      :cookies
      query-params :query-params} :request}]
@@ -147,7 +147,7 @@
                        (some->> query-params
                                 :SESSIONID))))
 
-(defn fetch-session
+(defn- fetch-session
   [state]
   (let [session-backend (-> state :deps :session-backend)
         session-id (->session-id state)
@@ -155,26 +155,7 @@
                          (throw (ex-message "Missing session data")))]
     (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id)))))
 
-(defn- on-enter
-  [state]
-  (try (fetch-session state)
-       (catch Exception _
-         (xiana/error
-           (assoc state :response {:status 401
-                                   :body   (json/write-value-as-string
-                                             {:message "Invalid or missing session"})})))))
-
-(defn- protect
-  [protected-path
-   excluded-resource
-   {{uri :uri} :request
-    :as        state}]
-  (if (and (string/starts-with? uri protected-path)
-           (not= uri (str protected-path excluded-resource)))
-    (on-enter state)
-    (xiana/ok state)))
-
-(defn- on-leave
+(defn store-session
   [{{session-id :session-id} :session-data :as state}]
   (if session-id
     (let [session-backend (-> state :deps :session-backend)]
@@ -188,38 +169,35 @@
                   (str session-id))))
     (xiana/ok state)))
 
-(defn protected-interceptor
-  "On enter allows a resource to be served when
-      * it is not protected
-   or
-      * the user-provided `session-id` exists in the server's session store.
-   If the session exists in the session store, it's copies it to the (-> state :session-data),
-   else responds with {:status 401
-                       :body   \"Invalid or missing session\"}
-   
-   On leave, it updates the session storage from (-> state :session-data)"
-  [protected-path excluded-resource]
-  {:enter (partial protect protected-path excluded-resource)
-   :leave on-leave})
+(defn throw-missing-session
+  [state]
+  (xiana/error
+    (assoc state :response {:status 401
+                            :body   (json/write-value-as-string
+                                      {:message "Invalid or missing session"})})))
 
 (def interceptor
-  {:enter on-enter
-   :leave on-leave})
+  "Returns with 401 when the referred session is missing"
+  {:enter fetch-session
+   :error throw-missing-session
+   :leave store-session})
+
+(defn add-guest-user
+  [state]
+  (let [session-backend (-> state :deps :session-backend)
+        session-id (UUID/randomUUID)
+        user-id (UUID/randomUUID)
+        session-data {:session-id session-id
+                      :users/role :guest
+                      :users/id   user-id}]
+    (add! session-backend session-id session-data)
+    (xiana/ok (dissoc (assoc state :session-data session-data) :response))))
 
 (def guest-session-interceptor
-  {:enter
-   (fn [state]
-     (try (fetch-session state)
-          (catch Exception _
-            (let [session-backend (-> state :deps :session-backend)
-                  session-id (UUID/randomUUID)
-                  user-id (UUID/randomUUID)
-                  session-data {:session-id session-id
-                                :users/role :guest
-                                :users/id   user-id}]
-              (add! session-backend session-id session-data)
-              (xiana/ok (assoc state :session-data session-data))))))
-   :leave on-leave})
+  "Inserts a new session when no session found"
+  {:enter fetch-session
+   :error add-guest-user
+   :leave store-session})
 
 (defn init-backend
   [{session-backend    :session-backend
