@@ -11,10 +11,14 @@
 ;; don't stop the sequence of executions, continue! (implicit)
 (def ok me/right)
 
+(def ok? me/right?)
+
 ;; monad.either/left container alias
 ;; and stop the sequence of executions (implicit)
 ;; used by >>= function
 (def error me/left)
+
+(def error? me/left?)
 
 ;; monad.extract alias
 ;; unwrap monad container
