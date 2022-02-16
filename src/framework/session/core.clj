@@ -1,7 +1,6 @@
 (ns framework.session.core
   "Xiana's session management"
   (:require
-    [clojure.string :as string]
     [framework.db.core :as db]
     [jsonista.core :as json]
     [next.jdbc.result-set :refer [as-kebab-maps]]
