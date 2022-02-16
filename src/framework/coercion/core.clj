@@ -46,11 +46,11 @@
             (try (let [cc (-> (get-in state [:request-data :match])
                               coercion/coerce!)]
                    (xiana/ok (update-in state [:request :params] merge cc)))
-                 (catch Exception ex
+                 (catch Exception ex ;; TODO: be more specific
                    (xiana/error (assoc state :response {:status 400
                                                         :body {:errors
                                                                (mapv (fn [e]
-                                                                       (format  "%s should be satisfies %s"
+                                                                       (format  "%s should satisfy %s"
                                                                                 (:in e)
                                                                                 (m/form (:schema e))))
                                                                      (:errors (ex-data ex)))}})))))
@@ -63,8 +63,20 @@
               (if (false? valid?)
                 (let [explain (m/explain schema body)
                       humanized (me/humanize explain)]
-                  (xiana/error (assoc state :response {:status 400
-                                                       :body   {:explain   explain
-                                                                :humanized humanized}})))
+                  (def dd [explain schema body humanized])
+                  (xiana/error
+                    (assoc state :response
+                           {:status 500
+                            :body   {:errors
+                                     {:type "response coercion"
+                                      :message humanized}
+                                     ;; [humanized]
+                                     }})))
                 (xiana/ok state))))})
 
+
+
+(comment
+
+  (-> dd last )
+  )

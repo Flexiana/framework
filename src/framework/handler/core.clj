@@ -34,6 +34,7 @@
            result (-> (xiana/apply-flow-> state queue)
                       (xiana/extract))
            channel (get-in result [:response-data :channel])]
+       (def rr result)
        (if (and websocket? channel)
          (as-channel http-request channel)
          (:response result))))

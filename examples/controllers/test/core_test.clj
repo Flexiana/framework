@@ -73,7 +73,7 @@
              http/request
              (select-keys [:status :body]))))
 
-  (is (= {:body   "[:errors [\"[:mydomain/id] should be satisfies int?\"]]"
+  (is (= {:body   "[:errors [\"[:mydomain/id] should satisfy int?\"]]"
           :status 400}
          (-> {:url                  "http://localhost:3333/api/siege-machines/1c"
               :unexceptional-status (constantly true)
