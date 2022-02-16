@@ -7,11 +7,11 @@
 
 (defn seed!
   ([config]
-   (let [db-conf (if-let [datasource (some-> (get-in config [:framework.db.storage/postgresql :datasource])
+   (let [db-conf (if-let [datasource (some-> (get-in config [:xiana/postgresql :datasource])
                                              jdbc/get-datasource)]
                    {:datasource datasource}
-                   (:framework.db.storage/postgresql config))
-         mig-config (-> (assoc (:framework.db.storage/migration config) :db db-conf)
+                   (:xiana/postgresql config))
+         mig-config (-> (assoc (:xiana/migration config) :db db-conf)
                         (rename-key :seeds-dir :migration-dir)
                         (rename-key :seeds-table-name :migration-table-name))]
      (migratus/migrate mig-config))
@@ -19,8 +19,8 @@
 
 (def seed-config
   (let [config (config/config)
-        db-conf (:framework.db.storage/postgresql config)]
-    (-> (assoc (:framework.db.storage/migration config) :db db-conf)
+        db-conf (:xiana/postgresql config)]
+    (-> (assoc (:xiana/migration config) :db db-conf)
         (rename-key :seeds-dir :migration-dir)
         (rename-key :seeds-table-name :migration-table-name))))
 

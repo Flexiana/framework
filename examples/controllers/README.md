@@ -7,6 +7,8 @@ FIXME: description
 ### Run the backend
 
 ```shell
+docker compose up -d
+
 lein run
 ```
 
