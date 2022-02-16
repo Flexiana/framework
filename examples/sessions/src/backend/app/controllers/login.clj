@@ -3,7 +3,7 @@
     [clojure.data.json :as json]
     [framework.session.core :as session]
     [ring.util.request :refer [body-string]]
-    [xiana.core :as x])
+    [xiana.core :as xiana])
   (:import
     (java.util
       UUID)))
@@ -22,7 +22,7 @@
 
 (defn missing-credentials
   [state]
-  (x/error (assoc state :response {:status 401
+  (xiana/error (assoc state :response {:status 401
                                    :body   "Missing credentials"})))
 
 (defn login-view
@@ -38,18 +38,18 @@
          (if (and user (= (:password user) (:password rbody)))
            (let [session-backend (get-in state [:deps :session-backend])]
              (session/add! session-backend session-id session-data)
-             (x/ok (assoc state
+             (xiana/ok (assoc state
                           :response {:status  200
                                      :headers {"Content-Type" "application/json"
                                                "Session-id"   session-id}
                                      :body    (json/write-str (update session-data :session-id str))})))
 
-           (x/error (assoc state :response {:status 401
+           (xiana/error (assoc state :response {:status 401
                                             :body   "Incorrect credentials"}))))
        (catch Exception _ (missing-credentials state))))
 
 (defn login-controller
   [state]
-  (x/flow-> state
+  (xiana/flow-> state
             login-view))
 
