@@ -65,14 +65,14 @@
 
 (defn docker?
   [state]
-  (if (get-in state [:framework.db.storage/postgresql :image-name])
+  (if (get-in state [:xiana/postgresql :image-name])
     (db/docker-postgres! state)
     state))
 
 (defn ->system
   [app-cfg]
   (-> (config/config app-cfg)
-      (rename-key :framework.app/auth :auth)
+      (rename-key :xiana/auth :auth)
       routes/reset
       rbac/init
       session/init-backend

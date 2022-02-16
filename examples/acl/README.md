@@ -6,8 +6,9 @@ API implementation for ACL example
 
 ### Prepare
 
-- start postgres with docker-compose, or with `postgres-start.sh` shell-script
-- apply tables and default users with `lein migratus migrate`
+start postgres with docker-compose:
+
+    docker compose up -d
 
 ### Run application
 

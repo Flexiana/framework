@@ -4,7 +4,7 @@
 
 ### Start dockerized PostgreSQL
 
-    postgres-start.sh
+    docker compose up -d
 
 
 ### Compile front-end and run the application

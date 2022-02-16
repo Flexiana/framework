@@ -2,8 +2,8 @@
   (:require
     [clojure.core.async :as async :refer (<! go-loop)]
     [clojure.data.json :as json]
-    [clojure.tools.logging :as log]
     [org.httpkit.server :as server]
+    [taoensso.timbre :as log]
     [xiana.core :as xiana])
   (:import
     (java.lang
@@ -16,12 +16,16 @@
 (defn ->message [data]
   (str "data: " (json/write-str data) EOL EOL))
 
+(defn- clients->channels
+  [clients]
+  (reduce into (vals clients)))
+
 (defrecord closable-events-channel
   [channel clients]
   AutoCloseable
   (close [this]
     (.close! (:channel this))
-    (doseq [[_ c] @(:clients this)]
+    (doseq [c (clients->channels @(:clients this))]
       (server/close c))))
 
 (defn init [config]
@@ -30,24 +34,28 @@
     (go-loop []
       (when-let [data (<! channel)]
         (log/debug "Sending data via SSE: " data)
-        (doseq [[_ c] @clients]
+        (doseq [c (clients->channels @clients)]
           (server/send! c (->message data) false))
         (recur)))
     (assoc config :events-channel (->closable-events-channel
                                     channel
                                     clients))))
 
+(defn- as-set
+  [s v]
+  (if s (conj s v) #{v}))
+
 (defn server-event-channel [state]
   (let [clients (get-in state [:deps :events-channel :clients])
         session-id (get-in state [:session-data :session-id])]
     (server/as-channel (:request state)
                        {:init       (fn [ch]
-                                      (swap! clients assoc session-id ch)
+                                      (swap! clients update session-id as-set ch)
                                       (server/send! ch {:headers headers :body (json/write-str {})} false))
-                        :on-receive (fn [ch message])
-                        :on-ping    (fn [ch data])
-                        :on-close   (fn [ch status] (swap! clients dissoc session-id ch))
-                        :on-open    (fn [ch])})))
+                        :on-receive (fn [_ch _message])
+                        :on-ping    (fn [_ch _data])
+                        :on-close   (fn [ch _status] (swap! clients update session-id disj ch))
+                        :on-open    (fn [_ch])})))
 
 (defn stop-heartbeat-loop
   [state]
@@ -61,9 +69,10 @@
 
 (defn put->session
   [deps session-id message]
-  (let [clients @(get-in deps [:events-channel :clients])]
-    (some-> (get clients session-id)
-            (server/send! (->message message) false))))
+  (let [clients (get-in deps [:events-channel :clients])
+        session-clients (get @clients session-id)]
+    (doseq [c session-clients] (server/send! c (->message message) false))
+    (not-empty session-clients)))
 
 (defn sse-action
   [state]
