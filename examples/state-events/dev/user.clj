@@ -1,15 +1,12 @@
 (ns user
   (:gen-class)
   (:require
-    [clojure.tools.logging :refer [*tx-agent-levels*]]
     [clojure.tools.namespace.repl :refer [refresh-all]]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [shadow.cljs.devtools.api :as shadow.api]
     [shadow.cljs.devtools.server :as shadow.server]
     [state :refer [dev-sys]]
     [state-events.core :refer [->system app-cfg]]))
-
-(alter-var-root #'*tx-agent-levels* conj :debug :trace)
 
 (def dev-app-config
   app-cfg)

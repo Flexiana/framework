@@ -1,7 +1,6 @@
 (ns framework.session.core
   "Xiana's session management"
   (:require
-    [clojure.string :as string]
     [framework.db.core :as db]
     [jsonista.core :as json]
     [next.jdbc.result-set :refer [as-kebab-maps]]
@@ -66,19 +65,19 @@
       data)))
 
 (defn- connect
-  [{backend-config :framework.app/session-backend :as cfg}]
-  (let [ds-config {:framework.db.storage/postgresql backend-config
-                   :framework.db.storage/jdbc-opts  {:builder-fn as-kebab-maps}}
+  [{backend-config :xiana/session-backend :as cfg}]
+  (let [ds-config {:xiana/postgresql backend-config
+                   :xiana/jdbc-opts  {:builder-fn as-kebab-maps}}
         connection (cond (every? backend-config [:port :dbname :host :dbtype :user :password]) (db/connect ds-config)
                          (get-in cfg [:db :datasource]) cfg
-                         :else (db/connect {:framework.db.storage/postgresql
-                                            (assoc (merge (:framework.db.storage/postgresql cfg) backend-config)
-                                                   :framework.db.storage/jdbc-opts {:builder-fn as-kebab-maps})}))]
+                         :else (db/connect {:xiana/postgresql
+                                            (assoc (merge (:xiana/postgresql cfg) backend-config)
+                                                   :xiana/jdbc-opts {:builder-fn as-kebab-maps})}))]
     (get-in connection [:db :datasource])))
 
 (defn- init-in-db
   "Initialize persistent database session storage."
-  [{backend-config :framework.app/session-backend :as cfg}]
+  [{backend-config :xiana/session-backend :as cfg}]
   (let [ds (connect cfg)
         table (:session-table-name backend-config :sessions)
         get-all {:select [:*]
@@ -201,7 +200,7 @@
 
 (defn init-backend
   [{session-backend    :session-backend
-    {storage :storage} :framework.app/session-backend
+    {storage :storage} :xiana/session-backend
     :as                config}]
   (cond
     session-backend config

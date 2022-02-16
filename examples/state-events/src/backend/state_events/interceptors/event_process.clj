@@ -1,7 +1,7 @@
 (ns state-events.interceptors.event-process
   (:require
-    [clojure.tools.logging :as logging]
     [state-events.models.event :refer [<-pgobject ->pgobject]]
+    [taoensso.timbre :as log]
     [tick.core :as t]
     [xiana.core :as xiana])
   (:import
@@ -101,5 +101,5 @@
    :leave ->aggregate
    :error (fn [state]
             (let [e (:exception state)]
-              (logging/error "Got exception: " e)
+              (log/error "Got exception: " e)
               (throw e)))})

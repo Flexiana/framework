@@ -167,8 +167,9 @@
   ([_]
    (garden.core/css (->garden))))
 
-(defmethod garden-to :file
-  ([_ [& key-col] ^String file-name]
-   (spit (str file-name ".css") (garden.core/css (->garden key-col))))
-  ([_ ^String file-name]
-   (spit (str file-name ".css") (garden.core/css (->garden)))))
+#?(:clj
+   (defmethod garden-to :file
+     ([_ [& key-col] ^String file-name]
+      (spit (str file-name ".css") (garden.core/css (->garden key-col))))
+     ([_ ^String file-name]
+      (spit (str file-name ".css") (garden.core/css (->garden))))))

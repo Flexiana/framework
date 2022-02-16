@@ -1,15 +1,15 @@
 (ns app.controllers.secret
   (:require
-    [xiana.core :as x]))
+    [xiana.core :as xiana]))
 
 (defn protected-view
   [state]
-  (x/ok (assoc state
+  (xiana/ok (assoc state
                :response {:status  200
                           :headers {"Content-Type" "application/json"}
                           :body    (str "Hello " (get-in state [:session-data :user :first-name]))})))
 
 (defn protected-controller
   [state]
-  (x/flow-> state
+  (xiana/flow-> state
             protected-view))
