@@ -33,9 +33,9 @@
    (get-datasource config 0))
   ([config count]
    (let [jdbc-opts (merge default-opts
-                          (:framework.db.storage/jdbc-opts config))]
+                          (:xiana/jdbc-opts config))]
      (try (-> config
-              :framework.db.storage/postgresql
+              :xiana/postgresql
               jdbc/get-datasource
               (jdbc/with-options jdbc-opts))
           (catch Exception e (if (< count 10)
@@ -43,7 +43,7 @@
                                (throw e)))))))
 
 (defn docker-postgres!
-  [{pg-config :framework.db.storage/postgresql :as config}]
+  [{pg-config :xiana/postgresql :as config}]
   (let [{:keys [dbname user password image-name]} pg-config
         container            (-> (tc/create
                                    {:image-name    image-name
@@ -60,17 +60,17 @@
                                :subname (str "//localhost:" port "/" dbname))]
     (tc/wait {:wait-strategy :log
               :message       "accept connections"} (:container container))
-    (assoc config :framework.db.storage/postgresql pg-config)))
+    (assoc config :xiana/postgresql pg-config)))
 
 (defn migrate!
   ([config]
    (migrate! config 0))
   ([config count]
    (try (let [db-conf    {:datasource (-> config
-                                          :framework.db.storage/postgresql
+                                          :xiana/postgresql
                                           :datasource
                                           jdbc/get-datasource)}
-              mig-config (assoc (:framework.db.storage/migration config)
+              mig-config (assoc (:xiana/migration config)
                                 :db db-conf)]
           (migratus/migrate mig-config))
         (catch Exception e (if (< count 10)
@@ -79,12 +79,12 @@
    config))
 
 (defn connect
-  "Adds `:datasource` key to the `:framework.db.storage/postgresql` config section
-  and duplicates `:framework.db.storage/postgresql` under the top-level `:db` key."
-  [{pg-config :framework.db.storage/postgresql :as config}]
+  "Adds `:datasource` key to the `:xiana/postgresql` config section
+  and duplicates `:xiana/postgresql` under the top-level `:db` key."
+  [{pg-config :xiana/postgresql :as config}]
   (let [pg-config (assoc pg-config :datasource (get-datasource config))]
     (assoc config
-           :framework.db.storage/postgresql pg-config
+           :xiana/postgresql pg-config
            :db pg-config)))
 
 (defn ->sql-params

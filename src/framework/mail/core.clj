@@ -16,7 +16,7 @@
 
 (defn send-email!
   "Sending a mail with 'postal.core'"
-  [{mail-config :framework.app/emails}
+  [{mail-config :xiana/emails}
    {:keys [to cc bcc subject body attachments]}]
   (pc/send-message mail-config
                    {:from (:from mail-config)

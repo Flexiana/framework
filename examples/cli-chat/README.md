@@ -6,7 +6,7 @@ Websockets based chat server example implementation
 
 ### Start dockerized PostgreSQL
 ```shell
-./postgres-start.sh
+docker compose up -d
 ```
     
 ### Log into psql console

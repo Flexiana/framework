@@ -1,9 +1,9 @@
 (ns framework.webserver.core
   "Lifecycle management of the webserver"
   (:require
-    [clojure.tools.logging :as logger]
     [framework.handler.core :refer [handler-fn]]
-    [org.httpkit.server :as server])
+    [org.httpkit.server :as server]
+    [taoensso.timbre :as log])
   (:import
     (java.lang
       AutoCloseable)))
@@ -12,13 +12,13 @@
   [options server]
   AutoCloseable
   (close [this]
-    (logger/info "Stop webserver" (:options this))
+    (log/info "Stop webserver" (:options this))
     ((:server this))))
 
 (defn- make
   "Web server instance."
   [dependencies]
-  (let [options (:webserver dependencies (:framework.app/web-server dependencies))]
+  (let [options (:webserver dependencies (:xiana/web-server dependencies))]
     (map->webserver
       {:options options
        :server  (server/run-server (handler-fn dependencies) options)})))
@@ -31,5 +31,5 @@
     (webserver))
   ;; get server options
   (when-let [server (make dependencies)]
-    (logger/info "Server started with options: " (:options server))
+    (log/info "Server started with options: " (:options server))
     (assoc dependencies :webserver server)))

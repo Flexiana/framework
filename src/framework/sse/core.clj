@@ -2,8 +2,8 @@
   (:require
     [clojure.core.async :as async :refer (<! go-loop)]
     [clojure.data.json :as json]
-    [clojure.tools.logging :as log]
     [org.httpkit.server :as server]
+    [taoensso.timbre :as log]
     [xiana.core :as xiana])
   (:import
     (java.lang
@@ -52,10 +52,10 @@
                        {:init       (fn [ch]
                                       (swap! clients update session-id as-set ch)
                                       (server/send! ch {:headers headers :body (json/write-str {})} false))
-                        :on-receive (fn [ch message])
-                        :on-ping    (fn [ch data])
-                        :on-close   (fn [ch status] (swap! clients update session-id disj ch))
-                        :on-open    (fn [ch])})))
+                        :on-receive (fn [_ch _message])
+                        :on-ping    (fn [_ch _data])
+                        :on-close   (fn [ch _status] (swap! clients update session-id disj ch))
+                        :on-open    (fn [_ch])})))
 
 (defn stop-heartbeat-loop
   [state]
