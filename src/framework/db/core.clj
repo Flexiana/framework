@@ -2,9 +2,9 @@
   "Data source builder"
   (:require
     [clj-test-containers.core :as tc]
-    [jsonista.core :as json]
     [honeysql-postgres.format]
     [honeysql.core :as sql]
+    [jsonista.core :as json]
     [migratus.core :as migratus]
     [next.jdbc :as jdbc]
     [next.jdbc.prepare :as prepare]
