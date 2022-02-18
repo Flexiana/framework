@@ -68,7 +68,7 @@
     (if (or (nil? last-event) (= "delete" last-action))
       (resource-exist-error state "Resource does not exists")
       (case action
-        "dissoc-key" (let [k (-> payload model/<-pgobject :remove)]
+        "dissoc-key" (let [k (:remove payload)]
                        (case k
                          "resource" (invalid-action state "Cannot delete resource type")
                          "id" (invalid-action state "Cannot delete id of resource")
