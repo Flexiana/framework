@@ -9,9 +9,7 @@
     [xiana.core :as xiana])
   (:import
     (java.util
-      UUID)
-    (org.postgresql.util
-      PGobject)))
+      UUID)))
 
 ;; define session protocol
 (defprotocol Session
