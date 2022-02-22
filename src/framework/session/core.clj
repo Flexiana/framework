@@ -174,6 +174,9 @@
              (fetch [_ k] (->session-data table (db/execute ds (get-one k))))
              ;; fetch all elements (no side effect)
              (dump [_] (into {} (map unpack (db/execute ds get-all))))
+             ;; fetching with applied filter
+             (dump-where [_ where]
+               (into {} (map unpack (db/execute ds (assoc get-all :where where)))))
              ;; add session key:element
              (add!
                [_ k v]
@@ -196,7 +199,7 @@
             (fetch [_ k] (get @m k))
             ;; fetch all elements (no side effect)
             (dump [_] @m)
-
+            ;; fetching with applied filter
             (dump-where [_ [op & where]]
               (filter (where->filter op where) @m))
             ;; add session key:element
