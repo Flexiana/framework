@@ -2,7 +2,6 @@
   "Xiana's session management"
   (:require
     [clojure.string :as string]
-    [clojure.string :as str]
     [framework.db.core :as db]
     [jsonista.core :as json]
     [next.jdbc.result-set :refer [as-kebab-maps]]
@@ -53,7 +52,7 @@
 (defmethod where->filter :like
   [_ [a ^String b]]
   #(re-matches
-     (re-pattern (str/replace b #"%" ".*"))
+     (re-pattern (string/replace b #"%" ".*"))
      (get (val %) a "")))
 
 (defmethod where->filter :in
@@ -72,7 +71,7 @@
                         ((where->filter (first w) (rest w)) v))) ws)]
       (every? some? (map (fn [f] (or (f entry) nil)) fn-s)))))
 
-(def any? (complement not-any?))
+(def -any? (complement not-any?))
 
 (defmethod where->filter :or
   [_ ws]
@@ -80,7 +79,7 @@
     (let [fn-s (map (fn [w]
                       (fn [v]
                         ((where->filter (first w) (rest w)) v))) ws)]
-      (any? some? (map (fn [f] (or (f entry) nil)) fn-s)))))
+      (-any? some? (map (fn [f] (or (f entry) nil)) fn-s)))))
 
 ;; define session protocol
 (defprotocol Session

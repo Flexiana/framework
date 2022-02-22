@@ -1,6 +1,6 @@
 (ns framework.session.core-test
   (:require
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is testing]]
     [framework.session.core :as session])
   (:import
     (java.util
