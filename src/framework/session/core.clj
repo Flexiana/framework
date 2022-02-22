@@ -175,8 +175,7 @@
              ;; fetch all elements (no side effect)
              (dump [_] (into {} (map unpack (db/execute ds get-all))))
              ;; fetching with applied filter
-             (dump-where [_ where]
-               (into {} (map unpack (db/execute ds (assoc get-all :where where)))))
+
              ;; add session key:element
              (add!
                [_ k v]
@@ -307,3 +306,35 @@
     (= :database storage) (init-in-db config)
     :else (init-in-memory config)))
 
+(comment
+  (def ss
+    (init-backend {:xiana/postgresql      {:port     5433
+                                           :dbname   "frankie"
+                                           :host     "localhost"
+                                           :dbtype   "postgresql"
+                                           :user     "flexiana"
+                                           :password "dev"}
+                   :xiana/migration       {:store                :database
+                                           :migration-dir        "migrations"
+                                           :seeds-dir            "dev_seeds"
+                                           :migration-table-name "migrations"
+                                           :seeds-table-name     "seeds"}
+                   :xiana/auth            {:hash-algorithm :bcrypt}
+                   :xiana/session-ttl     {:duration    90
+                                           :unit        :minutes
+                                           :alert-times [600 300 120 90 60 30 15 10 5 0]} ; in seconds
+                   :xiana/session-backend {:storage            :database
+                                           :session-table-name :sessions}
+                   :xiana/web-client      {:force-http-completion true}
+                   :xiana/web-server      {:port   3000
+                                           :host   "localhost"
+                                           :join?  false
+                                           :async? true}
+                   :xiana/uploads         {:path "resources/public/assets/attachments/"}
+                   :nrepl.server/port     7888
+                   :logging/timbre-config {:min-level :info
+                                           :ns-filter {:allow #{"*"}}}}))
+
+  (def sb (:session-backend ss))
+
+  (dump-where sb []))
