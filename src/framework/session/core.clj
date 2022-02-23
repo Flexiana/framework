@@ -165,8 +165,6 @@
                                :else (let [f (if (namespace k) (str/join "/" [(namespace k) (name k)]) (name k))
                                            v (if (coll? (first value)) [(map str (first value))]
                                                  (map str value))]
-                                       (prn op k value)
-                                       (prn (coll? (first value)))
                                        (into [op (sql/raw (format "session_data ->> '%s' " f))] v))))
 
         insert-session (fn [k v] {:insert-into table
@@ -319,78 +317,3 @@
     session-backend config
     (= :database storage) (init-in-db config)
     :else (init-in-memory config)))
-
-(comment
-  (def ss
-    (init-backend {:xiana/postgresql      {:port     5433
-                                           :dbname   "frankie"
-                                           :host     "localhost"
-                                           :dbtype   "postgresql"
-                                           :user     "flexiana"
-                                           :password "dev"}
-                   :xiana/migration       {:store                :database
-                                           :migration-dir        "migrations"
-                                           :seeds-dir            "dev_seeds"
-                                           :migration-table-name "migrations"
-                                           :seeds-table-name     "seeds"}
-                   :xiana/auth            {:hash-algorithm :bcrypt}
-                   :xiana/session-ttl     {:duration    90
-                                           :unit        :minutes
-                                           :alert-times [600 300 120 90 60 30 15 10 5 0]} ; in seconds
-                   :xiana/session-backend {:storage            :database
-                                           :session-table-name :sessions}
-                   :xiana/web-client      {:force-http-completion true}
-                   :xiana/web-server      {:port   3000
-                                           :host   "localhost"
-                                           :join?  false
-                                           :async? true}
-                   :xiana/uploads         {:path "resources/public/assets/attachments/"}
-                   :nrepl.server/port     7888
-                   :logging/timbre-config {:min-level :info
-                                           :ns-filter {:allow #{"*"}}}
-                   :xiana/jdbc-opts         {:builder-fn next.jdbc.result-set/as-kebab-maps}}))
-
-  (def sb (:session-backend ss))
-  (erase! sb)
-  (dump sb)
-  (def id (UUID/randomUUID))
-  (add! sb id {:session-id id
-               :index 2
-               :title "arabica"})
-  (dump sb)
-  (dump-where sb [:= :session-id id])
-  (dump-where sb [:= :session-id "0558b901-ca0b-4c2e-8e47-6fa96e666f66"])
-  (dump-where sb [:not [:= :session-id "0558b901-ca0b-4c2e-8e47-6fa96e666f66"]])
-  (dump-where sb [:= :title "arabica"])
-  (dump-where sb [:in :index [1 2 3]])
-  (dump-where sb [:between :index 1 3])
-  (dump-where sb [:and
-                  [:in :title ["form" "meat" "loaf" "arabica"]]
-                  [:= :index 2]])
-  (dump-where sb [:and
-                  [:in :title ["form" "meat" "loaf" "arabica"]]
-                  [:= :index 1]])
-  (dump-where sb [:or
-                  [:in :title ["form" "meat" "loaf"]]
-                  [:= :index 2]])
-
-
-  (next.jdbc/execute! ds
-                      ["select * from sessions where session_data ->> 'session-id' = ?"
-                       "6552a891-4139-48b5-af53-ac13d02d3ba5"]))
-
-(defn where-selector
-  [table where]
-  (let [[op k & value] where
-        f (if (namespace k) (str/join "/" [(namespace k) (name k)]) (name k))
-        v (if (coll? (first value)) (map str (first value)) (map str value))
-        w (into [op (format "session_data ->> '%s'" f)] v)]
-    (sql/format {:select [:*]
-                 :from   [table]
-                 :where  w})))
-
-(where-selector :sessions [:= :session-id "0558b901-ca0b-4c2e-8e47-6fa96e666f66"])
-
-(where-selector :sessions [:in :session-id [(UUID/randomUUID) (UUID/randomUUID)]])
-(where-selector :sessions [:between :index 3 4])
-(where-selector :sessions [:between :users/id 3 4])
