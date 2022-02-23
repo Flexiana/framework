@@ -146,9 +146,9 @@
   options that target postgresql."
   [sql-map]
   (sql/format sql-map
-              {:quoting            :ansi
-               :parameterizer      :none
-               :return-param-names false}))
+              :quoting :ansi
+              :parameterizer :jdbc
+              :return-param-names false))
 
 (defn execute
   "Gets datasource, parse the given sql-map (query) and
