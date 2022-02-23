@@ -2,7 +2,9 @@
   "Xiana's session management"
   (:require
     [clojure.string :as string]
+    [clojure.string :as str]
     [framework.db.core :as db]
+    [honeysql.core :as sql]
     [jsonista.core :as json]
     [next.jdbc.result-set :refer [as-kebab-maps]]
     [xiana.core :as xiana])
@@ -124,9 +126,9 @@
 
 (defn un-objectify
   [table data]
-  (let [{session-data (keyword (name table) "session-data")
-         session-id   (keyword (name table) "session-id")
-         modified-at  (keyword (name table) "modified-at")} data]
+  (let [{session-data (keyword (name table) "session_data")
+         session-id   (keyword (name table) "session_id")
+         modified-at  (keyword (name table) "modified_at")} data]
     {session-id (some-> session-data
                         <-pgobject
                         (assoc :modified-at modified-at))}))
@@ -157,6 +159,16 @@
         get-one (fn [k] {:select [:session_data :modified_at]
                          :from   [table]
                          :where  [:= :session_id k]})
+        where-selector (fn ws [[op k & value]]
+                         (cond (coll? k) (into [op (ws k) (ws (first value))])
+                               (not (keyword? op)) [op k value]
+                               :else (let [f (if (namespace k) (str/join "/" [(namespace k) (name k)]) (name k))
+                                           v (if (coll? (first value)) [(map str (first value))]
+                                                 (map str value))]
+                                       (prn op k value)
+                                       (prn (coll? (first value)))
+                                       (into [op (sql/raw (format "session_data ->> '%s' " f))] v))))
+
         insert-session (fn [k v] {:insert-into table
                                   :values      [{:session_id   k
                                                  :session_data (->pgobject v)}]
@@ -175,7 +187,9 @@
              ;; fetch all elements (no side effect)
              (dump [_] (into {} (map unpack (db/execute ds get-all))))
              ;; fetching with applied filter
-
+             (dump-where [_ where] (into {} (map unpack (db/execute ds {:select [:*]
+                                                                        :from   [table]
+                                                                        :where  (where-selector where)}))))
              ;; add session key:element
              (add!
                [_ k v]
@@ -333,8 +347,50 @@
                    :xiana/uploads         {:path "resources/public/assets/attachments/"}
                    :nrepl.server/port     7888
                    :logging/timbre-config {:min-level :info
-                                           :ns-filter {:allow #{"*"}}}}))
+                                           :ns-filter {:allow #{"*"}}}
+                   :xiana/jdbc-opts         {:builder-fn next.jdbc.result-set/as-kebab-maps}}))
 
   (def sb (:session-backend ss))
+  (erase! sb)
+  (dump sb)
+  (def id (UUID/randomUUID))
+  (add! sb id {:session-id id
+               :index 2
+               :title "arabica"})
+  (dump sb)
+  (dump-where sb [:= :session-id id])
+  (dump-where sb [:= :session-id "0558b901-ca0b-4c2e-8e47-6fa96e666f66"])
+  (dump-where sb [:not [:= :session-id "0558b901-ca0b-4c2e-8e47-6fa96e666f66"]])
+  (dump-where sb [:= :title "arabica"])
+  (dump-where sb [:in :index [1 2 3]])
+  (dump-where sb [:between :index 1 3])
+  (dump-where sb [:and
+                  [:in :title ["form" "meat" "loaf" "arabica"]]
+                  [:= :index 2]])
+  (dump-where sb [:and
+                  [:in :title ["form" "meat" "loaf" "arabica"]]
+                  [:= :index 1]])
+  (dump-where sb [:or
+                  [:in :title ["form" "meat" "loaf"]]
+                  [:= :index 2]])
 
-  (dump-where sb []))
+
+  (next.jdbc/execute! ds
+                      ["select * from sessions where session_data ->> 'session-id' = ?"
+                       "6552a891-4139-48b5-af53-ac13d02d3ba5"]))
+
+(defn where-selector
+  [table where]
+  (let [[op k & value] where
+        f (if (namespace k) (str/join "/" [(namespace k) (name k)]) (name k))
+        v (if (coll? (first value)) (map str (first value)) (map str value))
+        w (into [op (format "session_data ->> '%s'" f)] v)]
+    (sql/format {:select [:*]
+                 :from   [table]
+                 :where  w})))
+
+(where-selector :sessions [:= :session-id "0558b901-ca0b-4c2e-8e47-6fa96e666f66"])
+
+(where-selector :sessions [:in :session-id [(UUID/randomUUID) (UUID/randomUUID)]])
+(where-selector :sessions [:between :index 3 4])
+(where-selector :sessions [:between :users/id 3 4])

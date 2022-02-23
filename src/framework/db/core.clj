@@ -93,7 +93,7 @@
   [sql-map]
   (sql/format sql-map
               {:quoting            :ansi
-               :parameterizer      :postgresql
+               :parameterizer      :none
                :return-param-names false}))
 
 (defn execute
