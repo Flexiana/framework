@@ -114,9 +114,8 @@
                    :xiana/jdbc-opts  {:builder-fn as-kebab-maps}}
         connection (cond (every? backend-config [:port :dbname :host :dbtype :user :password]) (db/connect ds-config)
                          (get-in cfg [:db :datasource]) cfg
-                         :else (db/connect {:xiana/postgresql
-                                            (assoc (merge (:xiana/postgresql cfg) backend-config)
-                                                   :xiana/jdbc-opts {:builder-fn as-kebab-maps})}))]
+                         :else (db/connect {:xiana/postgresql (merge (:xiana/postgresql cfg) backend-config)
+                                            :xiana/jdbc-opts {:builder-fn as-kebab-maps}}))]
     (get-in connection [:db :datasource])))
 
 (defn- init-in-db
@@ -132,7 +131,7 @@
         where-selector (fn ws [[op k & value]]
                          (cond (coll? k) (into [op (ws k) (ws (first value))])
                                (not (keyword? op)) [op k value]
-                               :else (let [f (if (namespace k) (str/join "/" [(namespace k) (name k)]) (name k))
+                               :else (let [f (if (namespace k) (string/join "/" [(namespace k) (name k)]) (name k))
                                            v (if (coll? (first value)) [(map str (first value))]
                                                  (map str value))]
                                        (into [op (sql/raw (format "session_data ->> '%s' " f))] v))))

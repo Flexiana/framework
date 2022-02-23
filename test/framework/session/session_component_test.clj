@@ -28,31 +28,43 @@
     (session/erase! sb)
     (doseq [[session-id session-data] session-state]
       (session/add! sb session-id session-data))
-    (is (= 3 (count (session/dump sb))))
-    (is (= (val (second session-state))
-           (-> (session/dump-where sb [:= :session-id "0558b901-ca0b-4c2e-8e47-6fa96e666f66"])
-               vals
-               first
-               (dissoc :modified-at))))
-    (is (= 2 (count (session/dump-where sb [:not [:= :session-id "0558b901-ca0b-4c2e-8e47-6fa96e666f66"]]))))
-    (is (= (val (last session-state))
-           (-> (session/dump-where sb [:= :title "arabica"])
-               vals
-               first
-               (dissoc :modified-at))))
-    (is (= (val (last session-state))
-           (-> (session/dump-where sb [:in :index [2 3]])
-               vals
-               first
-               (dissoc :modified-at))))
-    (is (= 2 (count (session/dump-where sb [:between :index 1 3]))))
-    (is (= 1 (count (session/dump-where sb [:and
-                                            [:in :title ["form" "meat" "loaf" "arabica"]]
-                                            [:= :index 2]]))))
-    (is (= 0 (count (session/dump-where sb [:and
-                                            [:in :title ["form" "meat" "loaf" "arabica"]]
-                                            [:= :index 4]]))))
-    (is (= 3 (count (session/dump-where sb [:or
-                                            [:in :title ["form" "meat" "loaf"]]
-                                            [:= :index 2]]))))))
+    (testing "Sessions prepared"
+      (is (= (vals session-state)
+             (->> (session/dump sb)
+                  vals
+                  (map #(dissoc % :modified-at))))))
+    (testing "equality"
+      (is (= (val (second session-state))
+             (-> (session/dump-where sb [:= :session-id "0558b901-ca0b-4c2e-8e47-6fa96e666f66"])
+                 vals
+                 first
+                 (dissoc :modified-at)))))
+    (testing "not equal"
+      (is (= 2 (count (session/dump-where sb [:not [:= :session-id "0558b901-ca0b-4c2e-8e47-6fa96e666f66"]])))))
+    (testing "select by title"
+      (is (= (val (last session-state))
+             (-> (session/dump-where sb [:= :title "arabica"])
+                 vals
+                 first
+                 (dissoc :modified-at)))))
+    (testing "select via IN"
+      (is (= (val (last session-state))
+             (-> (session/dump-where sb [:in :index [2 3]])
+                 vals
+                 first
+                 (dissoc :modified-at)))))
+    (testing "select via BETWEEN"
+      (is (= 2 (count (session/dump-where sb [:between :index 1 3])))))
+    (testing "and with result"
+      (is (= 1 (count (session/dump-where sb [:and
+                                              [:in :title ["form" "meat" "loaf" "arabica"]]
+                                              [:= :index 2]])))))
+    (testing "and without result"
+      (is (= 0 (count (session/dump-where sb [:and
+                                              [:in :title ["form" "meat" "loaf" "arabica"]]
+                                              [:= :index 4]])))))
+    (testing "or function"
+      (is (= 3 (count (session/dump-where sb [:or
+                                              [:in :title ["form" "meat" "loaf"]]
+                                              [:= :index 2]])))))))
 
