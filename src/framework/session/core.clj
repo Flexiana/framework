@@ -2,17 +2,15 @@
   "Xiana's session management"
   (:require
     [clojure.string :as string]
-    [clojure.string :as str]
     [framework.db.core :as db]
     [honeysql.core :as sql]
+    [honeysql.format :as sqlf]
     [jsonista.core :as json]
     [next.jdbc.result-set :refer [as-kebab-maps]]
     [xiana.core :as xiana])
   (:import
     (java.util
-      UUID)
-    (org.postgresql.util
-      PGobject)))
+      UUID)))
 
 (defmulti where->filter
   (fn [& w] (first w)))
@@ -98,40 +96,12 @@
   ;; erase all elements (side effect)
   (erase! [_]))
 
-(def mapper (json/object-mapper {:decode-key-fn keyword}))
-(def ->json json/write-value-as-string)
-(def <-json #(json/read-value % mapper))
-
-(defn ->pgobject
-  "Transforms Clojure data to a PGobject that contains the data as
-  JSON. PGObject type defaults to `jsonb` but can be changed via
-  metadata key `:pgtype`"
-  [x]
-  (let [pgtype (or (:pgtype (meta x)) "jsonb")]
-    (doto (PGobject.)
-      (.setType pgtype)
-      (.setValue (->json x)))))
-
-(defn <-pgobject
-  "Transform PGobject containing `json` or `jsonb` value to Clojure
-  data."
-  [^PGobject v]
-  (let [type (.getType v)
-        value (.getValue v)]
-    (if (#{"jsonb" "json"} type)
-      (some-> value
-              <-json
-              (with-meta {:pgtype type}))
-      value)))
-
 (defn un-objectify
   [table data]
-  (let [{session-data (keyword (name table) "session_data")
-         session-id   (keyword (name table) "session_id")
-         modified-at  (keyword (name table) "modified_at")} data]
-    {session-id (some-> session-data
-                        <-pgobject
-                        (assoc :modified-at modified-at))}))
+  (let [{session-data (keyword (name table) "session-data")
+         session-id   (keyword (name table) "session-id")
+         modified-at  (keyword (name table) "modified-at")} data]
+    {session-id (assoc session-data :modified-at modified-at)}))
 
 (defn ->session-data [table rs]
   (when-let [session-data (first rs)]
@@ -169,7 +139,7 @@
 
         insert-session (fn [k v] {:insert-into table
                                   :values      [{:session_id   k
-                                                 :session_data (->pgobject v)}]
+                                                 :session_data (sqlf/value v)}]
                                   :upsert      {:on-conflict   [:session_id]
                                                 :do-update-set [:session_data :modified-at]}})
         erase-session-store {:truncate table}
