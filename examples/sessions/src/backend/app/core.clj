@@ -7,21 +7,21 @@
     [app.interceptors :refer [inject-session?
                               logout
                               require-logged-in]]
-    [framework.config.core :as config]
-    [framework.handler.core :as x-handler]
-    [framework.interceptor.core :as x-interceptors]
-    [framework.route.core :as x-routes]
-    [framework.session.core :as x-session]
-    [framework.webserver.core :as ws]
-    [piotr-yuxuan.closeable-map :refer [closeable-map]]))
+    [piotr-yuxuan.closeable-map :refer [closeable-map]]
+    [xiana.config :as config]
+    [xiana.handler :as handler]
+    [xiana.interceptor :as interceptors]
+    [xiana.route :as route]
+    [xiana.session :as session]
+    [xiana.webserver :as ws]))
 
 (def routes
-  [["" {:handler x-handler/handler-fn}]
+  [["" {:handler handler/handler-fn}]
    ["/" {:action       index/index
-         :interceptors [x-interceptors/params
+         :interceptors [interceptors/params
                         inject-session?]}]
    ["/login" {:action login/login-controller
-              :interceptors {:except [x-session/interceptor]}}]
+              :interceptors {:except [session/interceptor]}}]
    ["/logout" {:action       logout/logout-controller
                :interceptors {:around [logout]}}]
    ["/secret" {:action       secret/protected-controller
@@ -31,15 +31,15 @@
   [app-cfg]
   (-> (config/config)
       (merge app-cfg)
-      x-routes/reset
-      x-session/init-backend
+      route/reset
+      session/init-backend
       ws/start
       closeable-map))
 
 (def app-cfg
   {:routes                  routes
-   :controller-interceptors [x-interceptors/params
-                             x-session/interceptor]})
+   :controller-interceptors [interceptors/params
+                             session/interceptor]})
 
 (defn -main
   [& _args]

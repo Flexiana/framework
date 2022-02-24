@@ -35,7 +35,7 @@
             "ci"      ["do" "clean," "cloverage," "lint," "uberjar"]
             "kondo"   ["run" "-m" "clj-kondo.main" "--lint" "src" "test"]
             "lint"    ["do" "kondo," "eastwood," "kibit"]
-            "migrate" ["run" "-m" "framework.db.main"]
+            "migrate" ["run" "-m" "xiana.db.migrate"]
             "watch"   ["with-profile" "dev" "do"
                        ["shadow" "watch" "app" "browser-test" "karma-test"]]
             "release" ["with-profile" "prod" "do"

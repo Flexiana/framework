@@ -1,8 +1,8 @@
 (ns acl-fixture
   (:require
     [acl]
-    [framework.config.core :as config]
-    [framework.db.core :as db]))
+    [xiana.config :as config]
+    [xiana.db :as db]))
 
 (defn std-system-fixture
   [f]

@@ -1,8 +1,5 @@
 (ns interceptors
   (:require
-    [malli.core :as m]
-    [reitit.coercion :as coercion]
-    [reitit.core :as r]
     [xiana.core :as xiana]))
 
 (def require-logged-in

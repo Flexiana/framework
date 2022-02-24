@@ -3,10 +3,10 @@
     [cli-chat.models.users :as user]
     [cli-chat.views.chat :as views]
     [clojure.string :as str]
-    [framework.auth.hash :as auth]
-    [framework.db.core :as sql]
     [taoensso.timbre :as log]
-    [xiana.core :as xiana]))
+    [xiana.auth :as auth]
+    [xiana.core :as xiana]
+    [xiana.db :as db]))
 
 (defn gen-username []
   (let [id (apply str (take 4 (repeatedly #(char (+ (rand 26) 65)))))]
@@ -98,7 +98,7 @@
   [{{income-msg :income-msg} :request-data
     :as                      state}]
   (let [[_ user-name passwd] (str/split income-msg #"\s")
-        exists (not-empty (sql/execute (-> state :deps :db :datasource) (user/get-user user-name)))]
+        exists (not-empty (db/execute (-> state :deps :db :datasource) (user/get-user user-name)))]
     (cond (and user-name passwd (not exists))
           (xiana/ok (assoc
                       state

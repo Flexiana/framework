@@ -1,12 +1,12 @@
 (ns state-events.controllers.event
   (:require
     [clojure.walk :refer [keywordize-keys]]
-    [framework.db.core :as db]
     [jsonista.core :as json]
     [state-events.controller-behaviors.sse :as sse]
     [state-events.models.event :as model]
     [state-events.views.event :as view]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.db :as db]))
 
 (defn last-event
   [state]

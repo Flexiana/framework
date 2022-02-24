@@ -1,8 +1,8 @@
 (ns state-events.controller-behaviors.sse
   (:require
     [clojure.core.async :as async]
-    [framework.sse.core :as sse]
-    [xiana.core :as xiana])
+    [xiana.core :as xiana]
+    [xiana.sse :as sse])
   (:import
     (java.sql
       Timestamp)

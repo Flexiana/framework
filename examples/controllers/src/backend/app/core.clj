@@ -1,13 +1,13 @@
 (ns core
   (:require
-    [framework.coercion.core :as coercion]
-    [framework.config.core :as config]
-    [framework.interceptor.core :as xiana-interceptors]
-    [framework.route.core :as routes]
-    [framework.webserver.core :as ws]
-    [interceptors]
+    [interceptors :as app-interceptors]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
-    [route]))
+    [route]
+    [xiana.coercion :as coercion]
+    [xiana.config :as config]
+    [xiana.interceptor :as interceptors]
+    [xiana.route :as routes]
+    [xiana.webserver :as ws]))
 
 (defn ->system
   [app-cfg]
@@ -19,11 +19,11 @@
 
 (def app-cfg
   {:routes                  route/routes
-   :controller-interceptors [(xiana-interceptors/muuntaja)
-                             xiana-interceptors/params
+   :controller-interceptors [(interceptors/muuntaja)
+                             interceptors/params
                              coercion/interceptor
-                             interceptors/require-logged-in]
-   :error-interceptors [(xiana-interceptors/muuntaja)]})
+                             app-interceptors/require-logged-in]
+   :error-interceptors [(interceptors/muuntaja)]})
 
 (defn -main
   [& _args]
