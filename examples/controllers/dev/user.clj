@@ -2,9 +2,9 @@
   (:gen-class)
   (:require
     [clojure.tools.namespace.repl :refer [refresh-all]]
+    [core :refer [->system app-cfg]]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
-    [state :refer [dev-sys]]
-    [core :refer [->system app-cfg]]))
+    [state :refer [dev-sys]]))
 
 (def dev-app-config app-cfg)
 

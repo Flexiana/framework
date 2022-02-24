@@ -1,6 +1,7 @@
 (ns framework.session.core
   "Xiana's session management"
   (:require
+    [clojure.string :as string]
     [framework.db.core :as db]
     [honeysql.core :as sql]
     [honeysql.format :as sqlf]
