@@ -4,14 +4,68 @@
     [clj-test-containers.core :as tc]
     [honeysql-postgres.format]
     [honeysql.core :as sql]
+    [jsonista.core :as json]
     [migratus.core :as migratus]
     [next.jdbc :as jdbc]
+    [next.jdbc.prepare :as prepare]
+    [next.jdbc.result-set :as rs]
     [xiana.core :as xiana])
   (:import
+    (clojure.lang
+      IPersistentMap
+      IPersistentVector)
     (java.lang
       AutoCloseable)
+    (java.sql
+      PreparedStatement)
     (org.postgresql.jdbc
-      PgConnection)))
+      PgConnection)
+    (org.postgresql.util
+      PGobject)))
+
+(def mapper (json/object-mapper {:decode-key-fn keyword}))
+(def ->json json/write-value-as-string)
+(def <-json #(json/read-value % mapper))
+
+(defn ->pgobject
+  "Transforms Clojure data to a PGobject that contains the data as
+  JSON. PGObject type defaults to `jsonb` but can be changed via
+  metadata key `:pgtype`"
+  [x]
+  (let [pgtype (or (:pgtype (meta x)) "jsonb")]
+    (doto (PGobject.)
+      (.setType pgtype)
+      (.setValue (->json x)))))
+
+(defn <-pgobject
+  "Transform PGobject containing `json` or `jsonb` value to Clojure
+  data."
+  [^PGobject v]
+  (let [type (.getType v)
+        value (.getValue v)]
+    (if (#{"jsonb" "json"} type)
+      (some-> value
+              <-json
+              (with-meta {:pgtype type}))
+      value)))
+
+;; Hashmaps and vectors in queries will be converted to PGobject for JSON/JSONB
+(extend-protocol prepare/SettableParameter
+  IPersistentMap
+  (set-parameter [^IPersistentMap m ^PreparedStatement s i]
+    (.setObject s i (->pgobject m)))
+
+  IPersistentVector
+  (set-parameter [^IPersistentVector v ^PreparedStatement s i]
+    (.setObject s i (->pgobject v))))
+
+;; PGobject containing JSON/JSONB will be converted to Clojure data
+(extend-protocol rs/ReadableColumn
+  PGobject
+  (read-column-by-label [^PGobject v _]
+    (<-pgobject v))
+  (read-column-by-index [^PGobject v _ _]
+    (<-pgobject v)))
 
 (defrecord db
   [dbtype
