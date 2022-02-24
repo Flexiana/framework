@@ -63,7 +63,6 @@
               (if (false? valid?)
                 (let [explain (m/explain schema body)
                       humanized (me/humanize explain)]
-                  (def dd [explain schema body humanized])
                   (xiana/error
                     (assoc state :response
                            {:status 500
@@ -73,10 +72,3 @@
                                      ;; [humanized]
                                      }})))
                 (xiana/ok state))))})
-
-
-
-(comment
-
-  (-> dd last )
-  )
