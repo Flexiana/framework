@@ -23,7 +23,7 @@
 (defn missing-credentials
   [state]
   (xiana/error (assoc state :response {:status 401
-                                   :body   "Missing credentials"})))
+                                       :body   "Missing credentials"})))
 
 (defn login-view
   [{request :request :as state}]
@@ -39,17 +39,17 @@
            (let [session-backend (get-in state [:deps :session-backend])]
              (session/add! session-backend session-id session-data)
              (xiana/ok (assoc state
-                          :response {:status  200
-                                     :headers {"Content-Type" "application/json"
-                                               "Session-id"   session-id}
-                                     :body    (json/write-str (update session-data :session-id str))})))
+                              :response {:status  200
+                                         :headers {"Content-Type" "application/json"
+                                                   "Session-id"   session-id}
+                                         :body    (json/write-str (update session-data :session-id str))})))
 
            (xiana/error (assoc state :response {:status 401
-                                            :body   "Incorrect credentials"}))))
+                                                :body   "Incorrect credentials"}))))
        (catch Exception _ (missing-credentials state))))
 
 (defn login-controller
   [state]
   (xiana/flow-> state
-            login-view))
+                login-view))
 
