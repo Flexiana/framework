@@ -10,13 +10,15 @@
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [xiana.commons :refer [rename-key]]))
 
+(defonce test-system (atom {}))
+
 (defn ->system
   [app-cfg]
   (-> (config/config)
       (merge app-cfg)
       (rename-key :xiana/auth :auth)
-      session-backend/init-backend
       db-core/docker-postgres!
+      session-backend/init-backend
       db-core/connect
       db-core/migrate!
       routes/reset
@@ -27,5 +29,5 @@
 
 (defn std-system-fixture
   [config f]
-  (with-open [_ (->system config)]
+  (with-open [_ (reset! test-system (->system config))]
     (f)))

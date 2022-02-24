@@ -2,6 +2,7 @@
   "Xiana's session management"
   (:require
     [framework.db.core :as db]
+    [honeysql.core :as sql]
     [honeysql.format :as sqlf]
     [jsonista.core :as json]
     [next.jdbc.result-set :refer [as-kebab-maps]]
@@ -10,12 +11,83 @@
     (java.util
       UUID)))
 
+(defmulti where->filter
+  (fn [& w] (first w)))
+
+(defmethod where->filter :=
+  [_ [a b]]
+  #(= (get (val %) a) b))
+
+(defmethod where->filter :>
+  [_ [a b]]
+  #(> (get (val %) a) b))
+
+(defmethod where->filter :<
+  [_ [a b]]
+  #(< (get (val %) a) b))
+
+(defmethod where->filter :>=
+  [_ [a b]]
+  #(>= (get (val %) a) b))
+
+(defmethod where->filter :<=
+  [_ [a b]]
+  #(<= (get (val %) a) b))
+
+(defmethod where->filter :<>
+  [_ [a b]]
+  #(not= (get (val %) a) b))
+
+(defmethod where->filter :!=
+  [_ [a b]]
+  #(not= (get (val %) a) b))
+
+(defmethod where->filter :between
+  [_ [a b c]]
+  #(<= b (get (val %) a) c))
+
+(defn log [x] (prn x) x)
+
+(defmethod where->filter :like
+  [_ [a ^String b]]
+  #(re-matches
+     (re-pattern (string/replace b #"%" ".*"))
+     (get (val %) a "")))
+
+(defmethod where->filter :in
+  [_ [a b]]
+  #((set b) (get (val %) a)))
+
+(defmethod where->filter :not
+  [_ [w]]
+  #(not ((where->filter (first w) (rest w)) %)))
+
+(defmethod where->filter :and
+  [_ ws]
+  (fn [entry]
+    (let [fn-s (map (fn [w]
+                      (fn [v]
+                        ((where->filter (first w) (rest w)) v))) ws)]
+      (every? some? (map (fn [f] (or (f entry) nil)) fn-s)))))
+
+(def -any? (complement not-any?))
+
+(defmethod where->filter :or
+  [_ ws]
+  (fn [entry]
+    (let [fn-s (map (fn [w]
+                      (fn [v]
+                        ((where->filter (first w) (rest w)) v))) ws)]
+      (-any? some? (map (fn [f] (or (f entry) nil)) fn-s)))))
+
 ;; define session protocol
 (defprotocol Session
   ;; fetch an element (no side effect)
   (fetch [_ k])
   ;; fetch all elements (no side effect)
   (dump [_])
+  ;; filter with where statement
+  (dump-where [_ where-clause])
   ;; add an element (side effect)
   (add! [_ k v])
   ;; delete an element (side effect)
@@ -55,6 +127,14 @@
         get-one (fn [k] {:select [:session_data :modified_at]
                          :from   [table]
                          :where  [:= :session_id k]})
+        where-selector (fn ws [[op k & value]]
+                         (cond (coll? k) (into [op (ws k) (ws (first value))])
+                               (not (keyword? op)) [op k value]
+                               :else (let [f (if (namespace k) (string/join "/" [(namespace k) (name k)]) (name k))
+                                           v (if (coll? (first value)) [(map str (first value))]
+                                                 (map str value))]
+                                       (into [op (sql/raw (format "session_data ->> '%s' " f))] v))))
+
         insert-session (fn [k v] {:insert-into table
                                   :values      [{:session_id   k
                                                  :session_data (sqlf/value v)}]
@@ -72,6 +152,10 @@
              (fetch [_ k] (->session-data table (db/execute ds (get-one k))))
              ;; fetch all elements (no side effect)
              (dump [_] (into {} (map unpack (db/execute ds get-all))))
+             ;; fetching with applied filter
+             (dump-where [_ where] (into {} (map unpack (db/execute ds {:select [:*]
+                                                                        :from   [table]
+                                                                        :where  (where-selector where)}))))
              ;; add session key:element
              (add!
                [_ k v]
@@ -94,6 +178,9 @@
             (fetch [_ k] (get @m k))
             ;; fetch all elements (no side effect)
             (dump [_] @m)
+            ;; fetching with applied filter
+            (dump-where [_ [op & where]]
+              (filter (where->filter op where) @m))
             ;; add session key:element
             (add!
               [_ k v]
@@ -176,4 +263,3 @@
     session-backend config
     (= :database storage) (init-in-db config)
     :else (init-in-memory config)))
-
