@@ -2,14 +2,13 @@
   "Xiana's session management"
   (:require
     [framework.db.core :as db]
+    [honeysql.format :as sqlf]
     [jsonista.core :as json]
     [next.jdbc.result-set :refer [as-kebab-maps]]
     [xiana.core :as xiana])
   (:import
     (java.util
-      UUID)
-    (org.postgresql.util
-      PGobject)))
+      UUID)))
 
 ;; define session protocol
 (defprotocol Session
@@ -24,55 +23,26 @@
   ;; erase all elements (side effect)
   (erase! [_]))
 
-(def mapper (json/object-mapper {:decode-key-fn keyword}))
-(def ->json json/write-value-as-string)
-(def <-json #(json/read-value % mapper))
-
-(defn- ->pgobject
-  "Transforms Clojure data to a PGobject that contains the data as
-  JSON. PGObject type defaults to `jsonb` but can be changed via
-  metadata key `:pgtype`"
-  [x]
-  (let [pgtype (or (:pgtype (meta x)) "jsonb")]
-    (doto (PGobject.)
-      (.setType pgtype)
-      (.setValue (->json x)))))
-
-(defn- <-pgobject
-  "Transform PGobject containing `json` or `jsonb` value to Clojure
-  data."
-  [^PGobject v]
-  (let [type (.getType v)
-        value (.getValue v)]
-    (if (#{"jsonb" "json"} type)
-      (some-> value
-              <-json
-              (with-meta {:pgtype type}))
-      value)))
-
-(defn- un-objectify
+(defn un-objectify
   [table data]
   (let [{session-data (keyword (name table) "session-data")
          session-id   (keyword (name table) "session-id")
          modified-at  (keyword (name table) "modified-at")} data]
-    {session-id (some-> session-data
-                        <-pgobject
-                        (assoc :modified-at modified-at))}))
+    {session-id (assoc session-data :modified-at modified-at)}))
 
 (defn- ->session-data [table rs]
   (when-let [session-data (first rs)]
     (let [[_ data] (first (un-objectify table session-data))]
       data)))
 
-(defn- connect
+(defn connect
   [{backend-config :xiana/session-backend :as cfg}]
   (let [ds-config {:xiana/postgresql backend-config
                    :xiana/jdbc-opts  {:builder-fn as-kebab-maps}}
         connection (cond (every? backend-config [:port :dbname :host :dbtype :user :password]) (db/connect ds-config)
                          (get-in cfg [:db :datasource]) cfg
-                         :else (db/connect {:xiana/postgresql
-                                            (assoc (merge (:xiana/postgresql cfg) backend-config)
-                                                   :xiana/jdbc-opts {:builder-fn as-kebab-maps})}))]
+                         :else (db/connect {:xiana/postgresql (merge (:xiana/postgresql cfg) backend-config)
+                                            :xiana/jdbc-opts {:builder-fn as-kebab-maps}}))]
     (get-in connection [:db :datasource])))
 
 (defn- init-in-db
@@ -87,7 +57,7 @@
                          :where  [:= :session_id k]})
         insert-session (fn [k v] {:insert-into table
                                   :values      [{:session_id   k
-                                                 :session_data (->pgobject v)}]
+                                                 :session_data (sqlf/value v)}]
                                   :upsert      {:on-conflict   [:session_id]
                                                 :do-update-set [:session_data :modified-at]}})
         erase-session-store {:truncate table}

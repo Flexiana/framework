@@ -1,6 +1,5 @@
 (ns state-events.interceptors.event-process
   (:require
-    [state-events.models.event :refer [<-pgobject ->pgobject]]
     [taoensso.timbre :as log]
     [tick.core :as t]
     [xiana.core :as xiana])
@@ -8,27 +7,19 @@
     (java.sql
       Timestamp)
     (java.util
-      UUID)
-    (org.postgresql.util
-      PGobject)))
+      UUID)))
 
 (defn- clean-pg
-  [^PGobject obj]
-  (-> obj
-      <-pgobject
-      (select-keys [:id :resource])
-      ->pgobject))
+  [obj]
+  (select-keys obj [:id :resource]))
 
 (defn- rem-k
-  [^PGobject obj k]
-  (-> obj
-      <-pgobject
-      (dissoc (keyword k))
-      ->pgobject))
+  [obj k]
+  (dissoc obj (keyword k)))
 
 (defn- remove-key
   [acc event]
-  (let [rm-k (:remove (<-pgobject (:events/payload event)))]
+  (let [rm-k (:remove (:events/payload event))]
     (mapv #(update % :events/payload rem-k rm-k) acc)))
 
 (defn ->event
@@ -40,11 +31,11 @@
                             (-> state :request :params)))
         action (name (:action params))
         p (cond-> (dissoc params :action)
+            true (update :resource name)
             (some? (#{"undo" "redo" "clean" "delete"} action)) (select-keys [:id :resource])
             (= "dissoc-key" action) (select-keys [:id :resource :remove]))
-        payload (->pgobject p)
         creator (-> state :session-data :users/id)
-        event {:payload     payload
+        event {:payload     p
                :resource    (name (:resource params))
                :resource-id (UUID/fromString (:id params))
                :modified-at (Timestamp/from (t/now))
@@ -78,7 +69,7 @@
   [events]
   (let [sorted (sort-by :events/modified_at events)
         actions (process-actions sorted)
-        payloads (map #(or (some-> % :events/payload <-pgobject) {}) actions)
+        payloads (map #(or (some-> % :events/payload) {}) actions)
         payload-aggregate (reduce merge payloads)]
     (assoc (last sorted) :events/payload payload-aggregate)))
 
