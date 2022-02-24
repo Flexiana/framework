@@ -46,7 +46,7 @@
             (try (let [cc (-> (get-in state [:request-data :match])
                               coercion/coerce!)]
                    (xiana/ok (update-in state [:request :params] merge cc)))
-                 (catch Exception ex ;; TODO: be more specific
+                 (catch Exception ex ; TODO: be more specific
                    (xiana/error (assoc state :response {:status 400
                                                         :body {:errors
                                                                (mapv (fn [e]
@@ -68,7 +68,5 @@
                            {:status 500
                             :body   {:errors
                                      {:type "response coercion"
-                                      :message humanized}
-                                     ;; [humanized]
-                                     }})))
+                                      :message humanized}}})))
                 (xiana/ok state))))})
