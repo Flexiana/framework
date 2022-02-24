@@ -4,7 +4,7 @@
   (:require
     [xiana.core :as xiana]))
 
-(defn- interceptor->fn
+(defn interceptor->fn
   "Parse the interceptor function 'side' (:enter/:leave) to
   a lambda function that uses the try-catch approach to
   handle the interceptor exception if occurs."

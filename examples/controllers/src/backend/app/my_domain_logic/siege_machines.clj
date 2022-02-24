@@ -6,7 +6,7 @@
   (constantly
     {:siege-machine [{:id 1 :name :trebuchet}
                      {:id 2 :name :battering-ram :created #inst"2021-03-05T10"}
-                     {:id 3 :name "puppet on strings"}]}))
+                     {:id 3 :name "puppet on strings" :range "0 mm"}]}))
 
 (defn get-by-id
   [ctx]

@@ -2,7 +2,7 @@
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [com.flexiana/framework "0.4.0-rc2"]
+                 [com.flexiana/framework "0.4.0-rc3"]
                  [metosin/reitit "0.5.15"]
                  [metosin/malli "0.6.2"]
                  [duct/server.http.jetty "0.2.1"]
@@ -18,8 +18,9 @@
   :uberjar-name "frames.jar"
   :source-paths ["src/backend/app" "src/backend/components" "src/frontend" "src/shared"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
-  :profiles {:dev   {:resource-paths ["config/dev"]
-                     :dependencies   [[binaryage/devtools "1.0.2"]]}
+  :profiles {:dev   {:resource-paths ["config/dev" "dev"]
+                     :dependencies   [[binaryage/devtools "1.0.2"]
+                                      [org.clojure/tools.namespace "1.1.0"]]}
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
