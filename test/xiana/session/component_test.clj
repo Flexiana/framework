@@ -1,8 +1,8 @@
 (ns xiana.session.component-test
   (:require
     [clojure.test :refer :all]
-    [xiana-fixture :as fixture]
     [next.jdbc.result-set]
+    [xiana-fixture :as fixture]
     [xiana.session :as session]))
 
 (def system-config

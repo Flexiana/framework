@@ -2,11 +2,11 @@
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.test :refer :all]
-    [xiana-fixture :as fixture]
     [http.async.client :as a-client]
     [org.httpkit.client :as client]
     [org.httpkit.server :as server]
     [taoensso.timbre :as log]
+    [xiana-fixture :as fixture]
     [xiana.core :as xiana]
     [xiana.handler :refer [handler-fn]]
     [xiana.interceptor :as interceptors]
