@@ -1,7 +1,7 @@
 (ns xiana.session.component-test
   (:require
     [clojure.test :refer :all]
-    [framework-fixture :as fixture]
+    [xiana-fixture :as fixture]
     [next.jdbc.result-set]
     [xiana.session :as session]))
 

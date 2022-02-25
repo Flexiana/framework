@@ -109,7 +109,7 @@ Next, we check if the credentials are correct, so we use an `if` statement.
                                        :body   "Login failed"})))
 ```
 
-Xiana provides `framework.auth.hash` to check user credentials:
+Xiana provides `xiana.auth` to check user credentials:
 
 ```clojure
 (defn- valid-credentials?
@@ -119,7 +119,7 @@ Xiana provides `framework.auth.hash` to check user credentials:
         db-stored-pass (-> state :response-data :db-data first :users/password)]
     (and user-provided-pass
          db-stored-pass
-         (hash/check state user-provided-pass db-stored-pass))))
+         (auth/check state user-provided-pass db-stored-pass))))
 ```
 
 The login logic is done, but where to place it?
@@ -243,8 +243,8 @@ CREATE TABLE sessions (
 - you need to define the session's configuration in you `config.edn` files:
 
 ```clojure
- :framework.app/session-backend {:storage            :database
-                                 :session-table-name :sessions}
+ :xiana/session-backend {:storage            :database
+                         :session-table-name :sessions}
 ```
 
 - in case of
@@ -280,10 +280,11 @@ CREATE TABLE sessions (
   ```
     - Creating new datasource
 
-  If no datasource is provided on initialization, the `init-backend` function merges the database config with the 
+  If no datasource is provided on initialization, the `init-backend` function merges the database config with the
   session backend configuration, and creates a new datasource from the result.
 
 ### Session interceptors
+
 [See interceptors](interceptors.md#session)
 
 ## Access and data ownership control

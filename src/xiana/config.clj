@@ -12,7 +12,7 @@
 (defn read-edn-file
   "Reads edn configuration file."
   [config]
-  (if-let [edn-file (:framework-edn-config config)]
+  (if-let [edn-file (:xiana-edn-config config)]
     (with-open [r (io/reader edn-file)]
       (deep-merge config (edn/read (PushbackReader. r))))
     config))

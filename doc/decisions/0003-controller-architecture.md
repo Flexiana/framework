@@ -7,10 +7,10 @@ Date: 2021-01-27
 Proposed
 
 ## Context
- 1. The Controller is responsible for the lifecycle of the framework. It reflects the starting point and the means of controll of all the needed actions that the framework must do (load deps, render views, generate routes etc).
- 2. The framework requires a simple and easy controll to the end user.
+ 1. The Controller is responsible for the lifecycle of the application. It reflects the starting point and the means of controll of all the needed actions that the framework must do (load deps, render views, generate routes etc).
+ 2. Xiana requires a simple and easy control to the end user.
  3. In turn the interaction of the user with the controller should be simple understandable and destructured in smaller steps that would provide a better grain of detail in the controll of the application, validation and error management etc.
- 4. The framework rational requires a functional approach but in a way that would be easy for new users and in a way that it would use user's previous concept knowledge from similar frameworks in other programming languages.
+ 4. Xiana rational requires a functional approach but in a way that would be easy for new users and in a way that it would use user's previous concept knowledge from similar frameworks in other programming languages.
  
 ## Decisions
 ### 1. Controller being `monadic`

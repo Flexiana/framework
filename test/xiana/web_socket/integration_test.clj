@@ -2,7 +2,7 @@
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.test :refer :all]
-    [framework-fixture :as fixture]
+    [xiana-fixture :as fixture]
     [http.async.client :as a-client]
     [org.httpkit.client :as client]
     [org.httpkit.server :as server]

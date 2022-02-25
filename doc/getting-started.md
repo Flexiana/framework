@@ -43,7 +43,7 @@ which should open a PostgreSQL shell if successful.
 
 ### 4. Populate database with data
 
-On application start, the framework will look for database migrations located in the configured location. By default, this location is set to *resources/migrations* directory*.*
+On application start, Xiana will look for database migrations located in the configured location. By default, this location is set to *resources/migrations* directory*.*
 
 It is possible to create migrations by running from the project directory
 

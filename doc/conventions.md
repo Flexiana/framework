@@ -69,9 +69,9 @@ Actions are defined in the routes vector
 
 ## Handler
 
-The framework provided handler does all the processing. It runs on every request and does the following. It creates
-the state for every request, matches the appropriate route, executes the interceptors, handles interceptor overrides,
-and not-found cases. It handles websocket requests too.
+Xiana's handler does all the processing. It runs on every request and does the following. It creates the state for every
+request, matches the appropriate route, executes the interceptors, handles interceptor overrides, and not-found cases.
+It handles websocket requests too.
 
 ### Routing
 
