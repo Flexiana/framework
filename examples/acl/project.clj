@@ -2,14 +2,7 @@
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.3"]
-                 [com.flexiana/framework "0.4.0-rc2"]
-                 [thheller/shadow-cljs "2.11.7"]
-                 [migratus "1.3.5"]
-                 [clj-http "3.12.0"]
-                 [reagent "0.10.0"]
-                 [re-frame "1.1.2"]
-                 [org.clojure/data.xml "0.0.8"]
-                 [com.fzakaria/slf4j-timbre "0.3.21"]]
+                 [com.flexiana/framework "0.4.0-rc3"]]
   :plugins [[lein-shadow "0.3.1"]
             [migratus-lein "0.7.3"]]
   :jvm-opts ["-Dmalli.registry/type=custom"]
@@ -18,7 +11,7 @@
   :source-paths ["src/backend" "src/backend/app" "src/frontend" "src/shared"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :profiles {:dev   {:resource-paths ["config/dev"]
-                     :dependencies   [[binaryage/devtools "1.0.2"]]}
+                     :dependencies   [[binaryage/devtools "1.0.5"]]}
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
