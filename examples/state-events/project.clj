@@ -18,8 +18,7 @@
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
                      :dependencies   [[mvxcvi/cljstyle "0.15.0"
-                                       :exclusions [org.clojure/clojure]]
-                                      [kerodon "0.9.1"]]}}
+                                       :exclusions [org.clojure/clojure]]]}}
   :shadow-cljs {:nrepl  {:port 8777}
                 :builds {:app {:target     :browser
                                :output-dir "resources/public/assets/js/compiled"

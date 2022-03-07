@@ -15,10 +15,9 @@
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [[mvxcvi/cljstyle "0.15.0"
-                                       :exclusions [org.clojure/clojure]]
-                                      [clj-http "3.12.3"]
-                                      [kerodon "0.9.1"]]}}
+                     :dependencies   [[clj-http "3.12.3"]
+                                      [mvxcvi/cljstyle "0.15.0"
+                                       :exclusions [org.clojure/clojure]]]}}
   :shadow-cljs {:nrepl {:port 8777}
 
                 :builds {:app {:target     :browser

@@ -3,8 +3,7 @@
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [com.flexiana/framework "0.4.0-rc3"]]
-  :plugins [[lein-shadow "0.3.1"]
-            [migratus-lein "0.7.3"]]
+  :plugins []
   :jvm-opts ["-Dmalli.registry/type=custom"]
   :main ^:skip-aot acl
   :uberjar-name "acl.jar"
@@ -15,7 +14,7 @@
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [[kerodon "0.9.1"]
+                     :dependencies   [[clj-http "3.12.3"]
                                       [mvxcvi/cljstyle "0.15.0"
                                        :exclusions [org.clojure/clojure]]]}}
   :shadow-cljs {:nrepl  {:port 8777}

@@ -3,8 +3,7 @@
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [com.flexiana/framework "0.4.0-rc3"]]
-  :plugins [[lein-shadow "0.3.1"]
-            [lein-shell "0.5.0"]]
+  :plugins [[lein-shadow "0.4.0"]]
   :main ^:skip-aot frames.core
   :uberjar-name "frames.jar"
   :source-paths ["src/backend/" "src/frontend"]
