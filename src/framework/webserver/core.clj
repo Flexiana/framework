@@ -2,7 +2,7 @@
   "Lifecycle management of the webserver"
   (:require
     [framework.handler.core :refer [handler-fn]]
-    [org.httpkit.server :as server]
+    [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log])
   (:import
     (java.lang
@@ -13,7 +13,7 @@
   AutoCloseable
   (close [this]
     (log/info "Stop webserver" (:options this))
-    ((:server this))))
+    (jetty/stop-server (:server this))))
 
 (defn- make
   "Web server instance."
@@ -21,7 +21,7 @@
   (let [options (:webserver dependencies (:xiana/web-server dependencies))]
     (map->webserver
       {:options options
-       :server  (server/run-server (handler-fn dependencies) options)})))
+       :server  (jetty/run-jetty (handler-fn dependencies) options)})))
 
 (defn start
   "Start web server."

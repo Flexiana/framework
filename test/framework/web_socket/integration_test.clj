@@ -1,16 +1,15 @@
 (ns framework.web-socket.integration-test
   (:require
+    [clj-http.client :as client]
     [clojure.pprint :refer [pprint]]
     [clojure.test :refer :all]
     [framework-fixture :as fixture]
-    [framework.config.core :as config]
     [framework.handler.core :refer [handler-fn]]
     [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
     [framework.session.core :as session]
     [http.async.client :as a-client]
-    [org.httpkit.client :as client]
-    [org.httpkit.server :as server]
+    [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log]
     [xiana.core :as xiana])
   (:import
@@ -20,15 +19,16 @@
 (defn echo [{req :request :as state}]
   (xiana/ok
     (assoc-in state [:response-data :channel]
-              {:on-receive (fn [ch msg]
+              {:on-text    (fn [ch msg]
                              (log/info "Message: " msg)
-                             (server/send! ch msg))
-               :on-open    #(log/info "OPEN: - - - - - " %)
-               :on-ping    (fn [ch data]
-                             (log/info "Ping"))
-               :on-close   (fn [ch status]
+                             (jetty/send! ch msg))
+               :on-bytes   (fn [ch msg _offset _len]
+                             (log/info "Message: " msg)
+                             (jetty/send! ch msg))
+               :on-error   (fn [ch _e] (jetty/close! ch))
+               :on-close   (fn [_ch _status _reason]
                              (log/info "\nCLOSE=============="))
-               :init       (fn [ch]
+               :on-connect (fn [ch]
                              (log/info "INIT: " ch)
                              (log/info "Session-Id: " (get-in req [:headers :session-id])))})))
 
@@ -42,11 +42,11 @@
            :action    hello}]])
 
 (def system-config
-  {:routes                   routes
-   :web-socket-interceptors  [interceptors/params]
-   :controller-interceptors  [interceptors/params
-                              (session/protected-interceptor "/api" "/login")
-                              rbac/interceptor]})
+  {:routes                  routes
+   :web-socket-interceptors [interceptors/params]
+   :controller-interceptors [interceptors/params
+                             (session/protected-interceptor "/api" "/login")
+                             rbac/interceptor]})
 
 (use-fixtures :once (partial fixture/std-system-fixture system-config))
 
@@ -70,6 +70,5 @@
 
 (deftest rest-call
   (is (= {:status 200, :body "Hello from REST!"}
-         (-> @(client/get "http://localhost:3333/ws")
-             (select-keys [:status :body])
-             (update :body slurp)))))
+         (-> (client/get "http://localhost:3333/ws")
+             (select-keys [:status :body])))))

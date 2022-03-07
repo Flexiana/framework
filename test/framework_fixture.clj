@@ -15,10 +15,10 @@
   (-> (config/config)
       (merge app-cfg)
       (rename-key :xiana/auth :auth)
-      session-backend/init-backend
       db-core/docker-postgres!
       db-core/connect
       db-core/migrate!
+      session-backend/init-backend
       routes/reset
       rbac/init
       sse/init

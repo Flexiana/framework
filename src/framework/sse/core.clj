@@ -2,7 +2,7 @@
   (:require
     [clojure.core.async :as async :refer (<! go-loop)]
     [clojure.data.json :as json]
-    [org.httpkit.server :as server]
+    [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log]
     [xiana.core :as xiana])
   (:import
@@ -26,7 +26,7 @@
   (close [this]
     (.close! (:channel this))
     (doseq [c (clients->channels @(:clients this))]
-      (server/close c))))
+      (jetty/close! c))))
 
 (defn init [config]
   (let [channel (async/chan 5)
@@ -35,7 +35,7 @@
       (when-let [data (<! channel)]
         (log/debug "Sending data via SSE: " data)
         (doseq [c (clients->channels @clients)]
-          (server/send! c (->message data) false))
+          (jetty/send! c (->message data) false))
         (recur)))
     (assoc config :events-channel (->closable-events-channel
                                     channel
@@ -48,14 +48,10 @@
 (defn server-event-channel [state]
   (let [clients (get-in state [:deps :events-channel :clients])
         session-id (get-in state [:session-data :session-id])]
-    (server/as-channel (:request state)
-                       {:init       (fn [ch]
-                                      (swap! clients update session-id as-set ch)
-                                      (server/send! ch {:headers headers :body (json/write-str {})} false))
-                        :on-receive (fn [_ch _message])
-                        :on-ping    (fn [_ch _data])
-                        :on-close   (fn [ch _status] (swap! clients update session-id disj ch))
-                        :on-open    (fn [_ch])})))
+    {:on-connect (fn [ch]
+                   (swap! clients update session-id as-set ch)
+                   (jetty/send! ch {:headers headers :body (json/write-str {})} false))
+     :on-close   (fn [ch _status _reason] (swap! clients update session-id disj ch))}))
 
 (defn stop-heartbeat-loop
   [state]
@@ -71,7 +67,7 @@
   [deps session-id message]
   (let [clients (get-in deps [:events-channel :clients])
         session-clients (get @clients session-id)]
-    (doseq [c session-clients] (server/send! c (->message message) false))
+    (doseq [c session-clients] (jetty/send! c (->message message) false))
     (not-empty session-clients)))
 
 (defn sse-action
@@ -79,4 +75,4 @@
   (xiana/ok
     (assoc state
            :response
-           (server-event-channel state))))
+           (jetty/ws-upgrade-response (server-event-channel state)))))
