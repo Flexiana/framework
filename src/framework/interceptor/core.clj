@@ -7,8 +7,7 @@
     [framework.interceptor.wrap :as wrap]
     [framework.session.core :as session]
     [ring.middleware.params :as middleware.params]
-    [taoensso.timbre :as log]
-    [xiana.core :as xiana])
+    [taoensso.timbre :as log])
   (:import
     (java.util
       UUID)))
@@ -17,17 +16,17 @@
   "Log interceptor.
   Enter: Print 'Enter:' followed by the complete state map.
   Leave: Print 'Leave:' followed by the complete state map."
-  {:enter (fn [state] (pprint ["Enter: " state]) (xiana/ok state))
-   :leave (fn [state] (pprint ["Leave: " state]) (xiana/ok state))})
+  {:enter (fn [state] (pprint ["Enter: " state]) state)
+   :leave (fn [state] (pprint ["Leave: " state]) state)})
 
 (defn keyceptor
   [& keyz]
   {:enter (fn [state]
-            (log/info keyz (get-in state keyz))
-            (xiana/ok state))
+            (log/info keyz (get-in state keyz)
+                      state))
    :leave (fn [state]
-            (log/info keyz (get-in state keyz))
-            (xiana/ok state))})
+            (log/info keyz (get-in state keyz)
+                      state))})
 
 (def side-effect
   "Side-effect interceptor.
@@ -36,7 +35,7 @@
   side-effect procedure, if none was found execute: `xiana/ok`."
   {:leave
    (fn [{side-effect :side-effect :as state}]
-     (let [f (or side-effect xiana/ok)]
+     (let [f (or side-effect identity)]
        (f state)))})
 
 (def view
@@ -46,7 +45,7 @@
   procedure, if none was found execute: `xiana/ok`."
   {:leave
    (fn [{view :view :as state}]
-     (let [f (or view xiana/ok)]
+     (let [f (or view identity)]
        (f state)))})
 
 ;; Question: should be used in the early chain of interceptors?
@@ -63,16 +62,15 @@
   {:enter (fn [state]
             (let [f #(keywordize-keys
                        ((middleware.params/wrap-params identity) %))]
-              (xiana/ok
-                (update state :request f))))})
+              (update state :request f)))})
 
 (defn message
   "This interceptor creates a function that prints predefined message.
   Enter: Print an arbitrary message.
   Leave: Print an arbitrary message."
   [msg]
-  {:enter (fn [state] (println msg) (xiana/ok state))
-   :leave (fn [state] (println msg) (xiana/ok state))})
+  {:enter (fn [state] (println msg) state)
+   :leave (fn [state] (println msg) state)})
 
 (defn session-user-id
   "This interceptor handles the session user id management.
@@ -93,13 +91,12 @@
            session-data (when session-id
                           (session/fetch session-backend
                                          session-id))]
-       (xiana/ok
-         (if session-data
-           ;; associate session data into state
-           (assoc state :session-data session-data)
-           ;; else, associate a new session
-           (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
-               (assoc-in [:session-data :new-session] true))))))
+       (if session-data
+         ;; associate session data into state
+         (assoc state :session-data session-data)
+         ;; else, associate a new session
+         (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
+             (assoc-in [:session-data :new-session] true)))))
    :leave
    (fn [state]
      (let [session-backend (-> state :deps :session-backend)
@@ -110,10 +107,9 @@
                      session-id
                      (dissoc (:session-data state) :new-session))
        ;; associate the session id
-       (xiana/ok
-         (assoc-in state
-                   [:response :headers :session-id]
-                   (str session-id)))))})
+       (assoc-in state
+                 [:response :headers :session-id]
+                 (str session-id))))})
 
 (defn -user-role
   "Update the user role."
@@ -133,12 +129,11 @@
    {:enter
     (fn [{request :request :as state}]
       (let [auth (get-in request [:headers :authorization])]
-        (xiana/ok
-          (->
-            ;; f: function to update/associate the user role
-            (f state role)
-            ;; associate authorization into session-data
-            (assoc-in [:session-data :authorization] auth)))))}))
+        (->
+          ;; f: function to update/associate the user role
+          (f state role)
+          ;; associate authorization into session-data
+          (assoc-in [:session-data :authorization] auth))))}))
 
 (defn muuntaja
   "Muuntaja encoder/decoder interceptor."

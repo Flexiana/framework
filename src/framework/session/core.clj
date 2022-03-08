@@ -4,9 +4,7 @@
     [clojure.string :as string]
     [framework.db.core :as db]
     [honeysql.format :as sqlf]
-    [jsonista.core :as json]
-    [next.jdbc.result-set :refer [as-kebab-maps]]
-    [xiana.core :as xiana])
+    [next.jdbc.result-set :refer [as-kebab-maps]])
   (:import
     (java.util
       UUID)))
@@ -124,16 +122,15 @@
         session-id (->session-id state)
         session-data (or (fetch session-backend session-id)
                          (throw (ex-message "Missing session data")))]
-    (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id)))))
+    (assoc state :session-data (assoc session-data :session-id session-id))))
 
 (defn- on-enter
   [state]
   (try (fetch-session state)
        (catch Exception _
-         (xiana/error
-           (assoc state :response {:status 401
-                                   :body   (json/write-value-as-string
-                                             {:message "Invalid or missing session"})})))))
+         (throw (ex-info "Invalid or missing session"
+                         {:status 401
+                          :body   {:message "Invalid or missing session"}})))))
 
 (defn- protect
   [protected-path
@@ -143,7 +140,7 @@
   (if (and (string/starts-with? uri protected-path)
            (not= uri (str protected-path excluded-resource)))
     (on-enter state)
-    (xiana/ok state)))
+    state))
 
 (defn- on-leave
   [{{session-id :session-id} :session-data :as state}]
@@ -153,11 +150,10 @@
             session-id
             (:session-data state))
       ;; associate the session id
-      (xiana/ok
-        (assoc-in state
-                  [:response :headers "Session-id"]
-                  (str session-id))))
-    (xiana/ok state)))
+      (assoc-in state
+                [:response :headers "Session-id"]
+                (str session-id)))
+    state))
 
 (defn protected-interceptor
   "On enter allows a resource to be served when
@@ -189,7 +185,7 @@
                                 :users/role :guest
                                 :users/id   user-id}]
               (add! session-backend session-id session-data)
-              (xiana/ok (assoc state :session-data session-data))))))
+              (assoc state :session-data session-data)))))
    :leave on-leave})
 
 (defn init-backend

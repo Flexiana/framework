@@ -5,8 +5,7 @@
     [clojure.string :as str]
     [framework.interceptor.queue :as queue]
     [reitit.core :as r]
-    [taoensso.timbre :as log]
-    [xiana.core :as xiana]))
+    [taoensso.timbre :as log]))
 
 (defn string->
   "String to 'uri', uses the first word as action key"
@@ -55,8 +54,6 @@
                             (update :request-data assoc
                                     :action action
                                     :interceptors interceptors)
-                            (xiana/flow->
-                              (queue/execute default-interceptors))
-                            (xiana/extract))]
+                            (queue/execute default-interceptors))]
        (when-let [reply-fn (get-in update-state [:response-data :reply-fn])]
          (reply-fn update-state))))))

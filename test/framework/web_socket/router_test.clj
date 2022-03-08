@@ -4,20 +4,19 @@
     [clojure.test :refer :all]
     [framework.interceptor.core :as interceptors]
     [framework.websockets.core :refer [router string->]]
-    [reitit.core :as r]
-    [xiana.core :as xiana]))
+    [reitit.core :as r]))
 
 (defn string-log [state]
-  (xiana/ok (assoc state :response-data {:reply-fn identity
-                                         :reply    "Log was called via string"})))
+  (assoc state :response-data {:reply-fn identity
+                               :reply    "Log was called via string"}))
 
 (defn json-log [state]
-  (xiana/ok (assoc state :response-data {:reply-fn identity
-                                         :reply    "Log was called via json"})))
+  (assoc state :response-data {:reply-fn identity
+                               :reply    "Log was called via json"}))
 
 (defn log-edn [state]
-  (xiana/ok (assoc state :response-data {:reply-fn identity
-                                         :reply    "Log was called via edn"})))
+  (assoc state :response-data {:reply-fn identity
+                               :reply    "Log was called via edn"}))
 
 (def routes
   (r/router [["/log-string" {:action string-log}]

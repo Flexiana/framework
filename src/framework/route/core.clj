@@ -6,8 +6,7 @@
     [reitit.coercion :as coercion]
     [reitit.core :as r]
     [ring.adapter.jetty9 :as jetty]
-    [xiana.commons :refer [?assoc-in]]
-    [xiana.core :as xiana]))
+    [xiana.commons :refer [?assoc-in]]))
 
 (defn reset
   "Update routes."
@@ -30,7 +29,6 @@
         permission (-get-in-template match method :data :permission)
         interceptors (-get-in-template match method :data :interceptors)]
     ;; associate the necessary route match information
-    (xiana/ok
       (-> state
           (?assoc-in [:request-data :method] method)
           (?assoc-in [:request-data :handler] handler)
@@ -43,7 +41,7 @@
                           action)
                         (if handler
                           helpers/action
-                          helpers/not-found)))))))
+                          helpers/not-found))))))
 
 (defn match
   "Associate router match template data into the state.

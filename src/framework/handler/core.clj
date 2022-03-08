@@ -4,8 +4,7 @@
     [framework.interceptor.queue :as interceptor.queue]
     [framework.route.core :as route]
     [framework.state.core :as state]
-    [ring.adapter.jetty9 :as jetty]
-    [xiana.core :as xiana]))
+    [ring.adapter.jetty9 :as jetty]))
 
 (defn handler-fn
   "Returns handler function for server, which  do the routing, and executes interceptors and given action.
@@ -31,8 +30,7 @@
                        #(interceptor.queue/execute % (if websocket?
                                                        (:web-socket-interceptors deps)
                                                        (:controller-interceptors deps))))
-           result (-> (xiana/apply-flow-> state queue)
-                      (xiana/extract))
+           result (reduce (fn [s f] (f s)) state queue)
            channel (get-in result [:response-data :channel])]
        (if (and websocket? channel)
          (jetty/ws-upgrade-response channel)

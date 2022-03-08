@@ -24,8 +24,7 @@
     [malli.core :as m]
     [malli.registry :as mr]
     [malli.util :as mu]
-    [reitit.coercion :as coercion]
-    [xiana.core :as xiana]))
+    [reitit.coercion :as coercion]))
 
 (defn registry
   "Registers a given schema in malli"
@@ -44,14 +43,14 @@
   {:enter (fn [state]
             (let [cc (-> (get-in state [:request-data :match])
                          coercion/coerce!)]
-              (xiana/ok (update-in state [:request :params] merge cc))))
+               (update-in state [:request :params] merge cc)))
    :error (fn [state]
-            (xiana/error (assoc state :response {:status 400
-                                                 :body   "Request coercion failed"})))
+             (assoc state :response {:status 400
+                                     :body   "Request coercion failed"}))
    :leave (fn [{{:keys [:status :body]} :response
                 :as                     state}]
             (let [schema (get-in state [:request-data :match :data :responses status :body])]
-              (cond (and schema body (m/validate schema body)) (xiana/ok state)
-                    (and schema body) (xiana/error (assoc state :response {:status 400
-                                                                           :body   "Response validation failed"}))
-                    :else (xiana/ok state))))})
+              (cond (and schema body (m/validate schema body))  state
+                    (and schema body)  (assoc state :response {:status 400
+                                                               :body   "Response validation failed"})
+                    :else  state)))})

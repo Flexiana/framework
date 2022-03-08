@@ -3,8 +3,7 @@
     [clojure.test :refer :all]
     [framework.route.core :as route]
     [framework.route.helpers :as helpers]
-    [framework.state.core :as state]
-    [xiana.core :as xiana]))
+    [framework.state.core :as state]))
 
 (def sample-request
   {:uri "/" :request-method :get})
@@ -35,8 +34,7 @@
   (let [state (-> (state/make
                     (route/reset sample-routes)
                     sample-request)
-                  (route/match)
-                  (xiana/extract))
+                  route/match)
         ;; expected request data
         expected {:method :get
                   :match  #reitit.core.Match{:template    "/"
@@ -55,10 +53,9 @@
   (let [action (-> (state/make
                      (route/reset sample-routes)
                      sample-not-found-request)
-                   (route/match)
-                   (xiana/extract)
-                   (:request-data)
-                   (:action))
+                   route/match
+                   :request-data
+                   :action)
         ;; expected action
         expected helpers/not-found]
     ;; verify if action has the expected value
@@ -70,10 +67,9 @@
   (let [action (-> (state/make
                      (route/reset sample-routes-with-handler)
                      sample-request)
-                   (route/match)
-                   (xiana/extract)
-                   (:request-data)
-                   (:action))
+                   route/match
+                   :request-data
+                   :action)
         ;; expected action
         expected helpers/action]
     ;; verify if action has the expected value
@@ -85,10 +81,9 @@
   (let [action (-> (state/make
                      (route/reset sample-routes-without-action)
                      sample-request)
-                   (route/match)
-                   (xiana/extract)
-                   (:request-data)
-                   (:action))
+                   route/match
+                   :request-data
+                   :action)
         ;; expected action? TODO: research
         expected helpers/not-found]
     ;; verify if action has the expected value

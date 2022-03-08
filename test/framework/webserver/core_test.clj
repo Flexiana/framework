@@ -2,8 +2,7 @@
   (:require
     [clojure.test :refer :all]
     [framework.handler.core :refer [handler-fn]]
-    [framework.route.core :as route]
-    [xiana.core :as xiana]))
+    [framework.route.core :as route]))
 
 (def default-interceptors [])
 
@@ -12,9 +11,7 @@
 
 (def sample-routes
   "Sample routes structure."
-  {:routes [["/" {:action
-                  #(xiana/ok
-                     (assoc % :response {:status 200, :body ":action"}))}]]})
+  {:routes [["/" {:action #(assoc % :response {:status 200, :body ":action"})}]]})
 
 (deftest handler-fn-creation
   ;; test if handler-fn return
@@ -24,9 +21,6 @@
 
 ;; test jetty handler function call
 (deftest call-handler-fn
-  ;; set sample routes
-
-  ;; set handler function
   (let [f (handler-fn (route/reset sample-routes))]
     ;; verify if it's the right response
     (is (= (f sample-request) {:status 200, :body ":action"}))))

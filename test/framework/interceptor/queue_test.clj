@@ -1,20 +1,19 @@
 (ns framework.interceptor.queue-test
   (:require
     [clojure.test :refer :all]
-    [framework.interceptor.queue :as queue]
-    [xiana.core :as xiana]))
+    [framework.interceptor.queue :as queue]))
 
 (def A-interceptor
-  {:enter (fn [state] (xiana/ok (assoc state :enter "A-enter")))
-   :leave (fn [state] (xiana/ok (assoc state :leave "A-leave")))})
+  {:enter (fn [state] (assoc state :enter "A-enter"))
+   :leave (fn [state] (assoc state :leave "A-leave"))})
 
 (def B-interceptor
-  {:enter (fn [state] (xiana/ok (assoc state :enter "B-enter")))
-   :leave (fn [state] (xiana/ok (assoc state :leave "B-leave")))})
+  {:enter (fn [state] (assoc state :enter "B-enter"))
+   :leave (fn [state] (assoc state :leave "B-leave"))})
 
 (def C-interceptor
-  {:enter (fn [state] (xiana/ok (assoc state :enter "C-enter")))
-   :leave (fn [state] (xiana/ok (assoc state :leave "C-leave")))})
+  {:enter (fn [state] (assoc state :enter "C-enter"))
+   :leave (fn [state] (assoc state :leave "C-leave"))})
 
 ;; Exception
 (def D-interceptor
@@ -24,11 +23,11 @@
 (def E-interceptor
   {:enter (fn [state] (throw (Exception. "enter-exception")))
    :leave (fn [state] (throw (Exception. "leave-exception")))
-   :error (fn [state] (xiana/ok (assoc state :error "Error")))})
+   :error (fn [state] (assoc state :error "Error"))})
 
 (def F-interceptor
-  {:enter (fn [state] (xiana/ok (assoc state :enter "F-enter")))
-   :leave (fn [state] (xiana/ok (assoc state :leave "F-leave")))})
+  {:enter (fn [state] (assoc state :enter "F-enter"))
+   :leave (fn [state] (assoc state :leave "F-leave"))})
 
 (def default-interceptors
   "Default interceptors."
@@ -52,13 +51,11 @@
 
 (def ok-action
   "Auxiliary ok container function."
-  #(xiana/ok
-     (assoc % :response {:status 200, :body "ok"})))
+  #(assoc % :response {:status 200, :body "ok"}))
 
 (def error-action
   "Auxiliary error container function."
-  #(xiana/error
-     (assoc % :response {:status 500 :body "Internal Server error"})))
+  #(assoc % :response {:status 500 :body "Internal Server error"}))
 
 (def throw-action
   "Auxiliary error container function."
@@ -68,7 +65,7 @@
   "Return a simple state request data."
   [action interceptors]
   {:request-data
-   {:action action
+   {:action       action
     :interceptors interceptors}})
 
 ;; test a simple interceptor queue ok execution
@@ -78,8 +75,7 @@
         ;; get response using a simple micro flow
         response (-> state
                      (queue/execute [])
-                     (xiana/extract)
-                     (:response))
+                     :response)
         expected {:status 200, :body "ok"}]
     ;; verify if response is equal to the expected
     (is (= response expected))))
@@ -91,8 +87,7 @@
         ;; get response using a simple micro flow
         response (-> state
                      (queue/execute [])
-                     (xiana/extract)
-                     (:response))
+                     :response)
         expected {:status 500 :body "Internal Server error"}]
     ;; verify if response is equal to the expected
     (is (= response expected))))
@@ -103,8 +98,7 @@
         ;; get response using a simple micro flow
         response (-> state
                      (queue/execute [])
-                     (xiana/extract)
-                     (:response))
+                     :response)
         expected {:body   "Exception thrown"
                   :status 500}]
     ;; verify if response is equal to the expected
@@ -116,8 +110,7 @@
         ;; get response using a simple micro flow
         response (-> state
                      (queue/execute [])
-                     (xiana/extract)
-                     (:response))]
+                     :response)]
     ;; verify if response is equal to the expected
     (is (= 500 (:status response)))
     (is (= "Divide by zero" (get-in response [:body :cause])))))
@@ -127,13 +120,11 @@
   ;; construct a simple request data state
   (let [state (make-state ok-action nil)
         ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
+        result (queue/execute state default-interceptors)
         response (:response result)
         expected {:status 200 :body "ok"}
-        enter    (:enter result)
-        leave    (:leave result)]
+        enter (:enter result)
+        leave (:leave result)]
     ;; verify if response is equal to the expected
     (is (and
           (= enter "A-enter")
@@ -147,10 +138,9 @@
         ;; get error response using a simple micro flow
         cause (-> state
                   (queue/execute [])
-                  (xiana/extract)
-                  (:response)
-                  (:body)
-                  (:cause))
+                  :response
+                  :body
+                  :cause)
         expected "enter-exception"]
     ;; verify if cause is equal to the expected
     (is (= cause expected))))
@@ -162,8 +152,7 @@
         ;; get error response using a simple micro flow
         error (-> state
                   (queue/execute [])
-                  (xiana/extract)
-                  (:error))
+                  :error)
         expected "Error"]
     ;; verify if error is equal to the expected
     (is (= error expected))))
@@ -173,11 +162,9 @@
   ;; construct a simple request data state
   (let [state (make-state ok-action inside-interceptors)
         ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
-        response   (:response result)
-        expected   {:status 200 :body "ok"}
+        result (queue/execute state default-interceptors)
+        response (:response result)
+        expected {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
     ;; verify if response is equal to the expected
@@ -191,11 +178,9 @@
   ;; construct a simple request data state
   (let [state (make-state ok-action around-interceptors)
         ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
-        response   (:response result)
-        expected   {:status 200 :body "ok"}
+        result (queue/execute state default-interceptors)
+        response (:response result)
+        expected {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
     ;; verify if response is equal to the expected
@@ -209,11 +194,9 @@
   ;; construct a simple request data state
   (let [state (make-state ok-action both-interceptors)
         ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
-        response   (:response result)
-        expected   {:status 200 :body "ok"}
+        result (queue/execute state default-interceptors)
+        response (:response result)
+        expected {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
     ;; verify if response is equal to the expected
@@ -227,11 +210,9 @@
   ;; construct a simple request data state
   (let [state (make-state ok-action override-interceptors)
         ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
-        response   (:response result)
-        expected   {:status 200 :body "ok"}
+        result (queue/execute state default-interceptors)
+        response (:response result)
+        expected {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
     ;; verify if response is equal to the expected
@@ -244,9 +225,7 @@
   ;; construct a simple request data state
   (let [state (make-state ok-action except-interceptors)
         ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
+        result (queue/execute state default-interceptors)
         response (:response result)
         expected {:status 200 :body "ok"}
         last-enter (:enter result)

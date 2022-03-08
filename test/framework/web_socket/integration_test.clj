@@ -10,32 +10,30 @@
     [framework.session.core :as session]
     [http.async.client :as a-client]
     [ring.adapter.jetty9 :as jetty]
-    [taoensso.timbre :as log]
-    [xiana.core :as xiana])
+    [taoensso.timbre :as log])
   (:import
     (java.util
       UUID)))
 
 (defn echo [{req :request :as state}]
-  (xiana/ok
-    (assoc-in state [:response-data :channel]
-              {:on-text    (fn [ch msg]
-                             (log/info "Message: " msg)
-                             (jetty/send! ch msg))
-               :on-bytes   (fn [ch msg _offset _len]
-                             (log/info "Message: " msg)
-                             (jetty/send! ch msg))
-               :on-error   (fn [ch _e] (jetty/close! ch))
-               :on-close   (fn [_ch _status _reason]
-                             (log/info "\nCLOSE=============="))
-               :on-connect (fn [ch]
-                             (log/info "INIT: " ch)
-                             (log/info "Session-Id: " (get-in req [:headers :session-id])))})))
+  (assoc-in state [:response-data :channel]
+            {:on-text    (fn [ch msg]
+                           (log/info "Message: " msg)
+                           (jetty/send! ch msg))
+             :on-bytes   (fn [ch msg _offset _len]
+                           (log/info "Message: " msg)
+                           (jetty/send! ch msg))
+             :on-error   (fn [ch _e] (jetty/close! ch))
+             :on-close   (fn [_ch _status _reason]
+                           (log/info "\nCLOSE=============="))
+             :on-connect (fn [ch]
+                           (log/info "INIT: " ch)
+                           (log/info "Session-Id: " (get-in req [:headers :session-id])))}))
 
 (defn hello
   [state]
-  (xiana/ok (assoc state :response {:status 200
-                                    :body   "Hello from REST!"})))
+  (assoc state :response {:status 200
+                          :body   "Hello from REST!"}))
 
 (def routes
   [["/ws" {:ws-action echo
