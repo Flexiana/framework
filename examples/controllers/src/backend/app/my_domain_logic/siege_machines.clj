@@ -1,6 +1,4 @@
-(ns my-domain-logic.siege-machines
-  (:require
-    [xiana.core :as xiana]))
+(ns my-domain-logic.siege-machines)
 
 (def fetch-whole-db
   (constantly
@@ -17,9 +15,7 @@
                       (filter #(= id (:id %)))
                       first)]
     (if response
-      (xiana/ok
-        (assoc ctx :response {:status 200
-                              :body   response}))
-      (xiana/error
-        (assoc ctx :response {:status 404
-                              :body "Not found"})))))
+      (assoc ctx :response {:status 200
+                            :body   response})
+      (throw (ex-info "Not found" {:status 404
+                                   :body   "Not found"})))))

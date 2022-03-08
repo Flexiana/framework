@@ -5,7 +5,6 @@
     [controllers.index :as index]
     [controllers.re-frame :as re-frame]
     [framework.handler.core :as handler]
-    [framework.webserver.core :as ws]
     [malli.core :as m]
     [malli.registry :as mr]
     [malli.util :as mu]
