@@ -5,8 +5,7 @@
     [framework.db.core :as db]
     [framework.interceptor.core :as interceptors]
     [framework.websockets.core :refer [router string->]]
-    [reitit.core :as r]
-    [xiana.core :as xiana]))
+    [reitit.core :as r]))
 
 (defonce channels (atom {}))
 
@@ -30,17 +29,16 @@
 
 (defn chat-action
   [state]
-  (xiana/ok
-    (assoc-in state [:response-data :channel]
-              {:on-text    (fn [ch msg]
-                             (routing (update state :request-data
-                                              merge {:ch         ch
-                                                     :income-msg msg
-                                                     :fallback   views/fallback
-                                                     :channels   channels})))
-               :on-connect (fn [ch]
-                             (routing (update state :request-data
-                                              merge {:ch         ch
-                                                     :channels   channels
-                                                     :income-msg "/welcome"})))
-               :on-close   (fn [ch _status _reason] (swap! channels dissoc ch))})))
+  (assoc-in state [:response-data :channel]
+            {:on-text    (fn [ch msg]
+                           (routing (update state :request-data
+                                            merge {:ch         ch
+                                                   :income-msg msg
+                                                   :fallback   views/fallback
+                                                   :channels   channels})))
+             :on-connect (fn [ch]
+                           (routing (update state :request-data
+                                            merge {:ch         ch
+                                                   :channels   channels
+                                                   :income-msg "/welcome"})))
+             :on-close   (fn [ch _status _reason] (swap! channels dissoc ch))}))
