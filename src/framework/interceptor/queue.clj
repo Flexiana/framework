@@ -25,36 +25,38 @@
     (try (action state)
          (catch Exception e
            (assoc state
+                  :exception e
                   :response
                   (or (ex-data e)
                       {:status 500 :body (Throwable->map e)}))))))
 
 (defn looper
-  ([state interceptors action]
-   (looper state interceptors '() action :enter))
-  ([state interceptors backwards action direction]
-   (cond
-     (seq interceptors)
-     (try (looper ((get (first interceptors) direction identity) state)
-                  (rest interceptors)
-                  (when (= :enter direction) (conj backwards (first interceptors)))
-                  action
-                  direction)
-          (catch Exception e
-            (looper (assoc state
-                           :exception e
-                           :response (or (ex-data e) {:status 500 :body (Throwable->map e)}))
-                    (conj backwards (first interceptors))
-                    '()
-                    action
-                    :error)))
-     (= :enter direction)
-     (looper (action state)
+  [state interceptors action]
+  (loop [state state
+         interceptors interceptors
+         backwards '()
+         action action
+         direction :enter]
+    (cond
+      (and (:exception state) (not= direction :error))
+      (recur state
+             backwards
+             '()
+             action
+             :error)
+      (seq interceptors)
+      (recur ((action->try (get (first interceptors) direction identity)) state)
+             (rest interceptors)
+             (when (= :enter direction) (conj backwards (first interceptors)))
+             action
+             direction)
+      (= :enter direction)
+      (recur (action state)
              backwards
              '()
              identity
              :leave)
-     :else state)))
+      :else state)))
 
 (defn execute
   "Execute the interceptors queue and invoke the
