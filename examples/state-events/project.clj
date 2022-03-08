@@ -5,6 +5,8 @@
                  [org.clojure/clojurescript "1.11.4"]
                  [com.flexiana/framework "0.4.0-rc3"]
                  [thheller/shadow-cljs "2.17.7"]
+                 [re-frame "1.2.0"]
+                 [cljs-ajax "0.8.4"]
                  [org.clojure/tools.namespace "1.2.0"]
                  [tick "0.5.0-RC5"]]
   :plugins [[lein-shadow "0.4.0"]]

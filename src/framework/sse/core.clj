@@ -35,7 +35,7 @@
       (when-let [data (<! channel)]
         (log/debug "Sending data via SSE: " data)
         (doseq [c (clients->channels @clients)]
-          (jetty/send! c (->message data) false))
+          (jetty/send! c (->message data)))
         (recur)))
     (assoc config :events-channel (->closable-events-channel
                                     channel
@@ -50,7 +50,7 @@
         session-id (get-in state [:session-data :session-id])]
     {:on-connect (fn [ch]
                    (swap! clients update session-id as-set ch)
-                   (jetty/send! ch {:headers headers :body (json/write-str {})} false))
+                   (jetty/send! ch {:headers headers :body (json/write-str {})}))
      :on-close   (fn [ch _status _reason] (swap! clients update session-id disj ch))}))
 
 (defn stop-heartbeat-loop
@@ -67,7 +67,7 @@
   [deps session-id message]
   (let [clients (get-in deps [:events-channel :clients])
         session-clients (get @clients session-id)]
-    (doseq [c session-clients] (jetty/send! c (->message message) false))
+    (doseq [c session-clients] (jetty/send! c (->message message)))
     (not-empty session-clients)))
 
 (defn sse-action
