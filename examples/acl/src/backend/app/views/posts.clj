@@ -1,8 +1,7 @@
 (ns views.posts
   (:require
     [views.comments :as comments]
-    [views.common :as c]
-    [xiana.core :as xiana]))
+    [views.common :as c]))
 
 (defn ->post-view
   [m]
@@ -13,24 +12,20 @@
 
 (defn post-view
   [{response-data :response-data :as state}]
-  (xiana/ok (c/response state {:view-type "Single post"
-                               :data      {:posts (map ->post-view (:db-data response-data))}})))
+  (c/response state {:view-type "Single post"
+                     :data      {:posts (map ->post-view (:db-data response-data))}}))
 
 (defn all-posts
   [{response-data :response-data :as state}]
-  (xiana/ok (c/response state {:view-type "All posts"
-                               :data      {:posts (map ->post-view (:db-data response-data))}})))
+  (c/response state {:view-type "All posts"
+                     :data      {:posts (map ->post-view (:db-data response-data))}}))
 
 (defn fetch-posts
   [{{{id :id} :query-params} :request
     :as                      state}]
   (if id
-    (xiana/flow->
-      state
-      post-view)
-    (xiana/flow->
-      state
-      all-posts)))
+    (post-view state)
+    (all-posts state)))
 
 (defn render-posts-with-comments
   [data]
@@ -45,8 +40,8 @@
     response-data            :response-data
     :as                      state}]
   (if id
-    (xiana/ok (c/response state {:view-type "Single post with comments"
-                                 :data      {:posts (render-posts-with-comments (:db-data response-data))}}))
-    (xiana/ok (c/response state {:view-type "Multiple posts with comments"
-                                 :data      {:posts (render-posts-with-comments (:db-data response-data))}}))))
+    (c/response state {:view-type "Single post with comments"
+                       :data      {:posts (render-posts-with-comments (:db-data response-data))}})
+    (c/response state {:view-type "Multiple posts with comments"
+                       :data      {:posts (render-posts-with-comments (:db-data response-data))}})))
 

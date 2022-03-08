@@ -1,7 +1,6 @@
 (ns views.comments
   (:require
-    [views.common :as common]
-    [xiana.core :as xiana]))
+    [views.common :as common]))
 
 (defn ->comment-view
   [m]
@@ -13,7 +12,7 @@
 
 (defn comments
   [{response-data :response-data :as state}]
-  (xiana/ok (common/response state {:view-type "comments"
-                                    :data      {:comments (->> response-data
-                                                               :db-data
-                                                               (map ->comment-view))}})))
+  (common/response state {:view-type "comments"
+                          :data      {:comments (->> response-data
+                                                     :db-data
+                                                     (map ->comment-view))}}))
