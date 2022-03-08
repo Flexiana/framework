@@ -29,19 +29,19 @@
         permission (-get-in-template match method :data :permission)
         interceptors (-get-in-template match method :data :interceptors)]
     ;; associate the necessary route match information
-      (-> state
-          (?assoc-in [:request-data :method] method)
-          (?assoc-in [:request-data :handler] handler)
-          (?assoc-in [:request-data :interceptors] interceptors)
-          (?assoc-in [:request-data :match] match)
-          (?assoc-in [:request-data :permission] permission)
-          (assoc-in [:request-data :action]
-                    (or (if (jetty/ws-upgrade-request? request)
-                          ws-action
-                          action)
-                        (if handler
-                          helpers/action
-                          helpers/not-found))))))
+    (-> state
+        (?assoc-in [:request-data :method] method)
+        (?assoc-in [:request-data :handler] handler)
+        (?assoc-in [:request-data :interceptors] interceptors)
+        (?assoc-in [:request-data :match] match)
+        (?assoc-in [:request-data :permission] permission)
+        (assoc-in [:request-data :action]
+                  (or (if (jetty/ws-upgrade-request? request)
+                        ws-action
+                        action)
+                      (if handler
+                        helpers/action
+                        helpers/not-found))))))
 
 (defn match
   "Associate router match template data into the state.
