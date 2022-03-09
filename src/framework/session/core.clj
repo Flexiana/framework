@@ -116,13 +116,27 @@
                        (some->> query-params
                                 :SESSIONID))))
 
-(defn- fetch-session
+(defn add-guest-user
   [state]
   (let [session-backend (-> state :deps :session-backend)
-        session-id (->session-id state)
-        session-data (or (fetch session-backend session-id)
-                         (throw (ex-message "Missing session data")))]
-    (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id)))))
+        session-id      (UUID/randomUUID)
+        user-id         (UUID/randomUUID)
+        session-data    {:session-id session-id
+                         :users/role :guest
+                         :users/id   user-id}]
+    (add! session-backend session-id session-data)
+    (xiana/ok (-> state
+                  (assoc :session-data session-data)
+                  (dissoc :response #_"TODO: why do we need this?")))))
+
+(defn- make-fetch-session [missing-session-handler]
+  (fn fetch-session [state]
+    (let [session-backend (-> state :deps :session-backend)
+          session-id      (->session-id state)
+          session-data    (or (fetch session-backend session-id)
+                                      (missing-session-handler state)
+                                      (throw (ex-message "Missing session data")))]
+      (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id))))))
 
 (defn store-session
   [{{session-id :session-id} :session-data :as state}]
@@ -138,34 +152,14 @@
                   (str session-id))))
     (xiana/ok state)))
 
-(defn throw-missing-session
-  [state]
-  (xiana/error
-    (assoc state :response {:status 401
-                            :body   (json/write-value-as-string
-                                      {:message "Invalid or missing session"})})))
-
 (def interceptor
   "Returns with 401 when the referred session is missing"
-  {:enter fetch-session
-   :error throw-missing-session
+  {:enter (make-fetch-session (constantly nil))
    :leave store-session})
-
-(defn add-guest-user
-  [state]
-  (let [session-backend (-> state :deps :session-backend)
-        session-id (UUID/randomUUID)
-        user-id (UUID/randomUUID)
-        session-data {:session-id session-id
-                      :users/role :guest
-                      :users/id   user-id}]
-    (add! session-backend session-id session-data)
-    (xiana/ok (dissoc (assoc state :session-data session-data) :response))))
 
 (def guest-session-interceptor
   "Inserts a new session when no session found"
-  {:enter fetch-session
-   :error add-guest-user
+  {:enter (make-fetch-session add-guest-user)
    :leave store-session})
 
 (defn init-backend
