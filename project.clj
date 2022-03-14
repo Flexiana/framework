@@ -4,7 +4,7 @@
   :license {:name "FIXME" :url "FIXME"}
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [org.clojure/core.async "1.5.648"]
-                 [org.clojure/data.json "2.4.0"]
+                 [org.clojure/data.json "2.4.0"] ;; TODO: remove this or jsonista
                  [org.clojure/data.xml "0.0.8"]
                  [com.flexiana/tiny-rbac "0.1.1"]
                  [funcool/cuerdas "2.2.1"]
