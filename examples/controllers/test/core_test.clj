@@ -3,8 +3,7 @@
     [clj-http.client :as http]
     [clojure.pprint :refer [pprint]]
     [clojure.test :refer [deftest is use-fixtures]]
-    [core :as comps]
-    [jsonista.core :as json]))
+    [core :as comps]))
 
 (defn std-system-fixture
   [f]
@@ -55,7 +54,7 @@
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-  (is (= {:body   {:id 1 :name "trebuchet"}
+  (is (= {:body   "{\"id\":1,\"name\":\"trebuchet\"}"
           :status 200}
          (-> {:url                  "http://localhost:3333/api/siege-machines/1"
               :unexceptional-status (constantly true)
@@ -63,7 +62,6 @@
               ;; :accept               :application/json
               :method               :get}
              http/request
-             (update :body json/read-value (json/object-mapper {:decode-key-fn keyword}))
              (select-keys [:status :body]))))
   (is (= {:body   "{\"ID\":1,\"NAME\":\"trebuchet\"}"
           :status 200}
@@ -75,33 +73,27 @@
              http/request
              (select-keys [:status :body]))))
 
-  (is (= {:body   {:errors ["[:mydomain/id] should satisfy int?"]}
-          :status 400}
+  (is (= {:status 400
+          :body "[:errors [\"[:mydomain/id] should satisfy int?\"]]"}
          (-> {:url                  "http://localhost:3333/api/siege-machines/1c"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]
               :accept               :application/json
               :method               :get}
              http/request
-             (update :body json/read-value (json/object-mapper {:decode-key-fn keyword}))
              (select-keys [:status :body]))))
 
-  (is (= {:body   {:errors {:message {:name  ["should be a keyword"]
-                                      :range ["should be an int"]}
-                            :type    "response coercion"}}
-          :status 500}
+  (is (= {:status 500
+          :body "[:errors {:type \"response coercion\", :message {:name [\"should be a keyword\"], :range [\"should be an int\"]}}]"}
          (-> {:url                  "http://localhost:3333/api/siege-machines/3"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]
               :accept               :application/json
               :method               :get}
              http/request
-             (update :body json/read-value (json/object-mapper {:decode-key-fn keyword}))
              (select-keys [:status :body]))))
 
-  (is (= {:body   {:created "2021-03-05"
-                   :id      2
-                   :name    "battering-ram"}
+  (is (= {:body   "{\"id\":2,\"name\":\"battering-ram\",\"created\":\"2021-03-05\"}"
           :status 200}
          (-> {:url                  "http://localhost:3333/api/siege-machines/2"
               :unexceptional-status (constantly true)
@@ -109,5 +101,4 @@
               :accept               :application/json
               :method               :get}
              http/request
-             (update :body json/read-value (json/object-mapper {:decode-key-fn keyword}))
              (select-keys [:status :body])))))
