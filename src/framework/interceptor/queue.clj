@@ -24,39 +24,47 @@
   (fn [state]
     (try (action state)
          (catch Exception e
-           (assoc state
-                  :exception e
-                  :response
-                  (or (ex-data e)
-                      {:status 500 :body (Throwable->map e)}))))))
+           (assoc state :exception e)))))
 
 (defn looper
   [state interceptors action]
-  (loop [state state
+  (loop [state        state
          interceptors interceptors
-         backwards '()
-         action action
-         direction :enter]
-    (cond
-      (and (:exception state) (not= direction :error))
-      (recur state
-             backwards
-             '()
-             action
-             :error)
-      (seq interceptors)
-      (recur ((action->try (get (first interceptors) direction identity)) state)
-             (rest interceptors)
-             (when (= :enter direction) (conj backwards (first interceptors)))
-             action
-             direction)
-      (= :enter direction)
-      (recur (action state)
-             backwards
-             '()
-             identity
-             :leave)
-      :else state)))
+         backwards    '()
+         action       action
+         direction    :enter]
+    (let [error?    (= :error direction)
+          enter?    (= :enter direction)
+          exception (:exception state)]
+      (cond
+        (and exception (not error?))
+        (recur state
+               (if enter? backwards interceptors)
+               '()
+               action
+               :error)
+
+        (seq interceptors)
+        (let [direction (if (and error? (not exception))
+                          :leave ; error was "handled"
+                          direction)
+              act       (-> interceptors
+                            first
+                            (get direction identity)
+                            action->try)]
+          (recur (act state)
+                 (rest interceptors)
+                 (when enter? (conj backwards (first interceptors)))
+                 action
+                 direction))
+
+        enter?
+        (recur ((action->try action) state)
+               backwards
+               '()
+               identity
+               :leave)
+        :else state))))
 
 (defn execute
   "Execute the interceptors queue and invoke the
@@ -65,7 +73,7 @@
   (let [interceptors (-concat
                        (get-in state [:request-data :interceptors])
                        default-interceptors)
-        action (action->try (get-in state [:request-data :action] identity))]
+        action       (action->try (get-in state [:request-data :action] identity))]
     ;; execute the interceptors queue calling the action
     ;; between its enter/leave stacks
     (looper state interceptors action)))
