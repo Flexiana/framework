@@ -84,7 +84,7 @@
              (select-keys [:status :body]))))
 
   (is (= {:status 500
-          :body "[:errors {:type \"response coercion\", :message {:name [\"should be a keyword\"], :range [\"should be an int\"]}}]"}
+          :body "Response coercion failed"}
          (-> {:url                  "http://localhost:3333/api/siege-machines/3"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]

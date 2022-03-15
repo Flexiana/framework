@@ -26,7 +26,11 @@
     [malli.registry :as mr]
     [malli.util :as mu]
     [reitit.coercion :as coercion]
-    [xiana.core :as xiana]))
+    [taoensso.timbre :as log]
+    [xiana.core :as xiana])
+  (:import
+    (clojure.lang
+      ExceptionInfo)))
 
 (defn registry
   "Registers a given schema in malli"
@@ -46,14 +50,15 @@
             (try (let [cc (-> (get-in state [:request-data :match])
                               coercion/coerce!)]
                    (xiana/ok (update-in state [:request :params] merge cc)))
-                 (catch Exception ex ; TODO: be more specific
-                   (xiana/error (assoc state :response {:status 400
-                                                        :body {:errors
-                                                               (mapv (fn [e]
-                                                                       (format  "%s should satisfy %s"
-                                                                                (:in e)
-                                                                                (m/form (:schema e))))
-                                                                     (:errors (ex-data ex)))}})))))
+                 (catch ExceptionInfo ex
+                   (xiana/error
+                     (assoc state :response {:status 400
+                                             :body   {:errors
+                                                      (mapv (fn [e]
+                                                              (format "%s should satisfy %s"
+                                                                      (:in e)
+                                                                      (m/form (:schema e))))
+                                                            (:errors (ex-data ex)))}})))))
    :leave (fn [{{:keys [:status :body]}  :response
                 {method :request-method} :request
                 :as                      state}]
@@ -63,10 +68,9 @@
               (if (false? valid?)
                 (let [explain (m/explain schema body)
                       humanized (me/humanize explain)]
+                  (log/error "Response validation failed with " humanized ", response: " body)
                   (xiana/error
                     (assoc state :response
                            {:status 500
-                            :body   {:errors
-                                     {:type "response coercion"
-                                      :message humanized}}})))
+                            :body   "Response coercion failed"})))
                 (xiana/ok state))))})
