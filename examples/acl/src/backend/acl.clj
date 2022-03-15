@@ -9,6 +9,7 @@
     [framework.db.core :as db]
     [framework.handler.core :as handler]
     [framework.interceptor.core :as interceptors]
+    [framework.interceptor.error]
     [framework.rbac.core :as rbac]
     [framework.route.core :as routes]
     [framework.webserver.core :as ws]
@@ -68,6 +69,7 @@
 (def app-cfg
   {:routes                  routes
    :controller-interceptors [(interceptors/muuntaja)
+                             framework.interceptor.error/handle-ex-info
                              interceptors/params
                              user/load-user!
                              interceptors/view
