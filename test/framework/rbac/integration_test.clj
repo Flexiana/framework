@@ -67,16 +67,16 @@
 
 (deftest delete-request-by-member
   (let [session-id (UUID/randomUUID)
-        _ (session/add! backend session-id (assoc member :session-id session-id))
-        response (http/delete "http://localhost:3333/api/image"
-                              {:throw-exceptions false
-                               :headers          {"Session-id" (str session-id)}})]
+        _          (session/add! backend session-id (assoc member :session-id session-id))
+        response   (http/delete "http://localhost:3333/api/image"
+                                {:throw-exceptions false
+                                 :headers          {"Session-id" (str session-id)}})]
     (is (= 200 (:status response)))))
 
 (deftest delete-request-by-guest
   (let [session-id (UUID/randomUUID)
-        _ (session/add! backend session-id (assoc guest :session-id session-id))
-        response (http/delete "http://localhost:3333/api/image"
-                              {:throw-exceptions false
-                               :headers          {"Session-id" (str session-id)}})]
+        _          (session/add! backend session-id (assoc guest :session-id session-id))
+        response   (http/delete "http://localhost:3333/api/image"
+                                {:throw-exceptions false
+                                 :headers          {"Session-id" (str session-id)}})]
     (is (= 403 (:status response)))))
