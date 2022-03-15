@@ -5,6 +5,7 @@
     [framework-fixture :as fixture]
     [framework.handler.core :refer [handler-fn]]
     [framework.interceptor.core :as interceptors]
+    [framework.interceptor.error]
     [framework.rbac.core :as rbac]
     [framework.session.core :as session]
     [honeysql.helpers :as sql]
@@ -51,7 +52,8 @@
   {:routes                  routes
    :session-backend         backend
    :xiana/role-set          role-set
-   :controller-interceptors [interceptors/params
+   :controller-interceptors [framework.interceptor.error/handle-ex-info
+                             interceptors/params
                              session/interceptor
                              rbac/interceptor]})
 

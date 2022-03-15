@@ -27,7 +27,7 @@
   "On enter it validates if the resource is restricted,
   and available at the current state (actual user with a role)
   If it's not restricted do nothing,
-  if the given user has no rights, responses {:status 403 :body \"Forbidden\"}.
+  if the given user has no rights, it throws ex-info with data {:status 403 :body \"Forbidden\"}.
   On leave executes restriction function if any."
   {:enter (fn [state]
             (let [operation-restricted (get-in state [:request-data :permission])
@@ -38,11 +38,4 @@
                 :else                                       state)))
    :leave (fn [state]
             (let [restriction-fn (get-in state [:request-data :restriction-fn] identity)]
-              (restriction-fn state)))
-   :error (fn [state]
-            (let [resp (-> state :exception ex-data)]
-              (if (= 403 (:status resp))
-                (-> state
-                    (assoc :response resp)
-                    (dissoc :exception))
-                state)))})
+              (restriction-fn state)))})

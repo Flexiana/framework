@@ -64,7 +64,7 @@
                        ((middleware.params/wrap-params identity) %))]
               (update state :request f)))})
 
-(defn message
+(defn message ;; TODO: remove, use logger
   "This interceptor creates a function that prints predefined message.
   Enter: Print an arbitrary message.
   Leave: Print an arbitrary message."

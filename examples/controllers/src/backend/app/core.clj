@@ -3,6 +3,7 @@
     [framework.coercion.core :as coercion]
     [framework.config.core :as config]
     [framework.interceptor.core :as xiana-interceptors]
+    [framework.interceptor.error]
     [framework.route.core :as routes]
     [framework.webserver.core :as ws]
     [interceptors]
@@ -20,6 +21,7 @@
 (def app-cfg
   {:routes                  route/routes
    :controller-interceptors [(xiana-interceptors/muuntaja)
+                             framework.interceptor.error/handle-ex-info
                              xiana-interceptors/params
                              coercion/interceptor
                              interceptors/require-logged-in]})
