@@ -1,17 +1,10 @@
 (defproject controllers "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.10.1"]
-                 [com.flexiana/framework "0.4.0-rc3"]
-                 [metosin/reitit "0.5.15"]
-                 [metosin/malli "0.6.2"]
-                 [duct/server.http.jetty "0.2.1"]
-                 [thheller/shadow-cljs "2.11.7"]
-                 [reagent "0.10.0"]
-                 [clj-http "3.12.0"]
-                 [org.clojure/data.xml "0.0.8"]
-                 [re-frame "1.1.2"]]
-  :plugins [[lein-shadow "0.3.1"]
+  :dependencies [[org.clojure/clojure "1.10.3"]
+                 [org.clojure/clojurescript "1.11.4"]
+                 [com.flexiana/framework "0.4.0-rc3"]]
+  :plugins [[lein-shadow "0.4.0"]
             [lein-shell "0.5.0"]
             [migratus-lein "0.7.3"]]
   :main ^:skip-aot core
@@ -19,17 +12,16 @@
   :source-paths ["src/backend/app" "src/backend/components" "src/frontend" "src/shared"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :profiles {:dev   {:resource-paths ["config/dev" "dev"]
-                     :dependencies   [[binaryage/devtools "1.0.2"]
-                                      [org.clojure/tools.namespace "1.1.0"]]}
+                     :dependencies   [[binaryage/devtools "1.0.5"]
+                                      [org.clojure/tools.namespace "1.2.0"]]}
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [[kerodon "0.9.1"]
+                     :dependencies   [[clj-http "3.12.3"]
                                       [mvxcvi/cljstyle "0.15.0"
                                        :exclusions [org.clojure/clojure]]]}}
   :jvm-opts ["-Dmalli.registry/type=custom"]
   :shadow-cljs {:nrepl {:port 8777}
-
                 :builds {:app {:target     :browser
                                :output-dir "resources/public/js/compiled"
                                :asset-path "/js/compiled"

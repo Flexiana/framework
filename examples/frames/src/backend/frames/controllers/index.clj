@@ -1,6 +1,5 @@
 (ns frames.controllers.index
   (:require
-    [corpus.responses :as responses]
     [ring.util.response :as response]
     [xiana.core :as xiana]))
 
@@ -9,4 +8,4 @@
   (xiana/ok (assoc state :response
                    (-> "index.html"
                        (response/resource-response {:root "public"})
-                       (responses/as-html)))))
+                       (response/header "Content-Type" "text/html; charset=utf-8")))))

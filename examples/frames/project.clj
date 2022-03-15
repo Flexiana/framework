@@ -1,20 +1,15 @@
 (defproject frames "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.10.1"]
-                 [com.flexiana/framework "0.4.0-rc3"]
-                 [com.flexiana/corpus "0.1.3"]
-                 [thheller/shadow-cljs "2.11.7"]
-                 [reagent "0.10.0"]
-                 [re-frame "1.1.2"]]
-  :plugins [[lein-shadow "0.3.1"]
-            [lein-shell "0.5.0"]]
+  :dependencies [[org.clojure/clojure "1.10.3"]
+                 [com.flexiana/framework "0.4.0-rc3"]]
+  :plugins [[lein-shadow "0.4.0"]]
   :main ^:skip-aot frames.core
   :uberjar-name "frames.jar"
   :source-paths ["src/backend/" "src/frontend"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :profiles {:dev   {:resource-paths ["config/dev"]
-                     :dependencies   [[binaryage/devtools "1.0.2"]]}
+                     :dependencies   [[binaryage/devtools "1.0.5"]]}
              :local {:resource-paths ["config/local" "resources"]}
              :prod  {:resource-paths ["config/prod" "resources"]}
              :test  {:resource-paths ["config/test" "resources"]
