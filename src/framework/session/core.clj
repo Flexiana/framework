@@ -166,7 +166,8 @@
    
    On leave, it updates the session storage from (-> state :session-data)"
   [protected-path excluded-resource]
-  {:enter (partial protect protected-path excluded-resource)
+  {:name  ::protected-interceptor
+   :enter (partial protect protected-path excluded-resource)
    :leave on-leave})
 
 (def interceptor

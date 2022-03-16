@@ -10,6 +10,8 @@
     [framework.config.core :as config]
     [framework.handler.core :as x-handler]
     [framework.interceptor.core :as x-interceptors]
+    [framework.interceptor.error]
+    [framework.interceptor.muuntaja]
     [framework.route.core :as x-routes]
     [framework.session.core :as x-session]
     [framework.webserver.core :as ws]
@@ -37,8 +39,11 @@
 
 (def app-cfg
   {:routes routes
-   :controller-interceptors [x-interceptors/params
-                             (x-session/protected-interceptor "" "/login")]})
+   :controller-interceptors [;; x-interceptors/params
+                             framework.interceptor.muuntaja/interceptor
+                             framework.interceptor.error/handle-ex-info
+                             ;; (x-session/protected-interceptor "" "/login")
+                             ]})
 
 (defn -main
   [& _args]

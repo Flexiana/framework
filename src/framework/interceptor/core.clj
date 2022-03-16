@@ -21,7 +21,8 @@
 
 (defn keyceptor
   [& keyz]
-  {:enter (fn [state]
+  {:name ::keyceptor
+   :enter (fn [state]
             (log/info keyz (get-in state keyz)
                       state))
    :leave (fn [state]
@@ -59,12 +60,13 @@
 
   Enter: TODO.
   Leave: nil."
-  {:enter (fn [state]
+  {:name ::params
+   :enter (fn [state]
             (let [f #(keywordize-keys
                        ((middleware.params/wrap-params identity) %))]
               (update state :request f)))})
 
-(defn message ;; TODO: remove, use logger
+(defn message ; TODO: remove, use logger
   "This interceptor creates a function that prints predefined message.
   Enter: Print an arbitrary message.
   Leave: Print an arbitrary message."
