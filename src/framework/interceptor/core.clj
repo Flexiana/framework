@@ -6,8 +6,7 @@
     [framework.interceptor.muuntaja :as muuntaja]
     [framework.interceptor.wrap :as wrap]
     [framework.session.core :as session]
-    [ring.middleware.params :as middleware.params]
-    [taoensso.timbre :as log])
+    [ring.middleware.params :as middleware.params])
   (:import
     (java.util
       UUID)))
@@ -19,22 +18,13 @@
   {:enter (fn [state] (pprint ["Enter: " state]) state)
    :leave (fn [state] (pprint ["Leave: " state]) state)})
 
-(defn keyceptor
-  [& keyz]
-  {:name ::keyceptor
-   :enter (fn [state]
-            (log/info keyz (get-in state keyz)
-                      state))
-   :leave (fn [state]
-            (log/info keyz (get-in state keyz)
-                      state))})
-
 (def side-effect
   "Side-effect interceptor.
   Enter: nil.
   Leave: Fetch and execute the state registered
   side-effect procedure, if none was found execute: `xiana/ok`."
-  {:leave
+  {:name ::side-effect
+   :leave
    (fn [{side-effect :side-effect :as state}]
      (let [f (or side-effect identity)]
        (f state)))})

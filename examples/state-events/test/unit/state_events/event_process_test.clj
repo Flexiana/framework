@@ -1,8 +1,7 @@
 (ns unit.state-events.event-process-test
   (:require
     [clojure.test :refer :all]
-    [state-events.interceptors.event-process :as pr]
-    [xiana.core :as xiana])
+    [state-events.interceptors.event-process :as pr])
   (:import
     (java.util
       UUID)))
@@ -24,7 +23,6 @@
                :session-data {:users/id user-id}}
         event (-> state
                   pr/->event
-                  xiana/extract
                   :request-data
                   :event
                   <-db)
@@ -36,7 +34,6 @@
                      :events/creator     user-id}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil [event]]))
-               xiana/extract
                :response-data
                :event-aggregate
                (dissoc :events/modified-at))))))
@@ -77,7 +74,6 @@
                                    :session-data {:users/id user-id}}) event-requests)
         events (mapv (fn [state] (-> state
                                      pr/->event
-                                     xiana/extract
                                      :request-data
                                      :event
                                      <-db)) states)
@@ -94,7 +90,6 @@
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
-               xiana/extract
                :response-data
                :event-aggregate
                (dissoc :events/modified-at))))))
@@ -124,7 +119,6 @@
                                    :session-data {:users/id user-id}}) event-requests)
         events (map (fn [state] (-> state
                                     pr/->event
-                                    xiana/extract
                                     :request-data
                                     :event
                                     <-db)) states)
@@ -137,7 +131,6 @@
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
-               xiana/extract
                :response-data
                :event-aggregate
                (dissoc :events/modified-at))))))
@@ -176,7 +169,6 @@
                                    :session-data {:users/id user-id}}) event-requests)
         events (map (fn [state] (-> state
                                     pr/->event
-                                    xiana/extract
                                     :request-data
                                     :event
                                     <-db)) states)
@@ -189,7 +181,6 @@
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
-               xiana/extract
                :response-data
                :event-aggregate
                (dissoc :events/modified-at))))))
@@ -225,7 +216,6 @@
                                    :session-data {:users/id user-id}}) event-requests)
         events (map (fn [state] (-> state
                                     pr/->event
-                                    xiana/extract
                                     :request-data
                                     :event
                                     <-db)) states)
@@ -239,7 +229,6 @@
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
-               xiana/extract
                :response-data
                :event-aggregate
                (dissoc :events/modified-at))))))
@@ -270,7 +259,6 @@
                                    :session-data {:users/id user-id}}) event-requests)
         events (map (fn [state] (-> state
                                     pr/->event
-                                    xiana/extract
                                     :request-data
                                     :event
                                     <-db)) states)
@@ -282,7 +270,6 @@
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
-               xiana/extract
                :response-data
                :event-aggregate
                (dissoc :events/modified-at))))))
@@ -327,7 +314,6 @@
                                    :session-data {:users/id user-id}}) event-requests)
         events (map (fn [state] (-> state
                                     pr/->event
-                                    xiana/extract
                                     :request-data
                                     :event
                                     <-db)) states)
@@ -341,7 +327,6 @@
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
-               xiana/extract
                :response-data
                :event-aggregate
                (dissoc :events/modified-at))))))
@@ -375,7 +360,6 @@
                                    :session-data {:users/id user-id}}) event-requests)
         events (map (fn [state] (-> state
                                     pr/->event
-                                    xiana/extract
                                     :request-data
                                     :event
                                     <-db)) states)
@@ -389,7 +373,6 @@
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
-               xiana/extract
                :response-data
                :event-aggregate
                (dissoc :events/modified-at))))))
@@ -423,7 +406,6 @@
                                    :session-data {:users/id user-id}}) event-requests)
         events (map (fn [state] (-> state
                                     pr/->event
-                                    xiana/extract
                                     :request-data
                                     :event
                                     <-db)) states)
@@ -437,7 +419,6 @@
                      :events/resource-id #uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"}]
     (is (= expectation
            (-> (pr/->aggregate (assoc-in {} [:response-data :db-data] [nil events]))
-               xiana/extract
                :response-data
                :event-aggregate
                (dissoc :events/modified-at))))))

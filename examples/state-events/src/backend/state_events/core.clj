@@ -4,6 +4,7 @@
     [framework.cookies.core :as cookies]
     [framework.db.core :as db]
     [framework.interceptor.core :as interceptors]
+    [framework.interceptor.debug]
     [framework.rbac.core :as rbac]
     [framework.route.core :as routes]
     [framework.scheduler.core :as scheduler]
@@ -19,18 +20,15 @@
     [state-events.interceptors :refer [asset-router
                                        session-id->cookie]]
     [state-events.interceptors.event-process :as events]
-    [xiana.commons :refer [rename-key]]
-    [xiana.core :as xiana]))
+    [xiana.commons :refer [rename-key]]))
 
 (defn resource-handler [state]
   (let [f (ring/create-resource-handler {:path "/"})]
-    (prn (get-in state [:request :uri]))
-    (xiana/ok (assoc state :response (f (:request state))))))
+    (assoc state :response (f (:request state)))))
 
 (def event-interceptors
   [(interceptors/muuntaja)
    interceptors/params
-   (interceptors/keyceptor :response)
    cookies/interceptor
    session-id->cookie
    session/guest-session-interceptor

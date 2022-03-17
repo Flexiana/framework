@@ -13,7 +13,8 @@
                                              (:cookie headers))))
           (parse-request-cookies [req]
             (-> req move-cookies cookies/cookies-request keywordize-keys))]
-    {:enter (fn [state]
+    {:name ::interceptor
+     :enter (fn [state]
               (update state :request parse-request-cookies))
      :leave (fn [state]
               (update state :response cookies/cookies-response))}))
