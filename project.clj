@@ -47,23 +47,7 @@
                                           :exclusions [org.clojure/clojure]]
                                          [clj-kondo "2021.01.20"]
                                          [nubank/matcher-combinators "3.3.1"]]}}
-
-  :aliases {"check-style" ["with-profile"
-                           "+test"
-                           "run"
-                           "-m"
-                           "cljstyle.main"
-                           "check"]
-            "fix-style"   ["with-profile"
-                           "+test"
-                           "run"
-                           "-m"
-                           "cljstyle.main"
-                           "fix"]
-            ;; "test"        ["with-profile"
-            ;;               "+test"
-            ;;               "run"
-            ;;               "-m"
-            ;;               "kaocha.runner"
-            ;;               "--plugin" "cloverage"]
+  :aliases {"check-style" ["with-profile" "+test" "run" "-m" "cljstyle.main" "check"]
+            "fix-style"   ["with-profile" "+test" "run" "-m" "cljstyle.main" "fix"]
+            "test"        ["with-profile" "+test" "run" "-m" "kaocha.runner" "--plugin" "cloverage"]
             "pre-hook"    ["do" ["check-style"] ["do" "test"]]})
