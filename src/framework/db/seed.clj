@@ -17,19 +17,20 @@
      (migratus/migrate mig-config))
    config))
 
-(def seed-config
-  (let [config (config/config)
+(defn seed-config []
+  (let [config  (config/config)
         db-conf (:xiana/postgresql config)]
     (-> (assoc (:xiana/migration config) :db db-conf)
         (rename-key :seeds-dir :migration-dir)
         (rename-key :seeds-table-name :migration-table-name))))
 
 (defn -main [& args]
-  (let [[command name type] args]
+  (let [[command name type] args
+        seed-config         (seed-config)]
     (if (and (:migration-dir seed-config) (:migration-table-name seed-config))
       (case command
-        "create" (migratus/create seed-config name (keyword type))
-        "reset" (migratus/reset seed-config)
+        "create"  (migratus/create seed-config name (keyword type))
+        "reset"   (migratus/reset seed-config)
         "destroy" (migratus/destroy seed-config)
         "migrate" (migratus/migrate seed-config)
         (println "You can 'create' 'reset' 'destroy' or 'migrate' your seed data"))
