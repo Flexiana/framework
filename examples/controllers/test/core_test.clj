@@ -74,18 +74,19 @@
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-  (is (= {:status 400
-          :body "[:errors [\"[:mydomain/id] should satisfy int?\"]]"}
+  (is (= {:body   {:errors ["[:mydomain/id] should satisfy int?"]}
+          :status 400}
          (-> {:url                  "http://localhost:3333/api/siege-machines/1c"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]
               :accept               :application/json
               :method               :get}
              http/request
+             (update :body json/read-value (json/object-mapper {:decode-key-fn keyword}))
              (select-keys [:status :body]))))
 
   (is (= {:status 500
-          :body "Response coercion failed"}
+          :body   "Response coercion failed"}
          (-> {:url                  "http://localhost:3333/api/siege-machines/3"
               :unexceptional-status (constantly true)
               :basic-auth           ["aladdin" "opensesame"]
