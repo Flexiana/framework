@@ -2,7 +2,7 @@
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.3"]
-                 [com.flexiana/framework "0.4.0-rc3"]]
+                 [com.flexiana/framework "0.4.0-rc4"]]
   :plugins []
   :jvm-opts ["-Dmalli.registry/type=custom"]
   :main ^:skip-aot acl
