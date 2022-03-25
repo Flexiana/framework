@@ -8,4 +8,5 @@
 
   :consistent-alias
   {:level   :error
-   :aliases {taoensso.timbre log}}}}
+   :aliases {taoensso.timbre log
+             xiana.core xiana}}}}

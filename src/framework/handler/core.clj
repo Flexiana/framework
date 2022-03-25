@@ -31,8 +31,17 @@
                        #(interceptor.queue/execute % (if websocket?
                                                        (:web-socket-interceptors deps)
                                                        (:controller-interceptors deps))))
-           result (-> (xiana/apply-flow-> state queue)
-                      (xiana/extract))
+           error-interceptors (->>
+                                (:error-interceptors deps [])
+                                (map #(interceptor.queue/interceptor->fn :leave %))
+                                (remove nil?))
+           flow (xiana/apply-flow-> state queue)
+           result (if (and (xiana/error? flow) (seq error-interceptors))
+                    (-> flow
+                        xiana/extract
+                        (xiana/apply-flow-> error-interceptors)
+                        xiana/extract)
+                    (xiana/extract flow))
            channel (get-in result [:response-data :channel])]
        (if (and websocket? channel)
          (as-channel http-request channel)
