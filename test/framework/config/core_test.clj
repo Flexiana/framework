@@ -53,3 +53,9 @@
            (get-in config [:xiana/postgresql])))
     (is (= {:host "", :user "", :pass "", :tls true, :port 587, :from "xiana@"}
            (get-in config [:xiana/emails])))))
+
+(deftest read-value-from-env
+  (is (= {:test-value-1 nil, :test-value-2 "default"}
+         (:xiana/test (config/config))))
+  (is (= {:test-value-1 "test-property", :test-value-2 "default"}
+         (:xiana/test (config/config {:property "test-property"})))))

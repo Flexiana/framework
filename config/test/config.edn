@@ -23,4 +23,6 @@
                                       :memory-cost     8
                                       :parallelization 1}
                     :pbkdf2-settings {:type       :sha1     ; Available values: :sha1 and :sha256
-                                      :iterations 100000}}}
+                                      :iterations 100000}}
+ :xiana/test       {:test-value-1 "$property"
+                    :test-value-2 "$something-else | default"}}
