@@ -22,7 +22,8 @@
    :controller-interceptors [(xiana-interceptors/muuntaja)
                              xiana-interceptors/params
                              coercion/interceptor
-                             interceptors/require-logged-in]})
+                             interceptors/require-logged-in]
+   :error-interceptors [(xiana-interceptors/muuntaja)]})
 
 (defn -main
   [& _args]

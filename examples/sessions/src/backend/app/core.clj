@@ -20,7 +20,8 @@
    ["/" {:action       index/index
          :interceptors [x-interceptors/params
                         inject-session?]}]
-   ["/login" {:action login/login-controller}]
+   ["/login" {:action login/login-controller
+              :interceptors {:except [x-session/interceptor]}}]
    ["/logout" {:action       logout/logout-controller
                :interceptors {:around [logout]}}]
    ["/secret" {:action       secret/protected-controller
@@ -36,9 +37,9 @@
       closeable-map))
 
 (def app-cfg
-  {:routes routes
+  {:routes                  routes
    :controller-interceptors [x-interceptors/params
-                             (x-session/protected-interceptor "" "/login")]})
+                             x-session/interceptor]})
 
 (defn -main
   [& _args]
