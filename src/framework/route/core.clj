@@ -5,6 +5,7 @@
     [piotr-yuxuan.closeable-map]
     [reitit.coercion :as coercion]
     [reitit.core :as r]
+    [ring.adapter.jetty9 :as jetty]
     [xiana.commons :refer [?assoc-in]]
     [xiana.core :as xiana]))
 
@@ -37,7 +38,7 @@
           (?assoc-in [:request-data :match] match)
           (?assoc-in [:request-data :permission] permission)
           (assoc-in [:request-data :action]
-                    (or (if (:websocket? request)
+                    (or (if (jetty/ws-upgrade-request? request)
                           ws-action
                           action)
                         (if handler

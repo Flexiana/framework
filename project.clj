@@ -7,11 +7,11 @@
                  [org.clojure/data.json "2.4.0"]
                  [org.clojure/data.xml "0.0.8"]
                  [com.flexiana/tiny-rbac "0.1.1"]
-                 [funcool/cuerdas "2022.01.14-391"]
+                 [funcool/cuerdas "2.2.1"]
                  [funcool/cats "2.4.2"]
                  [crypto-password "0.3.0"]
                  [com.draines/postal "2.0.5"]
-                 [http-kit "2.5.3"]
+                 [info.sunng/ring-jetty9-adapter "0.17.4"]
                  [metosin/reitit "0.5.15"]
                  [metosin/jsonista "0.3.5"]
                  [piotr-yuxuan/closeable-map "0.35.0"]
@@ -47,23 +47,7 @@
                                           :exclusions [org.clojure/clojure]]
                                          [clj-kondo "2021.01.20"]
                                          [nubank/matcher-combinators "3.3.1"]]}}
-
-  :aliases {"check-style" ["with-profile"
-                           "+test"
-                           "run"
-                           "-m"
-                           "cljstyle.main"
-                           "check"]
-            "fix-style"   ["with-profile"
-                           "+test"
-                           "run"
-                           "-m"
-                           "cljstyle.main"
-                           "fix"]
-            "test"        ["with-profile"
-                           "+test"
-                           "run"
-                           "-m"
-                           "kaocha.runner"
-                           "--plugin" "cloverage"]
+  :aliases {"check-style" ["with-profile" "+test" "run" "-m" "cljstyle.main" "check"]
+            "fix-style"   ["with-profile" "+test" "run" "-m" "cljstyle.main" "fix"]
+            "test"        ["with-profile" "+test" "run" "-m" "kaocha.runner" "--plugin" "cloverage"]
             "pre-hook"    ["do" ["check-style"] ["do" "test"]]})

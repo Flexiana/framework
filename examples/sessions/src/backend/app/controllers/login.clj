@@ -41,7 +41,7 @@
              (xiana/ok (assoc state
                               :response {:status  200
                                          :headers {"Content-Type" "application/json"
-                                                   "Session-id"   session-id}
+                                                   "Session-id"   (str session-id)}
                                          :body    (json/write-str (update session-data :session-id str))})))
 
            (xiana/error (assoc state :response {:status 401

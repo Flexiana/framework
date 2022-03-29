@@ -4,7 +4,7 @@
     [framework.interceptor.queue :as interceptor.queue]
     [framework.route.core :as route]
     [framework.state.core :as state]
-    [org.httpkit.server :refer [as-channel]]
+    [ring.adapter.jetty9 :as jetty]
     [xiana.core :as xiana]))
 
 (defn handler-fn
@@ -24,7 +24,7 @@
   [deps]
   (fn handle*
     ([http-request]
-     (let [websocket? (:websocket? http-request)
+     (let [websocket? (jetty/ws-upgrade-request? http-request)
            state (state/make deps http-request)
            queue (list #(interceptor.queue/execute % (:router-interceptors deps))
                        #(route/match %)
@@ -44,7 +44,7 @@
                     (xiana/extract flow))
            channel (get-in result [:response-data :channel])]
        (if (and websocket? channel)
-         (as-channel http-request channel)
+         (jetty/ws-upgrade-response channel)
          (:response result))))
     ([request respond _]
      (respond (handle* request)))))

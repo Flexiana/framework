@@ -1,13 +1,13 @@
 (ns cli-chat.views.chat
   (:require
     [clojure.string :as str]
-    [org.httpkit.server :as server]
+    [ring.adapter.jetty9 :as jetty]
     [xiana.core :as xiana]))
 
 (defn send-multi-line
   ([ch reply]
    (doseq [m (str/split-lines reply)]
-     (server/send! ch (str m "\n"))))
+     (jetty/send! ch (str m "\n"))))
   ([{{req-ch :ch}    :request-data
      {res-ch :ch
       reply  :reply} :response-data}]
@@ -18,7 +18,7 @@
      channels :channels} :request-data
     {reply :reply}       :response-data}]
   (doseq [c (remove #(#{ch} (key %)) @channels)]
-    (server/send! (key c) reply)))
+    (jetty/send! (key c) reply)))
 
 (defn broadcast
   [{{ch         :ch

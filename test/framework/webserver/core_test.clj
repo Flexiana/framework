@@ -3,9 +3,6 @@
     [clojure.test :refer :all]
     [framework.handler.core :refer [handler-fn]]
     [framework.route.core :as route]
-    [framework.webserver.core :as webserver]
-    [framework.webserver.core :as ws]
-    [org.httpkit.server :refer [server-status]]
     [xiana.core :as xiana]))
 
 (def default-interceptors [])
