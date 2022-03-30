@@ -5,8 +5,12 @@
     [clojure.string :as str]
     [framework.interceptor.queue :as queue]
     [reitit.core :as r]
+    [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log]
     [xiana.core :as xiana]))
+
+(def send! jetty/send!)
+(def close! jetty/close!)
 
 (defn string->
   "String to 'uri', uses the first word as action key"

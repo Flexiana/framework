@@ -9,6 +9,8 @@
     (java.lang
       AutoCloseable)))
 
+(def close-channel jetty/close!)
+
 (def headers {"Content-Type" "text/event-stream"})
 
 (def EOL "\n")
@@ -41,15 +43,11 @@
                                     channel
                                     clients))))
 
-(defn- as-set
-  [s v]
-  (if s (conj s v) #{v}))
-
 (defn server-event-channel [state]
   (let [clients (get-in state [:deps :events-channel :clients])
         session-id (get-in state [:session-data :session-id])]
     {:on-connect (fn [ch]
-                   (swap! clients update session-id as-set ch)
+                   (swap! clients update session-id (fnil conj #{}) ch)
                    (jetty/send! ch {:headers headers :body (json/write-str {})}))
      :on-close   (fn [ch _status _reason] (swap! clients update session-id disj ch))}))
 
