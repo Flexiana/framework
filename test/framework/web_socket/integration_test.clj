@@ -6,8 +6,8 @@
     [framework-fixture :as fixture]
     [framework.handler.core :refer [handler-fn]]
     [framework.interceptor.core :as interceptors]
-    [framework.websockets.core :as ws]
     [framework.rbac.core :as rbac]
+    [framework.websockets.core :as ws]
     [http.async.client :as a-client]
     [taoensso.timbre :as log]
     [xiana.core :as xiana])
