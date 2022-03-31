@@ -3,7 +3,7 @@
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [org.clojure/clojurescript "1.11.4"]
-                 [com.flexiana/framework "0.4.0-rc3"]
+                 [com.flexiana/framework "0.4.0-rc4"]
                  [thheller/shadow-cljs "2.17.7"]
                  [org.clojure/tools.namespace "1.2.0"]
                  [tick "0.5.0-RC5"]]
