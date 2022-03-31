@@ -75,5 +75,5 @@ lein run
 Run tests with
 
 ```shell 
-lein test components-test
+lein test
 ```
