@@ -20,7 +20,7 @@
 
 (defn key-and-default [v]
   (let [[key-name default] (str/split v #"\|")]
-    [(keyword (subs key-name 1)) (some-> default str/trim)]))
+    [(keyword (subs (str/trim key-name) 1)) (some-> default str/trim)]))
 
 (defn- inject-env-vars
   [config]
