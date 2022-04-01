@@ -1,8 +1,8 @@
 (defproject acl "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.10.3"]
-                 [com.flexiana/framework "0.4.0-rc4"]]
+  :dependencies [[org.clojure/clojure "1.11.0"]
+                 [com.flexiana/framework "0.4.0"]]
   :plugins []
   :main ^:skip-aot acl
   :uberjar-name "acl.jar"

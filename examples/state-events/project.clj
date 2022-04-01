@@ -1,10 +1,10 @@
 (defproject state-events "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.10.3"]
+  :dependencies [[org.clojure/clojure "1.11.0"]
                  [org.clojure/clojurescript "1.11.4"]
-                 [com.flexiana/framework "0.4.0-rc4"]
-                 [thheller/shadow-cljs "2.17.7"]
+                 [com.flexiana/framework "0.4.0"]
+                 [thheller/shadow-cljs "2.17.8"]
                  [re-frame "1.2.0"]
                  [cljs-ajax "0.8.4"]
                  [org.clojure/tools.namespace "1.2.0"]
