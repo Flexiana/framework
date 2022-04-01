@@ -1,4 +1,4 @@
-(ns framework.rbac.interceptor-test
+(ns xiana.rbac.interceptor-test
   (:require
     [clojure.test :refer :all]
     [honeysql.helpers :as sql]

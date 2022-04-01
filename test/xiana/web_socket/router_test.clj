@@ -1,4 +1,4 @@
-(ns framework.web-socket.router-test
+(ns xiana.web-socket.router-test
   (:require
     [clojure.data.json :as json]
     [clojure.test :refer :all]

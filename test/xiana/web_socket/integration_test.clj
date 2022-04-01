@@ -1,4 +1,4 @@
-(ns framework.web-socket.integration-test
+(ns xiana.web-socket.integration-test
   (:require
     [clj-http.client :as client]
     [clojure.pprint :refer [pprint]]

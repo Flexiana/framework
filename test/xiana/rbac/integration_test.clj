@@ -1,4 +1,4 @@
-(ns framework.rbac.integration-test
+(ns xiana.rbac.integration-test
   (:require
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]

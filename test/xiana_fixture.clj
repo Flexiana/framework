@@ -1,4 +1,4 @@
-(ns framework-fixture
+(ns xiana-fixture
   (:require
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [xiana.commons :refer [rename-key]]
