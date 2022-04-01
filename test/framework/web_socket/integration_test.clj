@@ -7,9 +7,8 @@
     [framework.handler.core :refer [handler-fn]]
     [framework.interceptor.core :as interceptors]
     [framework.rbac.core :as rbac]
-    [framework.session.core :as session]
+    [framework.websockets.core :as ws]
     [http.async.client :as a-client]
-    [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log]
     [xiana.core :as xiana])
   (:import
@@ -21,11 +20,11 @@
     (assoc-in state [:response-data :channel]
               {:on-text    (fn [ch msg]
                              (log/info "Message: " msg)
-                             (jetty/send! ch msg))
+                             (ws/send! ch msg))
                :on-bytes   (fn [ch msg _offset _len]
                              (log/info "Message: " msg)
-                             (jetty/send! ch msg))
-               :on-error   (fn [ch _e] (jetty/close! ch))
+                             (ws/send! ch msg))
+               :on-error   (fn [ch _e] (ws/close! ch))
                :on-close   (fn [_ch _status _reason]
                              (log/info "\nCLOSE=============="))
                :on-connect (fn [ch]
