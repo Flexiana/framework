@@ -7,18 +7,16 @@
     [malli.core :as m]
     [malli.registry :as mr]
     [malli.util :as mu]
+    [muuntaja.format.core]
     [my-domain-logic.siege-machines :as mydomain.siege-machines]
     [reitit.coercion.malli :as rcm]
     [reitit.ring :as ring]
-    [xiana.handler :as handler]
-    [xiana.webserver :as ws])
+    [xiana.handler :as handler])
   (:import
     (clojure.data.xml
       Event)
     (clojure.lang
-      Keyword)
-    (muuntaja.format.core
-      EncodeToBytes)))
+      Keyword)))
 
 (def registry
   (merge
@@ -56,7 +54,7 @@
                             (xml/element f {} s)))
                         (seq %)))]
     (reify
-      EncodeToBytes
+      muuntaja.format.core/EncodeToBytes
       (encode-to-bytes [_ data charset]
         (.getBytes ^String (helper data) ^String charset)))))
 
