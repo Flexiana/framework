@@ -2,7 +2,7 @@
   (:require
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
-    [framework-fixture :as fixture]
+    [xiana-fixture :as fixture]
     [honeysql.helpers :as sql]
     [tiny-rbac.builder :as b]
     [xiana.core :as xiana]

@@ -3,7 +3,7 @@
     [clj-http.client :as client]
     [clojure.pprint :refer [pprint]]
     [clojure.test :refer :all]
-    [framework-fixture :as fixture]
+    [xiana-fixture :as fixture]
     [http.async.client :as a-client]
     [taoensso.timbre :as log]
     [xiana.core :as xiana]
