@@ -2,9 +2,9 @@
   (:require
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
-    [xiana-fixture :as fixture]
     [honeysql.helpers :as sql]
     [tiny-rbac.builder :as b]
+    [xiana-fixture :as fixture]
     [xiana.core :as xiana]
     [xiana.handler :refer [handler-fn]]
     [xiana.interceptor :as interceptors]
