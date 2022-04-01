@@ -1,10 +1,10 @@
-(ns framework.interceptor.core-test
+(ns xiana.interceptor-test
   (:require
     [clojure.test :refer :all]
-    [framework.db.core :as db]
-    [framework.interceptor.core :as interceptor]
-    [framework.session.core :as session]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.db :as db]
+    [xiana.interceptor :as interceptor]
+    [xiana.session :as session]))
 
 (def sample-session-id
   "Sample session id."

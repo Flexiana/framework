@@ -1,4 +1,4 @@
-(ns framework.state.core
+(ns xiana.state
   (:require
     [xiana.core :as xiana]))
 

@@ -5,16 +5,16 @@
     [controllers.posts :as posts-controllers]
     [controllers.re-frame :as re-frame]
     [controllers.users :as users-controllers]
-    [framework.config.core :as config]
-    [framework.db.core :as db]
-    [framework.handler.core :as handler]
-    [framework.interceptor.core :as interceptors]
-    [framework.rbac.core :as rbac]
-    [framework.route.core :as routes]
-    [framework.webserver.core :as ws]
     [interceptors.load-user :as user]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
-    [reitit.ring :as ring]))
+    [reitit.ring :as ring]
+    [xiana.config :as config]
+    [xiana.db :as db]
+    [xiana.handler :as handler]
+    [xiana.interceptor :as interceptors]
+    [xiana.rbac :as rbac]
+    [xiana.route :as routes]
+    [xiana.webserver :as ws]))
 
 (def routes
   [["/" {:action index/handle-index}]

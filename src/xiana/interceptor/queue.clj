@@ -1,4 +1,4 @@
-(ns framework.interceptor.queue
+(ns xiana.interceptor.queue
   "Interceptor executor.
   Collects and executes interceptors and the given action in between."
   (:require

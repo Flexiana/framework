@@ -4,13 +4,13 @@
     [clojure.pprint :refer [pprint]]
     [clojure.test :refer :all]
     [framework-fixture :as fixture]
-    [framework.handler.core :refer [handler-fn]]
-    [framework.interceptor.core :as interceptors]
-    [framework.rbac.core :as rbac]
-    [framework.websockets.core :as ws]
     [http.async.client :as a-client]
     [taoensso.timbre :as log]
-    [xiana.core :as xiana])
+    [xiana.core :as xiana]
+    [xiana.handler :refer [handler-fn]]
+    [xiana.interceptor :as interceptors]
+    [xiana.rbac :as rbac]
+    [xiana.websockets :as ws])
   (:import
     (java.util
       UUID)))

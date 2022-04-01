@@ -1,9 +1,9 @@
-(ns framework.db.seed
+(ns xiana.db.seed
   (:require
-    [framework.config.core :as config]
     [migratus.core :as migratus]
     [next.jdbc :as jdbc]
-    [xiana.commons :refer [rename-key]]))
+    [xiana.commons :refer [rename-key]]
+    [xiana.config :as config]))
 
 (defn seed!
   ([config]

@@ -1,4 +1,4 @@
-(ns framework.scheduler.core
+(ns xiana.scheduler
   (:require
     [clojure.core.async :as async :refer [chan timeout close! go-loop]]
     [clojure.core.async.impl.protocols :refer [closed?]]

@@ -1,10 +1,10 @@
-(ns framework.interceptor.muuntaja-test
+(ns xiana.interceptor.muuntaja-test
   (:require
     [clojure.data.xml :as xml]
     [clojure.test :refer :all]
-    [framework.interceptor.muuntaja :as muuntaja]
     [muuntaja.format.core :as format]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.interceptor.muuntaja :as muuntaja]))
 
 (def data-sample [["note" "anything" "note"]])
 

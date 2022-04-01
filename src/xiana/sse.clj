@@ -1,4 +1,4 @@
-(ns framework.sse.core
+(ns xiana.sse
   (:require
     [clojure.core.async :as async :refer (<! go-loop)]
     [clojure.data.json :as json]

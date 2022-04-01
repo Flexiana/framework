@@ -1,12 +1,12 @@
 (ns framework.rbac.interceptor-test
   (:require
     [clojure.test :refer :all]
-    [framework.rbac.core :refer [interceptor]]
-    [framework.session.core :as session]
     [honeysql.helpers :as sql]
     [tiny-rbac.builder :as b]
     [tiny-rbac.core :as c]
-    [xiana.core :as xiana])
+    [xiana.core :as xiana]
+    [xiana.rbac :refer [interceptor]]
+    [xiana.session :as session])
   (:import
     (java.util
       UUID)))

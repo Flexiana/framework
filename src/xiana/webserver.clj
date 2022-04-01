@@ -1,9 +1,9 @@
-(ns framework.webserver.core
+(ns xiana.webserver
   "Lifecycle management of the webserver"
   (:require
-    [framework.handler.core :refer [handler-fn]]
     [ring.adapter.jetty9 :as jetty]
-    [taoensso.timbre :as log])
+    [taoensso.timbre :as log]
+    [xiana.handler :refer [handler-fn]])
   (:import
     (java.lang
       AutoCloseable)))

@@ -1,7 +1,7 @@
-(ns framework.session.core-test
+(ns xiana.session-test
   (:require
     [clojure.test :refer :all]
-    [framework.session.core :as session])
+    [xiana.session :as session])
   (:import
     (java.util
       UUID)))

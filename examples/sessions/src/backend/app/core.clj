@@ -7,13 +7,13 @@
     [app.interceptors :refer [inject-session?
                               logout
                               require-logged-in]]
-    [framework.config.core :as config]
-    [framework.handler.core :as x-handler]
-    [framework.interceptor.core :as x-interceptors]
-    [framework.route.core :as x-routes]
-    [framework.session.core :as x-session]
-    [framework.webserver.core :as ws]
-    [piotr-yuxuan.closeable-map :refer [closeable-map]]))
+    [piotr-yuxuan.closeable-map :refer [closeable-map]]
+    [xiana.config :as config]
+    [xiana.handler :as x-handler]
+    [xiana.interceptor :as x-interceptors]
+    [xiana.route :as x-routes]
+    [xiana.session :as x-session]
+    [xiana.webserver :as ws]))
 
 (def routes
   [["" {:handler x-handler/handler-fn}]

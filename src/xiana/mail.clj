@@ -1,4 +1,4 @@
-(ns framework.mail.core
+(ns xiana.mail
   (:require
     [cuerdas.core :as cu]
     [postal.core :as pc]))

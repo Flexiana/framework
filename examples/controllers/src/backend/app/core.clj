@@ -1,13 +1,13 @@
 (ns core
   (:require
-    [framework.coercion.core :as coercion]
-    [framework.config.core :as config]
-    [framework.interceptor.core :as xiana-interceptors]
-    [framework.route.core :as routes]
-    [framework.webserver.core :as ws]
     [interceptors]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
-    [route]))
+    [route]
+    [xiana.coercion :as coercion]
+    [xiana.config :as config]
+    [xiana.interceptor :as xiana-interceptors]
+    [xiana.route :as routes]
+    [xiana.webserver :as ws]))
 
 (defn ->system
   [app-cfg]

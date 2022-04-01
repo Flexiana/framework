@@ -1,8 +1,8 @@
-(ns framework.interceptor.queue-test
+(ns xiana.interceptor.queue-test
   (:require
     [clojure.test :refer :all]
-    [framework.interceptor.queue :as queue]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.interceptor.queue :as queue]))
 
 (def A-interceptor
   {:enter (fn [state] (xiana/ok (assoc state :enter "A-enter")))

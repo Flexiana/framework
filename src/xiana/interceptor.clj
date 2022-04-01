@@ -1,14 +1,14 @@
-(ns framework.interceptor.core
+(ns xiana.interceptor
   "Collection of useful interceptors"
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.walk :refer [keywordize-keys]]
-    [framework.interceptor.muuntaja :as muuntaja]
-    [framework.interceptor.wrap :as wrap]
-    [framework.session.core :as session]
     [ring.middleware.params :as middleware.params]
     [taoensso.timbre :as log]
-    [xiana.core :as xiana])
+    [xiana.core :as xiana]
+    [xiana.interceptor.muuntaja :as muuntaja]
+    [xiana.interceptor.wrap :as wrap]
+    [xiana.session :as session])
   (:import
     (java.util
       UUID)))

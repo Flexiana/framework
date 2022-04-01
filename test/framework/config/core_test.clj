@@ -1,7 +1,7 @@
-(ns framework.config.core-test
+(ns xiana.config-test
   (:require
     [clojure.test :refer :all]
-    [framework.config.core :as config]))
+    [xiana.config :as config]))
 
 (def config-map (config/config))
 

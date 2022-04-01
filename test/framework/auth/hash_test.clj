@@ -1,7 +1,7 @@
-(ns framework.auth.hash-test
+(ns xiana.hash-test
   (:require
     [clojure.test :refer [deftest is]]
-    [framework.auth.hash :as hash]))
+    [xiana.hash :as hash]))
 
 (def password "myPersonalPassword!")
 

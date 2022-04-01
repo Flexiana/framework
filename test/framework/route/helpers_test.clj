@@ -1,8 +1,8 @@
-(ns framework.route.helpers-test
+(ns xiana.route.helpers-test
   (:require
     [clojure.test :refer :all]
-    [framework.route.helpers :as helpers]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.route.helpers :as helpers]))
 
 (defn test-handler
   "Sample test handler function for the tests."

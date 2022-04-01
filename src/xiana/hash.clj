@@ -1,4 +1,4 @@
-(ns framework.auth.hash
+(ns xiana.hash
   "Cryptography helper for creating, and resolving passwords.
   Supported algorithms are bcrypr, pbkdf2, and scrypt.
   The required algorithm should be in (-> state :deps :auth :hash-algorithm)"

@@ -1,4 +1,4 @@
-(ns framework.interceptor.muuntaja
+(ns xiana.interceptor.muuntaja
   "Muuntaja interceptor encoder/decode.."
   (:require
     [clojure.data.xml :as xml]

@@ -1,9 +1,9 @@
-(ns framework.webserver.core-test
+(ns xiana.webserver-test
   (:require
     [clojure.test :refer :all]
-    [framework.handler.core :refer [handler-fn]]
-    [framework.route.core :as route]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.handler :refer [handler-fn]]
+    [xiana.route :as route]))
 
 (def default-interceptors [])
 

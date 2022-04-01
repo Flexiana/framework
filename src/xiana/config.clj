@@ -1,4 +1,4 @@
-(ns framework.config.core
+(ns xiana.config
   "Solves environment and config variables"
   (:require
     [clojure.edn :as edn]

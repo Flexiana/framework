@@ -277,7 +277,7 @@ All interceptors in :except will be skipped.
 ## Routes
 
 Route definition is done via [reitit's routing](https://github.com/metosin/reitit) library. Route processing is done
-with `framework.route.core` namespace. At route definition you can define.
+with `xiana.route` namespace. At route definition you can define.
 
 - The [action](#action) that should be executed
 - [Interceptor overriding](#interceptor-overriding)
@@ -413,7 +413,7 @@ and add your role-set into your app's [dependencies](#dependencies-and-configura
   [app-cfg]
   (-> (config/config)
       (merge app-cfg)
-      framework.rbac.core/init
+      xiana.rbac/init
       ws/start))
 ```
 
@@ -464,7 +464,7 @@ In `:ws-action` function you can provide the reactive functions in `(-> state :r
 ```clojure
 (:require
   ...
-  [framework.websockets.core :refer [router string->]]
+  [xiana.websockets :refer [router string->]]
   ...)
 
 (defonce channels (atom {}))
@@ -497,7 +497,7 @@ functions have the entire [state](conventions.md#state) to work with.
 
 ### WebSockets routing
 
-`framework.websockets.core` offers a router function, which supports Xiana concepts. You can define a reitit route and
+`xiana.websockets` offers a router function, which supports Xiana concepts. You can define a reitit route and
 use it inside WebSockets reactive functions. With Xiana [monad](conventions.md#monads), [state](conventions.md#state)
 and support of [interceptors](conventions.md#interceptors), with [interceptor override](#interceptor-overriding). You
 can define a [fallback function](#websockets), to handle missing actions.
@@ -507,7 +507,7 @@ can define a [fallback function](#websockets), to handle missing actions.
   (r/router [["/login" {:action       behave/login
                         :interceptors {:inside [interceptors/side-effect
                                                 interceptors/db-access]}
-                        :hide         true}]]              ;; framework.websockets.core/router will not log the message 
+                        :hide         true}]]              ;; xiana.websockets/router will not log the message 
             {:data {:default-interceptors [(interceptors/message "Incoming message...")]}}))
 ```
 
@@ -531,23 +531,23 @@ For route matching Xiana provides a couple of modes:
 
   It tries to decode the message as JSON, then as EDN, then as string.
 
-You can also define your own matching, and use it as a parameter to `framework.websockets.core/router`
+You can also define your own matching, and use it as a parameter to `xiana.websockets/router`
 
 ## Server-Sent Events (SSE)
 
 Xiana contains a simple SSE solution over [http-kit](https://github.com/http-kit/http-kit) server's `Channel`
 protocol.
 
-Initialization is done by calling `framework.sse.core/init`. Clients can subscribe by routing
-to `framework.sse.core/sse-action`. Messages are sent with `framework.sse.core/put!` function.
+Initialization is done by calling `xiana.sse/init`. Clients can subscribe by routing
+to `xiana.sse/sse-action`. Messages are sent with `xiana.sse/put!` function.
 
 ```clojure
 (ns app.core
   (:require
     [framework.config.core :as config]
-    [framework.sse.core :as sse]
-    [framework.route.core :as route]
-    [framework.webserver.core :as ws]
+    [xiana.sse :as sse]
+    [xiana.route :as route]
+    [xiana.webserver :as ws]
     [xiana.core :as xiana]))
 
 (def routes
@@ -573,13 +573,13 @@ to `framework.sse.core/sse-action`. Messages are sent with `framework.sse.core/p
 
 ## Scheduler
 
-To repeatedly execute a function, you can use the `framework.scheduler.core/start` function. Below is an implementation
+To repeatedly execute a function, you can use the `xiana.scheduler/start` function. Below is an implementation
 of SSE ping:
 
 ```clojure
 (ns app.core
   (:require
-    [framework.scheduler.core :as scheduler]
+    [xiana.scheduler :as scheduler]
     [clojure.core.async :as async]))
 
 (defn ping [deps]

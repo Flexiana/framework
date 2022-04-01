@@ -1,8 +1,8 @@
-(ns framework.state.core-test
+(ns xiana.state-test
   (:require
     [clojure.test :refer :all]
-    [framework.state.core :as state]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.state :as state]))
 
 (def state-initial-map
   {:deps     {}

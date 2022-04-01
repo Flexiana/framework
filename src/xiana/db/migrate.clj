@@ -1,9 +1,9 @@
-(ns framework.db.main
+(ns xiana.db.migrate
   (:require
     [clojure.string :as str]
-    [framework.config.core :as config]
     [migratus.core :as migratus]
-    [taoensso.timbre :as log]))
+    [taoensso.timbre :as log]
+    [xiana.config :as config]))
 
 (defn help []
   (println "Available migratus commands:")

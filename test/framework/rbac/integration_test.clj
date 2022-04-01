@@ -3,13 +3,13 @@
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
     [framework-fixture :as fixture]
-    [framework.handler.core :refer [handler-fn]]
-    [framework.interceptor.core :as interceptors]
-    [framework.rbac.core :as rbac]
-    [framework.session.core :as session]
     [honeysql.helpers :as sql]
     [tiny-rbac.builder :as b]
-    [xiana.core :as xiana])
+    [xiana.core :as xiana]
+    [xiana.handler :refer [handler-fn]]
+    [xiana.interceptor :as interceptors]
+    [xiana.rbac :as rbac]
+    [xiana.session :as session])
   (:import
     (java.util
       UUID)))

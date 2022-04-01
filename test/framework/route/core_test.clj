@@ -1,10 +1,10 @@
-(ns framework.route.core-test
+(ns xiana.route-test
   (:require
     [clojure.test :refer :all]
-    [framework.route.core :as route]
-    [framework.route.helpers :as helpers]
-    [framework.state.core :as state]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.route :as route]
+    [xiana.route.helpers :as helpers]
+    [xiana.state :as state]))
 
 (def sample-request
   {:uri "/" :request-method :get})

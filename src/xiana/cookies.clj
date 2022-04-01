@@ -1,4 +1,4 @@
-(ns framework.cookies.core
+(ns xiana.cookies
   "Cookie parser"
   (:require
     [clojure.walk :refer [keywordize-keys]]

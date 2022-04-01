@@ -1,13 +1,13 @@
-(ns framework.websockets.core
+(ns xiana.websockets
   (:require
     [clojure.data.json :refer [read-str]]
     [clojure.edn :as edn]
     [clojure.string :as str]
-    [framework.interceptor.queue :as queue]
     [reitit.core :as r]
     [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.interceptor.queue :as queue]))
 
 (def send! jetty/send!)
 (def close! jetty/close!)

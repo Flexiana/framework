@@ -1,11 +1,11 @@
-(ns framework.session.core
+(ns xiana.session
   "Xiana's session management"
   (:require
-    [framework.db.core :as db]
     [honeysql.format :as sqlf]
     [jsonista.core :as json]
     [next.jdbc.result-set :refer [as-kebab-maps]]
-    [xiana.core :as xiana])
+    [xiana.core :as xiana]
+    [xiana.db :as db])
   (:import
     (java.util
       UUID)))

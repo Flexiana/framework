@@ -1,4 +1,4 @@
-(ns framework.coercion.core
+(ns xiana.coercion
   "Request and response validation by given malli rules.
    The rule can be defined at route definition,
    the schema can be defined with registry function.

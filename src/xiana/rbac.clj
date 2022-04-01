@@ -1,4 +1,4 @@
-(ns framework.rbac.core
+(ns xiana.rbac
   "Integrates tiny-RBAC library to the xiana flow"
   (:require
     [tiny-rbac.builder :as b]

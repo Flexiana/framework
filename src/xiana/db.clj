@@ -1,4 +1,4 @@
-(ns framework.db.core
+(ns xiana.db
   "Data source builder"
   (:require
     [clj-test-containers.core :as tc]

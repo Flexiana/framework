@@ -2,10 +2,10 @@
   (:require
     [clojure.data.json :as json]
     [clojure.test :refer :all]
-    [framework.interceptor.core :as interceptors]
-    [framework.websockets.core :refer [router string->]]
     [reitit.core :as r]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.interceptor :as interceptors]
+    [xiana.websockets :refer [router string->]]))
 
 (defn string-log [state]
   (xiana/ok (assoc state :response-data {:reply-fn identity

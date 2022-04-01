@@ -1,11 +1,11 @@
-(ns framework.handler.core
+(ns xiana.handler
   "Provides the default handler function"
   (:require
-    [framework.interceptor.queue :as interceptor.queue]
-    [framework.route.core :as route]
-    [framework.state.core :as state]
     [ring.adapter.jetty9 :as jetty]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.interceptor.queue :as interceptor.queue]
+    [xiana.route :as route]
+    [xiana.state :as state]))
 
 (defn handler-fn
   "Returns handler function for server, which  do the routing, and executes interceptors and given action.
