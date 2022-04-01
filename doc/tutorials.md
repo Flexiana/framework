@@ -35,8 +35,8 @@ The system configuration and start-up with the chainable set-up:
   [app-cfg]
   (-> (config/config)
       (merge app-cfg)
-      (rename-key :framework.app/auth :auth)
-      (rename-key :framework.app/uploads :uploads)
+      (rename-key :xiana/auth :auth)
+      (rename-key :xiana/uploads :uploads)
       routes/reset
       session/init-backend
       sse/init
@@ -115,21 +115,22 @@ when the seeding is happens.
 Example for configuration:
 
 ```clojure
-:framework.db.storage/migration {:store                :database
-                                 :migration-dir        "migrations"
-                                 :seeds-dir            "dev_seeds"
-                                 :migration-table-name "migrations"
-                                 :seeds-table-name     "seeds"}
+:xiana/migration {:store                :database
+                  :migration-dir        "migrations"
+                  :seeds-dir            "dev_seeds"
+                  :migration-table-name "migrations"
+                  :seeds-table-name     "seeds"}
 ```
 
 Example of using it from application start
+
 ```clojure
 (-> (config/config app-cfg)
     ...
-      db/connect
-      db/migrate!
-      seed/seed!
-      ...)
+    db/connect
+    db/migrate!
+    seed/seed!
+    ...)
 ```
 
 ## Interceptors typical use-case, and ordering
@@ -492,13 +493,13 @@ In `:ws-action` function you can provide the reactive functions in `(-> state :r
                :init       (fn [ch])})))
 ```
 
-The creation of the actual channel happens in framework's [handler](conventions.md#handler). All provided reactive
-functions have the entire [state](conventions.md#state) to work with.
+The creation of the actual channel happens in Xiana's [handler](conventions.md#handler). All provided reactive functions
+have the entire [state](conventions.md#state) to work with.
 
 ### WebSockets routing
 
-`xiana.websockets` offers a router function, which supports Xiana concepts. You can define a reitit route and
-use it inside WebSockets reactive functions. With Xiana [monad](conventions.md#monads), [state](conventions.md#state)
+`xiana.websockets` offers a router function, which supports Xiana concepts. You can define a reitit route and use it
+inside WebSockets reactive functions. With Xiana [monad](conventions.md#monads), [state](conventions.md#state)
 and support of [interceptors](conventions.md#interceptors), with [interceptor override](#interceptor-overriding). You
 can define a [fallback function](#websockets), to handle missing actions.
 
@@ -538,13 +539,13 @@ You can also define your own matching, and use it as a parameter to `xiana.webso
 Xiana contains a simple SSE solution over [http-kit](https://github.com/http-kit/http-kit) server's `Channel`
 protocol.
 
-Initialization is done by calling `xiana.sse/init`. Clients can subscribe by routing
-to `xiana.sse/sse-action`. Messages are sent with `xiana.sse/put!` function.
+Initialization is done by calling `xiana.sse/init`. Clients can subscribe by routing to `xiana.sse/sse-action`. Messages
+are sent with `xiana.sse/put!` function.
 
 ```clojure
 (ns app.core
   (:require
-    [framework.config.core :as config]
+    [xiana.config :as config]
     [xiana.sse :as sse]
     [xiana.route :as route]
     [xiana.webserver :as ws]
@@ -573,8 +574,8 @@ to `xiana.sse/sse-action`. Messages are sent with `xiana.sse/put!` function.
 
 ## Scheduler
 
-To repeatedly execute a function, you can use the `xiana.scheduler/start` function. Below is an implementation
-of SSE ping:
+To repeatedly execute a function, you can use the `xiana.scheduler/start` function. Below is an implementation of SSE
+ping:
 
 ```clojure
 (ns app.core

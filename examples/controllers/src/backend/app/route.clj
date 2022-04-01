@@ -1,4 +1,3 @@
-;; TODO rename to routes
 (ns route
   (:require
     [clojure.data.xml :as xml]

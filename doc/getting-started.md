@@ -53,7 +53,7 @@ lein migrate create todos
 
 This will create two migration files inside the *resources/migrations* directory. Both file names will be prefixed by the timestamp value of the file creation. 
 
-Put the following SQL code inside of the *todos-up.sql* file
+Put the following SQL code inside the *todos-up.sql* file
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
