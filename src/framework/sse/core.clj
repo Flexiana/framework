@@ -49,6 +49,7 @@
     {:on-connect (fn [ch]
                    (swap! clients update session-id (fnil conj #{}) ch)
                    (jetty/send! ch {:headers headers :body (json/write-str {})}))
+     :on-text    (fn [c m] (jetty/send! c m))
      :on-close   (fn [ch _status _reason] (swap! clients update session-id disj ch))}))
 
 (defn stop-heartbeat-loop
@@ -71,6 +72,6 @@
 (defn sse-action
   [state]
   (xiana/ok
-    (assoc state
-           :response
-           (jetty/ws-upgrade-response (server-event-channel state)))))
+    (assoc-in state
+              [:response-data :channel]
+              (server-event-channel state))))
