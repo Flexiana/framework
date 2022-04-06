@@ -8,7 +8,6 @@
                  [org.clojure/data.xml "0.0.8"]
                  [com.flexiana/tiny-rbac "0.1.1"]
                  [funcool/cuerdas "2.2.1"]
-                 [funcool/cats "2.4.2"]
                  [crypto-password "0.3.0"]
                  [com.draines/postal "2.0.5"]
                  [info.sunng/ring-jetty9-adapter "0.17.4"]

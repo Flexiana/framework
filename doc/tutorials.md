@@ -172,8 +172,7 @@ Which means:
     :leave Runs while we're going up from the action to the response.
     :error Executed when any error thrown while executing the two other functions
 
-The provided function should have one parameter, the application state, and should return the state wrapped into the
-xiana monad.
+The provided function should have one parameter, the application state, and should return the state.
 
 ### Interceptor example
 
@@ -498,7 +497,7 @@ functions have the entire [state](conventions.md#state) to work with.
 ### WebSockets routing
 
 `framework.websockets.core` offers a router function, which supports Xiana concepts. You can define a reitit route and
-use it inside WebSockets reactive functions. With Xiana [monad](conventions.md#monads), [state](conventions.md#state)
+use it inside WebSockets reactive functions. With [state](conventions.md#state)
 and support of [interceptors](conventions.md#interceptors), with [interceptor override](#interceptor-overriding). You
 can define a [fallback function](#websockets), to handle missing actions.
 
