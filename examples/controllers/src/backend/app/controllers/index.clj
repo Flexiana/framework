@@ -1,25 +1,22 @@
-(ns controllers.index
-  (:require
-    [xiana.core :as xiana]))
+(ns controllers.index)
 
 (defn index-view
   [state]
-  (xiana/ok
-    (assoc state
-           :response
-           {:status  200
-            :headers {"Content-Type" "text/plain"}
-            :body    "Index page"})))
+  (assoc state
+         :response
+         {:status  200
+          :headers {"Content-Type" "text/plain"}
+          :body    "Index page"}))
 
 (defn require-logged-in
   [{req :http-request :as state}]
   (if-let [authorization (get-in req [:headers "authorization"])]
-    (xiana/ok (assoc-in state [:session-data :authorization] authorization))
-    (xiana/error (assoc state :response {:status 401 :body "Unauthorized"}))))
+    (assoc-in state [:session-data :authorization] authorization)
+    (throw (ex-info "Unauthorized"  {:status 401 :body "Unauthorized"}))))
 
 (defn something-else
   [state]
-  (xiana/ok state))
+  state)
 
 ;; (defn comment-action []
 ;;  (controller->
@@ -35,6 +32,4 @@
 
 (defn index
   [state]
-  (xiana/flow->
-    state
-    index-view))
+  (index-view state))

@@ -10,8 +10,7 @@
                               left-join
                               values
                               sset]
-     :as helpers]
-    [xiana.core :as xiana])
+     :as helpers])
   (:import
     (java.util
       UUID)))
@@ -35,43 +34,43 @@
 (defn fetch-query
   [{{{id :id} :query-params} :request
     :as                      state}]
-  (xiana/ok (assoc state :query (cond-> (-> (select :*)
-                                            (from :users))
-                                  id (where [:= :id (UUID/fromString id)])))))
+  (assoc state :query (cond-> (-> (select :*)
+                                  (from :users))
+                        id (where [:= :id (UUID/fromString id)]))))
 
 (defn add-query
   [{{body :body-params} :request
     :as                 state}]
-  (xiana/ok (assoc state :query (-> (insert-into :users)
-                                    (values [(->store-user body)])))))
+  (assoc state :query (-> (insert-into :users)
+                          (values [(->store-user body)]))))
 
 (defn update-query
   [{{{id :id} :query-params} :request
     {body :body-params}      :request
     :as                      state}]
-  (xiana/ok (assoc state :query (-> (helpers/update :users)
-                                    (where [:= :id (UUID/fromString id)])
-                                    (sset (core/update (->store-user body) :id #(UUID/fromString %)))))))
+  (assoc state :query (-> (helpers/update :users)
+                          (where [:= :id (UUID/fromString id)])
+                          (sset (core/update (->store-user body) :id #(UUID/fromString %))))))
 
 (defn delete-query
   [{{{id :id} :query-params} :request
     :as                      state}]
-  (xiana/ok (assoc state :query (cond-> (delete-from :users)
-                                  id (where [:= :id (UUID/fromString id)])))))
+  (assoc state :query (cond-> (delete-from :users)
+                        id (where [:= :id (UUID/fromString id)]))))
 
 (defn fetch-with-post-comments-query
   [{{{id :id} :query-params} :request
     :as                      state}]
-  (xiana/ok (assoc state :query (cond-> (-> (select :*)
-                                            (from :users)
-                                            (left-join :posts [:= :posts.user_id :users.id])
-                                            (merge-left-join :comments [:= :posts.id :comments.post_id]))
-                                  id (where [:= :users.id (UUID/fromString id)])))))
+  (assoc state :query (cond-> (-> (select :*)
+                                  (from :users)
+                                  (left-join :posts [:= :posts.user_id :users.id])
+                                  (merge-left-join :comments [:= :posts.id :comments.post_id]))
+                        id (where [:= :users.id (UUID/fromString id)]))))
 
 (defn fetch-with-post-query
   [{{{id :id} :query-params} :request
     :as                      state}]
-  (xiana/ok (assoc state :query (cond-> (-> (select :*)
-                                            (from :users)
-                                            (left-join :posts [:= :posts.user_id :users.id]))
-                                  id (where [:= :users.id (UUID/fromString id)])))))
+  (assoc state :query (cond-> (-> (select :*)
+                                  (from :users)
+                                  (left-join :posts [:= :posts.user_id :users.id]))
+                        id (where [:= :users.id (UUID/fromString id)]))))

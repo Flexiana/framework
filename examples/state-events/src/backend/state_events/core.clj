@@ -12,7 +12,6 @@
     [xiana.commons :refer [rename-key]]
     [xiana.config :as config]
     [xiana.cookies :as cookies]
-    [xiana.core :as xiana]
     [xiana.db :as db]
     [xiana.interceptor :as interceptors]
     [xiana.rbac :as rbac]
@@ -24,13 +23,11 @@
 
 (defn resource-handler [state]
   (let [f (ring/create-resource-handler {:path "/"})]
-    (prn (get-in state [:request :uri]))
-    (xiana/ok (assoc state :response (f (:request state))))))
+    (assoc state :response (f (:request state)))))
 
 (def event-interceptors
   [(interceptors/muuntaja)
    interceptors/params
-   (interceptors/keyceptor :response)
    cookies/interceptor
    session-id->cookie
    session/guest-session-interceptor

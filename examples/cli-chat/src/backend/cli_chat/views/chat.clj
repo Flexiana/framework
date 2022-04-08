@@ -1,7 +1,6 @@
 (ns cli-chat.views.chat
   (:require
     [clojure.string :as str]
-    [xiana.core :as xiana]
     [xiana.websockets :as ws]))
 
 (defn send-multi-line
@@ -26,14 +25,13 @@
      income-msg :income-msg} :request-data
     :as                      state}]
   (let [username (get-in @channels [ch :users/name])]
-    (xiana/ok (update state :response-data merge {:reply-fn broadcast-to-others
-                                                  :reply    (str username ": " income-msg)}))))
+    (update state :response-data merge {:reply-fn broadcast-to-others
+                                        :reply    (str username ": " income-msg)})))
 
 (defn fallback
   [{{income-msg :income-msg} :request-data
     :as                      state}]
   (if (str/starts-with? income-msg "/")
-    (xiana/ok
-      (update state :response-data merge {:reply-fn send-multi-line
-                                          :reply    (str "Invalid command: " income-msg)}))
+    (update state :response-data merge {:reply-fn send-multi-line}
+                                      :reply    (str "Invalid command: " income-msg))
     (broadcast state)))

@@ -20,8 +20,7 @@
    ["/" {:action       index/index
          :interceptors [x-interceptors/params
                         inject-session?]}]
-   ["/login" {:action login/login-controller
-              :interceptors {:except [x-session/interceptor]}}]
+   ["/login" {:action login/login-controller}]
    ["/logout" {:action       logout/logout-controller
                :interceptors {:around [logout]}}]
    ["/secret" {:action       secret/protected-controller
@@ -38,8 +37,11 @@
 
 (def app-cfg
   {:routes                  routes
-   :controller-interceptors [x-interceptors/params
-                             x-session/interceptor]})
+   :controller-interceptors [;; x-interceptors/params
+                             xiana.interceptor.muuntaja/interceptor
+                             framework.interceptor.error/handle-ex-info]})
+                             ;; (x-session/protected-interceptor "" "/login")
+
 
 (defn -main
   [& _args]

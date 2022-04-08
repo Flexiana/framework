@@ -31,17 +31,7 @@
                        #(interceptor.queue/execute % (if websocket?
                                                        (:web-socket-interceptors deps)
                                                        (:controller-interceptors deps))))
-           error-interceptors (->>
-                                (:error-interceptors deps [])
-                                (map #(interceptor.queue/interceptor->fn :leave %))
-                                (remove nil?))
-           flow (xiana/apply-flow-> state queue)
-           result (if (and (xiana/error? flow) (seq error-interceptors))
-                    (-> flow
-                        xiana/extract
-                        (xiana/apply-flow-> error-interceptors)
-                        xiana/extract)
-                    (xiana/extract flow))
+           result (reduce (fn [s f] (f s)) state queue)
            channel (get-in result [:response-data :channel])]
        (if (and websocket? channel)
          (jetty/ws-upgrade-response channel)

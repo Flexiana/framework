@@ -29,8 +29,8 @@
                   session-data
                   (assoc-in session-data [:users/name] username))]
     (swap! channels assoc ch session)
-    (xiana/ok (update state :response-data merge {:reply-fn views/send-multi-line
-                                                  :reply    (welcome-message username)}))))
+    (update state :response-data merge {:reply-fn views/send-multi-line
+                                        :reply    (welcome-message username)})))
 
 (def help-messages
   {"/login"   "Usage:\n /login username password"
@@ -40,8 +40,8 @@
 
 (defn help
   [state]
-  (xiana/ok (update state :response-data merge {:reply-fn views/send-multi-line
-                                                :reply    (str/join "\n" help-messages)})))
+  (update state :response-data merge {:reply-fn views/send-multi-line
+                                      :reply    (str/join "\n" help-messages)}))
 
 (defn update-user!
   [{{ch       :ch
@@ -52,8 +52,8 @@
                           (dissoc :users/passwd))]
     (log/info "update user: " loggable-user)
     (swap! channels update ch assoc :user loggable-user)
-    (xiana/ok (update state :response-data merge {:reply-fn views/send-multi-line
-                                                  :reply    (str loggable-user)}))))
+    (update state :response-data merge {:reply-fn views/send-multi-line
+                                        :reply    (str loggable-user)})))
 
 (defn valid-password?
   [{{income-msg :income-msg} :request-data
@@ -75,11 +75,10 @@
     (if (and user-name password (valid-password? state))
       (do
         (update-user! state)
-        (xiana/ok
-          (update state :response-data merge {:reply-fn views/send-multi-line
-                                              :reply    "Successful login"})))
-      (xiana/ok (update state :response-data merge {:reply-fn views/send-multi-line
-                                                    :reply    "Invalid username or password"})))))
+        (update state :response-data merge {:reply-fn views/send-multi-line
+                                            :reply    "Successful login"}))
+      (update state :response-data merge {:reply-fn views/send-multi-line}
+                                      :reply    "Invalid username or password"))))
 
 (defn login
   [{{income-msg :income-msg} :request-data
@@ -87,12 +86,12 @@
   (let [msg (str/split income-msg #"\s")
         [_ user-name password] msg]
     (if (and user-name password)
-      (xiana/ok (assoc
-                  state
-                  :side-effect password-side
-                  :query (user/get-user user-name)))
-      (xiana/ok (update state :response-data merge {:reply-fn views/send-multi-line
-                                                    :reply    (help-messages "/login")})))))
+      (assoc
+        state
+        :side-effect password-side
+        :query (user/get-user user-name))
+      (update state :response-data merge {:reply-fn views/send-multi-line
+                                          :reply    (help-messages "/login")}))))
 
 (defn sign-up
   [{{income-msg :income-msg} :request-data
@@ -100,17 +99,17 @@
   (let [[_ user-name passwd] (str/split income-msg #"\s")
         exists (not-empty (sql/execute (-> state :deps :db :datasource) (user/get-user user-name)))]
     (cond (and user-name passwd (not exists))
-          (xiana/ok (assoc
-                      state
-                      :query {:insert-into :users
-                              :values      [{:name user-name :passwd (auth/make state passwd) :role "member"}]}
-                      :side-effect update-user!))
+          (assoc
+            state
+            :query {:insert-into :users
+                    :values      [{:name user-name :passwd (auth/make state passwd) :role "member"}]}
+            :side-effect update-user!)
           exists
-          (xiana/ok (update state :response-data merge {:reply-fn views/send-multi-line
-                                                        :reply    "Username already registered"}))
+          (update state :response-data merge {:reply-fn views/send-multi-line
+                                              :reply    "Username already registered"})
           :else
-          (xiana/ok (update state :response-data merge {:reply-fn views/send-multi-line
-                                                        :reply    (help-messages "/sign-up")})))))
+          (update state :response-data merge {:reply-fn views/send-multi-line
+                                              :reply    (help-messages "/sign-up")}))))
 
 (defn me
   [{{ch         :ch
@@ -121,10 +120,10 @@
         username (get-in @channels [ch :users/name])
         msg (str/split income-msg #"\s")]
     (if (second msg)
-      (xiana/ok (update state :response-data merge {:reply-fn views/broadcast-to-others
-                                                    :reply    (str/replace-first income-msg #"\/me" username)}))
-      (xiana/ok (update state :response-data merge {:reply-fn views/send-multi-line
-                                                    :reply    (str user)})))))
+      (update state :response-data merge {:reply-fn views/broadcast-to-others
+                                          :reply    (str/replace-first income-msg #"\/me" username)})
+      (update state :response-data merge {:reply-fn views/send-multi-line
+                                          :reply    (str user)}))))
 
 (defn user->ch
   [channels name]
@@ -146,13 +145,13 @@
                          (str/replace-first to "")
                          (str/replace-first #"\/to" (format ">>%s>>" from)))
                      (catch Exception _ nil))]
-    (xiana/ok (cond (and user-ch message)
-                    (update state :response-data merge {:ch       user-ch
-                                                        :reply-fn views/send-multi-line
-                                                        :reply    message})
-                    message
-                    (update state :response-data merge {:reply-fn views/send-multi-line
-                                                        :reply    (format "User %s not logged in" to)})
-                    :else
-                    (update state :response-data merge {:reply-fn views/send-multi-line
-                                                        :reply    (help-messages "/to")})))))
+    (cond (and user-ch message)
+          (update state :response-data merge {:ch       user-ch
+                                              :reply-fn views/send-multi-line
+                                              :reply    message})
+          message
+          (update state :response-data merge {:reply-fn views/send-multi-line
+                                              :reply    (format "User %s not logged in" to)})
+          :else
+          (update state :response-data merge {:reply-fn views/send-multi-line}
+                                    :reply    (help-messages "/to")))))

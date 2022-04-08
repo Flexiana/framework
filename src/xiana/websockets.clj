@@ -6,7 +6,6 @@
     [reitit.core :as r]
     [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log]
-    [xiana.core :as xiana]
     [xiana.interceptor.queue :as queue]))
 
 (def send! jetty/send!)
@@ -59,8 +58,6 @@
                             (update :request-data assoc
                                     :action action
                                     :interceptors interceptors)
-                            (xiana/flow->
-                              (queue/execute default-interceptors))
-                            (xiana/extract))]
+                            (queue/execute default-interceptors))]
        (when-let [reply-fn (get-in update-state [:response-data :reply-fn])]
          (reply-fn update-state))))))

@@ -1,35 +1,6 @@
 (ns xiana.interceptor.queue
   "Interceptor executor.
-  Collects and executes interceptors and the given action in between."
-  (:require
-    [xiana.core :as xiana]))
-
-(defn interceptor->fn
-  "Parse the interceptor function 'side' (:enter/:leave) to
-  a lambda function that uses the try-catch approach to
-  handle the interceptor exception if occurs."
-  [side interceptor]
-  (when-let [f (side interceptor)]
-    (fn [state]
-      (try
-        (f state)
-        (catch Exception e
-          (let [f (or (:error interceptor) xiana/error)]
-            (f (assoc state
-                      :response (or (ex-data e) {:status 500 :body (Throwable->map e)})
-                      :exception e))))))))
-
-(defn- -execute
-  "Execute interceptors functions (the enter/leave procedures)
-  passing the state as its arguments."
-  [state interceptors action]
-  (let [enter-fns (mapv #(interceptor->fn :enter %) interceptors)
-        leave-fns (mapv #(interceptor->fn :leave %) interceptors)
-        queue-fns (remove nil? (apply concat [enter-fns action (reverse leave-fns)]))]
-    ;; apply flow: execute the queue of interceptors functions
-    (if (empty? queue-fns)
-      (xiana/ok state)
-      (xiana/apply-flow-> state queue-fns))))
+  Collects and executes interceptors and the given action in between.")
 
 (defn- -concat
   "Concatenate routes interceptors with the defaults ones,
@@ -53,11 +24,47 @@
   (fn [state]
     (try (action state)
          (catch Exception e
-           (xiana/error
-             (assoc state
-                    :response
-                    (or (ex-data e)
-                        {:status 500 :body (Throwable->map e)})))))))
+           (assoc state :exception e)))))
+
+(defn looper
+  [state interceptors action]
+  (loop [state        state
+         interceptors interceptors
+         backwards    '()
+         action       action
+         direction    :enter]
+    (let [error?    (= :error direction)
+          enter?    (= :enter direction)
+          exception (:exception state)]
+      (cond
+        (and exception (not error?))
+        (recur state
+               (if enter? backwards interceptors)
+               '()
+               action
+               :error)
+
+        (seq interceptors)
+        (let [direction (if (and error? (not exception))
+                          :leave ; error was "handled"
+                          direction)
+              act       (-> interceptors
+                            first
+                            (get direction identity)
+                            action->try)]
+          (recur (act state)
+                 (rest interceptors)
+                 (when enter? (conj backwards (first interceptors)))
+                 action
+                 direction))
+
+        enter?
+        (recur ((action->try action) state)
+               backwards
+               '()
+               identity
+               :leave)
+        :else state))))
 
 (defn execute
   "Execute the interceptors queue and invoke the
@@ -66,7 +73,8 @@
   (let [interceptors (-concat
                        (get-in state [:request-data :interceptors])
                        default-interceptors)
-        action [(action->try (get-in state [:request-data :action] xiana/ok))]]
+        action       (action->try (get-in state [:request-data :action] identity))]
     ;; execute the interceptors queue calling the action
     ;; between its enter/leave stacks
-    (-execute state interceptors action)))
+    (looper state interceptors action)))
+

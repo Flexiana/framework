@@ -16,25 +16,24 @@
       UUID)))
 
 (defn echo [{req :request :as state}]
-  (xiana/ok
-    (assoc-in state [:response-data :channel]
-              {:on-text    (fn [ch msg]
-                             (log/info "Message: " msg)
-                             (ws/send! ch msg))
-               :on-bytes   (fn [ch msg _offset _len]
-                             (log/info "Message: " msg)
-                             (ws/send! ch msg))
+  (assoc-in state [:response-data :channel]
+            {:on-text    (fn [ch msg]
+                           (log/info "Message: " msg
+                             (ws/send! ch msg)))
+             :on-bytes   (fn [ch msg _offset _len]
+                           (log/info "Message: " msg
+                             (ws/send! ch msg)))
                :on-error   (fn [ch _e] (ws/close! ch))
-               :on-close   (fn [_ch _status _reason]
-                             (log/info "\nCLOSE=============="))
-               :on-connect (fn [ch]
-                             (log/info "INIT: " ch)
-                             (log/info "Session-Id: " (get-in req [:headers :session-id])))})))
+             :on-close   (fn [_ch _status _reason]
+                           (log/info "\nCLOSE=============="))
+             :on-connect (fn [ch]
+                           (log/info "INIT: " ch)
+                           (log/info "Session-Id: " (get-in req [:headers :session-id])))}))
 
 (defn hello
   [state]
-  (xiana/ok (assoc state :response {:status 200
-                                    :body   "Hello from REST!"})))
+  (assoc state :response {:status 200
+                          :body   "Hello from REST!"}))
 
 (def routes
   [["/ws" {:ws-action echo

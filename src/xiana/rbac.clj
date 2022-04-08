@@ -2,8 +2,7 @@
   "Integrates tiny-RBAC library to the xiana flow"
   (:require
     [tiny-rbac.builder :as b]
-    [tiny-rbac.core :as c]
-    [xiana.core :as xiana]))
+    [tiny-rbac.core :as c]))
 
 (defn init
   "Initialize and validates a role-set"
@@ -28,16 +27,15 @@
   "On enter it validates if the resource is restricted,
   and available at the current state (actual user with a role)
   If it's not restricted do nothing,
-  if the given user has no rights, responses {:status 403 :body \"Forbidden\"}.
+  if the given user has no rights, it throws ex-info with data {:status 403 :body \"Forbidden\"}.
   On leave executes restriction function if any."
   {:enter (fn [state]
             (let [operation-restricted (get-in state [:request-data :permission])
-                  permits (and operation-restricted (permissions state))]
+                  permits              (and operation-restricted (permissions state))]
               (cond
-                (and operation-restricted (empty? permits)) (xiana/error {:response {:status 403 :body "Forbidden"}})
-                operation-restricted (xiana/ok (assoc-in state [:request-data :user-permissions] permits))
-                :else (xiana/ok state))))
+                (and operation-restricted (empty? permits)) (throw (ex-info "Forbidden" {:status 403 :body "Forbidden"}))
+                operation-restricted                        (assoc-in state [:request-data :user-permissions] permits)
+                :else                                       state)))
    :leave (fn [state]
-            (if-let [restriction-fn (get-in state [:request-data :restriction-fn])]
-              (restriction-fn state)
-              (xiana/ok state)))})
+            (let [restriction-fn (get-in state [:request-data :restriction-fn] identity)]
+              (restriction-fn state)))})

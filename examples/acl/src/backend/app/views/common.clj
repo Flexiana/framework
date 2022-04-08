@@ -1,6 +1,4 @@
-(ns views.common
-  (:require
-    [xiana.core :as xiana]))
+(ns views.common)
 
 (defn response
   [state body]
@@ -12,4 +10,4 @@
 
 (defn not-allowed
   [state]
-  (xiana/error (assoc state :response {:status 401 :body "You don't have rights to do this"})))
+  (assoc state :response {:status 401 :body "You don't have rights to do this"}))

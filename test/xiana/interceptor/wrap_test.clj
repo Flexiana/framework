@@ -46,7 +46,7 @@
                         "Session-id"   "62e665fe-d240-4f6a-af84-d3d734fa302a"},
               :body    {:view-type "All posts",
                         :data
-                        {:acl     {:posts :own}
+                        {:acl {:posts :own}
                          :db-data
                          {:posts [{:posts/id            #uuid "aeaf426b-bc79-4f19-9caf-33225f6a2679",
                                    :posts/user_id       #uuid "611d7f8a-456d-4f3c-802d-4d869dcd89bf",
@@ -67,17 +67,14 @@
         enter ((:enter interceptor) state)
         leave ((:leave interceptor) state)
         error ((:error interceptor) state)]
-    (is (and
-          (= state (:right enter))
-          (= state (:right leave))
-          (= state (:left  error))))))
+    (is (= state enter leave error))))
 
 (deftest contains-midleware-enter
   (let [enter (-> (wrap/middleware->enter middleware/wrap-format-request)
                   (:enter))
         result (enter sample-state)]
     ;; verify middleware identity
-    (is (= (:right result) sample-state))))
+    (is (= result sample-state))))
 
 (deftest contains-midleware-leave
   (let [leave (->
@@ -88,7 +85,6 @@
 (deftest contains-middleware-formated-response-body
   (is (= ByteArrayInputStream
          (-> ((:leave middleware-interceptor) sample-state)
-             :right
              :response
              :body
              type))))

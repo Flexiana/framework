@@ -3,21 +3,20 @@
     [clojure.data.json :as json]
     [clojure.test :refer :all]
     [reitit.core :as r]
-    [xiana.core :as xiana]
     [xiana.interceptor :as interceptors]
     [xiana.websockets :refer [router string->]]))
 
 (defn string-log [state]
-  (xiana/ok (assoc state :response-data {:reply-fn identity
-                                         :reply    "Log was called via string"})))
+  (assoc state :response-data {:reply-fn identity
+                               :reply    "Log was called via string"}))
 
 (defn json-log [state]
-  (xiana/ok (assoc state :response-data {:reply-fn identity
-                                         :reply    "Log was called via json"})))
+  (assoc state :response-data {:reply-fn identity
+                               :reply    "Log was called via json"}))
 
 (defn log-edn [state]
-  (xiana/ok (assoc state :response-data {:reply-fn identity
-                                         :reply    "Log was called via edn"})))
+  (assoc state :response-data {:reply-fn identity
+                               :reply    "Log was called via edn"}))
 
 (def routes
   (r/router [["/log-string" {:action string-log}]

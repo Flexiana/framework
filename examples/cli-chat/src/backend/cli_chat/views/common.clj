@@ -11,5 +11,6 @@
     (assoc-in [:response :body] body)))
 
 (defn not-allowed
-  [state]
-  (xiana/error (assoc state :response {:status 401 :body "You don't have rights to do this"})))
+  [_]
+  (throw (ex-info "You don't have rights to do this"
+                  {:status 401 :body "You don't have rights to do this"})))
