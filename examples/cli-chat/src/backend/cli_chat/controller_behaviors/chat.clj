@@ -60,10 +60,13 @@
     :as                      state}]
   (let [msg (str/split income-msg #"\s")
         [_ _ password] msg
-        encrypted (-> db-data
-                      first
-                      :users/passwd)]
-    (try (auth/check state password encrypted)
+        encrypted (some-> db-data
+                          first
+                          :users/passwd)]
+    (try (and
+           password
+           encrypted
+           (auth/check state password encrypted))
          (catch Exception _ false))))
 
 (defn password-side
@@ -74,10 +77,16 @@
     (if (and user-name password (valid-password? state))
       (do
         (update-user! state)
-        (update state :response-data merge {:reply-fn views/send-multi-line
-                                            :reply    "Successful login"}))
-      (update state :response-data merge {:reply-fn views/send-multi-line}
-              :reply    "Invalid username or password"))))
+        (update state
+                :response-data
+                merge
+                {:reply-fn views/send-multi-line
+                 :reply    "Successful login"}))
+      (update state
+              :response-data
+              merge
+              {:reply-fn views/send-multi-line
+               :reply    "Invalid username or password"}))))
 
 (defn login
   [{{income-msg :income-msg} :request-data
@@ -153,4 +162,4 @@
                                               :reply    (format "User %s not logged in" to)})
           :else
           (update state :response-data merge {:reply-fn views/send-multi-line}
-                  :reply    (help-messages "/to")))))
+                  :reply (help-messages "/to")))))
