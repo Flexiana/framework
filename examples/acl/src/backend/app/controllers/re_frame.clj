@@ -1,7 +1,6 @@
 (ns controllers.re-frame
   (:require
-    [ring.util.response :as ring]
-    [xiana.core :as xiana]))
+    [ring.util.response :as ring]))
 
 (defn handle-index
   [state]

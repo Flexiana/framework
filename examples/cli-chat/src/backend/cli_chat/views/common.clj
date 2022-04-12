@@ -1,6 +1,4 @@
-(ns cli-chat.views.common
-  (:require
-    [xiana.core :as xiana]))
+(ns cli-chat.views.common)
 
 (defn response
   [state body]

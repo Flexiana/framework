@@ -2,7 +2,6 @@
   "Provides the default handler function"
   (:require
     [ring.adapter.jetty9 :as jetty]
-    [xiana.core :as xiana]
     [xiana.interceptor.queue :as interceptor.queue]
     [xiana.route :as route]
     [xiana.state :as state]))

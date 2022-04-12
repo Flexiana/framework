@@ -2,9 +2,9 @@
   "Xiana's session management"
   (:require
     [clojure.string :as string]
-    [xiana.db :as db]
     [honeysql.format :as sqlf]
-    [next.jdbc.result-set :refer [as-kebab-maps]])
+    [next.jdbc.result-set :refer [as-kebab-maps]]
+    [xiana.db :as db])
   (:import
     (java.util
       UUID)))
@@ -42,7 +42,7 @@
                          (get-in cfg [:db :datasource]) cfg
                          :else (db/connect {:xiana/postgresql
                                             (assoc (merge (:xiana/postgresql cfg) backend-config)
-                                              :xiana/jdbc-opts {:builder-fn as-kebab-maps})}))]
+                                                   :xiana/jdbc-opts {:builder-fn as-kebab-maps})}))]
     (get-in connection [:db :datasource])))
 
 (defn- init-in-db
@@ -65,44 +65,44 @@
                                 :where       [:= :session_id k]})
         unpack (partial un-objectify table)]
     (assoc cfg
-      :session-backend
-      ;; implement the Session protocol
-      (reify Session
-        ;; fetch session key:element
-        (fetch [_ k] (->session-data table (db/execute ds (get-one k))))
-        ;; fetch all elements (no side effect)
-        (dump [_] (into {} (map unpack (db/execute ds get-all))))
-        ;; add session key:element
-        (add!
-          [_ k v]
-          (let [k (or k (UUID/randomUUID))]
-            (when v (first (map unpack (db/execute ds (insert-session k v)))))))
-        ;; delete session key:element
-        (delete! [_ k] (first (map unpack (db/execute ds (delete-session k)))))
-        ;; erase session
-        (erase! [_] (db/execute ds erase-session-store))))))
+           :session-backend
+           ;; implement the Session protocol
+           (reify Session
+             ;; fetch session key:element
+             (fetch [_ k] (->session-data table (db/execute ds (get-one k))))
+             ;; fetch all elements (no side effect)
+             (dump [_] (into {} (map unpack (db/execute ds get-all))))
+             ;; add session key:element
+             (add!
+               [_ k v]
+               (let [k (or k (UUID/randomUUID))]
+                 (when v (first (map unpack (db/execute ds (insert-session k v)))))))
+             ;; delete session key:element
+             (delete! [_ k] (first (map unpack (db/execute ds (delete-session k)))))
+             ;; erase session
+             (erase! [_] (db/execute ds erase-session-store))))))
 
 (defn- init-in-memory
   "Initialize session in memory."
   ([cfg] (init-in-memory cfg (atom {})))
   ([cfg m]
    (assoc cfg
-     :session-backend
-     ;; implement the Session protocol
-     (reify Session
-       ;; fetch session key:element
-       (fetch [_ k] (get @m k))
-       ;; fetch all elements (no side effect)
-       (dump [_] @m)
-       ;; add session key:element
-       (add!
-         [_ k v]
-         (let [k (or k (UUID/randomUUID))]
-           (swap! m assoc k v)))
-       ;; delete session key:element
-       (delete! [_ k] (swap! m dissoc k))
-       ;; erase session
-       (erase! [_] (reset! m {}))))))
+          :session-backend
+          ;; implement the Session protocol
+          (reify Session
+            ;; fetch session key:element
+            (fetch [_ k] (get @m k))
+            ;; fetch all elements (no side effect)
+            (dump [_] @m)
+            ;; add session key:element
+            (add!
+              [_ k v]
+              (let [k (or k (UUID/randomUUID))]
+                (swap! m assoc k v)))
+            ;; delete session key:element
+            (delete! [_ k] (swap! m dissoc k))
+            ;; erase session
+            (erase! [_] (reset! m {}))))))
 
 (defn ->session-id
   [{{headers      :headers

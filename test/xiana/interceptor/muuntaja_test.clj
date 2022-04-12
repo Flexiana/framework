@@ -1,9 +1,7 @@
 (ns xiana.interceptor.muuntaja-test
   (:require
-    [clojure.data.xml :as xml]
     [clojure.test :refer :all]
     [muuntaja.format.core :as format]
-    [xiana.core :as xiana]
     [xiana.interceptor.muuntaja :as muuntaja]))
 
 (def data-sample [["note" "anything" "note"]])

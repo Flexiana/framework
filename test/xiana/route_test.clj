@@ -1,7 +1,6 @@
 (ns xiana.route-test
   (:require
     [clojure.test :refer :all]
-    [xiana.core :as xiana]
     [xiana.route :as route]
     [xiana.route.helpers :as helpers]
     [xiana.state :as state]))

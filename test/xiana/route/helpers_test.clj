@@ -1,7 +1,6 @@
 (ns xiana.route.helpers-test
   (:require
     [clojure.test :refer :all]
-    [xiana.core :as xiana]
     [xiana.route.helpers :as helpers]))
 
 (defn test-handler

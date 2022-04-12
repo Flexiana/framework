@@ -2,15 +2,15 @@
   "Request and response validation by given malli rules.
    The rule can be defined at route definition,
    the schema can be defined with registry function.
-   
+
    Path definition example:
-   
+
    [\"/api/siege-machines/{mydomain/id}\" {:hander     ws/handler-fn
                                            :action     mydomain.siege-machines/get-by-id
                                            :parameters {:path [:map [:mydomain/id int?]]}
                                            :responses  {200 {:body :mydomain/SiegeMachine}}}]
-                                           
-   Registry example: 
+
+   Registry example:
     (registry {:mydomain/SiegeMachine [:map
                                          [:id int?]
                                          [:name keyword?]
@@ -22,15 +22,9 @@
                                       [:attack {:optional true} int?]]})"
   (:require
     [malli.core :as m]
-    [malli.error :as me]
     [malli.registry :as mr]
     [malli.util :as mu]
-    [reitit.coercion :as coercion]
-    [taoensso.timbre :as log]
-    [xiana.core :as xiana])
-  (:import
-    (clojure.lang
-      ExceptionInfo)))
+    [reitit.coercion :as coercion]))
 
 (defn registry
   "Registers a given schema in malli"
@@ -49,28 +43,14 @@
   {:enter (fn [state]
             (try (let [cc (-> (get-in state [:request-data :match])
                               coercion/coerce!)]
-                   (xiana/ok (update-in state [:request :params] merge cc)))
-                 (catch ExceptionInfo ex
-                   (xiana/error
-                     (assoc state :response {:status 400
-                                             :body   {:errors
-                                                      (mapv (fn [e]
-                                                              (format "%s should satisfy %s"
-                                                                      (:in e)
-                                                                      (m/form (:schema e))))
-                                                            (:errors (ex-data ex)))}})))))
-   :leave (fn [{{:keys [:status :body]}  :response
-                {method :request-method} :request
-                :as                      state}]
-            (let [schema (or (get-in state [:request-data :match :data method :responses status :body])
-                             (get-in state [:request-data :match :data :responses status :body]))
-                  valid? (some-> schema (m/validate body))]
-              (if (false? valid?)
-                (let [explain (m/explain schema body)
-                      humanized (me/humanize explain)]
-                  (log/error "Response validation failed with " humanized ", response: " body)
-                  (xiana/error
-                    (assoc state :response
-                           {:status 500
-                            :body   "Response coercion failed"})))
-                (xiana/ok state))))})
+                   (update-in state [:request :params] merge cc))
+                 (catch Exception _
+                   (throw (ex-info "Request coercion failed" {:status 400 :body   "Request coercion failed"})))))
+   :leave (fn [{{:keys [:status :body]} :response
+                :as                     state}]
+            (let [schema (get-in state [:request-data :match :data :responses status :body])]
+              (cond (and schema body (m/validate schema body)) state
+                    (and schema body) (throw (ex-info "Response validation failed"
+                                                      {:status 400
+                                                       :body   "Response validation failed"}))
+                    :else state)))})

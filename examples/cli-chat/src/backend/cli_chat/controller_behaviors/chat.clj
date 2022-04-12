@@ -4,7 +4,6 @@
     [cli-chat.views.chat :as views]
     [clojure.string :as str]
     [taoensso.timbre :as log]
-    [xiana.core :as xiana]
     [xiana.db :as sql]
     [xiana.hash :as auth]))
 

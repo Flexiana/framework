@@ -8,8 +8,7 @@
                               left-join
                               sset
                               delete-from]
-     :as helpers]
-    [xiana.core :as xiana])
+     :as helpers])
   (:import
     (java.util
       UUID)))

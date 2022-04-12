@@ -6,7 +6,6 @@
     [http.async.client :as a-client]
     [taoensso.timbre :as log]
     [xiana-fixture :as fixture]
-    [xiana.core :as xiana]
     [xiana.handler :refer [handler-fn]]
     [xiana.interceptor :as interceptors]
     [xiana.rbac :as rbac]

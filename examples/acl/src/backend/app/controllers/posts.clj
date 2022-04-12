@@ -2,8 +2,7 @@
   (:require
     [models.data-ownership :as owner]
     [models.posts :as model]
-    [views.posts :as views]
-    [xiana.core :as xiana]))
+    [views.posts :as views]))
 
 (defn fetch
   [state]
