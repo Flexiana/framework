@@ -69,4 +69,6 @@
 
 (defn sse-action
   [state]
-  (assoc state :response (jetty/ws-upgrade-response (server-event-channel state))))
+  (assoc-in state
+            [:response-data :channel]
+            (server-event-channel state)))

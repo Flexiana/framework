@@ -18,9 +18,9 @@
   (let [user-permissions (get-in state [:request-data :user-permissions])]
     (cond
       (user-permissions :image/all) state
-      (user-permissions :image/own) (let [session-id (get-in state [:request :headers "session-id"])]
-                                        session-backend (-> state :deps :session-backend)
-                                          user-id (:users/id (session/fetch session-backend session-id))
+      (user-permissions :image/own) (let [session-id (get-in state [:request :headers "session-id"])
+                                          session-backend (-> state :deps :session-backend)
+                                          user-id (:users/id (session/fetch session-backend session-id))]
                                       (update state :query sql/merge-where [:= :owner.id user-id])))))
 
 (defn delete-action [state]
@@ -51,7 +51,7 @@
   {:routes                  routes
    :session-backend         backend
    :xiana/role-set          role-set
-   :controller-interceptors [framework.interceptor.error/handle-ex-info
+   :controller-interceptors [interceptors/handle-ex-info
                              interceptors/params
                              session/interceptor
                              rbac/interceptor]})
@@ -68,16 +68,16 @@
 
 (deftest delete-request-by-member
   (let [session-id (UUID/randomUUID)
-        _          (session/add! backend session-id (assoc member :session-id session-id))
-        response   (http/delete "http://localhost:3333/api/image"
-                                {:throw-exceptions false}
-                            :headers          {"Session-id" (str session-id)})]
+        _ (session/add! backend session-id (assoc member :session-id session-id))
+        response (http/delete "http://localhost:3333/api/image"
+                              {:throw-exceptions false
+                               :headers {"Session-id" (str session-id)}})]
     (is (= 200 (:status response)))))
 
 (deftest delete-request-by-guest
   (let [session-id (UUID/randomUUID)
         _          (session/add! backend session-id (assoc guest :session-id session-id))
         response   (http/delete "http://localhost:3333/api/image"
-                                {:throw-exceptions false}
-                            :headers          {"Session-id" (str session-id)})]
+                                {:throw-exceptions false
+                                 :headers          {"Session-id" (str session-id)}})]
     (is (= 403 (:status response)))))

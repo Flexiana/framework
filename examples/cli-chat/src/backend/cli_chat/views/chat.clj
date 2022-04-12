@@ -33,5 +33,5 @@
     :as                      state}]
   (if (str/starts-with? income-msg "/")
     (update state :response-data merge {:reply-fn send-multi-line}
-                                      :reply    (str "Invalid command: " income-msg))
+            :reply    (str "Invalid command: " income-msg))
     (broadcast state)))

@@ -2,9 +2,7 @@
   "Xiana's session management"
   (:require
     [honeysql.format :as sqlf]
-    [jsonista.core :as json]
     [next.jdbc.result-set :refer [as-kebab-maps]]
-    [xiana.core :as xiana]
     [xiana.db :as db])
   (:import
     (java.util
@@ -42,7 +40,7 @@
         connection (cond (every? backend-config [:port :dbname :host :dbtype :user :password]) (db/connect ds-config)
                          (get-in cfg [:db :datasource]) cfg
                          :else (db/connect {:xiana/postgresql (merge (:xiana/postgresql cfg) backend-config)
-                                            :xiana/jdbc-opts {:builder-fn as-kebab-maps}}))]
+                                            :xiana/jdbc-opts  {:builder-fn as-kebab-maps}}))]
     (get-in connection [:db :datasource])))
 
 (defn- init-in-db
@@ -122,7 +120,7 @@
         session-id (->session-id state)
         session-data (or (fetch session-backend session-id)
                          (throw (ex-message "Missing session data")))]
-    (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id)))))
+    (assoc state :session-data (assoc session-data :session-id session-id))))
 
 (defn store-session
   [{{session-id :session-id} :session-data :as state}]
@@ -132,18 +130,16 @@
             session-id
             (:session-data state))
       ;; associate the session id
-      (xiana/ok
-        (assoc-in state
-                  [:response :headers "Session-id"]
-                  (str session-id))))
-    (xiana/ok state)))
+      (assoc-in state
+                [:response :headers "Session-id"]
+                (str session-id)))
+    state))
 
 (defn throw-missing-session
-  [state]
-  (xiana/error
-    (assoc state :response {:status 401
-                            :body   (json/write-value-as-string
-                                      {:message "Invalid or missing session"})})))
+  [_]
+  (throw
+    (ex-info "Invalid or missing session" {:status 401
+                                           :body   {:message "Invalid or missing session"}})))
 
 (def interceptor
   "Returns with 401 when the referred session is missing"
@@ -160,7 +156,7 @@
                       :users/role :guest
                       :users/id   user-id}]
     (add! session-backend session-id session-data)
-    (xiana/ok (dissoc (assoc state :session-data session-data) :response))))
+    (dissoc (assoc state :session-data session-data) :response)))
 
 (def guest-session-interceptor
   "Inserts a new session when no session found"

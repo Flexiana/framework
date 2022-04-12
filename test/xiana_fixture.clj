@@ -12,8 +12,8 @@
 
 (defn ->system
   [app-cfg]
-  (-> (config/config)
-      (merge app-cfg)
+  (-> app-cfg
+      config/config
       (rename-key :xiana/auth :auth)
       db-core/docker-postgres!
       db-core/connect

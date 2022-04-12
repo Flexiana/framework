@@ -36,7 +36,7 @@
         (?assoc-in [:request-data :match] match)
         (?assoc-in [:request-data :permission] permission)
         (assoc-in [:request-data :action]
-                  (or (if (jetty/ws-upgrade-request? request)
+                  (or (if (and (jetty/ws-upgrade-request? request) ws-action)
                         ws-action
                         action)
                       (if handler

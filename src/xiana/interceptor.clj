@@ -11,6 +11,15 @@
     (java.util
       UUID)))
 
+(def handle-ex-info
+  {:name  ::handle-ex-info
+   :error (fn [state]
+            (if-let [resp (-> state :exception ex-data)]
+              (-> state
+                  (assoc :response resp)
+                  (dissoc :exception))
+              state))})
+
 (def log
   "Log interceptor.
   Enter: Print 'Enter:' followed by the complete state map.
@@ -88,7 +97,7 @@
          (assoc state :session-data session-data)
          ;; else, associate a new session
          (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
-           (assoc-in [:session-data :new-session] true)))))
+             (assoc-in [:session-data :new-session] true)))))
    :leave
    (fn [state]
      (let [session-backend (-> state :deps :session-backend)

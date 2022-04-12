@@ -27,19 +27,19 @@
   [{request :request :as state}]
   (try
     (let [rbody        (or (some-> request
-                                       body-string
-                                       (json/read-str :key-fn keyword))
+                                   body-string
+                                   (json/read-str :key-fn keyword))
                            (throw (ex-message "Missing body")))
-             user (find-user (-> rbody :email))
+          user (find-user (-> rbody :email))
           session-id   (UUID/randomUUID)
           session-data {:session-id session-id
                         :user       (dissoc user :password)}]
       (if (and user (= (:password user) (:password rbody)))
         (assoc state
                :session-data session-data
-                           :response {:status  200}
-                          :headers {"Content-Type" "application/json"}
-                          :body    (json/write-str (update session-data :session-id str)))
+               :response {:status  200}
+               :headers {"Content-Type" "application/json"}
+               :body    (json/write-str (update session-data :session-id str)))
         (assoc state :response {:status 401
                                 :body   "Incorrect credentials"})))
     (catch Exception _ (missing-credentials state))))

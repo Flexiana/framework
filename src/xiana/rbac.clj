@@ -31,11 +31,12 @@
   On leave executes restriction function if any."
   {:enter (fn [state]
             (let [operation-restricted (get-in state [:request-data :permission])
-                  permits              (and operation-restricted (permissions state))]
+                  permits (and operation-restricted (permissions state))]
               (cond
                 (and operation-restricted (empty? permits)) (throw (ex-info "Forbidden" {:status 403 :body "Forbidden"}))
-                operation-restricted                        (assoc-in state [:request-data :user-permissions] permits)
-                :else                                       state)))
+                operation-restricted (assoc-in state [:request-data :user-permissions] permits)
+                :else state)))
    :leave (fn [state]
-            (let [restriction-fn (get-in state [:request-data :restriction-fn] identity)]
-              (restriction-fn state)))})
+            (if-let [restriction-fn (get-in state [:request-data :restriction-fn])]
+              (restriction-fn state)
+              state))})

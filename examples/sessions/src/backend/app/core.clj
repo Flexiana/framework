@@ -40,7 +40,8 @@
    :controller-interceptors [;; x-interceptors/params
                              xiana.interceptor.muuntaja/interceptor
                              framework.interceptor.error/handle-ex-info]})
-                             ;; (x-session/protected-interceptor "" "/login")
+
+;; (x-session/protected-interceptor "" "/login")
 
 
 (defn -main

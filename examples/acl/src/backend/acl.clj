@@ -68,7 +68,7 @@
 (def app-cfg
   {:routes                  routes
    :controller-interceptors [(interceptors/muuntaja)
-                             framework.interceptor.error/handle-ex-info
+                             interceptors/handle-ex-info
                              interceptors/params
                              user/load-user!
                              interceptors/view
