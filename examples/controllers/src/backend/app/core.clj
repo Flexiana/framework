@@ -20,7 +20,7 @@
 (def app-cfg
   {:routes                  route/routes
    :controller-interceptors [(xiana-interceptors/muuntaja)
-                             framework.interceptor.error/handle-ex-info
+                             xiana-interceptors/handle-ex-info
                              xiana-interceptors/params
                              coercion/interceptor
                              interceptors/require-logged-in]
