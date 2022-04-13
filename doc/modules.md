@@ -26,7 +26,7 @@
 
 ### Core
 
-Xiana.core contains the State record, the monad helpers, and flow macros to deal with the monadic structure.
+Xiana.core contains the State record.
 
 ### Auth
 

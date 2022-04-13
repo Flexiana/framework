@@ -173,8 +173,7 @@ Which means:
     :leave Runs while we're going up from the action to the response.
     :error Executed when any error thrown while executing the two other functions
 
-The provided function should have one parameter, the application state, and should return the state wrapped into the
-xiana monad.
+The provided function should have one parameter, the application state, and should return the state.
 
 ### Interceptor example
 

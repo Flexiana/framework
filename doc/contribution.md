@@ -19,19 +19,18 @@
 
 #### Mandatory
 
-| Name                            | Version | Related    |
-|---------------------------------|---------|------------|
-| funcool/cats                    |   2.4.1 | Monad      |
-| funcool/cuerdas                 | RELEASE | Monad      |
-| metosin/reitit                  |  0.5.12 | Routes     |
-| potemkin/potemkin               |   0.4.5 | Helper     |
-| com.draines/postal              |   2.0.4 | Email      |
-| duct/server.http.jetty          |   0.2.1 | WebServer  |
-| seancorfield/next.jdbc          | 1.1.613 | WebServer  |
-| honeysql/honeysql               | 1.0.444 | PostGreSQL |
-| nilenso/honeysql-postgres       |   0.2.6 | PostGreSQL |
-| org.postgresql/postgresql       |  42.2.2 | PostGreSQL |
-| crypto-password/crypto-password |   0.2.1 | Security   |
+| Name                            | Version | Related             |
+|---------------------------------|---------|---------------------|
+| funcool/cuerdas                 | RELEASE | String manipulation |
+| metosin/reitit                  | 0.5.12  | Routes              |
+| potemkin/potemkin               | 0.4.5   | Helper              |
+| com.draines/postal              | 2.0.4   | Email               |
+| duct/server.http.jetty          | 0.2.1   | WebServer           |
+| seancorfield/next.jdbc          | 1.1.613 | WebServer           |
+| honeysql/honeysql               | 1.0.444 | PostGreSQL          |
+| nilenso/honeysql-postgres       | 0.2.6   | PostGreSQL          |
+| org.postgresql/postgresql       | 42.2.2  | PostGreSQL          |
+| crypto-password/crypto-password | 0.2.1   | Security            |
 
 #### Optional
 
