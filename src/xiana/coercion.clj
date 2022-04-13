@@ -47,26 +47,6 @@
             (try (let [cc (-> (get-in state [:request-data :match])
                               coercion/coerce!)]
                    (update-in state [:request :params] merge cc))
-                 (catch Exception _
-                   (throw (ex-info "Request coercion failed" {:status 400 :body "Request coercion failed"})))))
-   :leave (fn [{{:keys [:status :body]} :response
-                :as                     state}]
-            (let [schema (get-in state [:request-data :match :data :responses status :body])]
-              (cond (and schema body (m/validate schema body)) state
-                    (and schema body) (throw (ex-info "Response validation failed"
-                                                      {:status 400
-                                                       :body   "Response validation failed"}))
-                    :else state)))})
-
-(def interceptor
-  "On enter: validates request parameters
-  On leave: validates response body
-  on request error: responds {:status 400, :body \"Request coercion failed\"}
-  on response error: responds {:status 400, :body \"Response validation failed\"}"
-  {:enter (fn [state]
-            (try (let [cc (-> (get-in state [:request-data :match])
-                              coercion/coerce!)]
-                   (update-in state [:request :params] merge cc))
                  (catch ExceptionInfo ex
                    (throw (ex-info "Request coercion failed" {:status 400
                                                               :body   {:errors
