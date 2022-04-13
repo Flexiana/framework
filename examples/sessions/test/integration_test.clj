@@ -32,9 +32,6 @@
 
 (use-fixtures :once std-system-fixture)
 
-;; TODO: fix tests bellow with session interceptors refactoring
-;; https://github.com/Flexiana/framework/pull/200/files
-;; https://chat.flexiana.com/#narrow/stream/89-open-source/topic/Frankie/near/437236
 (deftest testing-without-login
   (is (= {:status 200, :body "Index page"}
          (-> {:url                  "http://localhost:3333/"

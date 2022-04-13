@@ -1,7 +1,6 @@
 (ns core-test
   (:require
     [clj-http.client :as http]
-    [clojure.pprint :refer [pprint]]
     [clojure.test :refer [deftest is use-fixtures]]
     [core :as comps]
     [jsonista.core :as json]))

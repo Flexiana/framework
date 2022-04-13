@@ -1,12 +1,10 @@
 (ns xiana.web-socket.integration-test
   (:require
     [clj-http.client :as client]
-    [clojure.pprint :refer [pprint]]
     [clojure.test :refer :all]
     [http.async.client :as a-client]
     [taoensso.timbre :as log]
     [xiana-fixture :as fixture]
-    [xiana.handler :refer [handler-fn]]
     [xiana.interceptor :as interceptors]
     [xiana.rbac :as rbac]
     [xiana.websockets :as ws])

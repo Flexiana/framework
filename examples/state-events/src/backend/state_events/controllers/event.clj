@@ -1,6 +1,5 @@
 (ns state-events.controllers.event
   (:require
-    [clojure.walk :refer [keywordize-keys]]
     [state-events.controller-behaviors.sse :as sse]
     [state-events.models.event :as model]
     [state-events.views.event :as view]
@@ -46,7 +45,6 @@
 
 (defn create-resource
   [state]
-  (def ss state)
   (let [action     (-> state :request-data :event :action str)
         last-event (last-event state)]
     (cond
@@ -56,7 +54,6 @@
 
 (defn modify
   [state]
-  (def ss state)
   (let [{:keys [:action :creator :payload]} (-> state :request-data :event)
         last-event                          (last-event state)
         last-action                         (:events/action last-event)

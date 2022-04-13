@@ -1,7 +1,4 @@
-(ns state-events.interceptors
-  (:require
-    [clojure.walk :refer [keywordize-keys]]
-    [ring.middleware.cookies :as cookies]))
+(ns state-events.interceptors)
 
 (def asset-router
   {:enter (fn [{{uri :uri} :request

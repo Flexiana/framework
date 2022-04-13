@@ -1,8 +1,7 @@
 (ns state-events.views
   (:require
     [clojure.string :as str]
-    [re-frame.core :as re-frame]
-    [state-events.subs :as subs]))
+    [re-frame.core :as re-frame]))
 
 (defonce st (reagent.core/atom {}))
 
