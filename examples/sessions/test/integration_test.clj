@@ -35,7 +35,7 @@
 ;; TODO: fix tests bellow with session interceptors refactoring
 ;; https://github.com/Flexiana/framework/pull/200/files
 ;; https://chat.flexiana.com/#narrow/stream/89-open-source/topic/Frankie/near/437236
-#_(deftest testing-without-login
+(deftest testing-without-login
   (is (= {:status 200, :body "Index page"}
          (-> {:url                  "http://localhost:3333/"
               :unexceptional-status (constantly true)
@@ -58,29 +58,29 @@
              (select-keys [:status :body])))
       "A missing page is hidden too"))
 
-#_(deftest login-fails-on-empty-body
-  (let [login-request  {:url                  "http://localhost:3333/login"
-                        :unexceptional-status (constantly true)
-                        :method               :post}
+(deftest login-fails-on-empty-body
+  (let [login-request {:url                  "http://localhost:3333/login"
+                       :unexceptional-status (constantly true)
+                       :method               :post}
         login-response (http/request login-request)]
     (is (= {:status 401
             :body   "Missing credentials"}
            (select-keys login-response [:status :body])))))
 
-#_(deftest testing-with-login
-  (let [login-request     {:url                  "http://localhost:3333/login"
-                           :unexceptional-status (constantly true)
-                           :body                 (json/write-value-as-string
-                                                   {:email    "piotr@example.com"
-                                                    :password "topsecret"})
-                           :method               :post}
-        login-response    (http/request login-request)
-        login             (-> login-response
-                              :body
-                              json/read-value)
-        body-session-id   (get login "session-id")
+(deftest testing-with-login
+  (let [login-request {:url                  "http://localhost:3333/login"
+                       :unexceptional-status (constantly true)
+                       :body                 (json/write-value-as-string
+                                               {:email    "piotr@example.com"
+                                                :password "topsecret"})
+                       :method               :post}
+        login-response (http/request login-request)
+        login (-> login-response
+                  :body
+                  json/read-value)
+        body-session-id (get login "session-id")
         header-session-id (get-in login-response [:headers "Session-id"])
-        user              (get login "user")]
+        user (get login "user")]
     (is (= {"first-name" "Piotr", "id" 1, "email" "piotr@example.com", "last-name" "Developer"}
            user)
         "User has been logged in")
@@ -117,17 +117,17 @@
         "A missing page is missing")))
 
 (deftest testing-with-logout
-  (let [login      (-> {:url                  "http://localhost:3333/login"
-                        :unexceptional-status (constantly true)
-                        :body                 (json/write-value-as-string
-                                                {:email    "piotr@example.com"
-                                                 :password "topsecret"})
-                        :method               :post}
-                       http/request
-                       :body
-                       json/read-value)
+  (let [login (-> {:url                  "http://localhost:3333/login"
+                   :unexceptional-status (constantly true)
+                   :body                 (json/write-value-as-string
+                                           {:email    "piotr@example.com"
+                                            :password "topsecret"})
+                   :method               :post}
+                  http/request
+                  :body
+                  json/read-value)
         session-id (get login "session-id")
-        user       (get login "user")]
+        user (get login "user")]
     (prn "debug test " session-id user)
     (is (= {"first-name" "Piotr", "id" 1, "email" "piotr@example.com", "last-name" "Developer"}
            user)
@@ -137,36 +137,36 @@
                     (catch Exception _ false)))
         "and has UUID session id")
 
-    ;; (is (= {:status 200 :body "Piotr logged out"}
-    ;;        (-> {:url                  "http://localhost:3333/logout"
-    ;;             :headers              {:session-id session-id}
-    ;;             :unexceptional-status (constantly true)
-    ;;             :method               :get}
-    ;;            http/request
-    ;;            (select-keys [:status :body])))
-    ;;     "User logged out")
-    ;; (is (= {:status 200, :body "Index page"}
-    ;;        (-> {:url                  "http://localhost:3333/"
-    ;;             :headers              {:session-id session-id}
-    ;;             :unexceptional-status (constantly true)
-    ;;             :method               :get}
-    ;;            http/request
-    ;;            (select-keys [:status :body])))
-    ;;     "Index page is always available")
-    ;; (is (= {:status 401, :body "{\"message\":\"Invalid or missing session\"}"}
-    ;;        (-> {:url                  "http://localhost:3333/secret"
-    ;;             :unexceptional-status (constantly true)
-    ;;             :headers              {:session-id session-id}
-    ;;             :method               :get}
-    ;;            http/request
-    ;;            (select-keys [:status :body])))
-    ;;     "The secret page gets hidden")
-    ;; (is (= {:status 401, :body "{\"message\":\"Invalid or missing session\"}"}
-    ;;        (-> {:url                  "http://localhost:3333/wrong"
-    ;;             :unexceptional-status (constantly true)
-    ;;             :headers              {:session-id session-id}
-    ;;             :method               :get}
-    ;;            http/request
-    ;;            (select-keys [:status :body])))
-    ;;     "Do not reveal if a page is missing")
-    ))
+    (is (= {:status 200 :body "Piotr logged out"}
+           (-> {:url                  "http://localhost:3333/logout"
+                :headers              {:session-id session-id}
+                :unexceptional-status (constantly true)
+                :method               :get}
+               http/request
+               (select-keys [:status :body])))
+        "User logged out")
+    (is (= {:status 200, :body "Index page"}
+           (-> {:url                  "http://localhost:3333/"
+                :headers              {:session-id session-id}
+                :unexceptional-status (constantly true)
+                :method               :get}
+               http/request
+               (select-keys [:status :body])))
+        "Index page is always available")
+    (is (= {:status 401, :body "{\"message\":\"Invalid or missing session\"}"}
+           (-> {:url                  "http://localhost:3333/secret"
+                :unexceptional-status (constantly true)
+                :headers              {:session-id session-id}
+                :method               :get}
+               http/request
+               (select-keys [:status :body])))
+        "The secret page gets hidden")
+    (is (= {:status 401, :body "{\"message\":\"Invalid or missing session\"}"}
+           (-> {:url                  "http://localhost:3333/wrong"
+                :unexceptional-status (constantly true)
+                :headers              {:session-id session-id}
+                :method               :get}
+               http/request
+               (select-keys [:status :body])))
+        "Do not reveal if a page is missing")))
+

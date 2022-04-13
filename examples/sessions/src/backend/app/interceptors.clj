@@ -13,18 +13,6 @@
        state
        (throw (ex-info "Unauthorized" {:status 401 :body "Unauthorized"}))))})
 
-(def logout
-  {:name ::logout
-   :leave (fn [state]
-            (let [sessions-backend (-> state
-                                       :deps
-                                       :session-backend)
-                  session-id       (-> state
-                                       :session-data
-                                       :session-id)]
-              (delete! sessions-backend session-id)
-              (dissoc state :session-data)))})
-
 (def inject-session?
   {:name ::inject-session?
    :enter (fn [{{headers      :headers

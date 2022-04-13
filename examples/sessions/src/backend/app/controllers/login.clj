@@ -1,7 +1,8 @@
 (ns app.controllers.login
   (:require
     [clojure.data.json :as json]
-    [ring.util.request :refer [body-string]])
+    [ring.util.request :refer [body-string]]
+    [xiana.session :as session])
   (:import
     (java.util
       UUID)))
@@ -33,19 +34,15 @@
           user (find-user (-> rbody :email))
           session-id   (UUID/randomUUID)
           session-data {:session-id session-id
-                        :user       (dissoc user :password)}]
-      (if (and user (= (:password user) (:password rbody)))
-        (assoc state
-               :session-data session-data
-               :response {:status  200}
-               :headers {"Content-Type" "application/json"}
-               :body    (json/write-str (update session-data :session-id str)))
-        (assoc state :response {:status 401
-                                :body   "Incorrect credentials"})))
+                        :user       (dissoc user :password)}
+          state (if (and user (= (:password user) (:password rbody)))
+                  (assoc state
+                         :session-data session-data
+                         :response {:status  200
+                                    :headers {"Content-Type" "application/json"}
+                                    :body    (json/write-str (update session-data :session-id str))})
+                  (assoc state :response {:status 401
+                                          :body   "Incorrect credentials"}))]
+      ((:leave session/interceptor) state))
     (catch Exception _ (missing-credentials state))))
-
-(defn login-controller
-  [state]
-  (x/flow-> state
-            login-view))
 

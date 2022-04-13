@@ -5,7 +5,6 @@
     [app.controllers.logout :as logout]
     [app.controllers.secret :as secret]
     [app.interceptors :refer [inject-session?
-                              logout
                               require-logged-in]]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [xiana.config :as config]
@@ -20,9 +19,9 @@
    ["/" {:action       index/index
          :interceptors [x-interceptors/params
                         inject-session?]}]
-   ["/login" {:action login/login-controller}]
-   ["/logout" {:action       logout/logout-controller
-               :interceptors {:around [logout]}}]
+   ["/login" {:action login/login-controller
+              :interceptors {:except [xiana.session/interceptor]}}]
+   ["/logout" {:action       logout/logout-controller}]
    ["/secret" {:action       secret/protected-controller
                :interceptors {:inside [require-logged-in]}}]])
 
@@ -37,12 +36,10 @@
 
 (def app-cfg
   {:routes                  routes
-   :controller-interceptors [;; x-interceptors/params
+   :controller-interceptors [x-interceptors/params
                              xiana.interceptor.muuntaja/interceptor
-                             framework.interceptor.error/handle-ex-info]})
-
-;; (x-session/protected-interceptor "" "/login")
-
+                             xiana.interceptor/handle-ex-info
+                             xiana.session/interceptor]})
 
 (defn -main
   [& _args]

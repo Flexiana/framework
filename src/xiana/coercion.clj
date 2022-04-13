@@ -22,12 +22,14 @@
                                       [:attack {:optional true} int?]]})"
   (:require
     [malli.core :as m]
+    [malli.error :as me]
     [malli.registry :as mr]
     [malli.util :as mu]
     [reitit.coercion :as coercion]
-    [malli.error :as me]
     [taoensso.timbre :as log])
-  (:import (clojure.lang ExceptionInfo)))
+  (:import
+    (clojure.lang
+      ExceptionInfo)))
 
 (defn registry
   "Registers a given schema in malli"
