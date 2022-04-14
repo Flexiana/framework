@@ -458,6 +458,13 @@ action:
    ["/ws" {:ws-action websocket/echo
            :action    restfull/hello}]])
 ```
+Or send it alone
+```clojure
+(def routes
+  [[...]
+   ["/ws" {:ws-action websocket/echo}]])
+```
+
 
 In `:ws-action` function you can provide the reactive functions in `(-> state :response-data :channel)`
 

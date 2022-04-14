@@ -11,7 +11,7 @@ docker compose up -d
     
 ### Log into psql console
 ```shell
-psql -U postgres -p 5433 -h localhost
+psql -U postgres -p 5432 -h localhost
 ```
 
 ### Run the backend
