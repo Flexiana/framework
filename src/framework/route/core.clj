@@ -38,12 +38,10 @@
           (?assoc-in [:request-data :match] match)
           (?assoc-in [:request-data :permission] permission)
           (assoc-in [:request-data :action]
-                    (or (if (and (jetty/ws-upgrade-request? request) ws-action)
-                          ws-action
-                          action)
-                        (if handler
-                          helpers/action
-                          helpers/not-found)))))))
+                    (cond (and (jetty/ws-upgrade-request? request) ws-action) ws-action
+                          action action
+                          handler helpers/action
+                          :else helpers/not-found))))))
 
 (defn match
   "Associate router match template data into the state.
