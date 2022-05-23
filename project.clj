@@ -1,8 +1,8 @@
-(defproject com.flexiana/framework "0.4.0"
+(defproject com.flexiana/framework "0.5.0-rc1"
   :description "Xiana framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
-  :dependencies [[org.clojure/clojure "1.11.0"]
+  :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/core.async "1.5.648"]
                  [org.clojure/data.json "2.4.0"]
                  [org.clojure/data.xml "0.0.8"]

@@ -1,9 +1,8 @@
 (defproject controllers "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.11.0"]
-                 [org.clojure/clojurescript "1.11.4"]
-                 [com.flexiana/framework "0.4.0"]]
+  :dependencies [[com.flexiana/framework "0.5.0-rc1"]
+                 [org.clojure/clojurescript "1.11.4"]]
   :plugins [[lein-shadow "0.4.0"]
             [lein-shell "0.5.0"]
             [migratus-lein "0.7.3"]]
