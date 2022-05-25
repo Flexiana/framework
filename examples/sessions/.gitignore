@@ -12,3 +12,7 @@ pom.xml.asc
 /.prepl-port
 .hgignore
 .hg/
+/.shadow-cljs/
+/node_modules/
+/package.json
+/shadow-cljs.edn
