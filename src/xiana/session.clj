@@ -2,9 +2,7 @@
   "Xiana's session management"
   (:require
     [honeysql.format :as sqlf]
-    [jsonista.core :as json]
     [next.jdbc.result-set :refer [as-kebab-maps]]
-    [xiana.core :as xiana]
     [xiana.db :as db])
   (:import
     (java.util
@@ -108,47 +106,42 @@
   [{{headers      :headers
      cookies      :cookies
      query-params :query-params} :request}]
-  (UUID/fromString (or (some->> headers
-                                :session-id)
-                       (some->> cookies
-                                :session-id
-                                :value)
-                       (some->> query-params
-                                :SESSIONID))))
+  (when-let [uuid (or (some->> headers
+                               :session-id)
+                      (some->> cookies
+                               :session-id
+                               :value)
+                      (some->> query-params
+                               :SESSIONID))]
+    (UUID/fromString uuid)))
 
 (defn- fetch-session
   [state]
   (let [session-backend (-> state :deps :session-backend)
         session-id (->session-id state)
         session-data (or (fetch session-backend session-id)
-                         (throw (ex-message "Missing session data")))]
-    (xiana/ok (assoc state :session-data (assoc session-data :session-id session-id)))))
+                         (throw (ex-info "Missing session data"
+                                         {:xiana/response
+                                          {:body {:message "Invalid or missing session"}
+                                           :status 401}})))]
+    (assoc state :session-data (assoc session-data :session-id session-id))))
 
 (defn store-session
   [{{session-id :session-id} :session-data :as state}]
-  (if session-id
+  (if session-id ; TODO: write to session backend only if session-data is changed
     (let [session-backend (-> state :deps :session-backend)]
       (add! session-backend
             session-id
             (:session-data state))
       ;; associate the session id
-      (xiana/ok
-        (assoc-in state
-                  [:response :headers "Session-id"]
-                  (str session-id))))
-    (xiana/ok state)))
-
-(defn throw-missing-session
-  [state]
-  (xiana/error
-    (assoc state :response {:status 401
-                            :body   (json/write-value-as-string
-                                      {:message "Invalid or missing session"})})))
+      (assoc-in state
+                [:response :headers "Session-id"]
+                (str session-id)))
+    state))
 
 (def interceptor
   "Returns with 401 when the referred session is missing"
   {:enter fetch-session
-   :error throw-missing-session
    :leave store-session})
 
 (defn add-guest-user
@@ -160,12 +153,23 @@
                       :users/role :guest
                       :users/id   user-id}]
     (add! session-backend session-id session-data)
-    (xiana/ok (dissoc (assoc state :session-data session-data) :response))))
+    (dissoc (assoc state :session-data session-data) :response)))
 
 (def guest-session-interceptor
   "Inserts a new session when no session found"
-  {:enter fetch-session
-   :error add-guest-user
+  {:name ::guest-session-interceptor
+   :enter
+   (fn [state]
+     (try (fetch-session state)
+          (catch Exception _ ; TODO: more specific exception, it might be better to return nil when session is missing
+            (let [session-backend (-> state :deps :session-backend)
+                  session-id (UUID/randomUUID)
+                  user-id (UUID/randomUUID)
+                  session-data {:session-id session-id
+                                :users/role :guest
+                                :users/id   user-id}]
+              (add! session-backend session-id session-data)
+              (assoc state :session-data session-data)))))
    :leave store-session})
 
 (defn init-backend
@@ -176,4 +180,3 @@
     session-backend config
     (= :database storage) (init-in-db config)
     :else (init-in-memory config)))
-

@@ -1,34 +1,34 @@
 (ns xiana.interceptor.queue-test
   (:require
     [clojure.test :refer :all]
-    [xiana.core :as xiana]
     [xiana.interceptor.queue :as queue]))
 
 (def A-interceptor
-  {:enter (fn [state] (xiana/ok (assoc state :enter "A-enter")))
-   :leave (fn [state] (xiana/ok (assoc state :leave "A-leave")))})
+  {:enter (fn [state] (assoc state :enter "A-enter"))
+   :leave (fn [state] (assoc state :leave "A-leave"))})
 
 (def B-interceptor
-  {:enter (fn [state] (xiana/ok (assoc state :enter "B-enter")))
-   :leave (fn [state] (xiana/ok (assoc state :leave "B-leave")))})
+  {:enter (fn [state] (assoc state :enter "B-enter"))
+   :leave (fn [state] (assoc state :leave "B-leave"))})
 
 (def C-interceptor
-  {:enter (fn [state] (xiana/ok (assoc state :enter "C-enter")))
-   :leave (fn [state] (xiana/ok (assoc state :leave "C-leave")))})
+  {:enter (fn [state] (assoc state :enter "C-enter"))
+   :leave (fn [state] (assoc state :leave "C-leave"))})
 
 ;; Exception
 (def D-interceptor
-  {:enter (fn [state] (throw (Exception. "enter-exception")))})
+  {:enter (fn [_state] (throw (Exception. "enter-exception")))})
 
-;; Error/Exception
+(defn- err-handler [state] (update state :errors conj :err))
+
 (def E-interceptor
-  {:enter (fn [state] (throw (Exception. "enter-exception")))
-   :leave (fn [state] (throw (Exception. "leave-exception")))
-   :error (fn [state] (xiana/ok (assoc state :error "Error")))})
+  {:enter (fn [_state] (throw (Exception. "enter-exception")))
+   :leave (fn [_state] (throw (Exception. "leave-exception")))
+   :error err-handler})
 
 (def F-interceptor
-  {:enter (fn [state] (xiana/ok (assoc state :enter "F-enter")))
-   :leave (fn [state] (xiana/ok (assoc state :leave "F-leave")))})
+  {:enter (fn [state] (assoc state :enter "F-enter"))
+   :leave (fn [state] (assoc state :leave "F-leave"))})
 
 (def default-interceptors
   "Default interceptors."
@@ -52,13 +52,7 @@
 
 (def ok-action
   "Auxiliary ok container function."
-  #(xiana/ok
-     (assoc % :response {:status 200, :body "ok"})))
-
-(def error-action
-  "Auxiliary error container function."
-  #(xiana/error
-     (assoc % :response {:status 500 :body "Internal Server error"})))
+  #(assoc % :response {:status 200, :body "ok"}))
 
 (def throw-action
   "Auxiliary error container function."
@@ -68,187 +62,135 @@
   "Return a simple state request data."
   [action interceptors]
   {:request-data
-   {:action action
+   {:action       action
     :interceptors interceptors}})
 
-;; test a simple interceptor queue ok execution
 (deftest queue-simple-ok-execution
-  ;; construct a simple request data state
-  (let [state (make-state ok-action [])
-        ;; get response using a simple micro flow
+  (let [state    (make-state ok-action [])
         response (-> state
                      (queue/execute [])
-                     (xiana/extract)
-                     (:response))
+                     :response)
         expected {:status 200, :body "ok"}]
-    ;; verify if response is equal to the expected
     (is (= response expected))))
 
-;; test a simple interceptor queue execution
 (deftest queue-simple-error-execution
-  ;; construct a simple request data state
-  (let [state (make-state error-action [])
-        ;; get response using a simple micro flow
-        response (-> state
-                     (queue/execute [])
-                     (xiana/extract)
-                     (:response))
-        expected {:status 500 :body "Internal Server error"}]
-    ;; verify if response is equal to the expected
+  (let [error-action #(assoc % :response {:status 500 :body "Internal Server error"})
+        state        (make-state error-action [])
+        response     (-> state
+                         (queue/execute [])
+                         :response)
+        expected     {:status 500 :body "Internal Server error"}]
     (is (= response expected))))
 
-(deftest queue-simple-thrown-execution
-  ;; construct a simple request data state
-  (let [state (make-state throw-action [])
-        ;; get response using a simple micro flow
-        response (-> state
-                     (queue/execute [])
-                     (xiana/extract)
-                     (:response))
-        expected {:body   "Exception thrown"
-                  :status 500}]
-    ;; verify if response is equal to the expected
-    (is (= response expected))))
+(deftest queue-doesnt-handle-exception
+  (let [state (-> (make-state (fn [_] (/ 1 0)) [])
+                  (queue/execute []))]
+    (is (nil? (:response state)))
+    (is (= "Divide by zero" (-> state  :exception Throwable->map :cause)))))
 
-(deftest queue-simple-thrown-div0
-  ;; construct a simple request data state
-  (let [state (make-state (fn [_] (/ 1 0)) [])
-        ;; get response using a simple micro flow
-        response (-> state
-                     (queue/execute [])
-                     (xiana/extract)
-                     (:response))]
-    ;; verify if response is equal to the expected
-    (is (= 500 (:status response)))
-    (is (= "Divide by zero" (get-in response [:body :cause])))))
+(deftest queue-error-handled-in-first-interceptor
+  (let [response            {:status 200, :body "fixed"}
+        recover-interceptor {:error (fn [state] (assoc state :response response))}
+        state               (make-state throw-action [recover-interceptor])
+        result              (-> state
+                                (queue/execute [])
+                                :response)]
+    (is (= response result))))
 
-;; test default interceptors queue execution
 (deftest queue-default-interceptors-execution
-  ;; construct a simple request data state
-  (let [state (make-state ok-action nil)
-        ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
+  (let [state    (make-state ok-action nil)
+        result   (queue/execute state default-interceptors)
         response (:response result)
         expected {:status 200 :body "ok"}
         enter    (:enter result)
         leave    (:leave result)]
-    ;; verify if response is equal to the expected
     (is (and
           (= enter "A-enter")
           (= leave "A-leave")
           (= response expected)))))
 
-;; test a simple interceptor error queue execution
 (deftest queue-interceptor-exception-default-execution
-  ;; construct a simple request data state
   (let [state (make-state ok-action [D-interceptor])
-        ;; get error response using a simple micro flow
-        cause (-> state
-                  (queue/execute [])
-                  (xiana/extract)
-                  (:response)
-                  (:body)
-                  (:cause))
-        expected "enter-exception"]
-    ;; verify if cause is equal to the expected
-    (is (= cause expected))))
+        res   (queue/execute state [])
+        cause (-> res :exception Throwable->map :cause)]
+    (is (nil? (:response state)))
+    (is (= "enter-exception" cause))))
 
-;; test a simple interceptor error queue execution
-(deftest queue-interceptor-error-exception-execution
-  ;; construct a simple request data state
-  (let [state (make-state ok-action [E-interceptor])
-        ;; get error response using a simple micro flow
-        error (-> state
-                  (queue/execute [])
-                  (xiana/extract)
-                  (:error))
-        expected "Error"]
-    ;; verify if error is equal to the expected
-    (is (= error expected))))
+(deftest queue-interceptor-one-error-handler
+  (testing "error path with one :error handler on the chain; error isn't handled"
+    (let [state (make-state ok-action [E-interceptor])
+          res   (queue/execute state [])]
+      (is (= :err (-> res :errors first))))))
 
-;; test inside interceptors queue execution
+(deftest queue-interceptors-error->error->
+  (testing "error path with two :error handlers on the chain; error isn't handled"
+    (let [state (make-state ok-action [{:error err-handler}
+                                       E-interceptor])
+          res   (queue/execute state [])]
+      (is (= '(:err :err) (-> res :errors))))))
+
+(deftest queue-interceptors-error->leave->
+  (testing "error path with two an:error handlers on the chain; error is handled"
+    (let [interceptors [A-interceptor {:error #(dissoc % :exception)} E-interceptor]
+          state        (make-state ok-action interceptors)
+          {:keys [errors exception leave]} (queue/execute state [])]
+      (is (= :err (first errors)))
+      (is (nil? exception))
+      (is (= "A-leave" leave)))))
+
 (deftest queue-inside-interceptors-execution
-  ;; construct a simple request data state
-  (let [state (make-state ok-action inside-interceptors)
-        ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
+  (let [state      (make-state ok-action inside-interceptors)
+        result     (queue/execute state default-interceptors)
         response   (:response result)
         expected   {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
-    ;; verify if response is equal to the expected
     (is (and
           (= last-enter "B-enter")
           (= last-leave "A-leave")
           (= response expected)))))
 
-;; test around interceptors queue execution
 (deftest queue-around-interceptors-execution
-  ;; construct a simple request data state
-  (let [state (make-state ok-action around-interceptors)
-        ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
+  (let [state      (make-state ok-action around-interceptors)
+        result     (queue/execute state default-interceptors)
         response   (:response result)
         expected   {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
-    ;; verify if response is equal to the expected
     (is (and
           (= last-enter "A-enter")
           (= last-leave "C-leave")
           (= response expected)))))
 
-;; test inside/around interceptors queue execution
 (deftest queue-both-interceptors-execution
-  ;; construct a simple request data state
-  (let [state (make-state ok-action both-interceptors)
-        ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
+  (let [state      (make-state ok-action both-interceptors)
+        result     (queue/execute state default-interceptors)
         response   (:response result)
         expected   {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
-    ;; verify if response is equal to the expected
     (is (and
           (= last-enter "B-enter")
           (= last-leave "C-leave")
           (= response expected)))))
 
-;; test override interceptors queue execution
 (deftest queue-override-interceptors-execution
-  ;; construct a simple request data state
-  (let [state (make-state ok-action override-interceptors)
-        ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
+  (let [state      (make-state ok-action override-interceptors)
+        result     (queue/execute state default-interceptors)
         response   (:response result)
         expected   {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
-    ;; verify if response is equal to the expected
     (is (and
           (= last-enter "F-enter")
           (= last-leave "F-leave")
           (= response expected)))))
 
 (deftest queue-both-interceptors-execution
-  ;; construct a simple request data state
-  (let [state (make-state ok-action except-interceptors)
-        ;; get response using a simple micro flow
-        result (-> state
-                   (queue/execute default-interceptors)
-                   (xiana/extract))
-        response (:response result)
-        expected {:status 200 :body "ok"}
+  (let [state      (make-state ok-action except-interceptors)
+        result     (queue/execute state default-interceptors)
+        response   (:response result)
+        expected   {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
     (is (nil? last-enter))
