@@ -15,4 +15,5 @@ pom.xml.asc
 /.shadow-cljs/
 /node_modules/
 /package.json
+/package-lock.json
 /shadow-cljs.edn

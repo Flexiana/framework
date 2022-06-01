@@ -1,7 +1,6 @@
 (ns core-test
   (:require
     [clj-http.client :as http]
-    [clojure.pprint :refer [pprint]]
     [clojure.test :refer [deftest is use-fixtures]]
     [core :as comps]
     [jsonista.core :as json]))
@@ -84,7 +83,6 @@
              http/request
              (update :body json/read-value (json/object-mapper {:decode-key-fn keyword}))
              (select-keys [:status :body]))))
-
   (is (= {:status 500
           :body   "Response coercion failed"}
          (-> {:url                  "http://localhost:3333/api/siege-machines/3"
@@ -94,7 +92,6 @@
               :method               :get}
              http/request
              (select-keys [:status :body]))))
-
   (is (= {:body   {:created "2021-03-05"
                    :id      2
                    :name    "battering-ram"}

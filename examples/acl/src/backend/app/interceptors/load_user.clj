@@ -1,9 +1,7 @@
 (ns interceptors.load-user
   (:require
     [honeysql.helpers :refer [select from where]]
-    [xiana.core :as xiana]
-    [xiana.db :as db]
-    [xiana.session :as session])
+    [xiana.db :as db])
   (:import
     (java.util
       UUID)))
@@ -40,4 +38,4 @@
                                 guest-user
                                 valid-user))
                             (catch Exception _ guest-user))]
-              (xiana/ok (assoc state :session-data  (assoc user :session-id session-id)))))})
+              (assoc state :session-data  (assoc user :session-id session-id))))})

@@ -24,13 +24,11 @@
 
 (defn resource-handler [state]
   (let [f (ring/create-resource-handler {:path "/"})]
-    (prn (get-in state [:request :uri]))
-    (xiana/ok (assoc state :response (f (:request state))))))
+    (assoc state :response (f (:request state)))))
 
 (def event-interceptors
   [(interceptors/muuntaja)
    interceptors/params
-   (interceptors/keyceptor :response)
    cookies/interceptor
    session-id->cookie
    session/guest-session-interceptor

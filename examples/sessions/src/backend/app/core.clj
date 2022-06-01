@@ -11,6 +11,7 @@
     [xiana.config :as config]
     [xiana.handler :as x-handler]
     [xiana.interceptor :as x-interceptors]
+    [xiana.interceptor.error]
     [xiana.route :as x-routes]
     [xiana.session :as x-session]
     [xiana.webserver :as ws]))
@@ -38,7 +39,9 @@
 
 (def app-cfg
   {:routes                  routes
-   :controller-interceptors [x-interceptors/params
+   :controller-interceptors [(x-interceptors/muuntaja)
+                             xiana.interceptor.error/response
+                             x-interceptors/params
                              x-session/interceptor]})
 
 (defn -main

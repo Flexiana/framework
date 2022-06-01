@@ -1,4 +1,4 @@
-(ns integration
+(ns integration-test
   (:require
     [app.core :as app]
     [clj-http.client :as http]
@@ -32,6 +32,9 @@
 
 (use-fixtures :once std-system-fixture)
 
+;; TODO: fix tests bellow with session interceptors refactoring
+;; https://github.com/Flexiana/framework/pull/200/files
+;; https://chat.flexiana.com/#narrow/stream/89-open-source/topic/Frankie/near/437236
 (deftest testing-without-login
   (is (= {:status 200, :body "Index page"}
          (-> {:url                  "http://localhost:3333/"
@@ -56,28 +59,28 @@
       "A missing page is hidden too"))
 
 (deftest login-fails-on-empty-body
-  (let [login-request {:url                  "http://localhost:3333/login"
-                       :unexceptional-status (constantly true)
-                       :method               :post}
+  (let [login-request  {:url                  "http://localhost:3333/login"
+                        :unexceptional-status (constantly true)
+                        :method               :post}
         login-response (http/request login-request)]
     (is (= {:status 401
-            :body "Missing credentials"}
+            :body   "Missing credentials"}
            (select-keys login-response [:status :body])))))
 
 (deftest testing-with-login
-  (let [login-request {:url                  "http://localhost:3333/login"
-                       :unexceptional-status (constantly true)
-                       :body                 (json/write-value-as-string
-                                               {:email    "piotr@example.com"
-                                                :password "topsecret"})
-                       :method               :post}
-        login-response (http/request login-request)
-        login (-> login-response
-                  :body
-                  json/read-value)
-        body-session-id (get login "session-id")
+  (let [login-request     {:url                  "http://localhost:3333/login"
+                           :unexceptional-status (constantly true)
+                           :body                 (json/write-value-as-string
+                                                   {:email    "piotr@example.com"
+                                                    :password "topsecret"})
+                           :method               :post}
+        login-response    (http/request login-request)
+        login             (-> login-response
+                              :body
+                              json/read-value)
+        body-session-id   (get login "session-id")
         header-session-id (get-in login-response [:headers "Session-id"])
-        user (get login "user")]
+        user              (get login "user")]
     (is (= {"first-name" "Piotr", "id" 1, "email" "piotr@example.com", "last-name" "Developer"}
            user)
         "User has been logged in")
@@ -114,17 +117,17 @@
         "A missing page is missing")))
 
 (deftest testing-with-logout
-  (let [login (-> {:url                  "http://localhost:3333/login"
-                   :unexceptional-status (constantly true)
-                   :body                 (json/write-value-as-string
-                                           {:email    "piotr@example.com"
-                                            :password "topsecret"})
-                   :method               :post}
-                  http/request
-                  :body
-                  json/read-value)
+  (let [login      (-> {:url                  "http://localhost:3333/login"
+                        :unexceptional-status (constantly true)
+                        :body                 (json/write-value-as-string
+                                                {:email    "piotr@example.com"
+                                                 :password "topsecret"})
+                        :method               :post}
+                       http/request
+                       :body
+                       json/read-value)
         session-id (get login "session-id")
-        user (get login "user")]
+        user       (get login "user")]
     (is (= {"first-name" "Piotr", "id" 1, "email" "piotr@example.com", "last-name" "Developer"}
            user)
         "User is logged in")

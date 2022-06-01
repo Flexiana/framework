@@ -59,16 +59,6 @@
       (wrap/middleware->enter middleware/wrap-format-request)
       (wrap/middleware->leave middleware/wrap-format-response)))
 
-(deftest contains-wrap-interceptor
-  (let [interceptor (wrap/interceptor {:enter identity
-                                       :leave identity
-                                       :error identity})
-        state {:request {:uri "/"}}
-        enter ((:enter interceptor) state)
-        leave ((:leave interceptor) state)
-        error ((:error interceptor) state)]
-    (is (= state enter leave error))))
-
 (deftest contains-midleware-enter
   (let [enter (-> (wrap/middleware->enter middleware/wrap-format-request)
                   (:enter))

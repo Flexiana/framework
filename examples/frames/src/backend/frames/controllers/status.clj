@@ -1,10 +1,8 @@
 (ns frames.controllers.status
   (:require
-    [ring.util.response :as response]
-    [xiana.core :as xiana]))
+    [ring.util.response :as response]))
 
 (defn handle-status
   [state]
-  (xiana/ok
-    (assoc state :response
-           (response/response {:status "OK"}))))
+  (assoc state :response
+         (response/response {:status "OK"})))
