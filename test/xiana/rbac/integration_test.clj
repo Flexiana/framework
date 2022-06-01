@@ -52,7 +52,7 @@
   {:routes                  routes
    :session-backend         backend
    :xiana/role-set          role-set
-   :controller-interceptors [xiana.interceptor.error/handle-ex-info
+   :controller-interceptors [xiana.interceptor.error/response
                              interceptors/params
                              session/interceptor
                              rbac/interceptor]})
