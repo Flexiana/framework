@@ -126,4 +126,4 @@
               (->
                 ((:leave interceptor) state)
                 :response))
-            "Returns xiana/error when user-permission missing")))))
+            "Throws exception when user-permission missing")))))
