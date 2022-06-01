@@ -8,7 +8,6 @@
 - [message](#message)
 - [muuntaja](#muuntaja)
 - [session](#session)
-- [protected-session](#protected-session)
 - [guest-session](#guest-session)
 - [rbac](#rbac)
 - [coercion](#coercion)
@@ -49,15 +48,6 @@ On `:enter`, either injects session-data based on headers, cookies or query para
 execution with invalid or missing session responses.
 
 On `:leave` updates session storage with session-data from state.
-
-## protected-session
-
-Same behavior as [session](#session), with the addition of getting two path parameters, one to protect, and one to
-exclude. For example
-
-```clojure
-(sessions/protected-session "/api" "/login")
-```
 
 ## guest-session
 

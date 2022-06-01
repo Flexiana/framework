@@ -44,6 +44,6 @@ Visit [examples folder](examples), to see how you can perform
 
 ## References
 
-1. http://funcool.github.io/cats/latest/
-2. https://medium.com/@yuriigorbylov/monads-and-why-do-they-matter-9a285862e8b4
-3. http://pedestal.io/reference/interceptors
+### Concept of interceptors
+http://pedestal.io/reference/interceptors
+https://github.com/metosin/sieppari
