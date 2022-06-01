@@ -3,8 +3,7 @@
     [clojure.core.async :as async :refer (<! go-loop)]
     [clojure.data.json :as json]
     [ring.adapter.jetty9 :as jetty]
-    [taoensso.timbre :as log]
-    [xiana.core :as xiana])
+    [taoensso.timbre :as log])
   (:import
     (java.lang
       AutoCloseable)))
@@ -71,7 +70,4 @@
 
 (defn sse-action
   [state]
-  (xiana/ok
-    (assoc-in state
-              [:response-data :channel]
-              (server-event-channel state))))
+  (assoc-in state [:response-data :channel] (server-event-channel state)))

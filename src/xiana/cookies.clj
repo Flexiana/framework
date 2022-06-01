@@ -2,8 +2,7 @@
   "Cookie parser"
   (:require
     [clojure.walk :refer [keywordize-keys]]
-    [ring.middleware.cookies :as cookies]
-    [xiana.core :as xiana]))
+    [ring.middleware.cookies :as cookies]))
 
 (def interceptor
   "Parses request and response cookies"
@@ -14,9 +13,8 @@
                                              (:cookie headers))))
           (parse-request-cookies [req]
             (-> req move-cookies cookies/cookies-request keywordize-keys))]
-    {:enter (fn [state]
-              (xiana/ok
-                (update state :request
-                        parse-request-cookies)))
+    {:name ::interceptor
+     :enter (fn [state]
+              (update state :request parse-request-cookies))
      :leave (fn [state]
-              (xiana/ok (update state :response cookies/cookies-response)))}))
+              (update state :response cookies/cookies-response))}))
