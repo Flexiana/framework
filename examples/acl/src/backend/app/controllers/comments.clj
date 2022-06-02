@@ -2,8 +2,7 @@
   (:require
     [models.comments :as model]
     [models.data-ownership :as owner]
-    [views.comments :as views]
-    [xiana.core :as xiana]))
+    [views.comments :as views]))
 
 (defn fetch
   [state]

@@ -96,7 +96,7 @@ define a function to be called when the endpoint is hit.
 ```clojure
 (defn fetch
   [state]
-  (xiana.core/ok state))
+  state)
 ```
 
 Now you need to reload the changed files to REPL and restart the application by executing *start-dev-system* function once again.
@@ -109,8 +109,8 @@ Change the implementation of *fetch* function to display "Hello World!" every ti
 ```clojure
 (defn fetch
   [state]
-  (xiana.core/ok (assoc state :response {:status 200
-                                    :body "Hello World!"})))
+  (assoc state :response {:status 200
+                                    :body "Hello World!"}))
 ```
 
 Reload the modified function and restart the application.
@@ -127,13 +127,13 @@ Function:
 ```clojure
 (defn view
   [{{db-data :db-data} :response-data :as state}]
-  (xiana.core/ok (assoc state :response {:status 200
-                                    :body (mapv :todos/label db-data)})))
+  (assoc state :response {:status 200
+                                    :body (mapv :todos/label db-data)}))
 (defn fetch
   [state]
-  (xiana.core/ok (assoc state
+  (assoc state
                    :view view
-                   :query {:select [:*] :from [:todos]})))
+                   :query {:select [:*] :from [:todos]}))
 ```
 
 Again, reload the modified function and restart the application. 

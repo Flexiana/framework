@@ -12,7 +12,6 @@
     [xiana.commons :refer [rename-key]]
     [xiana.config :as config]
     [xiana.cookies :as cookies]
-    [xiana.core :as xiana]
     [xiana.db :as db]
     [xiana.interceptor :as interceptors]
     [xiana.rbac :as rbac]

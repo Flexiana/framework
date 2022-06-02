@@ -2,7 +2,7 @@
 
 ;; state/context record definition
 (defrecord State
-    [request request-data response session-data deps])
+  [request request-data response session-data deps])
 
 (defn make
   "Create an empty state structure."

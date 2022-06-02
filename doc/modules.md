@@ -1,7 +1,6 @@
 # Modules
 
 - [Backend](#backend)
-    - [Core](#core)
     - [Auth](#auth)
     - [Config](#config)
     - [Database](#database)
@@ -23,10 +22,6 @@
     - [Webserver](#webserver)
 
 ## Backend
-
-### Core
-
-Xiana.core contains the State record.
 
 ### Auth
 

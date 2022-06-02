@@ -35,7 +35,7 @@ To implement login, you need to [use the session interceptor](tutorials.md#inter
   ;; Store a new session in session storage
   (add! session-storage session-id {:session-id session-id})
   ;; Make sure session-id is part of the response
-  (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
+  (assoc-in state [:response :headers :session-id] (str session-id)))
 ```
 
 or use the `guest-session` interceptor, which creates a guest session for unknown, or missing sessions.
@@ -67,7 +67,7 @@ you already have this injected, you can modify your create session function like
   ;; Store the new session in session storage. Notice the addition of user. 
   (add! session-storage session-id (assoc user :session-id session-id))
   ;; Make sure session-id is part of the response
-  (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
+  (assoc-in state [:response :headers :session-id] (str session-id)))
 ```
 
 Be sure to remove user's password and any other sensitive information before storing it:
@@ -85,7 +85,7 @@ Be sure to remove user's password and any other sensitive information before sto
   ;; Store the new session in session storage
   (add! session-storage session-id (assoc user :session-id session-id))
   ;; Make sure session-id is part of the response
-  (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
+  (assoc-in state [:response :headers :session-id] (str session-id)))
 ```
 
 Next, we check if the credentials are correct, so we use an `if` statement.
@@ -104,9 +104,11 @@ Next, we check if the credentials are correct, so we use an `if` statement.
     ;; Store the new session in session storage
     (add! session-storage session-id (assoc user :session-id session-id))
     ;; Make sure session-id is part of the response
-    (xiana/ok (assoc-in state [:response :headers :session-id] (str session-id))))
-  (xiana/error (assoc state :response {:status 401
-                                       :body   "Login failed"})))
+    (assoc-in state [:response :headers :session-id] (str session-id)))
+  (throw (ex-info "Missing session data"
+    {:xiana/response
+      {:body "Login failed"
+       :status 401}})))
 ```
 
 Xiana provides `xiana.hash` to check user credentials:
@@ -132,8 +134,7 @@ an [action](conventions.md#action)
 ```clojure
 (defn action
   [state]
-  (xiana/ok
-    (assoc state :side-effect side-effects/login)))
+  (assoc state :side-effect side-effects/login))
 ```
 
 This is the place for injecting the database query, too:
@@ -141,9 +142,8 @@ This is the place for injecting the database query, too:
 ```clojure
 (defn action
   [state]
-  (xiana/ok
-    (assoc state :side-effect side-effects/login
-                 :query model/fetch-query)))
+  (assoc state :side-effect side-effects/login
+                 :query model/fetch-query))
 ```
 
 But some tiny thing is still missing. The definition of the response in the all-ok case. A happy path response.
@@ -152,12 +152,12 @@ But some tiny thing is still missing. The definition of the response in the all-
 (defn login-success
   [state]
   (let [id (-> state :response-data :db-data first :users/id)]
-    (-> (assoc-in state [:response :body]
+    (-> state
+        (assoc-in [:response :body]
                   {:view-type "login"
                    :data      {:login   "succeed"
                                :user-id id}})
-        (assoc-in [:response :status] 200)
-        xiana/ok)))
+        (assoc-in [:response :status] 200))))
 ```
 
 And finally the [view](tutorials.md#view) is injected in the action function:
@@ -165,10 +165,9 @@ And finally the [view](tutorials.md#view) is injected in the action function:
 ```clojure
 (defn action
   [state]
-  (xiana/ok
-    (assoc state :side-effect side-effects/login
-                 :view view/login-success
-                 :query model/fetch-query)))
+  (assoc state :side-effect side-effects/login
+               :view view/login-success
+               :query model/fetch-query))
 ```
 
 ## Logout implementation
@@ -184,7 +183,7 @@ and from session storage. Something like this:
   (let [session-store (get-in state [:deps :session-backend])
         session-id (get-in state [:session-data :session-id])]
     (session/delete! session-store session-id)
-    (xiana/ok (dissoc state :session-data))))
+    (dissoc state :session-data)))
 ```
 
 Add the `ok` response
@@ -192,10 +191,11 @@ Add the `ok` response
 ```clojure
 (defn logout-view
   [state]
-  (xiana/ok (-> (assoc-in state [:response :body]
-                          {:view-type "logout"
-                           :data      {:logout "succeed"}})
-                (assoc-in [:response :status] 200))))
+  (-> state
+      (assoc-in [:response :body]
+                {:view-type "logout"
+                 :data      {:logout "succeed"}})
+      (assoc-in [:response :status] 200)))
 ```
 
 and use it:
@@ -206,8 +206,9 @@ and use it:
   (let [session-store (get-in state [:deps :session-backend])
         session-id (get-in state [:session-data :session-id])]
     (session/delete! session-store session-id)
-    (xiana/ok (-> (dissoc state :session-data)
-                  (assoc :view views/logout-view)))))
+    (-> state
+        (dissoc :session-data)
+        (assoc :view views/logout-view))))
 ```
 
 ## Session management
@@ -450,8 +451,8 @@ The `user-permissions` is a set, so it can be easily used for making conditions:
   (let [user-permissions (get-in state [:request-data :user-permissions])]
     (cond
       (user-permissions :image/own) (let [user-id (get-in state [:session-data :users/id])]
-                                      (xiana/ok (update state :query sql/merge-where [:= :owner.id user-id])))
-      :else (xiana/ok state))))
+                                      (update state :query sql/merge-where [:= :owner.id user-id]))
+      :else state)))
 ```
 
 And finally, the only missing piece of code: the model, and the action
@@ -466,8 +467,7 @@ And finally, the only missing piece of code: the model, and the action
 
 (defn delete-image
   [state]
-  (xiana/ok
     (-> state
         (assoc :query (delete-query state))
-        (assoc-in [:request-data :restriction-fn] restriction-fn))))
+        (assoc-in [:request-data :restriction-fn] restriction-fn)))
 ```
