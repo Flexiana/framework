@@ -1,6 +1,6 @@
 # Sessions
 
-Example that showcase the use of session interceptors using Xiana framework.
+Example that showcase the use of session interceptors using Xiana.
 
 ## Advice to test:
 

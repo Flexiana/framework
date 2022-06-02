@@ -2,12 +2,12 @@
   (:require
     [frames.controllers.index :as index]
     [frames.controllers.status :as status]
-    [framework.config.core :as config]
-    [framework.interceptor.core :as interceptor]
-    [framework.route.core :as router]
-    [framework.webserver.core :as ws]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
-    [reitit.ring :as ring]))
+    [reitit.ring :as ring]
+    [xiana.config :as config]
+    [xiana.interceptor :as interceptor]
+    [xiana.route :as router]
+    [xiana.webserver :as ws]))
 
 (def routes
   [["/" {:get {:action index/handle-index}}]

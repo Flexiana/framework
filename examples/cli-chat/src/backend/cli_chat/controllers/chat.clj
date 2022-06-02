@@ -2,11 +2,11 @@
   (:require
     [cli-chat.controller-behaviors.chat :as behave]
     [cli-chat.views.chat :as views]
-    [framework.db.core :as db]
-    [framework.interceptor.core :as interceptors]
-    [framework.websockets.core :refer [router string->]]
     [reitit.core :as r]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.db :as db]
+    [xiana.interceptor :as interceptors]
+    [xiana.websockets :refer [router string->]]))
 
 (defonce channels (atom {}))
 

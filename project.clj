@@ -1,8 +1,8 @@
-(defproject com.flexiana/framework "0.4.0-rc5"
-  :description "Framework"
+(defproject com.flexiana/framework "0.5.0-rc1"
+  :description "Xiana framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
-  :dependencies [[org.clojure/clojure "1.10.3"]
+  :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/core.async "1.5.648"]
                  [org.clojure/data.json "2.4.0"]
                  [org.clojure/data.xml "0.0.8"]
@@ -11,18 +11,18 @@
                  [funcool/cats "2.4.2"]
                  [crypto-password "0.3.0"]
                  [com.draines/postal "2.0.5"]
-                 [info.sunng/ring-jetty9-adapter "0.17.4"]
+                 [info.sunng/ring-jetty9-adapter "0.17.5"]
                  [metosin/reitit "0.5.15"]
                  [metosin/jsonista "0.3.5"]
                  [piotr-yuxuan/closeable-map "0.35.0"]
-                 [migratus "1.3.5"]
+                 [migratus "1.3.6"]
                  [nilenso/honeysql-postgres "0.4.112"]
                  [org.postgresql/postgresql "42.3.3"]
                  [seancorfield/next.jdbc "1.2.659"]
-                 [clj-test-containers "0.5.0"]
+                 [clj-test-containers "0.6.0"]
                  [org.testcontainers/testcontainers "1.16.3"]
                  [yogthos/config "1.2.0"]
-                 [com.taoensso/timbre "5.1.2"]]
+                 [com.taoensso/timbre "5.2.1"]]
   :source-paths ["src"]
   :target "target/%s/"
   :profiles {:dev      {:resource-paths ["config/dev"]}
@@ -39,13 +39,13 @@
              :cljstyle {:dependencies []}
              :test     {:source-paths   ["test"]
                         :resource-paths ["config/test"]
-                        :dependencies   [[lambdaisland/kaocha "1.63.998"]
+                        :dependencies   [[lambdaisland/kaocha "1.64.1010"]
                                          [clj-http "3.12.3"]
                                          [http.async.client "1.3.1"]
                                          [lambdaisland/kaocha-cloverage "1.0.75"]
                                          [mvxcvi/cljstyle "0.15.0"
                                           :exclusions [org.clojure/clojure]]
-                                         [clj-kondo "2021.01.20"]
+                                         [clj-kondo "2022.03.09"]
                                          [nubank/matcher-combinators "3.3.1"]]}}
   :aliases {"check-style" ["with-profile" "+test" "run" "-m" "cljstyle.main" "check"]
             "fix-style"   ["with-profile" "+test" "run" "-m" "cljstyle.main" "fix"]

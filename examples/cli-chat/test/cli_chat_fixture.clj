@@ -1,8 +1,8 @@
 (ns cli-chat-fixture
   (:require
     [cli-chat.core :refer [->system]]
-    [framework.config.core :as config]
-    [framework.db.core :as db]))
+    [xiana.config :as config]
+    [xiana.db :as db]))
 
 (defn std-system-fixture
   [app-cfg f]

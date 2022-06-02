@@ -1,9 +1,9 @@
 (ns app.controllers.login
   (:require
     [clojure.data.json :as json]
-    [framework.session.core :as session]
     [ring.util.request :refer [body-string]]
-    [xiana.core :as xiana])
+    [xiana.core :as xiana]
+    [xiana.session :as session])
   (:import
     (java.util
       UUID)))

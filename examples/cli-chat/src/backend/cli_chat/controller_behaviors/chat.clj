@@ -3,10 +3,10 @@
     [cli-chat.models.users :as user]
     [cli-chat.views.chat :as views]
     [clojure.string :as str]
-    [framework.auth.hash :as auth]
-    [framework.db.core :as sql]
     [taoensso.timbre :as log]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.db :as sql]
+    [xiana.hash :as auth]))
 
 (defn gen-username []
   (let [id (apply str (take 4 (repeatedly #(char (+ (rand 26) 65)))))]

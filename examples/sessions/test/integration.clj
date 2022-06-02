@@ -3,11 +3,11 @@
     [app.core :as app]
     [clj-http.client :as http]
     [clojure.test :refer [deftest is use-fixtures]]
-    [framework.config.core :as config]
-    [framework.db.core :as db]
     [jsonista.core :as json]
     [next.jdbc :as jdbc]
-    [xiana.commons :as commons])
+    [xiana.commons :as commons]
+    [xiana.config :as config]
+    [xiana.db :as db])
   (:import
     (java.util
       UUID)))

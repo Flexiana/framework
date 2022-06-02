@@ -2,7 +2,7 @@
   (:require
     [clojure.test :refer :all]
     [frames.core :as frames]
-    [framework.handler.core :refer [handler-fn]]))
+    [xiana.handler :refer [handler-fn]]))
 
 (deftest status-test
   (with-open [deps (frames/->system frames/app-cfg)]

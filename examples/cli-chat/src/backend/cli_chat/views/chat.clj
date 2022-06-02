@@ -1,8 +1,8 @@
 (ns cli-chat.views.chat
   (:require
     [clojure.string :as str]
-    [framework.websockets.core :as ws]
-    [xiana.core :as xiana]))
+    [xiana.core :as xiana]
+    [xiana.websockets :as ws]))
 
 (defn send-multi-line
   ([ch reply]
