@@ -25,12 +25,7 @@
     [malli.error :as me]
     [malli.registry :as mr]
     [malli.util :as mu]
-    [reitit.coercion :as coercion]
-    [taoensso.timbre :as log]
-    [xiana.core :as xiana])
-  (:import
-    (clojure.lang
-      ExceptionInfo)))
+    [reitit.coercion :as coercion]))
 
 (defn registry
   "Registers a given schema in malli"
@@ -47,18 +42,22 @@
   on request error: responds {:status 400, :body \"Request coercion failed\"}
   on response error: responds {:status 400, :body \"Response validation failed\"}"
   {:enter (fn [state]
-            (try (let [cc (-> (get-in state [:request-data :match])
-                              coercion/coerce!)]
-                   (xiana/ok (update-in state [:request :params] merge cc)))
-                 (catch ExceptionInfo ex
-                   (xiana/error
-                     (assoc state :response {:status 400
-                                             :body   {:errors
-                                                      (mapv (fn [e]
-                                                              (format "%s should satisfy %s"
-                                                                      (:in e)
-                                                                      (m/form (:schema e))))
-                                                            (:errors (ex-data ex)))}})))))
+            (let [cc (-> (get-in state [:request-data :match])
+                         coercion/coerce!)]
+              (update-in state [:request :params] merge cc)))
+   :error (fn [{exception :error :as state}]
+            (if (-> exception ex-data :type (= ::coercion/request-coercion))
+              (-> state
+                  (dissoc :error)
+                  (assoc :response {:status 400
+                                    :body   {:errors
+                                             (mapv (fn [e]
+                                                     (format "%s should satisfy %s"
+                                                             (:in e)
+                                                             (m/form (:schema e))))
+                                                   (:errors (ex-data exception)))}}))
+              state))
+
    :leave (fn [{{:keys [:status :body]}  :response
                 {method :request-method} :request
                 :as                      state}]
@@ -67,10 +66,8 @@
                   valid? (some-> schema (m/validate body))]
               (if (false? valid?)
                 (let [explain (m/explain schema body)
-                      humanized (me/humanize explain)]
-                  (log/error "Response validation failed with " humanized ", response: " body)
-                  (xiana/error
-                    (assoc state :response
-                           {:status 500
-                            :body   "Response coercion failed"})))
-                (xiana/ok state))))})
+                      _humanized (me/humanize explain)] ; TODO: pass to logging interceptor
+                  (assoc state :response
+                         {:status 500
+                          :body   "Response coercion failed"}))
+                state)))})

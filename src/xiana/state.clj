@@ -1,6 +1,8 @@
-(ns xiana.state
-  (:require
-    [xiana.core :as xiana]))
+(ns xiana.state)
+
+;; state/context record definition
+(defrecord State
+  [request request-data response session-data deps])
 
 (defn make
   "Create an empty state structure."
@@ -9,5 +11,4 @@
     {:deps deps
      :request  request
      :response {}}
-    ;; return a state container
-    xiana/map->State (conj {})))
+    map->State (conj {})))

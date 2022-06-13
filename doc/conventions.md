@@ -1,7 +1,6 @@
 # Conventions
 
 - [State](#state)
-- [Monads](#monads)
 - [Action](#action)
 - [Handler](#handler)
 - [Dependencies](#dependencies)
@@ -36,25 +35,6 @@ At the last step of execution the handler extracts the response value from the s
 
 The state is renewed on every request.
 
-## Monads
-
-"Monads are a simple and powerful mechanism for function composition that helps us to solve very common IT problems such
-as input/output, exception handling, parsing, concurrency and other. Application becomes less error-prone. Code becomes
-reusable and more readable."
-
-And we use it to do exactly that: to add Failure/Success metadata to our internal wrapped state, our data flow unity.
-
-Think of it as a container that's composed by metadata plus its data value. Every function that returns the state map
-needs to be wrapped first, to provide the right binary direction on Success or Failure.
-
-This is done by: `xiana/ok` and `xiana/error` functions. Which are defined in `xiana/core.clj`.
-
-The container travels through the application and dictates how it will operate, based on the binary direction values
-
-It's easier to get used to with the following analogy. Xiana it looks and works like railway programming:
-If the execution is flawless, the state successfully traverses the whole link of interceptors and action. If the
-execution fails at any point, the monadic system short circuits the execution. Preventing us to make any other errors.
-
 ## Action
 
 The action conventionally is the control point of the application flow. This is the place were you can define how the
@@ -84,9 +64,5 @@ the state on state creation, and defined on application startup.
 
 ## Interceptors
 
-An interceptor is a pair of unary functions. Each function is called with a state map and must return a state map
-wrapped into a monad container. You can look at it as on an analogy to AOP's around aspect, or as on a pair of
-middlewares.  
+An interceptor is a pair of unary functions. Each function must recieve and return a state map. You can look at it as on an analogy to AOP's around aspect, or as on a pair of middlewares. They work mostly the same way as [pedestal](http://pedestal.io/reference/interceptors) and [sieppari](https://github.com/metosin/sieppari) interceptors.
 Xiana provides a set of base [interceptors](interceptors.md), for the most common use cases. 
-
-

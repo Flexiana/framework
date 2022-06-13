@@ -12,6 +12,7 @@
     [xiana.db :as db]
     [xiana.handler :as handler]
     [xiana.interceptor :as interceptors]
+    [xiana.interceptor.error]
     [xiana.rbac :as rbac]
     [xiana.route :as routes]
     [xiana.webserver :as ws]))
@@ -68,6 +69,7 @@
 (def app-cfg
   {:routes                  routes
    :controller-interceptors [(interceptors/muuntaja)
+                             xiana.interceptor.error/response
                              interceptors/params
                              user/load-user!
                              interceptors/view

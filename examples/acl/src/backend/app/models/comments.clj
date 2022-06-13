@@ -8,8 +8,7 @@
                               columns
                               values
                               sset]
-     :as helpers]
-    [xiana.core :as xiana])
+     :as helpers])
   (:import
     (java.util
       UUID)))
@@ -17,9 +16,9 @@
 (defn fetch-query
   [{{{id :id} :query-params} :request
     :as                      state}]
-  (xiana/ok (assoc state :query (cond-> (-> (select :*)
-                                            (from :comments))
-                                  id (where [:= :id (UUID/fromString id)])))))
+  (assoc state :query (cond-> (-> (select :*)
+                                  (from :comments))
+                        id (where [:= :id (UUID/fromString id)]))))
 
 (defn add-query
   [{{user-id :users/id}                                :session-data
@@ -27,20 +26,20 @@
     :as                                                state}]
   (let [pid (try (UUID/fromString post-id)
                  (catch Exception _ (UUID/randomUUID)))]
-    (xiana/ok (assoc state :query (-> (insert-into :comments)
-                                      (columns :content :post_id :user_id)
-                                      (values [[content pid user-id]]))))))
+    (assoc state :query (-> (insert-into :comments)
+                            (columns :content :post_id :user_id)
+                            (values [[content pid user-id]])))))
 
 (defn update-query
   [{{{id :id} :params}                :request
     {{content :content} :body-params} :request
     :as                               state}]
-  (xiana/ok (assoc state :query (-> (helpers/update :comments)
-                                    (where [:= :id (UUID/fromString id)])
-                                    (sset {:content content})))))
+  (assoc state :query (-> (helpers/update :comments)
+                          (where [:= :id (UUID/fromString id)])
+                          (sset {:content content}))))
 
 (defn delete-query
   [{{{id :id} :params} :request
     :as                state}]
-  (xiana/ok (assoc state :query (cond-> (delete-from :comments)
-                                  id (where [:= :id (UUID/fromString id)])))))
+  (assoc state :query (cond-> (delete-from :comments)
+                        id (where [:= :id (UUID/fromString id)]))))

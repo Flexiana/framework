@@ -3,8 +3,6 @@
     [clojure.test :refer :all]
     [honeysql.helpers :as sql]
     [tiny-rbac.builder :as b]
-    [tiny-rbac.core :as c]
-    [xiana.core :as xiana]
     [xiana.rbac :refer [interceptor]]
     [xiana.session :as session])
   (:import
@@ -49,47 +47,43 @@
 (deftest user-permissions
   (is (= #{:image/all}
          (-> ((:enter interceptor) (state guest :image/download))
-             xiana/extract
              :request-data
              :user-permissions)))
   (is (= #{:image/all}
          (-> ((:enter interceptor) (state member :image/download))
-             xiana/extract
              :request-data
              :user-permissions)))
   (is (= #{:image/all}
          (-> ((:enter interceptor) (state member :image/upload))
-             xiana/extract
              :request-data
              :user-permissions)))
   (is (= #{:image/own}
          (-> ((:enter interceptor) (state member :image/delete))
-             xiana/extract
              :request-data
              :user-permissions)))
-  (is (= {:status 403 :body "Forbidden"}
-         (-> ((:enter interceptor) (state guest :image/upload))
-             xiana/extract
-             :response))))
+  (is (thrown-with-msg? Exception #"Forbidden"
+        (-> ((:enter interceptor) (state guest :image/upload))
+            :response))))
 
 (defn restriction-fn
   [state]
   (let [user-permissions (get-in state [:request-data :user-permissions])]
     (cond
-      (user-permissions :image/all) (xiana/ok state)
-      (user-permissions :image/own) (xiana/ok
-                                      (let [session-id (get-in state [:request :headers "session-id"])
-                                            session-backend (-> state :deps :session-backend)
-                                            user-id (:users/id (session/fetch session-backend session-id))]
-                                        (update state :query sql/merge-where [:= :owner.id user-id])))
-      :else (xiana/error (assoc state :response {:status 403 :body "Invalid permission request"})))))
+      (user-permissions :image/all) state
+      (user-permissions :image/own)
+      (let [session-id (get-in state [:request :headers "session-id"])
+            session-backend (-> state :deps :session-backend)
+            user-id (:users/id (session/fetch session-backend session-id))]
+        (update state :query sql/merge-where [:= :owner.id user-id]))
+      :else (throw (ex-info "Invalid permission request"
+                            {:status 403 :body "Invalid permission request"})))))
 
 (defn action [state image-id]
-  (xiana/ok (-> state
-                (assoc :query {:delete [:*]
-                               :from   [:images]
-                               :where  [:= :id image-id]})
-                (assoc-in [:request-data :restriction-fn] restriction-fn))))
+  (-> state
+      (assoc :query {:delete [:*]
+                     :from   [:images]
+                     :where  [:= :id image-id]})
+      (assoc-in [:request-data :restriction-fn] restriction-fn)))
 
 (deftest restrictions
   (let [user member
@@ -99,43 +93,37 @@
             :where  [:and
                      [:= :id image-id]
                      [:= :owner.id (:users/id user)]]}
-           (-> (xiana/flow-> (state user :image/delete)
-                             ((:enter interceptor))
-                             (action image-id)
-                             ((:leave interceptor)))
-               xiana/extract
+           (-> (state user :image/delete)
+               ((:enter interceptor))
+               (action image-id)
+               ((:leave interceptor))
                :query))
         "Add filter if user has restricted to ':own'"))
   (let [user guest
         image-id (str (UUID/randomUUID))]
-    (is (= {:body   "Forbidden"
-            :status 403}
-           (-> (xiana/flow-> (state user :image/delete)
-                             ((:enter interceptor))
-                             (action image-id)
-                             ((:leave interceptor)))
-               xiana/extract
-               :response))
-        "Returns 403: Forbidden if action is forbidden"))
-  (let [user mixed
-        image-id (str (UUID/randomUUID))]
-    (is (= {:delete [:*],
-            :from   [:images],
-            :where  [:= :id image-id]}
-           (-> (xiana/flow-> (state user :image/delete)
-                             ((:enter interceptor))
-                             (action image-id)
-                             ((:leave interceptor)))
-               xiana/extract
-               :query))
-        "Processing multiple restrictions in order"))
-  (let [state (-> (state {} :image/delete)
-                  (assoc-in [:request-data :user-permissions] #{:image/none})
-                  (assoc-in [:request-data :restriction-fn] restriction-fn))]
-    (is (= {:status 403, :body "Invalid permission request"}
-           (-> (xiana/flow-> state
-                             ((:leave interceptor)))
-               xiana/extract
-               :response))
-        "Returns xiana/error when user-permission missing")))
-
+    (is (thrown-with-msg? Exception #"Forbidden"
+          (-> (state user :image/delete)
+              ((:enter interceptor))
+              (action image-id)
+              ((:leave interceptor))
+              :response)
+          "Returns 403: Forbidden if action is forbidden"))
+    (let [user mixed
+          image-id (str (UUID/randomUUID))]
+      (is (= {:delete [:*],
+              :from   [:images],
+              :where  [:= :id image-id]}
+             (-> (state user :image/delete)
+                 ((:enter interceptor))
+                 (action image-id)
+                 ((:leave interceptor))
+                 :query))
+          "Processing multiple restrictions in order")
+      (let [state (-> (state {} :image/delete)
+                      (assoc-in [:request-data :user-permissions] #{:image/none})
+                      (assoc-in [:request-data :restriction-fn] restriction-fn))]
+        (is (thrown-with-msg? Exception #"Invalid permission request"
+              (->
+                ((:leave interceptor) state)
+                :response))
+            "Throws exception when user-permission missing")))))

@@ -1,8 +1,7 @@
 (ns state-events.interceptors.event-process
   (:require
     [taoensso.timbre :as log]
-    [tick.core :as t]
-    [xiana.core :as xiana])
+    [tick.core :as t])
   (:import
     (java.sql
       Timestamp)
@@ -41,7 +40,7 @@
                :modified-at (Timestamp/from (t/now))
                :action      action
                :creator     creator}]
-    (xiana/ok (assoc-in state [:request-data :event] event))))
+    (assoc-in state [:request-data :event] event)))
 
 (defn process-actions
   "Process actions for `clean` `undo` `redo` `dissoc-key`"
@@ -80,17 +79,16 @@
                    :response-data
                    :db-data
                    second)]
-    (xiana/ok
-      (assoc-in state [:response-data :event-aggregate] (event->agg events)))))
+    (assoc-in state [:response-data :event-aggregate] (event->agg events))))
 
 (def interceptor
   "Event processing interceptor
   :enter injects request parameters as events
   :leave aggregates events from database into a resource"
-  {:name  :event-process
+  {:name  ::event-process
    :enter ->event
    :leave ->aggregate
    :error (fn [state]
-            (let [e (:exception state)]
+            (let [e (:error state)]
               (log/error "Got exception: " e)
               (throw e)))})

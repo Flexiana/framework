@@ -1,14 +1,13 @@
-(defproject com.flexiana/framework "0.5.0-rc1"
+(defproject com.flexiana/framework "0.5.0-rc2"
   :description "Xiana framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/core.async "1.5.648"]
-                 [org.clojure/data.json "2.4.0"]
+                 [org.clojure/data.json "2.4.0"] ; TODO: remove this or jsonista
                  [org.clojure/data.xml "0.0.8"]
                  [com.flexiana/tiny-rbac "0.1.1"]
                  [funcool/cuerdas "2.2.1"]
-                 [funcool/cats "2.4.2"]
                  [crypto-password "0.3.0"]
                  [com.draines/postal "2.0.5"]
                  [info.sunng/ring-jetty9-adapter "0.17.5"]

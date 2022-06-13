@@ -173,8 +173,7 @@ Which means:
     :leave Runs while we're going up from the action to the response.
     :error Executed when any error thrown while executing the two other functions
 
-The provided function should have one parameter, the application state, and should return the state wrapped into the
-xiana monad.
+The provided function should have one parameter, the application state, and should return the state.
 
 ### Interceptor example
 
@@ -182,13 +181,20 @@ xiana monad.
 
 {:enter (fn [state]
           (println "Enter: " state)
-          (xiana/ok state))
+          (-> state
+              (transform-somehow)
+              (or-do-side-effects))
  :leave (fn [state]
           (println "Leave: " state)
-          (xiana/ok state))
+          state)
  :error (fn [state]
           (println "Error: " state)
-          (xiana/error (assoc state :response {:status 500 :body "Error occurred while printing out state"})))}
+          ;; Here `state` should have previously thrown exception
+          ;; stored in `:error` key.
+          ;; you can do something useful with it (e.g. log it)
+          ;; and/or handle it by `dissoc`ing from the state.
+          ;; In that case remaining `leave` interceptors will be executed.
+          (assoc state :response {:status 500 :body "Error occurred while printing out state"}))}
 ```
 
 #### Router and controller interceptors
@@ -303,10 +309,9 @@ executed in the following interceptor steps.
 ```clojure
 (defn action
   [state]
-  (xiana/ok
-    (assoc state :view view/success
-                 :side-effect behaviour/update-sessions-and-db!
-                 :query model/fetch-query)))
+  (assoc state :view view/success
+               :side-effect behaviour/update-sessions-and-db!
+               :query model/fetch-query))
 ```
 
 ## Database-access
@@ -345,12 +350,11 @@ A view is a function to prepare the final response and saving it into the state 
 (defn success
   [state]
   (let [{:users/keys [id]} (-> state :response-data :db-data first)]
-    (xiana/ok
-      (assoc state :response {:status  200
-                              :headers {"Content-type" "Application/json"}
-                              :body    {:view-type "login"
-                                        :data      {:login   "succeed"
-                                                    :user-id id}}}))))
+    (assoc state :response {:status  200
+                            :headers {"Content-type" "Application/json"}
+                            :body    {:view-type "login"
+                                      :data      {:login   "succeed"
+                                                  :user-id id}}})))
 ```
 
 ## Side-effects
@@ -375,9 +379,11 @@ Adding to the previous examples:
       (remove-from-session-store! session-backend id)
       (xiana-sessions/add! session-backend new-session-id user)
       (update-user-last-login! state id)
-      (xiana/ok
-        (assoc-in state [:response :headers "Session-id"] new-session-id)))
-    (xiana/error (c/not-allowed state))))
+      (assoc-in state [:response :headers "Session-id"] new-session-id))
+    (throw (ex-info "Missing session data"
+                                         {:xiana/response
+                                             {:status 401
+                                              :body "You don't have rights to do this"}}))))
 ```
 
 ## Session management
@@ -437,12 +443,11 @@ should look like this:
   [state]
   (let [user-permissions (get-in state [:request-data :user-permissions])]
     (cond
-      (user-permissions :image/all) (xiana/ok state)
-      (user-permissions :image/own) (xiana/ok
-                                      (let [session-id (get-in state [:request :headers "session-id"])
-                                            session-backend (-> state :deps :session-backend)
-                                            user-id (:users/id (session/fetch session-backend session-id))]
-                                        (update state :query sql/merge-where [:= :owner.id user-id]))))))
+      (user-permissions :image/all) state
+      (user-permissions :image/own) (let [session-id (get-in state [:request :headers "session-id"])
+                                          session-backend (-> state :deps :session-backend)
+                                          user-id (:users/id (session/fetch session-backend session-id))]
+                                      (update state :query sql/merge-where [:= :owner.id user-id])))))
 ```
 
 The rbac interceptor must be placed between the [action](#action) and the [db-access](#database-access) interceptors in
@@ -475,22 +480,21 @@ In `:ws-action` function you can provide the reactive functions in `(-> state :r
 
 (defn chat-action
   [state]
-  (xiana/ok
-    (assoc-in state [:response-data :channel]
-              {:on-receive (fn [ch msg]
-                             (routing (update state :request-data
-                                              merge {:ch         ch
-                                                     :income-msg msg
-                                                     :fallback   views/fallback
-                                                     :channels   channels})))
-               :on-open    (fn [ch]
-                             (routing (update state :request-data
-                                              merge {:ch         ch
-                                                     :channels   channels
-                                                     :income-msg "/welcome"})))
-               :on-ping    (fn [ch data])
-               :on-close   (fn [ch status] (swap! channels dissoc ch))
-               :init       (fn [ch])})))
+  (assoc-in state [:response-data :channel]
+            {:on-receive (fn [ch msg]
+                           (routing (update state :request-data
+                                            merge {:ch         ch
+                                                   :income-msg msg
+                                                   :fallback   views/fallback
+                                                   :channels   channels})))
+             :on-open    (fn [ch]
+                           (routing (update state :request-data
+                                            merge {:ch         ch
+                                                   :channels   channels
+                                                   :income-msg "/welcome"})))
+             :on-ping    (fn [ch data])
+             :on-close   (fn [ch status] (swap! channels dissoc ch))
+             :init       (fn [ch])}))
 ```
 
 The creation of the actual channel happens in Xiana's [handler](conventions.md#handler). All provided reactive functions
@@ -499,7 +503,7 @@ have the entire [state](conventions.md#state) to work with.
 ### WebSockets routing
 
 `xiana.websockets` offers a router function, which supports Xiana concepts. You can define a reitit route and use it
-inside WebSockets reactive functions. With Xiana [monad](conventions.md#monads), [state](conventions.md#state)
+inside WebSockets reactive functions. With Xiana [state](conventions.md#state)
 and support of [interceptors](conventions.md#interceptors), with [interceptor override](#interceptor-overriding). You
 can define a [fallback function](#websockets), to handle missing actions.
 
@@ -548,14 +552,13 @@ are sent with `xiana.sse/put!` function.
     [xiana.config :as config]
     [xiana.sse :as sse]
     [xiana.route :as route]
-    [xiana.webserver :as ws]
-    [xiana.core :as xiana]))
+    [xiana.webserver :as ws]))
 
 (def routes
   [["/sse" {:action sse/sse-action}]
    ["/broadcast" {:action (fn [state]
                             (sse/put! state {:message "This is not a drill!"})
-                            (xiana/ok state))}]])
+                            state)}]])
 
 (defn ->system
   [app-cfg]

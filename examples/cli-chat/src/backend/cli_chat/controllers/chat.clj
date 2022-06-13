@@ -3,7 +3,6 @@
     [cli-chat.controller-behaviors.chat :as behave]
     [cli-chat.views.chat :as views]
     [reitit.core :as r]
-    [xiana.core :as xiana]
     [xiana.db :as db]
     [xiana.interceptor :as interceptors]
     [xiana.websockets :refer [router string->]]))
@@ -30,17 +29,16 @@
 
 (defn chat-action
   [state]
-  (xiana/ok
-    (assoc-in state [:response-data :channel]
-              {:on-text    (fn [ch msg]
-                             (routing (update state :request-data
-                                              merge {:ch         ch
-                                                     :income-msg msg
-                                                     :fallback   views/fallback
-                                                     :channels   channels})))
-               :on-connect (fn [ch]
-                             (routing (update state :request-data
-                                              merge {:ch         ch
-                                                     :channels   channels
-                                                     :income-msg "/welcome"})))
-               :on-close   (fn [ch _status _reason] (swap! channels dissoc ch))})))
+  (assoc-in state [:response-data :channel]
+            {:on-text    (fn [ch msg]
+                           (routing (update state :request-data
+                                            merge {:ch         ch
+                                                   :income-msg msg
+                                                   :fallback   views/fallback
+                                                   :channels   channels})))
+             :on-connect (fn [ch]
+                           (routing (update state :request-data
+                                            merge {:ch         ch
+                                                   :channels   channels
+                                                   :income-msg "/welcome"})))
+             :on-close   (fn [ch _status _reason] (swap! channels dissoc ch))}))

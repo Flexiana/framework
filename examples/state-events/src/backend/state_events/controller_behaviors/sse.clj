@@ -1,7 +1,6 @@
 (ns state-events.controller-behaviors.sse
   (:require
     [clojure.core.async :as async]
-    [xiana.core :as xiana]
     [xiana.sse :as sse])
   (:import
     (java.sql
@@ -21,7 +20,7 @@
   [state]
   (let [agg-event (get-in state [:response-data :event-aggregate])]
     (sse/put! state (prepare->json (assoc agg-event :type :modify))))
-  (xiana/ok state))
+  state)
 
 (defonce ^{:private true} ping-id (atom 0))
 

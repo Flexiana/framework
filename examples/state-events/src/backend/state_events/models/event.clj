@@ -1,23 +1,21 @@
 (ns state-events.models.event
   (:require
     [honeysql.format :as sqlf]
-    [honeysql.helpers :as sqlh]
-    [xiana.core :as xiana]))
+    [honeysql.helpers :as sqlh]))
 
 (defn add [state]
-  (let [event (-> state :request-data :event)
-        resource (:resource event)
+  (let [event       (-> state :request-data :event)
+        resource    (:resource event)
         resource-id (:resource-id event)]
-    (xiana/ok
-      (assoc-in state
-                [:db-queries :queries]
-                [(-> (sqlh/insert-into :events)
-                     (sqlh/values [(update event :payload sqlf/value)]))
-                 (-> (sqlh/select :*)
-                     (sqlh/from :events)
-                     (sqlh/where [:and
-                                  [:= :resource resource]
-                                  [:= :resource-id resource-id]]))]))))
+    (assoc-in state
+              [:db-queries :queries]
+              [(-> (sqlh/insert-into :events)
+                   (sqlh/values [(update event :payload sqlf/value)]))
+               (-> (sqlh/select :*)
+                   (sqlh/from :events)
+                   (sqlh/where [:and
+                                [:= :resource resource]
+                                [:= :resource-id resource-id]]))])))
 
 (defn last-event
   [state]
@@ -34,8 +32,7 @@
 
 (defn fetch
   [state]
-  (xiana/ok
-    (assoc state
-           :query
-           (-> (sqlh/select :*)
-               (sqlh/from :events)))))
+  (assoc state
+         :query
+         (-> (sqlh/select :*)
+             (sqlh/from :events))))

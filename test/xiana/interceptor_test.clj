@@ -1,7 +1,6 @@
 (ns xiana.interceptor-test
   (:require
     [clojure.test :refer :all]
-    [xiana.core :as xiana]
     [xiana.db :as db]
     [xiana.interceptor :as interceptor]
     [xiana.session :as session]))
@@ -54,16 +53,13 @@
 
 (def ok-fn
   "Ok response function."
-  #(xiana/ok
-     (assoc % :response {:status 200, :body "ok"})))
+  #(assoc % :response {:status 200, :body "ok"}))
 
 ;; auxiliary function
 (defn fetch-execute
   "Fetch and execute the interceptor function"
   [state interceptor branch]
-  (->> (list state)
-       (apply (branch interceptor))
-       (xiana/extract)))
+  (apply (branch interceptor) (list state)))
 
 (deftest log-interceptor-execution
   (let [interceptor interceptor/log
@@ -71,8 +67,8 @@
         enter ((:enter interceptor) state)
         leave ((:leave interceptor) state)]
     ;; verify log execution
-    (is (and (= enter (xiana/ok state))
-             (= leave (xiana/ok state))))))
+    (is (and (= enter  state)
+             (= leave  state)))))
 
 (deftest side-effect-execution
   (let [state {:request     {:uri "/"}
@@ -124,8 +120,8 @@
         enter ((:enter interceptor) state)
         leave ((:leave interceptor) state)]
     ;; verify msg execution
-    (is (and (= enter (xiana/ok state))
-             (= leave (xiana/ok state))))))
+    (is (and (= enter  state)
+             (= leave  state)))))
 
 ;; test if the session-user-id handles new sessions
 (deftest contains-new-session
@@ -159,4 +155,4 @@
 
 (deftest contains-muuntaja-interceptor
   (let [interceptor (interceptor/muuntaja)]
-    (is (not (empty? interceptor)))))
+    (is (seq interceptor))))
