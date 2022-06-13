@@ -113,7 +113,7 @@
                                :value)
                       (some->> query-params
                                :SESSIONID))]
-    (UUID/fromString uuid)))
+    (and (seq uuid) (UUID/fromString uuid))))
 
 (defn- fetch-session
   [state]
@@ -141,7 +141,8 @@
 
 (def interceptor
   "Returns with 401 when the referred session is missing"
-  {:enter fetch-session
+  {:name ::session-interceptor
+   :enter fetch-session
    :leave store-session})
 
 (defn add-guest-user
