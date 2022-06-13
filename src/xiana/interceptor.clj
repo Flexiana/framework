@@ -17,24 +17,26 @@
   {:enter (fn [state] (pprint ["Enter: " state]) state)
    :leave (fn [state] (pprint ["Leave: " state]) state)})
 
-(defn- func-caller [k]
-  (fn [state]
-    (if-let [f (get state k)]
-      (f state)
-      state)))
-
 (def side-effect
   "Side-effect interceptor.
   Enter: nil.
   Leave: apply `:side-effect` state key to state if it exists."
   {:name ::side-effect
-   :leave (func-caller :side-effect)})
+   :leave
+   (fn [state]
+     (if-let [f (get state :side-effect)]
+       (f state)
+       state))})
 
 (def view
   "View interceptor.
-  Enter: nil.
-  Leave: apply `:view` state key to state if it exists."
-  {:leave (func-caller :view)})
+  Enter: nil. Leave: apply `:view` state key to state if it exists and
+  `:response` is absent."
+  {:leave
+   (fn [{:keys [view response] :as state}]
+     (if (and (not (:body response)) view)
+       (view state)
+       state))})
 
 ;; Question: should be used in the early chain of interceptors?
 (def params
