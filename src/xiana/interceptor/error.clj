@@ -5,8 +5,8 @@
   `:xiana/response` key."
   {:name ::response
    :error (fn [state]
-            (if-let [resp (-> state :exception ex-data :xiana/response)]
+            (if-let [resp (-> state :error ex-data :xiana/response)]
               (-> state
                   (assoc :response resp)
-                  (dissoc :exception))
+                  (dissoc :error))
               state))})

@@ -22,7 +22,8 @@
 (defn- err-handler [state] (update state :errors conj :err))
 
 (def E-interceptor
-  {:enter (fn [_state] (throw (Exception. "enter-exception")))
+  {:name :E-interceptor
+   :enter (fn [_state] (throw (Exception. "enter-exception")))
    :leave (fn [_state] (throw (Exception. "leave-exception")))
    :error err-handler})
 
@@ -86,7 +87,21 @@
   (let [state (-> (make-state (fn [_] (/ 1 0)) [])
                   (queue/execute []))]
     (is (nil? (:response state)))
-    (is (= "Divide by zero" (-> state  :exception Throwable->map :cause)))))
+    (is (= "Divide by zero" (-> state  :error Throwable->map :cause)))))
+
+(deftest queue-error-handled-in-same-interceptor
+  (let [state (make-state
+                identity
+                [{:leave (fn [_]
+                           (throw (ex-info "it should be handled in `:error`" {})))
+                  :error (fn [state]
+                           (-> state
+                               (dissoc :error)
+                               (assoc :response
+                                      {:status 200, :body "ok"})))}])
+        response (queue/execute state [])
+        expected {:status 200, :body "ok"}]
+    (is (= expected (:response response)))))
 
 (deftest queue-error-handled-in-first-interceptor
   (let [response            {:status 200, :body "fixed"}
@@ -112,7 +127,7 @@
 (deftest queue-interceptor-exception-default-execution
   (let [state (make-state ok-action [D-interceptor])
         res   (queue/execute state [])
-        cause (-> res :exception Throwable->map :cause)]
+        cause (-> res :error Throwable->map :cause)]
     (is (nil? (:response state)))
     (is (= "enter-exception" cause))))
 
@@ -124,18 +139,18 @@
 
 (deftest queue-interceptors-error->error->
   (testing "error path with two :error handlers on the chain; error isn't handled"
-    (let [state (make-state ok-action [{:error err-handler}
+    (let [state (make-state ok-action [{:error err-handler :name :e-int0}
                                        E-interceptor])
           res   (queue/execute state [])]
       (is (= '(:err :err) (-> res :errors))))))
 
 (deftest queue-interceptors-error->leave->
   (testing "error path with two an:error handlers on the chain; error is handled"
-    (let [interceptors [A-interceptor {:error #(dissoc % :exception)} E-interceptor]
+    (let [interceptors [A-interceptor {:error #(dissoc % :error)} E-interceptor]
           state        (make-state ok-action interceptors)
-          {:keys [errors exception leave]} (queue/execute state [])]
+          {:keys [errors error leave]} (queue/execute state [])]
       (is (= :err (first errors)))
-      (is (nil? exception))
+      (is (nil? error))
       (is (= "A-leave" leave)))))
 
 (deftest queue-inside-interceptors-execution

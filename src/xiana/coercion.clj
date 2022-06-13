@@ -45,10 +45,10 @@
             (let [cc (-> (get-in state [:request-data :match])
                          coercion/coerce!)]
               (update-in state [:request :params] merge cc)))
-   :error (fn [{exception :exception :as state}]
+   :error (fn [{exception :error :as state}]
             (if (-> exception ex-data :type (= ::coercion/request-coercion))
               (-> state
-                  (dissoc :exception)
+                  (dissoc :error)
                   (assoc :response {:status 400
                                     :body   {:errors
                                              (mapv (fn [e]

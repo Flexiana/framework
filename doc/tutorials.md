@@ -190,7 +190,7 @@ The provided function should have one parameter, the application state, and shou
  :error (fn [state]
           (println "Error: " state)
           ;; Here `state` should have previously thrown exception
-          ;; stored in `:exception` key.
+          ;; stored in `:error` key.
           ;; you can do something useful with it (e.g. log it)
           ;; and/or handle it by `dissoc`ing from the state.
           ;; In that case remaining `leave` interceptors will be executed.

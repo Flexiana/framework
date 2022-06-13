@@ -89,6 +89,6 @@
    :enter ->event
    :leave ->aggregate
    :error (fn [state]
-            (let [e (:exception state)]
+            (let [e (:error state)]
               (log/error "Got exception: " e)
               (throw e)))})

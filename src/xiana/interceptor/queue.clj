@@ -1,6 +1,8 @@
 (ns xiana.interceptor.queue
   "Interceptor executor.
-  Collects and executes interceptors and the given action in between.")
+  Collects and executes interceptors and the given action in between."
+  (:require
+    [taoensso.timbre :as log]))
 
 (defn- -concat
   "Concatenate routes interceptors with the defaults ones,
@@ -24,7 +26,7 @@
   (fn [state]
     (try (action state)
          (catch Exception e
-           (assoc state :exception e)))))
+           (assoc state :error e)))))
 
 (defn looper
   [state interceptors action]
@@ -33,32 +35,45 @@
          backwards    '()
          action       action
          direction    :enter]
-    (let [error?    (= :error direction)
-          enter?    (= :enter direction)
-          exception (:exception state)]
+    (let [direction-error?    (= :error direction)
+          direction-enter?    (= :enter direction)
+          exception           (:error state)]
+
+      (log/debug (format "%s | %s | err?: %s | exception %s"
+                         direction
+                         (-> interceptors first :name)
+                         direction-error?
+                         exception))
+
       (cond
-        (and exception (not error?))
+        ;; just got an exception, executing all remaining interceptors backwards
+        (and exception (not direction-error?))
         (recur state
-               (if enter? backwards interceptors)
+               (if direction-enter? backwards interceptors)
                '()
                action
                :error)
 
+        ;; executes current direction (:enter, :leave or :error)
         (seq interceptors)
-        (let [direction (if (and error? (not exception))
-                          :leave ; error was "handled"
+        (let [direction (if (and direction-error? (not exception))
+                          :leave ; error was "handled", executing remaining interceptors (:leave direction)
                           direction)
               act       (-> interceptors
                             first
                             (get direction identity)
-                            action->try)]
-          (recur (act state)
-                 (rest interceptors)
-                 (when enter? (conj backwards (first interceptors)))
+                            action->try)
+              state     (act state)
+              next-interceptors (if (and (:error state) (= :leave direction))
+                                  interceptors
+                                  (rest interceptors))]
+          (recur state
+                 next-interceptors
+                 (when direction-enter? (conj backwards (first interceptors)))
                  action
                  direction))
 
-        enter?
+        direction-enter?
         (recur ((action->try action) state)
                backwards
                '()
