@@ -1,12 +1,12 @@
 (ns xiana.db.migrate
+  (:gen-class)
   (:require
-   [clojure.edn :as edn]
-   [clojure.string :as str]
-   [clojure.tools.cli :refer [parse-opts]]
-   [migratus.core :as mig]
-   [next.jdbc :as jdbc]
-   [taoensso.timbre :as log])
-  (:gen-class))
+    [clojure.edn :as edn]
+    [clojure.string :as str]
+    [clojure.tools.cli :refer [parse-opts]]
+    [migratus.core :as mig]
+    [next.jdbc :as jdbc]
+    [taoensso.timbre :as log]))
 
 (def cli-options
   [["-c" "--config FILENAME" "Configuration file"
@@ -27,18 +27,18 @@
 (defn usage
   [options-summary]
   (str/join
-   \newline
-   ["Migration CLI."
-        ""
-        "Usage: migrate [options] action"
-        ""
-        "Options:"
-        options-summary
-        ""
-        "Actions:"
-        "  migrate  Migrate the db up until id or current version if no id given"
-        "  rollback Rollback the db down until id or only the last script if no id given"
-        "  create   Create migration script "]))
+    \newline
+    ["Migration CLI."
+     ""
+     "Usage: migrate [options] action"
+     ""
+     "Options:"
+     options-summary
+     ""
+     "Actions:"
+     "  migrate  Migrate the db up until id or current version if no id given"
+     "  rollback Rollback the db down until id or only the last script if no id given"
+     "  create   Create migration script "]))
 
 (defn error-msg
   [errors]
