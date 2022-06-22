@@ -51,8 +51,7 @@
   should exit (with an error message, and optional ok status), or a map
   indicating the action the program should take and the options provided."
   [args]
-  (let [{:keys [options arguments errors summary] :as params} (parse-opts args cli-options)]
-    ;; (log/info "params:" params)
+  (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     (cond
       ;; help => exit OK with usage summary
       (:help options) {:exit-message (usage summary) :ok? true}
