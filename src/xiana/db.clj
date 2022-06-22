@@ -5,10 +5,10 @@
     [honeysql-postgres.format]
     [honeysql.core :as sql]
     [jsonista.core :as json]
-    [xiana.migrate :as migr]
     [next.jdbc :as jdbc]
     [next.jdbc.prepare :as prepare]
-    [next.jdbc.result-set :as rs])
+    [next.jdbc.result-set :as rs]
+    [xiana.migrate :as migr])
   (:import
     (clojure.lang
       IPersistentMap
