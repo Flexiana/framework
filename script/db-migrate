@@ -5,4 +5,4 @@ project_dir=$(dirname "$bin_dir")
 
 cd "$project_dir"
 
-clojure -M -m xiana.migrate $@
+clojure -M -m xiana.db.migrate $@

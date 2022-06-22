@@ -1,4 +1,4 @@
-(ns xiana.migrate
+(ns xiana.db.migrate
   (:require
    [clojure.edn :as edn]
    [clojure.string :as str]
