@@ -83,12 +83,9 @@
   (println msg)
   (System/exit status))
 
-(defn get-config
-  [options]
-  (let [config (-> (:config options)
-                   slurp
-                   edn/read-string)
-        db-config (:xiana/postgresql config)
+(defn get-db-config
+  [config]
+  (let [db-config (:xiana/postgresql config)
         db (if-let [ds (:datasource db-config)]
              {:datasource (jdbc/get-datasource ds)}
              db-config)]
@@ -107,11 +104,15 @@
   [dir name]
   (mig/create {:migration-dir dir} name))
 
+(defn load-config
+  [options]
+  (edn/read-string (slurp (:config options))))
+
 (defn migrate-action
   [options]
   (log/info "Migrate database")
   (log/debug "options:" options)
-  (let [cfg (get-config options)]
+  (let [cfg (get-db-config (load-config options))]
     (log/debug "config:" cfg)
     (if-let [id (:id options)]
       (migrate cfg id)
@@ -121,7 +122,7 @@
   [options]
   (log/info "Rollback database")
   (log/debug "options:" options)
-  (let [cfg (get-config options)]
+  (let [cfg (get-db-config (load-config options))]
     (log/debug "config:" cfg)
     (if-let [id (:id options)]
       (rollback cfg id)

@@ -120,7 +120,7 @@
    (migrate! config 0))
   ([config count]
    (try
-     (migr/migrate (migr/get-config config))
+     (migr/migrate (migr/get-db-config config))
      (catch Exception e (if (< count 10)
                           (migrate! config (inc count))
                           (throw e))))
