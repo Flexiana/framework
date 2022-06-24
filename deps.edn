@@ -20,9 +20,7 @@
          org.postgresql/postgresql       {:mvn/version "42.3.3"},
          piotr-yuxuan/closeable-map      {:mvn/version "0.35.0"},
          seancorfield/next.jdbc          {:mvn/version "1.2.659"},
-         yogthos/config                  {:mvn/version "1.2.0"}
-
-         }
+         yogthos/config                  {:mvn/version "1.2.0"}}
 
  :aliases
  {:dev
@@ -56,7 +54,7 @@
    :main-opts  ["-m" "eastwood.lint" {:source-paths ["src"]}]}
 
   :format
-  {:extra-deps {mvxcvi/cljstyle {:mvn/version "0.15.0"}}
+  {:replace-deps {mvxcvi/cljstyle {:mvn/version "0.15.0"}}
    :main-opts  ["-m" "cljstyle.main"]}
 
   :test
