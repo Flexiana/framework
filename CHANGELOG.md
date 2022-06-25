@@ -1,3 +1,7 @@
+## [Unreleased] - 2022-06-25 
+Breaking changes: 
+- refactor database migration system, use patched migratus (Flexiana/migratus), removed seed module and rewrite data migration tool
+
 ## 0.5-rc2
 Breaking changes: 
 - removed monands (`funcool.cats` library), related code and docs
