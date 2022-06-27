@@ -5,10 +5,10 @@
     [honeysql-postgres.format]
     [honeysql.core :as sql]
     [jsonista.core :as json]
-    [migratus.core :as migratus]
     [next.jdbc :as jdbc]
     [next.jdbc.prepare :as prepare]
-    [next.jdbc.result-set :as rs])
+    [next.jdbc.result-set :as rs]
+    [xiana.db.migrate :as migr])
   (:import
     (clojure.lang
       IPersistentMap
@@ -119,16 +119,11 @@
   ([config]
    (migrate! config 0))
   ([config count]
-   (try (let [db-conf {:datasource (-> config
-                                       :xiana/postgresql
-                                       :datasource
-                                       jdbc/get-datasource)}
-              mig-config (assoc (:xiana/migration config)
-                                :db db-conf)]
-          (migratus/migrate mig-config))
-        (catch Exception e (if (< count 10)
-                             (migrate! config (inc count))
-                             (throw e))))
+   (try
+     (migr/migrate (migr/get-db-config config))
+     (catch Exception e (if (< count 10)
+                          (migrate! config (inc count))
+                          (throw e))))
    config))
 
 (defn connect

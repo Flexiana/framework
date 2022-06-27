@@ -14,7 +14,7 @@
                  [metosin/reitit "0.5.15"]
                  [metosin/jsonista "0.3.5"]
                  [piotr-yuxuan/closeable-map "0.35.0"]
-                 [migratus "1.3.6"]
+                 [migratus "1.3.7"]
                  [nilenso/honeysql-postgres "0.4.112"]
                  [org.postgresql/postgresql "42.3.3"]
                  [seancorfield/next.jdbc "1.2.659"]
