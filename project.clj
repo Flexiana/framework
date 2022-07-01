@@ -18,6 +18,8 @@
                  [nilenso/honeysql-postgres "0.4.112"]
                  [org.postgresql/postgresql "42.3.3"]
                  [seancorfield/next.jdbc "1.2.659"]
+                 [buddy/buddy-core "1.10.413"]
+                 [buddy/buddy-sign "3.4.333"]
                  [clj-test-containers "0.6.0"]
                  [org.testcontainers/testcontainers "1.16.3"]
                  [yogthos/config "1.2.0"]

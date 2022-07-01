@@ -130,3 +130,30 @@
   "Muuntaja encoder/decoder interceptor."
   ([] (muuntaja muuntaja/interceptor))
   ([interceptor] interceptor))
+
+(defn jwt-auth
+  []
+  {:name ::jwt-authentication
+   :enter
+   (fn [{request :request :as state}]
+     )
+   :leave
+   (fn [{request :request :as state}]
+     state)
+   :error
+   (fn [{request :request :as state}]
+     state)})
+
+
+(defn jwt-content
+  []
+  {:name ::jwt-content-exchange
+   :enter
+   (fn [{request :request :as state}]
+     state)
+   :leave
+   (fn [{request :request :as state}]
+     state)
+   :error
+   (fn [{request :request :as state}]
+     state)})
