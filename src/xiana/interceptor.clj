@@ -141,7 +141,7 @@
      (let [auth (get-in request [:headers :authorization])
            cfg (get-in state [:xiana/jwt :auth])]
        (try
-         (jwt/unsign :auth auth cfg)
+         (jwt/verify-jwt :auth auth cfg)
          state
          (catch clojure.lang.ExceptionInfo e
            (assoc state :error e)))))
@@ -154,7 +154,7 @@
          (= :wrong-key (ex-data error))
          (helpers/unauthorized state "Signature could not be verified.")
          :else
-         (helpers/unauthorized state "One or more claims were invalid."))))})
+         (helpers/unauthorized state "Claims were invalid."))))})
 
 (defn jwt-content
   []
@@ -164,7 +164,7 @@
      (if-let [body-params (:form-params request)]
        (let [cfg (get-in state [:xiana/jwt :content])]
          (try
-           (->> (jwt/unsign :content body-params cfg)
+           (->> (jwt/verify-jwt :content body-params cfg)
                 (assoc-in state [:request :form-params]))
            (catch clojure.lang.ExceptionInfo e
              (assoc state :error e))))))
