@@ -5,6 +5,8 @@
     [clojure.walk :refer [keywordize-keys]]
     [ring.middleware.params :as middleware.params]
     [xiana.interceptor.muuntaja :as muuntaja]
+    [xiana.jwt :as jwt]
+    [xiana.route.helpers :as helpers]
     [xiana.session :as session])
   (:import
     (java.util
@@ -136,24 +138,42 @@
   {:name ::jwt-authentication
    :enter
    (fn [{request :request :as state}]
-     )
-   :leave
-   (fn [{request :request :as state}]
-     state)
+     (let [auth (get-in request [:headers :authorization])
+           cfg (get-in state [:xiana/jwt :auth])]
+       (try
+         (jwt/unsign :auth auth cfg)
+         state
+         (catch clojure.lang.ExceptionInfo e
+           (assoc state :error e)))))
    :error
-   (fn [{request :request :as state}]
-     state)})
-
+   (fn [state]
+     (let [error (:error state)]
+       (cond
+         (= :exp (ex-data error))
+         (helpers/unauthorized state "JWT Token expired.")
+         (= :wrong-key (ex-data error))
+         (helpers/unauthorized state "Signature could not be verified.")
+         :else
+         (helpers/unauthorized state "One or more claims were invalid."))))})
 
 (defn jwt-content
   []
   {:name ::jwt-content-exchange
    :enter
    (fn [{request :request :as state}]
-     state)
+     (if-let [body-params (:form-params request)]
+       (let [cfg (get-in state [:xiana/jwt :content])]
+         (try
+           (->> (jwt/unsign :content body-params cfg)
+                (assoc-in state [:request :form-params]))
+           (catch clojure.lang.ExceptionInfo e
+             (assoc state :error e))))))
    :leave
-   (fn [{request :request :as state}]
-     state)
+   (fn [{response :response :as state}]
+     (let [cfg (get-in state [:xiana/jwt :content])]
+       (->> (jwt/sign :content (:body response) cfg)
+            (assoc-in state [:state :response :body]))))
    :error
-   (fn [{request :request :as state}]
-     state)})
+   (fn [state]
+     (let [error (:error state)]
+       (helpers/unauthorized state "Signature could not be verified")))})

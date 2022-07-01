@@ -1,11 +1,17 @@
 (ns xiana.route.helpers
-  "The default not found and action functions")
+  "The default not found, unauthorized and action functions")
 
 (defn not-found
   "Default not-found response handler helper."
   [state]
   (-> state
       (assoc :response {:status 404 :body "Not Found"})))
+
+(defn unauthorized
+  "Default unauthorized response handler helper."
+  [state msg]
+  (-> state
+      (assoc :response {:status 401 :body msg})))
 
 (defn action
   "Default action response handler helper."

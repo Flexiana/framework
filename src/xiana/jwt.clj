@@ -1,9 +1,8 @@
 (ns xiana.jwt
   (:require
-   [buddy.core.keys :as keys]
-   [buddy.sign.jwt :as jwt]
-   [buddy.sign.util :as util]
-   [clojure.edn :as edn]))
+    [buddy.core.keys :as keys]
+    [buddy.sign.jwt :as jwt]
+    [buddy.sign.util :as util]))
 
 (defn- safe-str->pkey
   [str-pkey]
@@ -19,14 +18,13 @@
     (keys/str->private-key str-pkey)
     (catch org.bouncycastle.openssl.PEMException e
       (throw (IllegalArgumentException.
-              (str "The private key provided is not a valid private key."))))))
+               (str "The private key provided is not a valid private key."))))))
 
 (defn- calculate-exp-claim
   "Adds the exp arg (in seconds) to the current time (UTC)."
   [exp]
   (+ (util/now)
      exp))
-
 
 (defmulti unsign
   "Tries to unsign a token given the algorithm and public-key
@@ -44,7 +42,7 @@
       (jwt/unsign token pkey (merge {:alg alg} claims))
       (catch NullPointerException e
         (throw (ex-info "Failed to unsign JWT!"
-                        {:cause "wrong public key."}))))))
+                        {:cause :wrong-key}))))))
 
 (defmethod unsign :content
   [_ token {:keys [alg public-key] :as cfg}]
@@ -53,13 +51,13 @@
       (jwt/unsign token pkey {:alg alg})
       (catch NullPointerException e
         (throw (ex-info "Failed to unsign JWT!"
-                        {:cause "wrong public key."}))))))
+                        {:cause :wrong-key}))))))
 
 (defmulti sign
   "Tries to sign a token given the algorithm and private-key
   provided in the configuration. Returns the payload in case of success
   and an ExceptionInfo in case it fails."
-  (fn 
+  (fn
     [type _ _]
     type))
 
@@ -69,7 +67,7 @@
         exp (calculate-exp-claim (:exp out-claims))
         claims (-> payload
                    (merge out-claims)
-                   (assoc :exp exp))] 
+                   (assoc :exp exp))]
     (jwt/sign claims pkey {:alg alg})))
 
 (defmethod sign :content
