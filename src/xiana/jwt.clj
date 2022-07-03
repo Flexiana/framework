@@ -1,7 +1,6 @@
 (ns xiana.jwt
   (:require
     [buddy.core.keys :as keys]
-    [buddy.core.nonce :as nonce]
     [buddy.sign.jwt :as jwt]
     [buddy.sign.util :as util]))
 

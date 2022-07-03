@@ -1,7 +1,5 @@
 (ns xiana.jwt-test
   (:require
-    [buddy.core.nonce :as nonce]
-    [buddy.sign.util :as butil]
     [clojure.test :refer [deftest testing is]]
     [xiana.jwt :as sut]))
 
@@ -51,4 +49,23 @@
     (testing "Sign and verify expired token"
       (let [cfg (assoc-in cfg [:out-claims :exp] -1)]
         (is (= {:type :validation :cause :exp}
+               (sign-and-verify-jwt type payload cfg)))))
+
+    (testing "Sign and verify token with invalid nbf (not before) claim."
+      (let [cfg (assoc-in cfg [:out-claims :nbf] 10)]
+        (is (= {:type :validation :cause :nbf}
+               (sign-and-verify-jwt type payload cfg)))))
+
+    (testing "Token is older than max-age"
+      (let [cfg (assoc-in cfg [:in-claims :max-age] -1)]
+        (is (= {:type :validation :cause :max-age}
                (sign-and-verify-jwt type payload cfg)))))))
+
+
+(deftest test-jwt-content
+  (let [cfg (get-in config [:xiana/jwt :content])
+        type :content
+        payload {:test "a" :foo "bar"}]
+    (testing "JWT content exchange succeeded"
+      (is (= payload
+             (sign-and-verify-jwt type payload cfg))))))

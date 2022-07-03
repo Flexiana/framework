@@ -167,7 +167,8 @@
            (->> (jwt/verify-jwt :content body-params cfg)
                 (assoc-in state [:request :form-params]))
            (catch clojure.lang.ExceptionInfo e
-             (assoc state :error e))))))
+             (assoc state :error e))))
+       state))
    :leave
    (fn [{response :response :as state}]
      (let [cfg (get-in state [:xiana/jwt :content])]
