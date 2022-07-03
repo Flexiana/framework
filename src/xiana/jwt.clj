@@ -22,22 +22,22 @@
     type))
 
 (defmethod verify-jwt :auth
-  [_ token {:keys [alg public-key in-claims] :as cfg}]
+  [_ token {:keys [alg public-key in-claims]}]
   (let [pkey (keys/str->public-key public-key)
         claims (when (seq in-claims)
                  (assoc in-claims :now (util/now)))]
     (try
       (jwt/unsign token pkey (merge {:alg alg} claims))
-      (catch NullPointerException e
+      (catch NullPointerException _
         (throw (ex-info "Failed to unsign JWT!"
                         {:cause :wrong-key}))))))
 
 (defmethod verify-jwt :content
-  [_ token {:keys [alg public-key] :as cfg}]
+  [_ token {:keys [alg public-key]}]
   (let [pkey (keys/str->public-key public-key)]
     (try
       (jwt/unsign token pkey {:alg alg})
-      (catch NullPointerException e
+      (catch NullPointerException _
         (throw (ex-info "Failed to unsign JWT!"
                         {:cause :wrong-key}))))))
 
@@ -49,7 +49,7 @@
     type))
 
 (defmethod sign :auth
-  [_ payload {:keys [alg private-key out-claims] :as cfg}]
+  [_ payload {:keys [alg private-key out-claims]}]
   (let [pkey (keys/str->private-key private-key)
         claims (-> payload
                    (merge out-claims)
@@ -57,6 +57,6 @@
     (jwt/sign claims pkey {:alg alg})))
 
 (defmethod sign :content
-  [_ payload {:keys [alg private-key] :as cfg}]
+  [_ payload {:keys [alg private-key]}]
   (let [pkey (keys/str->private-key private-key)]
     (jwt/sign payload pkey {:alg alg})))

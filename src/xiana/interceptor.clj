@@ -147,14 +147,15 @@
            (assoc state :error e)))))
    :error
    (fn [state]
-     (let [error (:error state)]
+     (let [error (:error state)
+           err-info (ex-data error)]
        (cond
-         (= :exp (ex-data error))
+         (= :exp (:cause err-info))
          (helpers/unauthorized state "JWT Token expired.")
-         (= :wrong-key (ex-data error))
-         (helpers/unauthorized state "Signature could not be verified.")
+         (= :validation (:type err-info))
+         (helpers/unauthorized state "One or more Claims were invalid.")
          :else
-         (helpers/unauthorized state "Claims were invalid."))))})
+         (helpers/unauthorized state "Signature could not be verified."))))})
 
 (defn jwt-content
   []
@@ -176,5 +177,4 @@
             (assoc-in state [:state :response :body]))))
    :error
    (fn [state]
-     (let [error (:error state)]
-       (helpers/unauthorized state "Signature could not be verified")))})
+     (helpers/unauthorized state "Signature could not be verified"))})
