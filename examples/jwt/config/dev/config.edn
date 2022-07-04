@@ -1,0 +1,11 @@
+{:xiana/session-backend {:storage            :database
+                         :session-table-name :sessions
+                         :port               5432
+                         :dbname             "sessions"
+                         :host               "localhost"
+                         :dbtype             "postgresql"
+                         :user               "sessions"
+                         :password           "postgres"}
+ :xiana/web-server      {:port  3000
+                         :join? false}}
+
