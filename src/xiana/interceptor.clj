@@ -133,13 +133,12 @@
   ([] (muuntaja muuntaja/interceptor))
   ([interceptor] interceptor))
 
-(defn jwt-auth
-  []
+(def jwt-auth
   {:name ::jwt-authentication
    :enter
    (fn [{request :request :as state}]
      (let [auth (get-in request [:headers :authorization])
-           cfg (get-in state [:xiana/jwt :auth])]
+           cfg (get-in state [:deps :xiana/jwt :auth])]
        (try
          (jwt/verify-jwt :auth auth cfg)
          state
@@ -157,13 +156,12 @@
          :else
          (helpers/unauthorized state "Signature could not be verified."))))})
 
-(defn jwt-content
-  []
+(def jwt-content
   {:name ::jwt-content-exchange
    :enter
    (fn [{request :request :as state}]
-     (if-let [body-params (:form-params request)]
-       (let [cfg (get-in state [:xiana/jwt :content])]
+     (if-let [body-params (:body-params request)]
+       (let [cfg (get-in state [:deps :xiana/jwt :content])]
          (try
            (->> (jwt/verify-jwt :content body-params cfg)
                 (assoc-in state [:request :form-params]))
@@ -172,7 +170,7 @@
        state))
    :leave
    (fn [{response :response :as state}]
-     (let [cfg (get-in state [:xiana/jwt :content])]
+     (let [cfg (get-in state [:deps :xiana/jwt :content])]
        (->> (jwt/sign :content (:body response) cfg)
             (assoc-in state [:state :response :body]))))
    :error

@@ -27,14 +27,12 @@
 
 (defn login-controller
   [{request :request :as state}]
-  (try (let [rbody (or (some-> request
-                               body-string
-                               (json/read-str :key-fn keyword))
+  (try (let [rbody (or (:body-params request)
                        (throw (ex-message "Missing body")))
              user (find-user (-> rbody :email))]
          (if (and user (= (:password user) (:password rbody)))
-           (let [cfg (get-in state [:xiana/jwt :auth])
-                 jwt-token (jwt/sign :auth (dissoc rbody :password))]
-             )
+           (let [cfg (get-in state [:deps :xiana/jwt :auth])
+                 jwt-token (jwt/sign :auth (dissoc rbody :password) cfg)]
+             (assoc state :response {:status 200 :body {:auth-token jwt-token}}))
            (helpers/unauthorized "Incorrect credentials")))
        (catch Exception _ (missing-credentials state))))

@@ -3,6 +3,7 @@
     [app.controllers.index :as index]
     [app.controllers.login :as login]
     [app.controllers.secret :as secret]
+    [app.config :refer [jwt-config]]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [xiana.config :as config]
     [xiana.handler :as x-handler]
@@ -13,15 +14,17 @@
 
 (def routes
   [["" {:handler x-handler/handler-fn}]
-   ["/" {:action       index/index
-         :interceptors [x-interceptors/params]}]
-   ["/login" {:action login/login-controller
-              :interceptors {:except [x-interceptors/]}}]
+   ["/" {:action index/index}]
+   ["/login" {:post
+              {:action       login/login-controller
+               :interceptors {:except [x-interceptors/jwt-auth]}}}]
    ["/secret" {:action       secret/protected-controller}]])
+
 
 (defn ->system
   [app-cfg]
   (-> (config/config)
+      (merge jwt-config)
       (merge app-cfg)
       x-routes/reset
       ws/start
@@ -30,10 +33,9 @@
 (def app-cfg
   {:routes                  routes
    :controller-interceptors [(x-interceptors/muuntaja)
-                             (x-interceptors/jwt-auth)
-                             (x-interceptors/jwt-content)
                              xiana.interceptor.error/response
-                             x-interceptors/params]})
+                             x-interceptors/params
+                             x-interceptors/jwt-auth]})
 
 (defn -main
   [& _args]
