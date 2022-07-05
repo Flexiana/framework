@@ -2,7 +2,7 @@
 
 (defn index
   [state]
-  (let [user (get-in state [:session-data :user])
+  (let [user (:session-data state)
         body (if user
                (format "Index page, for %s" (:first-name user))
                "Index page")]

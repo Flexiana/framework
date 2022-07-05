@@ -5,8 +5,8 @@
 
 (def db
   [{:id         1
-    :email      "piotr@example.com"
-    :first-name "Piotr"
+    :email      "xiana@test.com"
+    :first-name "Xiana"
     :last-name  "Developer"
     :password   "topsecret"}])
 
@@ -27,7 +27,7 @@
              user (find-user (-> rbody :email))]
          (if (and user (= (:password user) (:password rbody)))
            (let [cfg (get-in state [:deps :xiana/jwt :auth])
-                 jwt-token (jwt/sign :auth (dissoc rbody :password) cfg)]
+                 jwt-token (jwt/sign :auth (dissoc user :password) cfg)]
              (assoc state :response {:status 200 :body {:auth-token jwt-token}}))
            (helpers/unauthorized "Incorrect credentials")))
        (catch Exception _ (missing-credentials state))))

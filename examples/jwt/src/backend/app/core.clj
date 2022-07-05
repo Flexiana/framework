@@ -18,7 +18,8 @@
    ["/login" {:post
               {:action       login/login-controller
                :interceptors {:except [x-interceptors/jwt-auth]}}}]
-   ["/secret" {:action       secret/protected-controller}]])
+   ["/secret" {:post
+               {:action secret/protected-controller}}]])
 
 
 (defn ->system

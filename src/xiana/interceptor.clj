@@ -140,8 +140,9 @@
      (let [auth (get-in request [:headers :authorization])
            cfg (get-in state [:deps :xiana/jwt :auth])]
        (try
-         (jwt/verify-jwt :auth auth cfg)
-         state
+         (->>
+          (jwt/verify-jwt :auth auth cfg)
+          (assoc state :session-data))
          (catch clojure.lang.ExceptionInfo e
            (assoc state :error e)))))
    :error
