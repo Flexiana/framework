@@ -1,12 +1,7 @@
 (ns app.controllers.login
   (:require
-    [clojure.data.json :as json]
-    [ring.util.request :refer [body-string]]
     [xiana.route.helpers :as helpers]
-    [xiana.jwt :as jwt])
-  (:import
-    (java.util
-      UUID)))
+    [xiana.jwt :as jwt]))
 
 (def db
   [{:id         1
