@@ -61,7 +61,6 @@
         (is (= {:type :validation :cause :max-age}
                (sign-and-verify-jwt type payload cfg)))))))
 
-
 (deftest test-jwt-content
   (let [cfg (get-in config [:xiana/jwt :content])
         type :no-claims

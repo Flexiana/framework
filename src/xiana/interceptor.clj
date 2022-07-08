@@ -2,8 +2,8 @@
   "Collection of useful interceptors"
   (:require
     [clojure.pprint :refer [pprint]]
-    [clojure.walk :refer [keywordize-keys]]
     [clojure.string :as cstr]
+    [clojure.walk :refer [keywordize-keys]]
     [ring.middleware.params :as middleware.params]
     [xiana.interceptor.muuntaja :as muuntaja]
     [xiana.jwt :as jwt]
@@ -145,8 +145,8 @@
            cfg (get-in state [:deps :xiana/jwt :auth])]
        (try
          (->>
-          (jwt/verify-jwt :claims auth cfg)
-          (assoc state :session-data))
+           (jwt/verify-jwt :claims auth cfg)
+           (assoc state :session-data))
          (catch clojure.lang.ExceptionInfo e
            (assoc state :error e)))))
    :error
