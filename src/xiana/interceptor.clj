@@ -139,7 +139,7 @@
    :enter
    (fn [{request :request :as state}]
      (let [auth (-> request
-                    (get-in [:headers :autorization])
+                    (get-in [:headers :authorization])
                     (cstr/split #" ")
                     second)
            cfg (get-in state [:deps :xiana/jwt :auth])]

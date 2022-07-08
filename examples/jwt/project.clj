@@ -1,7 +1,8 @@
 (defproject jwt "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[com.flexiana/framework "0.5.0-rc3"]]
+  :dependencies [[com.flexiana/framework "0.5.0-rc3"]
+                 [org.clojure/tools.cli "1.0.206"]]
   :plugins [[lein-shadow "0.4.0"]
             [lein-shell "0.5.0"]
             [migratus-lein "0.7.3"]]

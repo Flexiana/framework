@@ -27,7 +27,9 @@
              user (find-user (-> rbody :email))]
          (if (and user (= (:password user) (:password rbody)))
            (let [cfg (get-in state [:deps :xiana/jwt :auth])
-                 jwt-token (jwt/sign :auth (dissoc user :password) cfg)]
+                 jwt-token (jwt/sign :claims (dissoc user :password) cfg)]
              (assoc state :response {:status 200 :body {:auth-token jwt-token}}))
            (helpers/unauthorized "Incorrect credentials")))
-       (catch Exception _ (missing-credentials state))))
+       (catch Exception e
+         (println e)
+         (missing-credentials state))))
