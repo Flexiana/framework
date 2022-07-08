@@ -45,12 +45,14 @@ The top level keys `:auth` and `:content` are used to specify the configuration 
 
 ### Config keys
 
-`:alg` key is used to inform which algorithm the JWT is/will be signed [More on accepted algorithms](https://funcool.github.io/buddy-sign/latest/01-jwt.html).
+- `:alg` key is used to inform which algorithm the JWT is/will be signed [More on accepted algorithms](https://funcool.github.io/buddy-sign/latest/01-jwt.html).
 
-`:private-key` informs the private-key in which the JWT will be signed.
-`:public-key` informs the public-key needed to verify the JWT.
+- `:private-key` informs the private-key in which the JWT will be signed.
+
+- `:public-key` informs the public-key needed to verify the JWT.
 
 Example to generate priv/public keys (rsa256):
+
 Do not add a passphrase for the keys.
 ```sh
 ssh-keygen -t rsa -b 4096 -m PEM -f rs256.key
@@ -58,6 +60,9 @@ openssl rsa -in rs256.key -pubout -outform PEM -out rs256.key.pub
 ```
 
 
-`:out-claims` key contains keys to inform claims when signing the JWT.
-`:in-claims` key has the keys to verify the JWT claims.
+- `:out-claims` key contains keys to inform claims when signing the JWT.
+  * `:exp` and `:nbf` (expiration and not before, respectively) should be a value in seconds and when the JWT is beign signed will be added to the current time. `:exp` sets the token's expiration, while `:nbf` tells the validator to not accept the token before the time provided by it.
+
+- `:in-claims` key has the keys to validate the JWT claims.
+  * `:leeway` and `:max-age`  should be a value in seconds. The `:leeway` key is used to give some leeway in not-before and expiration claims validation. `:max-age` is another way to set an expiration on the JWT, it will compare the `:iat` (issued at time) claim with the current time, and if it has extrapolated the seconds set in `max-age`, the validation will fail.
 
