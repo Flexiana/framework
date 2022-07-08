@@ -21,7 +21,7 @@
   (fn [type _ _]
     type))
 
-(defmethod verify-jwt :auth
+(defmethod verify-jwt :claims
   [_ token {:keys [alg public-key in-claims]}]
   (let [pkey (keys/str->public-key public-key)
         claims (when (seq in-claims)
@@ -32,7 +32,7 @@
         (throw (ex-info "Failed to unsign JWT!"
                         {:cause :wrong-key}))))))
 
-(defmethod verify-jwt :content
+(defmethod verify-jwt :no-claims
   [_ token {:keys [alg public-key]}]
   (let [pkey (keys/str->public-key public-key)]
     (try
@@ -48,7 +48,7 @@
     [type _ _]
     type))
 
-(defmethod sign :auth
+(defmethod sign :claims
   [_ payload {:keys [alg private-key out-claims]}]
   (let [pkey (keys/str->private-key private-key)
         claims (-> payload
@@ -56,7 +56,7 @@
                    (calculate-time-claims))]
     (jwt/sign claims pkey {:alg alg})))
 
-(defmethod sign :content
+(defmethod sign :no-claims
   [_ payload {:keys [alg private-key]}]
   (let [pkey (keys/str->private-key private-key)]
     (jwt/sign payload pkey {:alg alg})))

@@ -70,3 +70,19 @@ On `:leave`, validates the response body with the given malli schema.
 ## cookies
 
     Cookie request/response wrapper
+
+## jwt-auth
+
+On `:enter`, gets the `authorization` header from the request and verifies the JWT sent. If its valid, adds the contents of the JWT to `session-data`, otherwise assocs the Exception into the `error` key in state.
+
+On `:error`, returns a `401 Unauthorized` response with the message depending on the `ExceptionInfo` data present in the `:error` key in state.
+
+On `:leave` does nothing.
+
+## jwt-content
+
+On `:enter`, grabs the JWT sent as a body-param in the request and verifies it. If its valid, rewrites the content of the `:body-params` key with the contents of the JWT. If validation fails, assocs the Exception to the `:error` key in state.
+
+On `:leave`, signs the contents of the response body and assocs it back to the `:body` of the response.
+
+On `:error`, responds `401 Unauthorized`.

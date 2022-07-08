@@ -37,7 +37,7 @@
 
 (deftest test-jwt-auth
   (let [cfg (get-in config [:xiana/jwt :auth])
-        type    :auth
+        type    :claims
         payload {:user "test"}]
 
     (testing "Sign and verify succeeded"
@@ -64,7 +64,7 @@
 
 (deftest test-jwt-content
   (let [cfg (get-in config [:xiana/jwt :content])
-        type :content
+        type :no-claims
         payload {:test "a" :foo "bar"}]
     (testing "JWT content exchange succeeded"
       (is (= payload

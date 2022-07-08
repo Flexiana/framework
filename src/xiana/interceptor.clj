@@ -3,6 +3,7 @@
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.walk :refer [keywordize-keys]]
+    [clojure.string :as cstr]
     [ring.middleware.params :as middleware.params]
     [xiana.interceptor.muuntaja :as muuntaja]
     [xiana.jwt :as jwt]
@@ -137,11 +138,14 @@
   {:name ::jwt-authentication
    :enter
    (fn [{request :request :as state}]
-     (let [auth (get-in request [:headers :authorization])
+     (let [auth (-> request
+                    (get-in [:headers :autorization])
+                    (cstr/split #" ")
+                    second)
            cfg (get-in state [:deps :xiana/jwt :auth])]
        (try
          (->>
-          (jwt/verify-jwt :auth auth cfg)
+          (jwt/verify-jwt :claims auth cfg)
           (assoc state :session-data))
          (catch clojure.lang.ExceptionInfo e
            (assoc state :error e)))))
@@ -164,15 +168,15 @@
      (if-let [body-params (:body-params request)]
        (let [cfg (get-in state [:deps :xiana/jwt :content])]
          (try
-           (->> (jwt/verify-jwt :content body-params cfg)
-                (assoc-in state [:request :form-params]))
+           (->> (jwt/verify-jwt :no-claims body-params cfg)
+                (assoc-in state [:request :body-params]))
            (catch clojure.lang.ExceptionInfo e
              (assoc state :error e))))
        state))
    :leave
    (fn [{response :response :as state}]
      (let [cfg (get-in state [:deps :xiana/jwt :content])]
-       (->> (jwt/sign :content (:body response) cfg)
+       (->> (jwt/sign :no-claims (:body response) cfg)
             (assoc-in state [:state :response :body]))))
    :error
    (fn [state]
