@@ -1,15 +1,13 @@
 (ns app.config)
 
-
 (def private-key (slurp "resources/_files/jwtRS256.key"))
 
 (def public-key (slurp "resources/_files/jwtRS256.key.pub"))
 
-
-;;This def is for readability only
-;;the xiana/jwt config should be passed
-;;as an env variable so the private and public
-;;keys don't need to be tracked by version control.
+;; This def is for readability only
+;; the xiana/jwt config should be passed
+;; as an env variable so the private and public
+;; keys don't need to be tracked by version control.
 (def jwt-config
   {:xiana/jwt
    {:auth

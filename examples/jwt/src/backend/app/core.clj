@@ -1,9 +1,9 @@
 (ns app.core
   (:require
+    [app.config :refer [jwt-config]]
     [app.controllers.index :as index]
     [app.controllers.login :as login]
     [app.controllers.secret :as secret]
-    [app.config :refer [jwt-config]]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [xiana.config :as config]
     [xiana.handler :as x-handler]
@@ -20,7 +20,6 @@
                :interceptors {:except [x-interceptors/jwt-auth]}}}]
    ["/secret" {:post
                {:action secret/protected-controller}}]])
-
 
 (defn ->system
   [app-cfg]

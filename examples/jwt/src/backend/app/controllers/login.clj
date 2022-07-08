@@ -1,7 +1,7 @@
 (ns app.controllers.login
   (:require
-    [xiana.route.helpers :as helpers]
-    [xiana.jwt :as jwt]))
+    [xiana.jwt :as jwt]
+    [xiana.route.helpers :as helpers]))
 
 (def db
   [{:id         1
