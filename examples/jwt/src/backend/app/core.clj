@@ -9,6 +9,7 @@
     [xiana.handler :as x-handler]
     [xiana.interceptor :as x-interceptors]
     [xiana.interceptor.error]
+    [xiana.jwt.interceptors :as jwt-interceptors]
     [xiana.route :as x-routes]
     [xiana.webserver :as ws]))
 
@@ -17,7 +18,7 @@
    ["/" {:action index/index}]
    ["/login" {:post
               {:action       login/login-controller
-               :interceptors {:except [x-interceptors/jwt-auth]}}}]
+               :interceptors {:except [jwt-interceptors/jwt-auth]}}}]
    ["/secret" {:post
                {:action secret/protected-controller}}]])
 
@@ -35,7 +36,7 @@
    :controller-interceptors [(x-interceptors/muuntaja)
                              xiana.interceptor.error/response
                              x-interceptors/params
-                             x-interceptors/jwt-auth]})
+                             jwt-interceptors/jwt-auth]})
 
 (defn -main
   [& _args]
