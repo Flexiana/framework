@@ -7,5 +7,16 @@
                          :user               "sessions"
                          :password           "postgres"}
  :xiana/web-server      {:port  3000
-                         :join? false}}
+                         :join? false}
+ :xiana/jwt
+ {:auth
+  {:alg :rs256
+   :in-claims {:iss "xiana-api"
+               :aud "api-consumer"
+               :leeway 0
+               :max-age 40}
+   :out-claims {:exp 1000
+                :iss "xiana-api"
+                :aud "api-consumer"
+                :nbf 0}}}}
 

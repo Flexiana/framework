@@ -43,6 +43,8 @@ In order to use the interceptors implemented in xiana, the config map should loo
 
 The top level keys `:auth` and `:content` are used to specify the configuration for `jwt-auth` and `jwt-content` interceptors respectively.
 
+This config is better passed as an env variable, so you won't need to version control the private/public keys and instead can rely on a secret vault to set the env variable correctly [acording to the config lib](https://github.com/yogthos/config).
+
 ### Config keys
 
 - `:alg` key is used to inform which algorithm the JWT is/will be signed [More on accepted algorithms](https://funcool.github.io/buddy-sign/latest/01-jwt.html).

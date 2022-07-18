@@ -1,6 +1,6 @@
 (ns app.core
   (:require
-    [app.config :refer [jwt-config]]
+    [app.config :refer [init-jwt-cfg]]
     [app.controllers.index :as index]
     [app.controllers.login :as login]
     [app.controllers.secret :as secret]
@@ -25,7 +25,7 @@
 (defn ->system
   [app-cfg]
   (-> (config/config)
-      (merge jwt-config)
+      init-jwt-cfg
       (merge app-cfg)
       x-routes/reset
       ws/start
