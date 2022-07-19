@@ -19,8 +19,6 @@
                  [nilenso/honeysql-postgres "0.4.112"]
                  [org.postgresql/postgresql "42.3.3"]
                  [seancorfield/next.jdbc "1.2.659"]
-                 [clj-test-containers "0.6.0"]
-                 [org.testcontainers/testcontainers "1.16.3"]
                  [yogthos/config "1.2.0"]
                  [com.taoensso/timbre "5.2.1"]]
   :source-paths ["src"]
@@ -46,6 +44,8 @@
                                          [mvxcvi/cljstyle "0.15.0"
                                           :exclusions [org.clojure/clojure]]
                                          [clj-kondo "2022.03.09"]
+                                         [clj-test-containers "0.6.0"]
+                                         [org.testcontainers/testcontainers "1.16.3"]
                                          [nubank/matcher-combinators "3.3.1"]]}}
   :aliases {"check-style" ["with-profile" "+test" "run" "-m" "cljstyle.main" "check"]
             "fix-style"   ["with-profile" "+test" "run" "-m" "cljstyle.main" "fix"]
