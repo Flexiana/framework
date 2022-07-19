@@ -9,7 +9,8 @@ Breaking changes:
 - changed interceptors behaviour making them similar to pedestal and sieppari
 - changed error handling
 - addded deps.edn
-- a bunch of other small fixes.
+- a bunch of other small fixes
+- removed `docker-postgres!` function.
 
 ## 0.5-rc1
 Breaking change: rename almost all namespaces from `framework..` to `xiana..`).
