@@ -2,6 +2,8 @@
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
   :dependencies [[com.flexiana/framework "0.5.0-rc2"]
+                 [clj-test-containers "0.6.0"]
+                 [org.testcontainers/testcontainers "1.16.3"]
                  [tick "0.5.0-RC5"]]
   :main ^:skip-aot state-events.core
   :uberjar-name "state-events.jar"
