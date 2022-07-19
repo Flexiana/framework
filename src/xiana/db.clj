@@ -94,7 +94,6 @@
                                (get-datasource config (inc count))
                                (throw e)))))))
 
-
 (defn migrate!
   ([config]
    (migrate! config 0))
