@@ -2,6 +2,7 @@
   :description "Xiana framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
+  :plugins [[lein-pprint "1.1.1"]]
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/core.async "1.5.648"]
                  [org.clojure/data.json "2.4.0"] ; TODO: remove this or jsonista
@@ -36,7 +37,7 @@
              :local    {:resource-paths ["config/local"]}
              :prod     {:resource-paths ["config/prod"]}
              :cljstyle {:dependencies []}
-             :test     {:source-paths   ["test"]
+             :test     {:source-paths   ["test" "dev"]
                         :resource-paths ["config/test"]
                         :dependencies   [[lambdaisland/kaocha "1.64.1010"]
                                          [clj-http "3.12.3"]

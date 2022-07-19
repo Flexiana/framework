@@ -1,6 +1,7 @@
 (ns xiana-fixture
   (:require
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
+    [utils]
     [xiana.commons :refer [rename-key]]
     [xiana.config :as config]
     [xiana.db :as db-core]
@@ -15,7 +16,7 @@
   (-> (config/config)
       (merge app-cfg)
       (rename-key :xiana/auth :auth)
-      db-core/docker-postgres!
+      utils/docker-postgres!
       db-core/connect
       db-core/migrate!
       session-backend/init-backend
