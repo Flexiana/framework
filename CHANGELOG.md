@@ -1,4 +1,6 @@
-## [Unreleased] - 2022-06-25 
+## 0.5-rc3
+- JWT signing support for authentication and content exchange via interceptors.
+
 Breaking changes: 
 - refactor database migration system, use patched migratus (Flexiana/migratus), removed seed module and rewrite data migration tool
 
