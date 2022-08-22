@@ -11,6 +11,8 @@
  :xiana/jwt
  {:auth
   {:alg :rs256
+   :public-key "$jwt-public-key"
+   :private-key "$jwt-private-key"
    :in-claims {:iss "xiana-api"
                :aud "api-consumer"
                :leeway 0

@@ -2,7 +2,8 @@
   (:require
     [clojure.string :as cstr]
     [xiana.jwt :as jwt]
-    [xiana.route.helpers :as helpers]))
+    [xiana.route.helpers :as helpers])
+  (:import java.util.Base64))
 
 (def jwt-auth
   {:name ::jwt-authentication
@@ -51,3 +52,25 @@
    :error
    (fn [state]
      (helpers/unauthorized state "Signature could not be verified"))})
+
+(defn- decode-b64-key
+  [jwt-config key key-type]
+  (-> jwt-config
+      (get-in [key key-type])
+      (->>
+       (.decode (Base64/getDecoder))
+       slurp)))
+
+(defn- add-decoded-keys
+  [jwt-config key]
+  (->> jwt-config
+       (assoc-in [key :public-key] (decode-b64-key jwt-config key :public-key))
+       (assoc-in [key :private-key] (decode-b64-key jwt-config key :private-key))))
+
+(defn init-jwt-config
+  [{jwt-config :xiana/jwt :as config}]
+  (let [jwt-keys (keys jwt-config)]
+    (assoc config :xiana/jwt
+           (map (fn [key]
+                  (add-decoded-keys jwt-config key))
+                jwt-keys))))

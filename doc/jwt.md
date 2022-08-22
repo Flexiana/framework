@@ -37,7 +37,7 @@ In order to use the interceptors implemented in xiana, the config map should loo
                   :nbf 0}}
     :content
     {:private-key <PRIVATE_KEY_2>
-	 :public-key <PUBLIC_KEY_3>
+	 :public-key <PUBLIC_KEY_2>
      :alg :rs256}}}
 ```
 

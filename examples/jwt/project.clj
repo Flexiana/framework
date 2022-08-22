@@ -11,19 +11,15 @@
   :source-paths ["src/backend/"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :profiles {:dev   {:resource-paths ["config/dev"]
-                     :dependencies   [[binaryage/devtools "1.0.5"]]}
+                     :dependencies   [[binaryage/devtools "1.0.5"]
+                                      [org.clojure/tools.nrepl "0.2.13"]
+                                      [nrepl/lein-nrepl "0.3.2"]]}
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
                      :dependencies   [[clj-http "3.12.3"]
                                       [mvxcvi/cljstyle "0.15.0"
                                        :exclusions [org.clojure/clojure]]]}}
-  :shadow-cljs {:nrepl {:port 8777}
-                :builds {:app {:target     :browser
-                               :output-dir "resources/public/js/compiled"
-                               :asset-path "/js/compiled"
-                               :modules    {:app {:init-fn  controllers.core/init
-                                                  :preloads [devtools.preload]}}}}}
   :aliases {"check-style" ["with-profile" "+test" "run" "-m" "cljstyle.main" "check"]
             "ci"      ["do" "clean," "cloverage," "lint," "uberjar"]
             "kondo"   ["run" "-m" "clj-kondo.main" "--lint" "src" "test"]
