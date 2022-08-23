@@ -1,4 +1,6 @@
-## [Unreleased] - 2022-06-25 
+## [Unreleased] - 2022-06-26
+- Added new `prune-get-request-bodies` interceptor
+
 Breaking changes: 
 - refactor database migration system, use patched migratus (Flexiana/migratus), removed seed module and rewrite data migration tool
 

@@ -12,6 +12,7 @@
 - [rbac](#rbac)
 - [coercion](#coercion)
 - [cookies](#cookies)
+- [prune-get-request-bodies](#prune-get-request-bodies)
 
 ## log
 
@@ -70,3 +71,7 @@ On `:leave`, validates the response body with the given malli schema.
 ## cookies
 
     Cookie request/response wrapper
+
+## prune-get-request-bodies
+
+On `:enter`, removes both `body` and `:body-params` from GET requests.

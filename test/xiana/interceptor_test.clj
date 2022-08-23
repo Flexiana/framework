@@ -156,3 +156,14 @@
 (deftest contains-muuntaja-interceptor
   (let [interceptor (interceptor/muuntaja)]
     (is (seq interceptor))))
+
+(deftest prunes-get-request-bodies
+  (testing "GET request"
+    (let [state {:request sample-request}]
+      (is (= state (fetch-execute state interceptor/prune-get-request-bodies :enter)))
+      (is (= state (fetch-execute (assoc-in state [:request :body] "TEST BODY") interceptor/prune-get-request-bodies :enter)))
+      (is (= state (fetch-execute (assoc-in state [:request :body-params] {:param "value"}) interceptor/prune-get-request-bodies :enter)))))
+  (testing "POST request"
+    (let [request (-> sample-request (assoc :body {:param1 1 :param2 2}) (assoc :request-method :post))
+          state {:request request}]
+      (is (= state (fetch-execute state interceptor/prune-get-request-bodies :enter))))))
