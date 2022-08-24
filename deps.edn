@@ -29,7 +29,8 @@
   :check
   {:extra-deps {athos/clj-check
                 {:git/url "https://github.com/athos/clj-check.git"
-                 :sha     "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}}
+                 :sha     "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}
+                clj-test-containers/clj-test-containers {:mvn/version "0.5.0"}}
    :main-opts  ["-m" "clj-check.check"]}
 
   :kondo
@@ -41,7 +42,8 @@
    :main-opts  ["-m" "kibit-runner.cmdline"]}
 
   :eastwood
-  {:extra-deps {jonase/eastwood {:mvn/version "1.2.4"}}
+  {:extra-deps {jonase/eastwood                         {:mvn/version "1.2.4"}
+                clj-test-containers/clj-test-containers {:mvn/version "0.5.0"}}
    :main-opts  ["-m" "eastwood.lint" {:source-paths ["src"]}]}
 
   :format
