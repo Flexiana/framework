@@ -114,9 +114,7 @@
   (is (= 1 (-> (put :posts test_staff {:content "Something to delete"})
                :body
                update-count)))
-  (is (= 0 (-> (delete :posts test_member (first (all-post-ids)))
-               :body
-               update-count)))
+  (is (zero? (-> (delete :posts test_member (first (all-post-ids))) :body update-count)))
   (is (= 1 (count (all-post-ids)))))
 
 (deftest member-can-update-own-post
@@ -135,9 +133,7 @@
   (is (= 1 (-> (put :posts test_staff {:content "Something to delete"})
                :body
                update-count)))
-  (is (= 0 (-> (post :posts test_member (first (all-post-ids)) {:content "Or update instead"})
-               :body
-               update-count)))
+  (is (zero? (-> (post :posts test_member (first (all-post-ids)) {:content "Or update instead"}) :body update-count)))
   (is (= 1 (count (all-post-ids))))
   (is (.contains (:body (fetch :posts)) "Something to delete")))
 

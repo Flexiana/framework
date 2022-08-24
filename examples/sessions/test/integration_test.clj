@@ -14,9 +14,7 @@
 
 (defn merge-connection
   [config]
-  (assoc config :xiana/session-backend
-         (commons/deep-merge (:xiana/session-backend config)
-                             (:xiana/postgresql config))))
+  (update-in config [:xiana/session-backend] commons/deep-merge (:xiana/postgresql config)))
 
 (defn std-system-fixture
   [f]

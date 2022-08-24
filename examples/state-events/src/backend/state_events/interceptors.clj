@@ -12,9 +12,4 @@
 
 (def session-id->cookie
   {:leave (fn [state]
-            (-> (assoc-in state
-                          [:response :cookies :session-id]
-                          (get-in state [:session-data :session-id]))
-                (assoc-in
-                  [:response :headers "access-control-expose-headers"]
-                  "Set-Cookie")))})
+            (assoc-in (assoc-in state [:response :cookies :session-id] (get-in state [:session-data :session-id])) [:response :headers "access-control-expose-headers"] "Set-Cookie"))})

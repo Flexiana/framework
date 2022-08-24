@@ -9,8 +9,7 @@
         resource-id (:resource-id event)]
     (assoc-in state
               [:db-queries :queries]
-              [(-> (sqlh/insert-into :events)
-                   (sqlh/values [(update event :payload sqlf/value)]))
+              [(sqlh/values (sqlh/insert-into :events) [(update event :payload sqlf/value)])
                (-> (sqlh/select :*)
                    (sqlh/from :events)
                    (sqlh/where [:and
@@ -34,5 +33,4 @@
   [state]
   (assoc state
          :query
-         (-> (sqlh/select :*)
-             (sqlh/from :events))))
+         (sqlh/from (sqlh/select :*) :events)))

@@ -86,8 +86,7 @@
          ;; associate session data into state
          (assoc state :session-data session-data)
          ;; else, associate a new session
-         (-> (assoc-in state [:session-data :session-id] (UUID/randomUUID))
-             (assoc-in [:session-data :new-session] true)))))
+         (assoc-in (assoc-in state [:session-data :session-id] (UUID/randomUUID)) [:session-data :new-session] true))))
    :leave
    (fn [state]
      (let [session-backend (-> state :deps :session-backend)
@@ -120,11 +119,7 @@
    {:enter
     (fn [{request :request :as state}]
       (let [auth (get-in request [:headers :authorization])]
-        (->
-          ;; f: function to update/associate the user role
-          (f state role)
-          ;; associate authorization into session-data
-          (assoc-in [:session-data :authorization] auth))))}))
+        (assoc-in (f state role) [:session-data :authorization] auth)))}))
 
 (defn muuntaja
   "Muuntaja encoder/decoder interceptor."

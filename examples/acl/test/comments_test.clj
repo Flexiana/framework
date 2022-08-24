@@ -26,10 +26,7 @@
                     first
                     :comments
                     count)))
-      (is (= 0 (->> (remove #(#{first-id} (:posts/id %)) new-posts)
-                    first
-                    :comments
-                    count))))))
+      (is (zero? (->> (remove (fn* [p1__602731#] (#{first-id} (:posts/id p1__602731#))) new-posts) first :comments count))))))
 
 (defn ->comments
   [response]
@@ -65,5 +62,4 @@
                     ->comments
                     first)]
     (is (= comment deleted))
-    (is (empty? (-> (helpers/fetch :comments test_member comment-id)
-                    ->comments)))))
+    (is (empty? (->comments (helpers/fetch :comments test_member comment-id))))))

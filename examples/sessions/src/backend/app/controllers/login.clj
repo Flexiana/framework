@@ -30,7 +30,7 @@
                                body-string
                                (json/read-str :key-fn keyword))
                        (throw (ex-message "Missing body")))
-             user (find-user (-> rbody :email))
+             user (find-user (:email rbody))
              session-id (UUID/randomUUID)
              session-data {:session-id session-id
                            :user       (dissoc user :password)}]

@@ -12,7 +12,7 @@
 (defn group-events
   [state]
   (->> state :response-data :db-data
-       (group-by #(format "%s/%s" (apply str (:events/resource %)) (:events/resource_id %)))
+       (group-by #(format "%s/%s" (clojure.string/join (:events/resource %)) (:events/resource_id %)))
        keywordize-keys))
 
 (defn persons

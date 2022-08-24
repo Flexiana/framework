@@ -3,7 +3,10 @@
     [clojure.test :refer :all]
     [xiana.route :as route]
     [xiana.route.helpers :as helpers]
-    [xiana.state :as state]))
+    [xiana.state :as state])
+  (:import
+    (reitit.core
+      Match)))
 
 (def sample-request
   {:uri "/" :request-method :get})
@@ -31,17 +34,14 @@
 ;; test route match update request-data (state) functionality
 (deftest contains-updated-request-data
   ;; get state from sample request micro/match flow
-  (let [state (-> (state/make
-                    (route/reset sample-routes)
-                    sample-request)
-                  route/match)
+  (let [state (route/match (state/make (route/reset sample-routes) sample-request))
         ;; expected request data
         expected {:method :get
-                  :match  #reitit.core.Match{:template    "/"
-                                             :data        {:action :action}
-                                             :result      nil
-                                             :path-params {}
-                                             :path        "/"}
+                  :match  #Match{:template    "/"
+                                 :data        {:action :action}
+                                 :result      nil
+                                 :path-params {}
+                                 :path        "/"}
                   :action :action}]
     ;; verify if updated request-data
     ;; is equal to the expected value
