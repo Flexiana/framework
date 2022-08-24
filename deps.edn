@@ -39,7 +39,7 @@
 
   :kibit
   {:extra-deps {tvaughan/kibit-runner {:mvn/version "1.0.1"}}
-   :main-opts  ["-m" "kibit-runner.cmdline" "--" "--replace"]}
+   :main-opts  ["-m" "kibit-runner.cmdline" "src,test,examples"]}
 
   :eastwood
   {:extra-deps {jonase/eastwood                         {:mvn/version "1.2.4"}
