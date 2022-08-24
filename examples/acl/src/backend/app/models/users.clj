@@ -17,18 +17,25 @@
 
 (defn ->store-user
   [m]
-  (into {:is_active true, :is_staff false, :is_superuser false} (select-keys m [:id :password :last_login :is_superuser :username :first_name :last_name :email :is_staff :is_active])))
+  (assoc
+    (select-keys m [:id :password :last_login :is_superuser :username :first_name :last_name :email :is_staff :is_active])
+    :is_active true
+    :is_staff false
+    :is_superuser false))
 
 (defn fetch-query
   [{{{id :id} :query-params} :request
     :as                      state}]
-  (assoc state :query (cond-> (from (select :*) :users)
+  (assoc state :query (cond->
+                        (from (select :*) :users)
                         id (where [:= :id (UUID/fromString id)]))))
 
 (defn add-query
   [{{body :body-params} :request
     :as                 state}]
-  (assoc state :query (values (insert-into :users) [(->store-user body)])))
+  (assoc state
+         :query
+         (values (insert-into :users) [(->store-user body)])))
 
 (defn update-query
   [{{{id :id} :query-params} :request
@@ -41,7 +48,8 @@
 (defn delete-query
   [{{{id :id} :query-params} :request
     :as                      state}]
-  (assoc state :query (cond-> (delete-from :users)
+  (assoc state :query (cond->
+                        (delete-from :users)
                         id (where [:= :id (UUID/fromString id)]))))
 
 (defn fetch-with-post-comments-query

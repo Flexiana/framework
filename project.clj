@@ -2,7 +2,6 @@
   :description "Xiana framework"
   :url "https://github.com/Flexiana/framework"
   :license {:name "FIXME" :url "FIXME"}
-  :plugins [[lein-kibit "0.1.8"]]
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/core.async "1.5.648"]
                  [org.clojure/data.json "2.4.0"]            ; TODO: remove this or jsonista

@@ -26,7 +26,11 @@
                     first
                     :comments
                     count)))
-      (is (zero? (->> (remove (fn* [p1__602731#] (#{first-id} (:posts/id p1__602731#))) new-posts) first :comments count))))))
+      (is (zero? (->>
+                   (remove (fn* [p1__602731#] (#{first-id} (:posts/id p1__602731#))) new-posts)
+                   first
+                   :comments
+                   count))))))
 
 (defn ->comments
   [response]

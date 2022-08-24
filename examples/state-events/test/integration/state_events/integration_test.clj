@@ -32,7 +32,18 @@
                   :form-params  {:id       (str resource-uuid)
                                  :action   "create"
                                  :resource "persons"}})
-        modify (update (client/request {:method :post, :form-params {:email "Doe@john.it", :first-name "John", :id (str resource-uuid), :resource "persons", :action "modify"}, :url "http://localhost:3333/person", :content-type :json, :accept :json}) :body json/read-value json/keyword-keys-object-mapper)]
+        modify (update
+                 (client/request {:method       :post
+                                  :form-params  {:email      "Doe@john.it"
+                                                 :first-name "John"
+                                                 :id         (str resource-uuid)
+                                                 :resource   "persons"
+                                                 :action     "modify"}
+                                  :url          "http://localhost:3333/person"
+                                  :content-type :json
+                                  :accept       :json})
+                 :body
+                 json/read-value json/keyword-keys-object-mapper)]
     (is (= 200 (:status create)))
     (is (= 200 (:status modify)))
     (is (= {:email      "Doe@john.it",
@@ -51,7 +62,17 @@
                   :form-params  {:id       (str resource-uuid)
                                  :action   "create"
                                  :resource "persons"}})
-        modify (update (client/request {:method :put, :form-params {:id (str resource-uuid), :resource "persons", :action "create"}, :url "http://localhost:3333/person", :content-type :json, :throw-exceptions false, :accept :json}) :body json/read-value json/keyword-keys-object-mapper)]
+        modify (update
+                 (client/request {:method           :put
+                                  :form-params      {:id       (str resource-uuid)
+                                                     :resource "persons"
+                                                     :action   "create"}
+                                  :url              "http://localhost:3333/person"
+                                  :content-type     :json
+                                  :throw-exceptions false
+                                  :accept           :json})
+                 :body
+                 json/read-value json/keyword-keys-object-mapper)]
     (is (= 200 (:status create)))
     (is (= 403 (:status modify)))
     (is (= {:error       "Resource already exists"

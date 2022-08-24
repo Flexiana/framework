@@ -13,7 +13,10 @@
 
 (defn add
   [state]
-  (model/add-query (assoc state :view views/fetch-posts)))
+  (model/add-query
+    (assoc state
+           :view
+           views/fetch-posts)))
 
 (defn update-post
   [state]

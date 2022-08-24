@@ -114,7 +114,9 @@
   (is (= 1 (-> (put :posts test_staff {:content "Something to delete"})
                :body
                update-count)))
-  (is (zero? (-> (delete :posts test_member (first (all-post-ids))) :body update-count)))
+  (is (zero? (-> (delete :posts test_member (first (all-post-ids)))
+                 :body
+                 update-count)))
   (is (= 1 (count (all-post-ids)))))
 
 (deftest member-can-update-own-post
@@ -133,7 +135,9 @@
   (is (= 1 (-> (put :posts test_staff {:content "Something to delete"})
                :body
                update-count)))
-  (is (zero? (-> (post :posts test_member (first (all-post-ids)) {:content "Or update instead"}) :body update-count)))
+  (is (zero? (-> (post :posts test_member (first (all-post-ids)) {:content "Or update instead"})
+                 :body
+                 update-count)))
   (is (= 1 (count (all-post-ids))))
   (is (.contains (:body (fetch :posts)) "Something to delete")))
 
@@ -145,7 +149,7 @@
     (is (= (dec (count ids))
            (-> {:url                  "http://localhost:3333/posts/ids"
                 :headers              {"Authorization" test_admin
-                                       "Content-Type" "application/json;charset=utf-8"}
+                                       "Content-Type"  "application/json;charset=utf-8"}
                 :unexceptional-status (constantly true)
                 :body                 (json/write-str {:ids (butlast ids)})
                 :method               :post}

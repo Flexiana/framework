@@ -13,7 +13,7 @@
 
 (defn- stop-dev-system
   []
-  (when (:webserver (deref dev-sys)) (.close (deref dev-sys)) (refresh-all))
+  (when (:webserver @dev-sys) (.close @dev-sys) (refresh-all))
   (reset! dev-sys (closeable-map {})))
 
 (defn start-dev-system

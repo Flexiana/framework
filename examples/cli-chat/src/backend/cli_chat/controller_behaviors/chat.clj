@@ -8,7 +8,7 @@
     [xiana.hash :as auth]))
 
 (defn gen-username []
-  (let [id (clojure.string/join (repeatedly 4 (fn* [] (char (+ (rand 26) 65)))))]
+  (let [id (str/join (repeatedly 4 (fn* [] (char (+ (rand 26) 65)))))]
     (str "guest_" id)))
 
 (defn welcome-message

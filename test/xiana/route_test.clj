@@ -31,7 +31,9 @@
 ;; test route match update request-data (state) functionality
 (deftest contains-updated-request-data
   ;; get state from sample request micro/match flow
-  (let [state (route/match (state/make (route/reset sample-routes) sample-request))
+  (let [state (route/match (state/make
+                             (route/reset sample-routes)
+                             sample-request))
         ;; expected request data
         expected {:method :get
                   :match  #{[:data {:action :action}]

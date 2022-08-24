@@ -85,7 +85,16 @@
                      ->users
                      first)
         user-id (:users/id original)
-        updated (->users (post :users test_member user-id {:email "josm@test.com", :first_name "John", :password "not null", :is_active true, :username "Modified member", :id user-id, :last_name "Smith"}))]
+        updated (->users (post :users
+                               test_member
+                               user-id
+                               {:id         user-id
+                                :email      "josm@test.com"
+                                :first_name "John"
+                                :password   "not null"
+                                :is_active  true
+                                :username   "Modified member"
+                                :last_name  "Smith"}))]
     (is (empty? updated) "A member cannot update another member")))
 
 (deftest get-user-posts-with-comment

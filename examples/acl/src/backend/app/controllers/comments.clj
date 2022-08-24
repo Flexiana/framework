@@ -13,7 +13,10 @@
 
 (defn add
   [state]
-  (model/add-query (assoc state :view views/comments)))
+  (model/add-query
+    (assoc state
+           :view
+           views/comments)))
 
 (defn update-comment
   [state]

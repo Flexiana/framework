@@ -49,13 +49,13 @@
 
   Enter: TODO.
   Leave: nil."
-  {:name ::params
+  {:name  ::params
    :enter (fn [state]
             (let [f #(keywordize-keys
                        ((middleware.params/wrap-params identity) %))]
               (update state :request f)))})
 
-(defn message ; TODO: remove, use logger
+(defn message                                               ; TODO: remove, use logger
   "This interceptor creates a function that prints predefined message.
   Enter: Print an arbitrary message.
   Leave: Print an arbitrary message."
@@ -86,7 +86,9 @@
          ;; associate session data into state
          (assoc state :session-data session-data)
          ;; else, associate a new session
-         (assoc-in (assoc-in state [:session-data :session-id] (UUID/randomUUID)) [:session-data :new-session] true))))
+         (assoc-in
+           (assoc-in state [:session-data :session-id] (UUID/randomUUID))
+           [:session-data :new-session] true))))
    :leave
    (fn [state]
      (let [session-backend (-> state :deps :session-backend)
@@ -119,7 +121,9 @@
    {:enter
     (fn [{request :request :as state}]
       (let [auth (get-in request [:headers :authorization])]
-        (assoc-in (f state role) [:session-data :authorization] auth)))}))
+        (assoc-in (f state role)
+                  [:session-data :authorization]
+                  auth)))}))
 
 (defn muuntaja
   "Muuntaja encoder/decoder interceptor."
@@ -131,7 +135,7 @@
 
 (def prune-get-request-bodies
   "This interceptor removes bodies from GET requests on Enter."
-  {:name ::prune-get-bodies
+  {:name  ::prune-get-bodies
    :enter (fn [{:keys [request] :as state}]
             (if (get-request? request)
               (update state :request dissoc :body :body-params)

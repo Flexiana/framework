@@ -9,7 +9,9 @@
         resource-id (:resource-id event)]
     (assoc-in state
               [:db-queries :queries]
-              [(sqlh/values (sqlh/insert-into :events) [(update event :payload sqlf/value)])
+              [(sqlh/values
+                 (sqlh/insert-into :events)
+                 [(update event :payload sqlf/value)])
                (-> (sqlh/select :*)
                    (sqlh/from :events)
                    (sqlh/where [:and
