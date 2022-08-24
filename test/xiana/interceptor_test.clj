@@ -90,7 +90,7 @@
     (is (= response expected))))
 
 (deftest params-execution
-  (let [state {}
+  (let [state {:request {}}
         request (-> state (fetch-execute interceptor/params :enter))
         expected {:request {:form-params {},
                             :params {},
