@@ -28,14 +28,20 @@ jobs:
         cli: 1.11.1.1155              # Clojure CLI based on tools.deps
         lein: 2.9.1                  # Leiningen
         bb: 0.7.8                    # Babashka
-      
-    - name: Cache
+
+    - name: Cache clojure dependencies
       uses: actions/cache@v3
       with:
-        path: ~/.m2
-        key: m2-${{ hashFiles('project.clj') }}
-        restore-keys: |
-          m2-
+        path: |
+          ~/.m2/repository
+          ~/.gitlibs
+          ~/.deps.clj
+        # List all files containing dependencies:
+        key: cljdeps-${{ hashFiles('deps.edn') }}
+        # key: cljdeps-${{ hashFiles('deps.edn', 'bb.edn') }}
+        # key: cljdeps-${{ hashFiles('project.clj') }}
+        # key: cljdeps-${{ hashFiles('build.boot') }}
+        restore-keys: cljdeps-
 
     - name: Checking examples
       run: ./example-tests.sh

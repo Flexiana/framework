@@ -1,5 +1,5 @@
 #!/bin/bash
-clojure -M:install
+clojure -M:install --version $(bb script/project-version)
 for f in ./examples/*; do
     if [ -d "$f" ]; then
         cd $f
