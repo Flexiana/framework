@@ -58,4 +58,14 @@
                  com.cognitect/test-runner               {:git/url "https://github.com/cognitect-labs/test-runner"
                                                           :sha     "4e7e1c0dfd5291fa2134df052443dc29695d8cbe"}
                  org.testcontainers/testcontainers       {:mvn/version "1.16.3"}}
-   :main-opts   ["-m" "cognitect.test-runner" "-d" "test"]}}}
+   :main-opts   ["-m" "cognitect.test-runner" "-d" "test"]}
+
+  :install
+  {:extra-deps {applied-science/deps-library    {:mvn/version "0.4.0"}
+                org.clojars.michihuber/data.xml {:mvn/version "2.0.0-alpha-custom"}}
+   :main-opts  ["-m" "applied-science.deps-library" "install"]}
+
+  :release
+  {:extra-deps {applied-science/deps-library    {:mvn/version "0.4.0"}
+                org.clojars.michihuber/data.xml {:mvn/version "2.0.0-alpha-custom"}}
+   :main-opts  ["-m" "applied-science.deps-library"]}}}
