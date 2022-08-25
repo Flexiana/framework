@@ -161,7 +161,8 @@
   (testing "GET request"
     (let [state {:request sample-request}]
       (is (= state (fetch-execute state interceptor/prune-get-request-bodies :enter)))
-      (is (= state (fetch-execute (assoc-in state [:request :body] "TEST BODY") interceptor/prune-get-request-bodies :enter)))
+      (is (= state (-> (assoc-in state [:request :body] "TEST BODY")
+                       (fetch-execute  interceptor/prune-get-request-bodies :enter))))
       (is (= state (fetch-execute (assoc-in state [:request :body-params] {:param "value"}) interceptor/prune-get-request-bodies :enter)))))
   (testing "POST request"
     (let [request (-> sample-request

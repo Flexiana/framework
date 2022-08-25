@@ -8,5 +8,5 @@ A brief description of any steps needed to demonstrate the new functionality or 
 
 ### Completion Checklist
 
-- [ ] Add description of the changes made here to the changelop file
+- [ ] Add description of the changes made here to the changelog file
 - [ ] Update the documentation as necessary
