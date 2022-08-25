@@ -66,19 +66,6 @@ already up, increasing the overall productivity.
 ./script/auto.sh -y tests
 ```
 
-## leiningen
+## Clj-tools
 
-Using lein directly is very simple:
-
-```shell
-lein test
-```
-
-The available commands (aliases):
-
-| Alias    | Description       |
-|----------|-------------------|
-| test        | Executing tests with kaocha  |
-| fix-style   | fix styling with clj-style   |
-| check-style | check styling with clj-style |
-| pre-hook    | Executing check-style and test aliases |
+Check `deps.edn` for aliases 
