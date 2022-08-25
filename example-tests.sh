@@ -1,5 +1,5 @@
 #!/bin/bash
-lein install
+clojure -M:install
 for f in ./examples/*; do
     if [ -d "$f" ]; then
         cd $f

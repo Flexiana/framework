@@ -16,7 +16,7 @@ jobs:
     - name: Setup Clojure
       uses: DeLaGuardo/setup-clojure@5.0
       with:
-        cli: 1.11.1.1113
+        cli: 1.11.1.1155
         lein: 2.9.8
       
     - name: Cache

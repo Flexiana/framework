@@ -43,4 +43,4 @@ jobs:
         GPG_OWNERTRUST: ${{ secrets.GPG_OWNERTRUST }}
         GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
         TAG: ${{ env.TAG }}
-      run: /usr/bin/bb ./.github/clojars_deploy.bb
+      run: /usr/bin/bb ./.github/clojars_deploy.clj

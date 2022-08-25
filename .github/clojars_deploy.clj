@@ -1,19 +1,18 @@
-#!/usr/bin/env bb
 ;; credits: https://github.com/mauricioszabo/clj-lib-deployer/blob/master/deploy-lein.bb
 
 (def first-line
-    (-> (slurp  "project.clj")
-         str/split-lines
-         first
-         (str/split #"\s")))
+  (-> (slurp  "project.clj")
+      str/split-lines
+      first
+      (str/split #"\s")))
 
 (def project
-   (second first-line))
+  (second first-line))
 
 (println "Project: " project)
 
 (def version
-   (str/replace (last first-line) #"\"" ""))
+  (str/replace (last first-line) #"\"" ""))
 
 (println "Version: " version)
 
@@ -31,7 +30,7 @@
       .getDecoder
       (.decode string)))
 
-(defn run-shell-cmd [ & args]
+(defn run-shell-cmd [& args]
   (let [{:keys [exit out err] :as result} (apply shell/sh args)]
     (when-not (zero? exit)
       (println "ERROR running command\nSTDOUT:")
@@ -67,9 +66,9 @@
         (run-shell-cmd "lein" "change" "version" "str" "\"-SNAPSHOT\"")))
 
     (run-shell-cmd "lein" "change" ":deploy-repositories" "concat"
-              (pr-str [["releases" {:url "https://repo.clojars.org/"
-                                    :username :env/clojars_login
-                                    :password :env/clojars_password}]]))
+                   (pr-str [["releases" {:url "https://repo.clojars.org/"
+                                         :username :env/clojars_login
+                                         :password :env/clojars_password}]]))
     (run-shell-cmd "lein" "deploy" "releases")
     (println "Deploy was successful")))
 
