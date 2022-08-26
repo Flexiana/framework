@@ -3,15 +3,15 @@
 - [Development dependencies](#development-dependencies)
 - [Setup](#setup)
 - [Deps](#deps)
-- [Leiningen](#lein)
+- [CLJ-tools](#clj-tools)
 
 ## Development dependencies
 
 ### Mandatory
 
 - Clojure 1.10
-- Postgresql >= 11.5
-- leiningen >= 2.9.0
+- Postgresql >= 11.5 
+- Clojure cli >= 1.11.1.1155
 - Docker >= 19.03.11
 - Docker-compose >= 1.21.0
 
@@ -52,7 +52,7 @@ calls `auto.sh` script to perform the following sequence of steps:
 2. Instantiate the database container
 3. Import the initial SQL schema: `./docker/sql-scripts/init.sql`
 4. Populate the new schema with 'fake' data from: `./docker/sql-scripts/test.sql`
-5. Call `lein test` that will download the necessary *Clojure*
+5. Call `clj -X:test` that will download the necessary *Clojure*
    dependencies and executes unitary tests.
 
 See `./script/auto.sh help` for more advanced options.
@@ -66,6 +66,6 @@ already up, increasing the overall productivity.
 ./script/auto.sh -y tests
 ```
 
-## Clj-tools
+## CLJ-tools
 
 Check `deps.edn` for aliases 
