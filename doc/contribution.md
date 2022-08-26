@@ -3,14 +3,14 @@
 - [Development dependencies](#development-dependencies)
 - [Setup](#setup)
 - [Deps](#deps)
-- [CLJ-tools](#clj-tools)
+- [Releasing](#releasing)
 
 ## Development dependencies
 
 ### Mandatory
 
 - Clojure 1.10
-- Postgresql >= 11.5 
+- Postgresql >= 11.5
 - Clojure cli >= 1.11.1.1155
 - Docker >= 19.03.11
 - Docker-compose >= 1.21.0
@@ -66,6 +66,22 @@ already up, increasing the overall productivity.
 ./script/auto.sh -y tests
 ```
 
-## CLJ-tools
+## Releasing
 
-Check `deps.edn` for aliases 
+### Install locally
+
+```shell
+clj -M:install
+```
+
+### Deploying a release
+
+- Set up a new version number in `release.edn` eg: `"0.5.0-rc2"`
+- Make a git TAG with `v` prefix, like `v0.5.0-rc2`
+- Push it and wait for deployment to clojars
+
+## Executing example's tests
+
+- Be sure all examples has the same framework version as it is in `release.edn` as dependency
+- Execute `./example-tests.sh` script. It will install the actual version of xiana, and go through the examples folder
+  for `check-style` and `lein test`. 
