@@ -10,9 +10,10 @@
   [out-claims]
   (let [exp-cfg (get out-claims :exp 0)
         nbf-cfg (get out-claims :nbf 0)]
-    (merge out-claims {:exp (+ (util/now) exp-cfg)
-                       :nbf (+ (util/now) nbf-cfg)
-                       :iat (util/now)})))
+    (assoc out-claims
+           :exp (+ (util/now) exp-cfg)
+           :nbf (+ (util/now) nbf-cfg)
+           :iat (util/now))))
 
 (defmulti verify-jwt
   "Checks if the signature of a token is correct given the algorithm and public-key

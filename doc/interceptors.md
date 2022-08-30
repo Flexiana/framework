@@ -75,9 +75,11 @@ On `:leave`, validates the response body with the given malli schema.
 
 This interceptor uses `:claims` methods of `verify-jwt` and `sign`. More on these methods [here](./doc/jwt.md)
 
-On `:enter`, gets the `authorization` header from the request and verifies the JWT sent. If its valid, adds the contents of the JWT to `session-data`, otherwise assocs the Exception into the `error` key in state.
+On `:enter`, gets the `authorization` header from the request and verifies the JWT sent. If its valid, adds the contents
+of the JWT to `session-data`, otherwise assocs the Exception into the `error` key in state.
 
-On `:error`, returns a `401 Unauthorized` response with the message depending on the `ExceptionInfo` data present in the `:error` key in state.
+On `:error`, returns a `401 Unauthorized` response with the message depending on the `ExceptionInfo` data present in
+the `:error` key in state.
 
 On `:leave` does nothing.
 
@@ -85,7 +87,9 @@ On `:leave` does nothing.
 
 This interceptor uses `:no-claims` methods of `verify-jwt` and `sign`. More on these methods [here](./doc/jwt.md)
 
-On `:enter`, grabs the JWT sent as a body-param in the request and verifies it. If its valid, rewrites the content of the `:body-params` key with the contents of the JWT. If validation fails, assocs the Exception to the `:error` key in state.
+On `:enter`, grabs the JWT sent as a body-param in the request and verifies it. If its valid, rewrites the content of
+the `:body-params` key with the contents of the JWT. If validation fails, assocs the Exception to the `:error` key in
+state.
 
 On `:leave`, signs the contents of the response body and assocs it back to the `:body` of the response.
 

@@ -23,9 +23,8 @@
 
 (defn ->system
   [app-cfg]
-  (-> (config/config)
+  (-> (config/config app-cfg)
       jwt-interceptors/init-jwt-config
-      (merge app-cfg)
       x-routes/reset
       ws/start
       closeable-map))

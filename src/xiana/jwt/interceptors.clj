@@ -3,7 +3,8 @@
     [clojure.string :as cstr]
     [xiana.jwt :as jwt]
     [xiana.route.helpers :as helpers])
-  (:import java.util.Base64))
+  (:import
+    java.util.Base64))
 
 (def jwt-auth
   {:name ::jwt-authentication
@@ -58,8 +59,8 @@
   (-> jwt-config
       (get-in [key key-type])
       (->>
-       (.decode (Base64/getDecoder))
-       slurp)))
+        (.decode (Base64/getDecoder))
+        slurp)))
 
 (defn- add-decoded-keys
   [jwt-config key]
@@ -70,7 +71,8 @@
 (defn init-jwt-config
   [{jwt-config :xiana/jwt :as config}]
   (let [jwt-keys (keys jwt-config)]
-    (assoc config :xiana/jwt
-           (map (fn [key]
-                  (add-decoded-keys jwt-config key))
-                jwt-keys))))
+    (assoc config
+      :xiana/jwt
+      (map (fn [key]
+             (add-decoded-keys jwt-config key))
+           jwt-keys))))
