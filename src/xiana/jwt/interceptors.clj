@@ -72,7 +72,7 @@
   [{jwt-config :xiana/jwt :as config}]
   (let [jwt-keys (keys jwt-config)]
     (assoc config
-      :xiana/jwt
-      (map (fn [key]
-             (add-decoded-keys jwt-config key))
-           jwt-keys))))
+           :xiana/jwt
+           (map (fn [key]
+                  (add-decoded-keys jwt-config key))
+                jwt-keys))))
