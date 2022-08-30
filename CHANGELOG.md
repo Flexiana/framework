@@ -1,4 +1,6 @@
-## 0.5-rc3
+## [Unreleased] - 2022-06-26
+- Added new `prune-get-request-bodies` interceptor
+
 - JWT signing support for authentication and content exchange via interceptors.
 
 Breaking changes: 

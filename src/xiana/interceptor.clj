@@ -130,3 +130,14 @@
   "Muuntaja encoder/decoder interceptor."
   ([] (muuntaja muuntaja/interceptor))
   ([interceptor] interceptor))
+
+(defn- get-request? [{:keys [request-method]}]
+  (= :get request-method))
+
+(def prune-get-request-bodies
+  "This interceptor removes bodies from GET requests on Enter."
+  {:name ::prune-get-bodies
+   :enter (fn [{:keys [request] :as state}]
+            (if (get-request? request)
+              (update state :request dissoc :body :body-params)
+              state))})
