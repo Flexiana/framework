@@ -1,3 +1,5 @@
+<img src="resources/images/Xiana.png" width="242">
+
 # How to
 
 - [Login implementation](#login-implementation)
@@ -126,10 +128,10 @@ Xiana provides `xiana.hash` to check user credentials:
 
 The login logic is done, but where to place it?
 
-Do you remember the [side effect interceptor](interceptors.md#side-effect)? It's running after we have the query result
-from the database, and before the final response is rendered with the [view interceptor](interceptors.md#view). The
+Do you remember the [side effect interceptor](./interceptors.md#side-effect)? It's running after we have the query result
+from the database, and before the final response is rendered with the [view interceptor](./interceptors.md#view). The
 place for the function defined above is in the interceptor chain. How does it go there? Let's see
-an [action](conventions.md#action)
+an [action](./conventions.md#action)
 
 ```clojure
 (defn action
@@ -286,20 +288,20 @@ CREATE TABLE sessions (
 
 ### Session interceptors
 
-[See interceptors](interceptors.md#session)
+[See interceptors](./interceptors.md#session)
 
 ## Access and data ownership control
 
-[RBAC](tutorials.md#role-based-access-and-data-ownership-control) is a handy way to restrict user actions on different
+[RBAC](./tutorials.md#role-based-access-and-data-ownership-control) is a handy way to restrict user actions on different
 resources. It's a role-based access control and helps you to implement data ownership control. The `rbac/interceptor`
-should be placed [inside](tutorials.md#interceptor-overriding) [db-access](interceptors.md#db-access).
+should be placed [inside](./tutorials.md#interceptor-overriding) [db-access](./interceptors.md#db-access).
 
 ### Role set definition
 
 For [tiny-RBAC](https://github.com/Flexiana/tiny-rbac) you should provide
 a [role-set](https://github.com/Flexiana/tiny-rbac#builder). It's a map which defines the application resources, the
 actions on it, the roles with the different granted actions, and restrictions for data ownership control. This map must
-be placed in [deps](conventions.md#dependencies).
+be placed in [deps](./conventions.md#dependencies).
 
 Here's an example role-set for an image service:
 

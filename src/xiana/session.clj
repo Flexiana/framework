@@ -145,17 +145,6 @@
    :enter fetch-session
    :leave store-session})
 
-(defn add-guest-user
-  [state]
-  (let [session-backend (-> state :deps :session-backend)
-        session-id (UUID/randomUUID)
-        user-id (UUID/randomUUID)
-        session-data {:session-id session-id
-                      :users/role :guest
-                      :users/id   user-id}]
-    (add! session-backend session-id session-data)
-    (dissoc (assoc state :session-data session-data) :response)))
-
 (def guest-session-interceptor
   "Inserts a new session when no session found"
   {:name ::guest-session-interceptor

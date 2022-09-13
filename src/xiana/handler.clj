@@ -27,9 +27,9 @@
            state (state/make deps http-request)
            queue (list #(interceptor.queue/execute % (:router-interceptors deps))
                        #(route/match %)
-                       #(interceptor.queue/execute % (if websocket?
-                                                       (:web-socket-interceptors deps)
-                                                       (:controller-interceptors deps))))
+                       #(interceptor.queue/execute % (or (and websocket?
+                                                              (:web-socket-interceptors deps))
+                                                         (:controller-interceptors deps))))
            result (reduce (fn [s f] (f s)) state queue)
            channel (get-in result [:response-data :channel])]
        (if (and websocket? channel)

@@ -1,3 +1,5 @@
+<img src="resources/images/Xiana.png" width="242">
+
 # Development guide
 TODO fill this with everything a developer starting to work on Xiana might need to know
 

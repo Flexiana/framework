@@ -14,7 +14,26 @@
 
 The diagram bellow gives you an overview, how a request is processed in Xiana based applications.
 
-![diagram](./conventions-1.svg)
+```mermaid
+  sequenceDiagram
+  Web server->>Handler:Request
+  Note over Handler: Enhancing app state with request
+  Handler->>Router interceptors:State
+  Note over Router interceptors: Enter functions
+  Router interceptors->>Router: State
+  Note over Router:Matching, routing
+  Router->>Router interceptors:State
+  Note over Router interceptors: Leave functions in reverted order
+  Router interceptors->>Controller interceptors: State
+  Note over Controller interceptors: Enter functions
+  Controller interceptors->>Action: State
+  Note over Action:Executing controller
+  Action->>Controller interceptors:State
+  Note over Controller interceptors: Leave functions in reverted order
+  Controller interceptors->>Handler:State
+  Note over Handler:Extracting response
+  Handler->>Web server:Response
+```
 
 ## State
 
@@ -82,7 +101,24 @@ Xiana provides a set of base [interceptors](interceptors.md), for the most commo
 
 This figure shows how interceptors are executed ideally:
 
-![diagram](./conventions-2.svg)
+```mermaid
+  sequenceDiagram
+  Handler->>Interceptor_I:State
+  Note over Interceptor_I: :enter
+  Interceptor_I->>Interceptor_II:State
+  Note over Interceptor_II: :enter
+  Interceptor_II->>Interceptor_III:State
+  Note over Interceptor_III: :enter
+  Interceptor_III->>Action:State
+  Note over Action: Do something
+  Action->>Interceptor_III:State
+  Note over Interceptor_III::leave
+  Interceptor_III->>Interceptor_II:State
+  Note over Interceptor_II::leave
+  Interceptor_II->>Interceptor_I:State
+  Note over Interceptor_I::leave
+  Interceptor_I->>Handler:State
+```
 
 ## Interceptors error handling:
 
@@ -93,4 +129,37 @@ exception, the executor calls the queue `:leave` functions in reserved order, wh
 
 This diagram shows how the error cases handled:
 
-![diagram](./conventions-3.svg)
+```mermaid
+sequenceDiagram
+Handler->>Interceptor_I:State
+Note over Interceptor_I: :enter
+Interceptor_I->>Interceptor_II:State
+Note over Interceptor_II: :enter
+Interceptor_II->>Interceptor_III:State
+Note over Interceptor_III: :enter - Throwns an exception
+alt Exception handled by thower
+	Note over Interceptor_III: :error - Handles exception
+	Interceptor_III->>Interceptor_II:State
+	Note over Interceptor_II::leave
+	Interceptor_II->>Interceptor_I:State
+	Note over Interceptor_I::leave
+	Interceptor_I->>Handler:State
+
+else Exception not handled by thrower
+	Note over Interceptor_III: :error - Doesn't handles exception
+	Interceptor_III->>Interceptor_I:State
+	alt Interceptor_I handles the exception
+		Note over Interceptor_I: :error - Handles exception
+		Interceptor_I->>Handler:State
+	else Interceptor_II handles the exception
+		Note over Interceptor_I: :error - Doesn't handles exception
+		Interceptor_I->>Interceptor_II:State
+		Note over Interceptor_II: :error - Handles exception
+		Interceptor_II->>Interceptor_I:State
+		Note over Interceptor_I::leave
+		Interceptor_I->>Handler:State
+	end
+end
+	Note over Handler:Extract response
+participant Action
+```

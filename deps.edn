@@ -39,13 +39,21 @@
   {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2022.05.31"}}
    :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
 
-  :codox {:extra-deps {codox/codox {:mvn/version "0.10.8"}}
+  :codox {:extra-deps  {codox/codox {:mvn/version "0.10.8"}}
           :extra-paths ["resources"]
-          :exec-fn    codox.main/generate-docs
-          :exec-args  {:output-path  "docs/new/"
-                       :themes       [:default :xiana]
-                       :source-paths ["src"]
-                       :doc-files    ["doc/getting-started.md", "doc/How-To.md", "doc/Development-Guide.md"]}}
+          :exec-fn     codox.main/generate-docs
+          :exec-args   {:output-path  "docs/new/"
+                        :themes       [:default :xiana]
+                        :source-paths ["src"]
+                        :doc-files    ["doc/welcome.md"
+                                       "doc/conventions.md"
+                                       "doc/tutorials.md"
+                                       "doc/modules.md"
+                                       "doc/interceptors.md"
+                                       "doc/contribution.md"
+                                       "doc/getting-started.md"
+                                       "doc/How-To.md"
+                                       "doc/Development-Guide.md"]}}
 
   :kibit
   {:extra-deps {tvaughan/kibit-runner {:mvn/version "1.0.1"}}

@@ -121,3 +121,5 @@ pom.xml.asc
 .clj-kondo/*
 !.clj-kondo/config.edn
 *.iml
+/node_modules/
+/package.json

@@ -1,3 +1,5 @@
+<img src="resources/images/Xiana.png" width="242">
+
 # Contribution
 
 - [Development dependencies](#development-dependencies)
