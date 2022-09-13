@@ -13,7 +13,7 @@
   [config]
   (update config :routes r/router {:compile coercion/compile-request-coercers}))
 
-(defmacro -get-in-template
+(defmacro ^:no-doc -get-in-template
   "Simple macro to get the values from the match template."
   [t m k p]
   `(or (-> ~t :data ~p)

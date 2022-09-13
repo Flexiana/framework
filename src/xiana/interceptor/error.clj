@@ -1,4 +1,5 @@
-(ns xiana.interceptor.error)
+(ns xiana.interceptor.error
+  "Universal error handler for `:xiana/response` errors")
 
 (def response
   "Handles the exception if there's `ex-info` exception with non-empty

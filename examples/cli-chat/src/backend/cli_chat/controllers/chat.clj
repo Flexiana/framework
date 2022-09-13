@@ -5,7 +5,8 @@
     [reitit.core :as r]
     [xiana.db :as db]
     [xiana.interceptor :as interceptors]
-    [xiana.websockets :refer [router string->]]))
+    [xiana.websockets :refer [router]]
+    [xiana.websockets.router-helpers :refer [string->]]))
 
 (defonce channels (atom {}))
 

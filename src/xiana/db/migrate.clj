@@ -1,4 +1,5 @@
 (ns xiana.db.migrate
+  "Wrapper for migratus, to be able to merge different folders, and profile based migrations"
   (:gen-class)
   (:require
     [clojure.edn :as edn]

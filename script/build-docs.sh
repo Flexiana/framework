@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+echo Converting templated markdowns
+
+npx -py @mermaid-js/mermaid-cli mmdc -i doc/conventions_template.md -o doc/conventions.md
+
 echo "Running codox"
 clj -X:codox
 
@@ -14,6 +18,10 @@ else
     echo "Not found"
 fi
 mv "docs/new" $VERSION_PATH
+
+mkdir "$VERSION_PATH/resources/images" -p
+cp "doc/resources/images" "$VERSION_PATH/resources" -r
+cp doc/*.svg "$VERSION_PATH"
 
 echo "Generating new index.html"
 if [ -f $INDEX_HTML ]; then

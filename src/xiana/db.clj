@@ -22,11 +22,11 @@
     (org.postgresql.util
       PGobject)))
 
-(def mapper (json/object-mapper {:decode-key-fn keyword}))
-(def ->json json/write-value-as-string)
-(def <-json #(json/read-value % mapper))
+(def ^:private mapper (json/object-mapper {:decode-key-fn keyword}))
+(def ^:private ->json json/write-value-as-string)
+(def ^:private <-json #(json/read-value % mapper))
 
-(defn ->pgobject
+(defn- ->pgobject
   "Transforms Clojure data to a PGobject that contains the data as
   JSON. PGObject type defaults to `jsonb` but can be changed via
   metadata key `:pgtype`"
@@ -36,7 +36,7 @@
       (.setType pgtype)
       (.setValue (->json x)))))
 
-(defn <-pgobject
+(defn- <-pgobject
   "Transform PGobject containing `json` or `jsonb` value to Clojure
   data."
   [^PGobject v]
@@ -79,9 +79,9 @@
     (when-let [emb (embedded this)]
       (.close emb))))
 
-(def default-opts {:return-keys true})
+(def ^:private default-opts {:return-keys true})
 
-(defn get-datasource
+(defn- get-datasource
   ([config]
    (get-datasource config 0))
   ([config count]
@@ -95,7 +95,7 @@
                                (get-datasource config (inc count))
                                (throw e)))))))
 
-(defn docker-postgres!
+(defn ^:no-doc docker-postgres!
   [{pg-config :xiana/postgresql :as config}]
   (let [{:keys [dbname user password image-name]} pg-config
         container (tc/start!
@@ -117,6 +117,7 @@
     (assoc config :xiana/postgresql pg-config)))
 
 (defn migrate!
+  "Tries to migrate the database maximum 10 times."
   ([config]
    (migrate! config 0))
   ([config count]
@@ -136,7 +137,7 @@
            :xiana/postgresql pg-config
            :db pg-config)))
 
-(defn ->sql-params
+(defn- ->sql-params
   "Parse sql-map using honeysql format function with pre-defined
   options that target postgresql."
   [sql-map]
@@ -152,7 +153,7 @@
   (let [sql-params (->sql-params sql-map)]
     (jdbc/execute! datasource sql-params default-opts)))
 
-(defn in-transaction
+(defn- in-transaction
   ([tx sql-map]
    (in-transaction tx sql-map nil))
   ([tx sql-map jdbc-opts]
@@ -160,7 +161,7 @@
    (let [sql-params (->sql-params sql-map)]
      (jdbc/execute! tx sql-params (merge default-opts jdbc-opts)))))
 
-(defn multi-execute!
+(defn- multi-execute!
   [datasource {:keys [queries transaction?]}]
   (if transaction?
     (jdbc/with-transaction
@@ -173,9 +174,12 @@
   Enter: nil.
   Leave: Fetch and execute a given query using the chosen database
   driver, if succeeds associate its results into state response data.
-  Remember the entry query must be a sql-map, e.g:
-  {:select [:*] :from [:users]}."
-  {:leave
+  The query must be a sql-map, e.g:
+  ```clojure
+  {:select [:*] :from [:users]}
+  ```"
+  {:name ::db-access
+   :leave
    (fn [{query      :query
          db-queries :db-queries
          :as        state}]

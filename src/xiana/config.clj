@@ -10,15 +10,15 @@
     (java.io
       PushbackReader)))
 
-(defn read-edn-file
+(defn- read-edn-file
   "Reads edn configuration file."
   [config]
-  (if-let [edn-file (:framework-edn-config config)]
+  (if-let [edn-file (:xiana-config config)]
     (with-open [r (io/reader edn-file)]
       (deep-merge config (edn/read (PushbackReader. r))))
     config))
 
-(defn key-and-default [v]
+(defn- key-and-default [v]
   (let [[key-name default] (str/split v #"\|")]
     [(keyword (subs (str/trim key-name) 1)) (some-> default str/trim)]))
 
@@ -35,7 +35,7 @@
 (defn config
   "Returns a new config instance.
 
-  You can pass path to the config file with the `:framework-edn-config` key.
+  You can pass path to the config file with the `:xiana-config` key.
   It's useful for choosing an environment different from the current one
   (e.g. `test` or `production` while in the `dev` repl)."
   ([]
