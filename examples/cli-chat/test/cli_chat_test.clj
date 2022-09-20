@@ -42,12 +42,10 @@
                                            (reset! response-2 mesg)))
           user-1 (do
                    (a-client/send ws-1 :text "/me")
-                   (-> @(wait-for response-1 #(str/ends-with? @% "}\n"))
-                       edn/read-string))
+                   (edn/read-string @(wait-for response-1 #(str/ends-with? @% "}\n"))))
           user-2 (do
                    (a-client/send ws-2 :text "/me")
-                   (-> @(wait-for response-2 #(str/ends-with? @% "}\n"))
-                       edn/read-string))
+                   (edn/read-string @(wait-for response-2 #(str/ends-with? @% "}\n"))))
           user-name-1 (user-1 :users/name)
           user-name-2 (user-2 :users/name)]
       (is (.startsWith user-name-1 "guest_")
@@ -74,8 +72,7 @@
                      :name "unknown"
                      :role "member"}
              (do (a-client/send ws-1 :text "/sign-up unknown unknown")
-                 (-> @(wait-for response-1 #(str/ends-with? @% "}\n"))
-                     edn/read-string)))
+                 (edn/read-string @(wait-for response-1 #(str/ends-with? @% "}\n")))))
           "Can sign up")
       (is (= "Username already registered\n"
              (do (a-client/send ws-1 :text "/sign-up unknown password")

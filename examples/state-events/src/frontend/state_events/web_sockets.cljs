@@ -17,7 +17,7 @@
                  (update :type keyword))]
     (case (:type data)
       :ping (prn "ping")
-      :modify (let [k (keyword (apply str (rest (:resource data)))
+      :modify (let [k (keyword (clojure.string/join (rest (:resource data)))
                                (:resource_id data))
                     a (:action data)]
                 (case a

@@ -21,7 +21,7 @@
         resource (keyword (namespace permit))
         action (keyword (name permit))
         permissions (c/permissions role-set role resource action)]
-    (into #{} (map #(keyword (str (name resource) "/" (name %))) permissions))))
+    (set (map #(keyword (str (name resource) "/" (name %))) permissions))))
 
 (def interceptor
   "On enter it validates if the resource is restricted,
@@ -31,12 +31,12 @@
   On leave executes restriction function if any."
   {:enter (fn [state]
             (let [operation-restricted (get-in state [:request-data :permission])
-                  permits              (and operation-restricted (permissions state))]
+                  permits (and operation-restricted (permissions state))]
               (cond
                 (and operation-restricted (empty? permits)) (throw (ex-info "Forbidden"
                                                                             {:xiana/response {:status 403 :body "Forbidden"}}))
-                operation-restricted                        (assoc-in state [:request-data :user-permissions] permits)
-                :else                                       state)))
+                operation-restricted (assoc-in state [:request-data :user-permissions] permits)
+                :else state)))
    :leave (fn [state]
             (let [restriction-fn (get-in state [:request-data :restriction-fn] identity)]
               (restriction-fn state)))})

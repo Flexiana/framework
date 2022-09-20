@@ -20,7 +20,7 @@
     (cond
       (user-permissions :image/all) state
       (user-permissions :image/own) (let [session-id (get-in state [:request :headers "session-id"])
-                                          session-backend (-> state :deps :session-backend)
+                                          session-backend (get-in state [:deps :session-backend])
                                           user-id (:users/id (session/fetch session-backend session-id))]
                                       (update state :query sql/merge-where [:= :owner.id user-id])))))
 

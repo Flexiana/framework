@@ -15,12 +15,12 @@
 
 (def sample-request
   "Sample request example."
-  {:uri "/"
+  {:uri            "/"
    ;; method example: GET
    :request-method :get
    ;; header example with session id and authorization
-   :headers {:session-id sample-session-id
-             :authorization sample-authorization}})
+   :headers        {:session-id    sample-session-id
+                    :authorization sample-authorization}})
 
 ;; minimal request
 (def simple-request
@@ -67,8 +67,8 @@
         enter ((:enter interceptor) state)
         leave ((:leave interceptor) state)]
     ;; verify log execution
-    (is (and (= enter  state)
-             (= leave  state)))))
+    (is (and (= enter state)
+             (= leave state)))))
 
 (deftest side-effect-execution
   (let [state {:request     {:uri "/"}
@@ -90,10 +90,10 @@
     (is (= response expected))))
 
 (deftest params-execution
-  (let [state {}
-        request (-> state (fetch-execute interceptor/params :enter))
-        expected {:request {:form-params {},
-                            :params {},
+  (let [state {:request {}}
+        request (fetch-execute state interceptor/params :enter)
+        expected {:request {:form-params  {},
+                            :params       {},
                             :query-params {}}}]
     ;; expected request value?
     (is (= request expected))))
@@ -120,8 +120,8 @@
         enter ((:enter interceptor) state)
         leave ((:leave interceptor) state)]
     ;; verify msg execution
-    (is (and (= enter  state)
-             (= leave  state)))))
+    (is (and (= enter state)
+             (= leave state)))))
 
 ;; test if the session-user-id handles new sessions
 (deftest contains-new-session
@@ -135,12 +135,12 @@
   ;; compute a single interceptor semi cycle (enter-leave-enter)
   (let [enter-resp (fetch-execute sample-state session-user-id :enter)
         leave-resp (fetch-execute enter-resp session-user-id :leave)
-        header     (get-in leave-resp [:response :headers])
-        new-state  (assoc-in sample-state [:request :headers] header)
-        last-resp  (fetch-execute new-state session-user-id :enter)]
+        header (get-in leave-resp [:response :headers])
+        new-state (assoc-in sample-state [:request :headers] header)
+        last-resp (fetch-execute new-state session-user-id :enter)]
     ;; verify if the uuid strings are equal
     (is (= (get-in last-resp [:request :headers :session-id])
-           (.toString (get-in last-resp [:session-data :session-id]))))))
+           (str (get-in last-resp [:session-data :session-id]))))))
 
 (deftest contains-session-user-role
   ;; compute a single interceptor semi cycle (enter-leave-enter)
@@ -164,6 +164,8 @@
       (is (= state (fetch-execute (assoc-in state [:request :body] "TEST BODY") interceptor/prune-get-request-bodies :enter)))
       (is (= state (fetch-execute (assoc-in state [:request :body-params] {:param "value"}) interceptor/prune-get-request-bodies :enter)))))
   (testing "POST request"
-    (let [request (-> sample-request (assoc :body {:param1 1 :param2 2}) (assoc :request-method :post))
+    (let [request (-> sample-request
+                      (assoc :body {:param1 1 :param2 2})
+                      (assoc :request-method :post))
           state {:request request}]
       (is (= state (fetch-execute state interceptor/prune-get-request-bodies :enter))))))

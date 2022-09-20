@@ -3,7 +3,7 @@
 - [Development dependencies](#development-dependencies)
 - [Setup](#setup)
 - [Deps](#deps)
-- [Leiningen](#lein)
+- [Releasing](#releasing)
 
 ## Development dependencies
 
@@ -11,7 +11,7 @@
 
 - Clojure 1.10
 - Postgresql >= 11.5
-- leiningen >= 2.9.0
+- Clojure cli >= 1.11.1.1155
 - Docker >= 19.03.11
 - Docker-compose >= 1.21.0
 
@@ -52,7 +52,7 @@ calls `auto.sh` script to perform the following sequence of steps:
 2. Instantiate the database container
 3. Import the initial SQL schema: `./docker/sql-scripts/init.sql`
 4. Populate the new schema with 'fake' data from: `./docker/sql-scripts/test.sql`
-5. Call `lein test` that will download the necessary *Clojure*
+5. Call `clj -X:test` that will download the necessary *Clojure*
    dependencies and executes unitary tests.
 
 See `./script/auto.sh help` for more advanced options.
@@ -66,19 +66,22 @@ already up, increasing the overall productivity.
 ./script/auto.sh -y tests
 ```
 
-## leiningen
+## Releasing
 
-Using lein directly is very simple:
+### Install locally
 
 ```shell
-lein test
+clj -M:install
 ```
 
-The available commands (aliases):
+### Deploying a release
 
-| Alias    | Description       |
-|----------|-------------------|
-| test        | Executing tests with kaocha  |
-| fix-style   | fix styling with clj-style   |
-| check-style | check styling with clj-style |
-| pre-hook    | Executing check-style and test aliases |
+- Set up a new version number in `release.edn` eg: `"0.5.0-rc2"`
+- Make a git TAG with `v` prefix, like `v0.5.0-rc2`
+- Push it and wait for deployment to clojars
+
+## Executing example's tests
+
+- Be sure all examples has the same framework version as it is in `release.edn` as dependency
+- Execute `./example-tests.sh` script. It will install the actual version of xiana, and go through the examples folder
+  for `check-style` and `lein test`. 

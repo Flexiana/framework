@@ -29,9 +29,7 @@
   (fn [cofx event]
     (let [[_ k] event
           db (:db cofx)]
-      {:db (->
-             (update db :persons dissoc k)
-             (assoc :selected {}))})))
+      {:db (assoc (update db :persons dissoc k) :selected {})})))
 
 (re-frame/reg-event-fx
   :persons/create

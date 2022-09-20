@@ -85,17 +85,16 @@
                      ->users
                      first)
         user-id (:users/id original)
-        updated (-> (post :users
-                          test_member
-                          user-id
-                          {:id         user-id
-                           :password   "not null"
-                           :username   "Modified member"
-                           :first_name "John"
-                           :last_name  "Smith"
-                           :email      "josm@test.com"
-                           :is_active  true})
-                    ->users)]
+        updated (->users (post :users
+                               test_member
+                               user-id
+                               {:id         user-id
+                                :email      "josm@test.com"
+                                :first_name "John"
+                                :password   "not null"
+                                :is_active  true
+                                :username   "Modified member"
+                                :last_name  "Smith"}))]
     (is (empty? updated) "A member cannot update another member")))
 
 (deftest get-user-posts-with-comment
@@ -136,8 +135,7 @@
                         ->users
                         first
                         :users/id)]
-    (is (empty? (-> (delete :users test_member new-user-id)
-                    ->users)))))
+    (is (empty? (->users (delete :users test_member new-user-id))))))
 
 (deftest member-can-delete-itself
   (let [new-user-id (-> (put :users

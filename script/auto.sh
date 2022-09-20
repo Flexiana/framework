@@ -248,7 +248,7 @@ _setup ()
 
 _tests ()
 {
-    env FRAMEWORK_EDN_CONFIG=${_CONFIG} lein test
+    env FRAMEWORK_EDN_CONFIG=${_CONFIG} clj -M:test
 }
 
 _stops ()
@@ -271,7 +271,7 @@ handle_action ()
         docker) _compose_up ;;
         # execute the initialization scripts
         setup) _setup ;;
-        # set the environment and call lein test
+        # set the environment and call clj test
         tests) _tests ;;
         # run all
         all) _all ;;

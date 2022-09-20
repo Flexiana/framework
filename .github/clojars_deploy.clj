@@ -1,25 +1,23 @@
-#!/usr/bin/env bb
-;; credits: https://github.com/mauricioszabo/clj-lib-deployer/blob/master/deploy-lein.bb
+;; based on: https://github.com/mauricioszabo/clj-lib-deployer/blob/master/deploy-lein.bb
+;; updated for clj-tools: g-krisztian
 
-(def first-line
-    (-> (slurp  "project.clj")
-         str/split-lines
-         first
-         (str/split #"\s")))
+(def release
+  (edn/read-string (slurp "release.edn")))
+
+(println release)
 
 (def project
-   (second first-line))
+  (format "%s/%s" (:group-id release) (:artifact-id release)))
 
 (println "Project: " project)
 
 (def version
-   (str/replace (last first-line) #"\"" ""))
+  (:version release))
 
 (println "Version: " version)
 
 (defn- can-deploy? []
-  (let [curr-version version
-        status (:status (curl/get (str "https://clojars.org/" project
+  (let [status (:status (curl/get (str "https://clojars.org/" project
                                        "/versions/" version)
                                   {:throw false}))]
     (= 404 status)))
@@ -31,13 +29,13 @@
       .getDecoder
       (.decode string)))
 
-(defn run-shell-cmd [ & args]
+(defn run-shell-cmd [& args]
   (let [{:keys [exit out err] :as result} (apply shell/sh args)]
     (when-not (zero? exit)
       (println "ERROR running command\nSTDOUT:")
       (println out "\nSTDERR:")
       (println err)
-      (throw (ex-info "Error while runing shell command" {:status exit})))
+      (throw (ex-info "Error while running shell command" {:status exit})))
     result))
 
 (defn- import-gpg! []
@@ -54,23 +52,15 @@
                       {:version version})))
 
     (when (some-> tag (str/replace-first #"v" "") (not= version))
-      (throw (ex-info "Tag version mismatches with project.clj"
+      (throw (ex-info "Tag version mismatches with release.edn"
                       {:tag-name tag
-                       :version version})))
+                       :version  version})))
 
-    (if tag
-      (do
-        (import-gpg!)
-        (println "Deploying a release version"))
-      (do
-        (println "Deploying a snapshot version")
-        (run-shell-cmd "lein" "change" "version" "str" "\"-SNAPSHOT\"")))
+    (when tag
+      (import-gpg!)
+      (println "Deploying a release version")
 
-    (run-shell-cmd "lein" "change" ":deploy-repositories" "concat"
-              (pr-str [["releases" {:url "https://repo.clojars.org/"
-                                    :username :env/clojars_login
-                                    :password :env/clojars_password}]]))
-    (run-shell-cmd "lein" "deploy" "releases")
-    (println "Deploy was successful")))
+      (run-shell-cmd "clj" "-M:release" "--version" version)
+      (println "Deploy was successful"))))
 
 (deploy!)

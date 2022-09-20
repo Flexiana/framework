@@ -1,3 +1,12 @@
+## [Unreleased] - 2022-08-25
+- Use clj-tools for 
+  - test
+  - build
+  - install
+  - release 
+- Remove `project.clj`
+- Fix kibit complaints
+
 ## [Unreleased] - 2022-06-26
 - Added new `prune-get-request-bodies` interceptor
 

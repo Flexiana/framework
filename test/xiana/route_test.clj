@@ -31,21 +31,22 @@
 ;; test route match update request-data (state) functionality
 (deftest contains-updated-request-data
   ;; get state from sample request micro/match flow
-  (let [state (-> (state/make
-                    (route/reset sample-routes)
-                    sample-request)
-                  route/match)
+  (let [state (route/match (state/make
+                             (route/reset sample-routes)
+                             sample-request))
         ;; expected request data
         expected {:method :get
-                  :match  #reitit.core.Match{:template    "/"
-                                             :data        {:action :action}
-                                             :result      nil
-                                             :path-params {}
-                                             :path        "/"}
+                  :match  #{[:data {:action :action}]
+                            [:path "/"]
+                            [:path-params {}]
+                            [:result nil]
+                            [:template "/"]}
                   :action :action}]
     ;; verify if updated request-data
     ;; is equal to the expected value
-    (is (= expected (:request-data state)))))
+    (is (= expected (-> state
+                        :request-data
+                        (update :match set))))))
 
 ;; test if the updated request-data (state) data handles the
 (deftest contains-not-found-action

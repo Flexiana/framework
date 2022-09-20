@@ -1,0 +1,4 @@
+{:group-id "com.flexiana"
+ :artifact-id "framework"
+ :version "0.5.0-rc2"
+ :scm-url "https://github.com/Flexiana/framework"}

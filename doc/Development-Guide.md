@@ -20,7 +20,7 @@ script/build-docs.sh
 This runs the following:
 
 ```shell
-lein codox
+clj -X:codox
 mv docs/new docs/{{version-number}}
 ```
 

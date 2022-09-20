@@ -16,8 +16,8 @@
 (defn fetch-query
   [{{{id :id} :query-params} :request
     :as                      state}]
-  (assoc state :query (cond-> (-> (select :*)
-                                  (from :posts))
+  (assoc state :query (cond->
+                        (from (select :*) :posts)
                         id (where [:= :id (UUID/fromString id)]))))
 
 (defn add-query
@@ -25,8 +25,9 @@
     :as                 state}]
   (let [content (or (get-in state [:request :params :content])
                     (get-in state [:request :body-params :content]))]
-    (assoc state :query (-> (insert-into :posts)
-                            (values [{:content content :user_id user-id}])))))
+    (assoc state :query (values
+                          (insert-into :posts)
+                          [{:content content, :user_id user-id}]))))
 
 (defn update-query
   [{{{id :id} :params} :request
@@ -40,14 +41,15 @@
 (defn delete-query
   [{{{id :id} :query-params} :request
     :as                      state}]
-  (assoc state :query (cond-> (delete-from :posts)
+  (assoc state :query (cond->
+                        (delete-from :posts)
                         id (where [:= :id (UUID/fromString id)]))))
 
 (defn fetch-by-ids-query
   [{{{ids :ids} :body-params} :request
     :as                       state}]
-  (assoc state :query (cond-> (-> (select :*)
-                                  (from :posts))
+  (assoc state :query (cond->
+                        (from (select :*) :posts)
                         ids (where [:in :id (map #(UUID/fromString %) [ids])])
                         (coll? ids) (where [:in :id (map #(UUID/fromString %) ids)]))))
 

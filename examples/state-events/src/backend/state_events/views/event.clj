@@ -1,5 +1,6 @@
 (ns state-events.views.event
   (:require
+    [clojure.string :as str]
     [clojure.walk :refer [keywordize-keys]]
     [state-events.interceptors.event-process :refer [event->agg]]))
 
@@ -12,7 +13,7 @@
 (defn group-events
   [state]
   (->> state :response-data :db-data
-       (group-by #(format "%s/%s" (apply str (:events/resource %)) (:events/resource_id %)))
+       (group-by #(format "%s/%s" (str/join (:events/resource %)) (:events/resource_id %)))
        keywordize-keys))
 
 (defn persons

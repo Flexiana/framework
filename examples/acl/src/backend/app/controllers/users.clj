@@ -6,15 +6,17 @@
 
 (defn fetch
   [state]
-  (->
-    (assoc state :view views/fetch-users)
-    model/fetch-query))
+  (model/fetch-query
+    (assoc state
+           :view
+           views/fetch-users)))
 
 (defn add
   [state]
-  (->
-    (assoc state :view views/fetch-users)
-    model/add-query))
+  (model/add-query
+    (assoc state
+           :view
+           views/fetch-users)))
 
 (defn update-user
   [state]

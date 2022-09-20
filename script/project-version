@@ -1,3 +1,3 @@
 #!/usr/bin/env bb
 
-(print (nth (read-string (slurp "project.clj")) 2))
+(print (:version (read-string (slurp "release.edn"))))
