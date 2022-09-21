@@ -7,7 +7,7 @@
     [crypto.password.pbkdf2 :as hash-p]
     [crypto.password.scrypt :as hash-s]))
 
-(def supported [:bcrypt :pbkdf2 :scrypt])
+(def ^:private supported [:bcrypt :pbkdf2 :scrypt])
 
 (defn- dispatch
   ([state password]

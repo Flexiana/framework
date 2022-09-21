@@ -19,6 +19,7 @@
   (atom #{}))
 
 (defn start
+  "Starts to repeat an action with given timeout"
   [deps action interval-msecs]
   (let [chan (chan)]
     (go-loop [chan chan]

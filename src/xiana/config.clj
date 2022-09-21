@@ -10,7 +10,7 @@
     (java.io
       PushbackReader)))
 
-(defn read-edn-file
+(defn- read-edn-file
   "Reads edn configuration file."
   [config]
   (if-let [edn-file (:xiana-config config)]
@@ -18,7 +18,7 @@
       (deep-merge config (edn/read (PushbackReader. r))))
     config))
 
-(defn key-and-default [v]
+(defn- key-and-default [v]
   (let [[key-name default] (str/split v #"\|")]
     [(keyword (subs (str/trim key-name) 1)) (some-> default str/trim)]))
 

@@ -40,7 +40,7 @@
         connection (cond (every? backend-config [:port :dbname :host :dbtype :user :password]) (db/connect ds-config)
                          (get-in cfg [:db :datasource]) cfg
                          :else (db/connect {:xiana/postgresql (merge (:xiana/postgresql cfg) backend-config)
-                                            :xiana/jdbc-opts {:builder-fn as-kebab-maps}}))]
+                                            :xiana/jdbc-opts  {:builder-fn as-kebab-maps}}))]
     (get-in connection [:db :datasource])))
 
 (defn- init-in-db
@@ -122,13 +122,13 @@
         session-data (or (fetch session-backend session-id)
                          (throw (ex-info "Missing session data"
                                          {:xiana/response
-                                          {:body {:message "Invalid or missing session"}
+                                          {:body   {:message "Invalid or missing session"}
                                            :status 401}})))]
     (assoc state :session-data (assoc session-data :session-id session-id))))
 
-(defn store-session
+(defn- store-session
   [{{session-id :session-id} :session-data :as state}]
-  (if session-id ; TODO: write to session backend only if session-data is changed
+  (if session-id                                            ; TODO: write to session backend only if session-data is changed
     (let [session-backend (-> state :deps :session-backend)]
       (add! session-backend
             session-id
@@ -141,17 +141,17 @@
 
 (def interceptor
   "Returns with 401 when the referred session is missing"
-  {:name ::session-interceptor
+  {:name  ::session-interceptor
    :enter fetch-session
    :leave store-session})
 
 (def guest-session-interceptor
   "Inserts a new session when no session found"
-  {:name ::guest-session-interceptor
+  {:name  ::guest-session-interceptor
    :enter
    (fn [state]
      (try (fetch-session state)
-          (catch Exception _ ; TODO: more specific exception, it might be better to return nil when session is missing
+          (catch Exception _                                ; TODO: more specific exception, it might be better to return nil when session is missing
             (let [session-backend (-> state :deps :session-backend)
                   session-id (UUID/randomUUID)
                   user-id (UUID/randomUUID)
@@ -163,6 +163,8 @@
    :leave store-session})
 
 (defn init-backend
+  "Initializing session backend, if `(-> config :xiana/session-backend :storage` is `:database` it'll be use postgres
+  else it will be an in-memory storage"
   [{session-backend    :session-backend
     {storage :storage} :xiana/session-backend
     :as                config}]

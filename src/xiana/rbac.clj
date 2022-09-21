@@ -9,7 +9,7 @@
   [config]
   (assoc config :role-set (b/init (:xiana/role-set config))))
 
-(defn permissions
+(defn- permissions
   "Gathers the necessary parameters from xiana state for permission resolution.
   Returns a set of keywords for data ownership check.
   The format of returned keywords:

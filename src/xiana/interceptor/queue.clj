@@ -21,14 +21,14 @@
     ;; else override
     (or interceptors default-interceptors)))
 
-(defn action->try
+(defn- action->try
   [action]
   (fn [state]
     (try (action state)
          (catch Exception e
            (assoc state :error e)))))
 
-(defn looper
+(defn- looper
   [state interceptors action]
   (loop [state        state
          interceptors interceptors

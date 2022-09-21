@@ -1,5 +1,5 @@
 (ns xiana.interceptor.muuntaja
-  "Muuntaja interceptor encoder/decode.."
+  "Request/response format interceptor based on muuntaja"
   (:require
     [clojure.data.xml :as xml]
     [clojure.string]
