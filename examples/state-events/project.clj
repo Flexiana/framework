@@ -2,27 +2,28 @@
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
   :dependencies [[com.flexiana/framework "0.5.0-rc3"]
-                 [tick "0.5.0-RC5"]]
+                 [tick "0.5.0-RC5"]
+                 [metosin/jsonista "0.3.6"]]
   :main ^:skip-aot state-events.core
   :uberjar-name "state-events.jar"
   :source-paths ["src/backend" "src/shared"]
   :clean-targets ^{:protect false} ["resources/public/assets/js/compiled" "target"]
-  :profiles {:dev   {:source-paths ["dev"]
-                     :resource-paths ["config/dev"]
-                     :dependencies   [[binaryage/devtools "1.0.6"]
-                                      [org.clojure/tools.namespace "1.3.0"]]
-                     :plugins [[lein-shadow "0.4.0"]]}
+  :profiles {:dev      {:source-paths   ["dev"]
+                        :resource-paths ["config/dev"]
+                        :dependencies   [[binaryage/devtools "1.0.6"]
+                                         [org.clojure/tools.namespace "1.3.0"]]
+                        :plugins        [[lein-shadow "0.4.0"]]}
              :frontend {:source-paths ["src/frontend"]
                         :dependencies [[thheller/shadow-cljs "2.19.0"]
                                        [cljs-ajax "0.8.4"]
                                        [re-frame "1.2.0"]]}
-             :local {:resource-paths ["config/local"]}
-             :prod  {:resource-paths ["config/prod"]}
-             :test  {:resource-paths ["config/test"]
-                     :dependencies   [[clj-http "3.12.3"]
-                                      [cheshire "5.10.2"]
-                                      [mvxcvi/cljstyle "0.15.0"
-                                       :exclusions [org.clojure/clojure]]]}}
+             :local    {:resource-paths ["config/local"]}
+             :prod     {:resource-paths ["config/prod"]}
+             :test     {:resource-paths ["config/test"]
+                        :dependencies   [[clj-http "3.12.3"]
+                                         [cheshire "5.10.2"]
+                                         [mvxcvi/cljstyle "0.15.0"
+                                          :exclusions [org.clojure/clojure]]]}}
   :shadow-cljs {:nrepl  {:port 8777}
                 :builds {:app {:target     :browser
                                :output-dir "resources/public/assets/js/compiled"

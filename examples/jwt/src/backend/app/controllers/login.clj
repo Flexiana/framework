@@ -24,12 +24,12 @@
   [{request :request :as state}]
   (try (let [rbody (or (:body-params request)
                        (throw (ex-message "Missing body")))
-             user (find-user (-> rbody :email))]
+             user (find-user (:email rbody))]
          (if (and user (= (:password user) (:password rbody)))
            (let [cfg (get-in state [:deps :xiana/jwt :auth])
                  jwt-token (jwt/sign :claims (dissoc user :password) cfg)]
              (assoc state :response {:status 200 :body {:auth-token jwt-token}}))
-           (helpers/unauthorized "Incorrect credentials")))
+           (helpers/unauthorized state "Incorrect credentials")))
        (catch Exception e
          (println e)
          (missing-credentials state))))

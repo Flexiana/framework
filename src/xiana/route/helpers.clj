@@ -9,8 +9,7 @@
 (defn unauthorized
   "Default unauthorized response handler helper."
   [state msg]
-  (-> state
-      (assoc :response {:status 401 :body msg})))
+  (assoc state :response {:status 401 :body msg}))
 
 (defn action
   "Default action response handler helper."

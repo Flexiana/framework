@@ -4,6 +4,8 @@
     [xiana.jwt :as jwt]
     [xiana.route.helpers :as helpers])
   (:import
+    (clojure.lang
+      ExceptionInfo)
     java.util.Base64))
 
 (def jwt-auth
@@ -19,7 +21,7 @@
          (->>
            (jwt/verify-jwt :claims auth cfg)
            (assoc state :session-data))
-         (catch clojure.lang.ExceptionInfo e
+         (catch ExceptionInfo e
            (assoc state :error e)))))
    :error
    (fn [state]
@@ -42,7 +44,7 @@
          (try
            (->> (jwt/verify-jwt :no-claims body-params cfg)
                 (assoc-in state [:request :body-params]))
-           (catch clojure.lang.ExceptionInfo e
+           (catch ExceptionInfo e
              (assoc state :error e))))
        state))
    :leave
@@ -56,11 +58,8 @@
 
 (defn- decode-b64-key
   [jwt-config key key-type]
-  (-> jwt-config
-      (get-in [key key-type])
-      (->>
-        (.decode (Base64/getDecoder))
-        slurp)))
+  (let [kt (get-in jwt-config [key key-type])]
+    (slurp (.decode (Base64/getDecoder) kt))))
 
 (defn- add-decoded-keys
   [jwt-config key]
