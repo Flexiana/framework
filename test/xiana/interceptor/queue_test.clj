@@ -22,7 +22,7 @@
 (defn- err-handler [state] (update state :errors conj :err))
 
 (def E-interceptor
-  {:name :E-interceptor
+  {:name  :E-interceptor
    :enter (fn [_state] (throw (Exception. "enter-exception")))
    :leave (fn [_state] (throw (Exception. "leave-exception")))
    :error err-handler})
@@ -67,7 +67,7 @@
     :interceptors interceptors}})
 
 (deftest queue-simple-ok-execution
-  (let [state    (make-state ok-action [])
+  (let [state (make-state ok-action [])
         response (-> state
                      (queue/execute [])
                      :response)
@@ -76,18 +76,19 @@
 
 (deftest queue-simple-error-execution
   (let [error-action #(assoc % :response {:status 500 :body "Internal Server error"})
-        state        (make-state error-action [])
-        response     (-> state
-                         (queue/execute [])
-                         :response)
-        expected     {:status 500 :body "Internal Server error"}]
+        state (make-state error-action [])
+        response (-> state
+                     (queue/execute [])
+                     :response)
+        expected {:status 500 :body "Internal Server error"}]
     (is (= response expected))))
 
 (deftest queue-doesnt-handle-exception
-  (let [state (-> (make-state (fn [_] (/ 1 0)) [])
-                  (queue/execute []))]
+  (let [state (queue/execute
+                (make-state (fn [_] (/ 1 0)) [])
+                [])]
     (is (nil? (:response state)))
-    (is (= "Divide by zero" (-> state  :error Throwable->map :cause)))))
+    (is (= "Divide by zero" (-> state :error Throwable->map :cause)))))
 
 (deftest queue-error-handled-in-same-interceptor
   (let [state (make-state
@@ -104,21 +105,21 @@
     (is (= expected (:response response)))))
 
 (deftest queue-error-handled-in-first-interceptor
-  (let [response            {:status 200, :body "fixed"}
+  (let [response {:status 200, :body "fixed"}
         recover-interceptor {:error (fn [state] (assoc state :response response))}
-        state               (make-state throw-action [recover-interceptor])
-        result              (-> state
-                                (queue/execute [])
-                                :response)]
+        state (make-state throw-action [recover-interceptor])
+        result (-> state
+                   (queue/execute [])
+                   :response)]
     (is (= response result))))
 
 (deftest queue-default-interceptors-execution
-  (let [state    (make-state ok-action nil)
-        result   (queue/execute state default-interceptors)
+  (let [state (make-state ok-action nil)
+        result (queue/execute state default-interceptors)
         response (:response result)
         expected {:status 200 :body "ok"}
-        enter    (:enter result)
-        leave    (:leave result)]
+        enter (:enter result)
+        leave (:leave result)]
     (is (and
           (= enter "A-enter")
           (= leave "A-leave")
@@ -126,7 +127,7 @@
 
 (deftest queue-interceptor-exception-default-execution
   (let [state (make-state ok-action [D-interceptor])
-        res   (queue/execute state [])
+        res (queue/execute state [])
         cause (-> res :error Throwable->map :cause)]
     (is (nil? (:response state)))
     (is (= "enter-exception" cause))))
@@ -134,30 +135,30 @@
 (deftest queue-interceptor-one-error-handler
   (testing "error path with one :error handler on the chain; error isn't handled"
     (let [state (make-state ok-action [E-interceptor])
-          res   (queue/execute state [])]
+          res (queue/execute state [])]
       (is (= :err (-> res :errors first))))))
 
 (deftest queue-interceptors-error->error->
   (testing "error path with two :error handlers on the chain; error isn't handled"
     (let [state (make-state ok-action [{:error err-handler :name :e-int0}
                                        E-interceptor])
-          res   (queue/execute state [])]
-      (is (= '(:err :err) (-> res :errors))))))
+          res (queue/execute state [])]
+      (is (= '(:err :err) (:errors res))))))
 
 (deftest queue-interceptors-error->leave->
   (testing "error path with two an:error handlers on the chain; error is handled"
     (let [interceptors [A-interceptor {:error #(dissoc % :error)} E-interceptor]
-          state        (make-state ok-action interceptors)
+          state (make-state ok-action interceptors)
           {:keys [errors error leave]} (queue/execute state [])]
       (is (= :err (first errors)))
       (is (nil? error))
       (is (= "A-leave" leave)))))
 
 (deftest queue-inside-interceptors-execution
-  (let [state      (make-state ok-action inside-interceptors)
-        result     (queue/execute state default-interceptors)
-        response   (:response result)
-        expected   {:status 200 :body "ok"}
+  (let [state (make-state ok-action inside-interceptors)
+        result (queue/execute state default-interceptors)
+        response (:response result)
+        expected {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
     (is (and
@@ -166,10 +167,10 @@
           (= response expected)))))
 
 (deftest queue-around-interceptors-execution
-  (let [state      (make-state ok-action around-interceptors)
-        result     (queue/execute state default-interceptors)
-        response   (:response result)
-        expected   {:status 200 :body "ok"}
+  (let [state (make-state ok-action around-interceptors)
+        result (queue/execute state default-interceptors)
+        response (:response result)
+        expected {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
     (is (and
@@ -178,10 +179,10 @@
           (= response expected)))))
 
 (deftest queue-both-interceptors-execution
-  (let [state      (make-state ok-action both-interceptors)
-        result     (queue/execute state default-interceptors)
-        response   (:response result)
-        expected   {:status 200 :body "ok"}
+  (let [state (make-state ok-action both-interceptors)
+        result (queue/execute state default-interceptors)
+        response (:response result)
+        expected {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
     (is (and
@@ -190,10 +191,10 @@
           (= response expected)))))
 
 (deftest queue-override-interceptors-execution
-  (let [state      (make-state ok-action override-interceptors)
-        result     (queue/execute state default-interceptors)
-        response   (:response result)
-        expected   {:status 200 :body "ok"}
+  (let [state (make-state ok-action override-interceptors)
+        result (queue/execute state default-interceptors)
+        response (:response result)
+        expected {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
     (is (and
@@ -202,10 +203,10 @@
           (= response expected)))))
 
 (deftest queue-both-interceptors-execution
-  (let [state      (make-state ok-action except-interceptors)
-        result     (queue/execute state default-interceptors)
-        response   (:response result)
-        expected   {:status 200 :body "ok"}
+  (let [state (make-state ok-action except-interceptors)
+        result (queue/execute state default-interceptors)
+        response (:response result)
+        expected {:status 200 :body "ok"}
         last-enter (:enter result)
         last-leave (:leave result)]
     (is (nil? last-enter))

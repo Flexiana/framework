@@ -98,13 +98,14 @@
 (defn docker-postgres!
   [{pg-config :xiana/postgresql :as config}]
   (let [{:keys [dbname user password image-name]} pg-config
-        container (-> (tc/create
-                        {:image-name    image-name
-                         :exposed-ports [5432]
-                         :env-vars      {"POSTGRES_DB"       dbname
-                                         "POSTGRES_USER"     user
-                                         "POSTGRES_PASSWORD" password}})
-                      (tc/start!))
+        container (tc/start!
+                    (tc/create
+                      {:image-name    image-name
+                       :exposed-ports [5432]
+                       :env-vars      {"POSTGRES_DB"       dbname
+                                       "POSTGRES_USER"     user
+                                       "POSTGRES_PASSWORD" password}}))
+
         port (get (:mapped-ports container) 5432)
         pg-config (assoc
                     pg-config

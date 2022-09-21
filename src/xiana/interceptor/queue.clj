@@ -14,7 +14,7 @@
    default-interceptors]
   (if (map? interceptors)
     ;; get around/inside interceptors
-    (remove (into #{} except-interceptors)
+    (remove (set except-interceptors)
             (concat around-interceptors
                     default-interceptors
                     inside-interceptors))

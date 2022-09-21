@@ -60,16 +60,13 @@
       (wrap/middleware->leave middleware/wrap-format-response)))
 
 (deftest contains-midleware-enter
-  (let [enter (-> (wrap/middleware->enter middleware/wrap-format-request)
-                  (:enter))
+  (let [enter (:enter (wrap/middleware->enter middleware/wrap-format-request))
         result (enter sample-state)]
     ;; verify middleware identity
     (is (= result sample-state))))
 
 (deftest contains-midleware-leave
-  (let [leave (->
-                (wrap/middleware->leave middleware/wrap-format-request)
-                (:leave))]
+  (let [leave (:leave (wrap/middleware->leave middleware/wrap-format-request))]
     (is (function? leave))))
 
 (deftest contains-middleware-formated-response-body

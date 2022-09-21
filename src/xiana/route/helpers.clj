@@ -4,8 +4,7 @@
 (defn not-found
   "Default not-found response handler helper."
   [state]
-  (-> state
-      (assoc :response {:status 404 :body "Not Found"})))
+  (assoc state :response {:status 404 :body "Not Found"}))
 
 (defn unauthorized
   "Default unauthorized response handler helper."

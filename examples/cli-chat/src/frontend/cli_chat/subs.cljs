@@ -5,4 +5,4 @@
 (re-frame/reg-sub
   ::name
   (fn [db]
-    (:name db)))
+    (get db :name)))

@@ -8,7 +8,7 @@
     [xiana.hash :as auth]))
 
 (defn gen-username []
-  (let [id (apply str (take 4 (repeatedly #(char (+ (rand 26) 65)))))]
+  (let [id (str/join (repeatedly 4 (fn* [] (char (+ (rand 26) 65)))))]
     (str "guest_" id)))
 
 (defn welcome-message
@@ -24,7 +24,7 @@
     session-data         :session-data
     :as                  state}]
   (let [username (gen-username)
-        session (if (-> session-data :users/name)
+        session (if (:users/name session-data)
                   session-data
                   (assoc-in session-data [:users/name] username))]
     (swap! channels assoc ch session)
@@ -47,8 +47,7 @@
      channels :channels} :request-data
     {db-data :db-data}   :response-data
     :as                  state}]
-  (let [loggable-user (-> (first db-data)
-                          (dissoc :users/passwd))]
+  (let [loggable-user (dissoc (first db-data) :users/passwd)]
     (log/info "update user: " loggable-user)
     (swap! channels update ch assoc :user loggable-user)
     (update state :response-data merge {:reply-fn views/send-multi-line

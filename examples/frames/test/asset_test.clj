@@ -9,8 +9,7 @@
     (let [request {:uri            "/assets/Clojure-icon.png"
                    :request-method :get}
           handle (handler-fn deps)
-          visit (-> (handle request)
-                    (update :body slurp))]
+          visit (update (handle request) :body slurp)]
       (is (= 200 (:status visit)))
       (is (= (slurp "resources/public/assets/Clojure-icon.png")
              (:body visit))))))

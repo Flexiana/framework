@@ -12,23 +12,46 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
-    - name: Setup Clojure
-      uses: DeLaGuardo/setup-clojure@5.0
+
+    - name: Prepare java
+      uses: actions/setup-java@v3
       with:
-        cli: 1.11.1.1113
-        lein: 2.9.8
-      
-    - name: Cache
-      uses: actions/cache@v2.1.4
+        distribution: 'corretto'
+        java-version: '11'
+
+    - name: Install clojure tools
+      uses: DeLaGuardo/setup-clojure@9.4
       with:
-        path: ~/.m2
-        key: m2-${{ hashFiles('project.clj') }}
-        restore-keys: |
-          m2-
+        # Install just one or all simultaneously
+        # The value must indicate a particular version of the tool, or use 'latest'
+        # to always provision the latest version
+        cli: 1.11.1.1155              # Clojure CLI based on tools.deps
+        lein: 2.9.1                  # Leiningen
+        bb: 0.7.8                    # Babashka
+
+    - name: Cache clojure dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.m2/repository
+          ~/.gitlibs
+          ~/.deps.clj
+        # List all files containing dependencies:
+        key: cljdeps-${{ hashFiles('deps.edn') }}
+        # key: cljdeps-${{ hashFiles('deps.edn', 'bb.edn') }}
+        # key: cljdeps-${{ hashFiles('project.clj') }}
+        # key: cljdeps-${{ hashFiles('build.boot') }}
+        restore-keys: cljdeps-
 
     - name: Run cljstyle
-      run: lein check-style src test
+      run: clojure -M:format check
+
+    - name: Run kondo
+      run: clojure -M:kondo
+
+    - name: Run kibit
+      continue-on-error: true
+      run: clojure -M:kibit -- --reporter markdown
 
     - name: Run tests
-      run: lein test
+      run: clojure -M:test

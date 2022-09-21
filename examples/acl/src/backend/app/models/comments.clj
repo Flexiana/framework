@@ -16,8 +16,8 @@
 (defn fetch-query
   [{{{id :id} :query-params} :request
     :as                      state}]
-  (assoc state :query (cond-> (-> (select :*)
-                                  (from :comments))
+  (assoc state :query (cond->
+                        (from (select :*) :comments)
                         id (where [:= :id (UUID/fromString id)]))))
 
 (defn add-query
@@ -41,5 +41,6 @@
 (defn delete-query
   [{{{id :id} :params} :request
     :as                state}]
-  (assoc state :query (cond-> (delete-from :comments)
+  (assoc state :query (cond->
+                        (delete-from :comments)
                         id (where [:= :id (UUID/fromString id)]))))

@@ -64,5 +64,6 @@
 
 (deftest rest-call
   (is (= {:status 200, :body "Hello from REST!"}
-         (-> (client/get "http://localhost:3333/ws")
-             (select-keys [:status :body])))))
+         (select-keys
+           (client/get "http://localhost:3333/ws")
+           [:status :body]))))

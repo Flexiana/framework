@@ -42,8 +42,7 @@
   on request error: responds {:status 400, :body \"Request coercion failed\"}
   on response error: responds {:status 400, :body \"Response validation failed\"}"
   {:enter (fn [state]
-            (let [cc (-> (get-in state [:request-data :match])
-                         coercion/coerce!)]
+            (let [cc (coercion/coerce! (get-in state [:request-data :match]))]
               (update-in state [:request :params] merge cc)))
    :error (fn [{exception :error :as state}]
             (if (-> exception ex-data :type (= ::coercion/request-coercion))

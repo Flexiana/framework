@@ -62,8 +62,7 @@
              :request-data
              :user-permissions)))
   (is (thrown-with-msg? Exception #"Forbidden"
-        (-> ((:enter interceptor) (state guest :image/upload))
-            :response))))
+        (:response ((:enter interceptor) (state guest :image/upload))))))
 
 (defn restriction-fn
   [state]
@@ -72,7 +71,7 @@
       (user-permissions :image/all) state
       (user-permissions :image/own)
       (let [session-id (get-in state [:request :headers "session-id"])
-            session-backend (-> state :deps :session-backend)
+            session-backend (get-in state [:deps :session-backend])
             user-id (:users/id (session/fetch session-backend session-id))]
         (update state :query sql/merge-where [:= :owner.id user-id]))
       :else (throw (ex-info "Invalid permission request"
@@ -123,7 +122,5 @@
                       (assoc-in [:request-data :user-permissions] #{:image/none})
                       (assoc-in [:request-data :restriction-fn] restriction-fn))]
         (is (thrown-with-msg? Exception #"Invalid permission request"
-              (->
-                ((:leave interceptor) state)
-                :response))
+              (:response ((:leave interceptor) state)))
             "Throws exception when user-permission missing")))))

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup Clojure
       uses: DeLaGuardo/setup-clojure@5.0
@@ -18,13 +18,19 @@ jobs:
         cli: 1.11.1.1113
         lein: 2.9.8
       
-    - name: Cache
-      uses: actions/cache@v2.1.4
+    - name: Cache clojure dependencies
+      uses: actions/cache@v3
       with:
-        path: ~/.m2
-        key: m2-${{ hashFiles('project.clj') }}
-        restore-keys: |
-          m2-
+        path: |
+          ~/.m2/repository
+          ~/.gitlibs
+          ~/.deps.clj
+        # List all files containing dependencies:
+        key: cljdeps-${{ hashFiles('deps.edn') }}
+        # key: cljdeps-${{ hashFiles('deps.edn', 'bb.edn') }}
+        # key: cljdeps-${{ hashFiles('project.clj') }}
+        # key: cljdeps-${{ hashFiles('build.boot') }}
+        restore-keys: cljdeps-
 
     - name: Setup babashka
       run: |
@@ -43,4 +49,4 @@ jobs:
         GPG_OWNERTRUST: ${{ secrets.GPG_OWNERTRUST }}
         GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
         TAG: ${{ env.TAG }}
-      run: /usr/bin/bb ./.github/clojars_deploy.bb
+      run: /usr/bin/bb ./.github/clojars_deploy.clj

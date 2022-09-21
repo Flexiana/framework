@@ -5,7 +5,7 @@
   [m [k & ks] v]
   (if v
     (if ks
-      (assoc m k (assoc-in (get m k) ks v))
+      (update-in m [k] assoc-in ks v)
       (assoc m k v))
     m))
 
