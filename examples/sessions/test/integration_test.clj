@@ -2,6 +2,7 @@
   (:require
     [app.core :as app]
     [clj-http.client :as http]
+    [clj-test-containers.core :as tc]
     [clojure.test :refer [deftest is use-fixtures]]
     [jsonista.core :as json]
     [next.jdbc :as jdbc]
@@ -11,6 +12,27 @@
   (:import
     (java.util
       UUID)))
+
+(defn docker-postgres!
+  [{pg-config :xiana/postgresql :as config}]
+  (let [{:keys [dbname user password image-name]} pg-config
+        container (tc/start!
+                    (tc/create
+                      {:image-name    image-name
+                       :exposed-ports [5432]
+                       :env-vars      {"POSTGRES_DB"       dbname
+                                       "POSTGRES_USER"     user
+                                       "POSTGRES_PASSWORD" password}}))
+
+        port (get (:mapped-ports container) 5432)
+        pg-config (assoc
+                    pg-config
+                    :port port
+                    :embedded container
+                    :subname (str "//localhost:" port "/" dbname))]
+    (tc/wait {:wait-strategy :log
+              :message       "accept connections"} (:container container))
+    (assoc config :xiana/postgresql pg-config)))
 
 (defn merge-connection
   [config]
@@ -24,7 +46,7 @@
   (with-open [system (-> (config/config app/app-cfg)
                          (assoc :xiana/postgresql (:xiana/session-backend (config/config)))
                          (assoc-in [:xiana/postgresql :image-name] "postgres:14-alpine")
-                         db/docker-postgres!
+                         docker-postgres!
                          db/connect
                          merge-connection
                          app/->system)]

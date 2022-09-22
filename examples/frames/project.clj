@@ -12,7 +12,8 @@
              :local {:resource-paths ["config/local" "resources"]}
              :prod  {:resource-paths ["config/prod" "resources"]}
              :test  {:resource-paths ["config/test" "resources"]
-                     :dependencies   [[mvxcvi/cljstyle "0.15.0"
+                     :dependencies   [[clj-test-containers "0.7.2"]
+                                      [mvxcvi/cljstyle "0.15.0"
                                        :exclusions [org.clojure/clojure]]]}}
   :shadow-cljs {:nrepl  {:port 8777}
 

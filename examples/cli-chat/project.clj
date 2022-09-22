@@ -13,6 +13,7 @@
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
                      :dependencies   [[clj-http "3.12.3"]
+                                      [clj-test-containers "0.7.2"]
                                       [http.async.client "1.3.1"]
                                       [mvxcvi/cljstyle "0.15.0"
                                        :exclusions [org.clojure/clojure]]]}}
