@@ -44,6 +44,7 @@
           :exec-fn     codox.main/generate-docs
           :exec-args   {:output-path  "docs/new/"
                         :themes       [:default :xiana]
+                        :metadata     {:doc/format :markdown}
                         :source-paths ["src"]
                         :doc-files    ["doc/welcome.md"
                                        "doc/conventions.md"

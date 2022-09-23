@@ -21,7 +21,7 @@
   ;; erase all elements (side effect)
   (erase! [_]))
 
-(defn un-objectify
+(defn- un-objectify
   [table data]
   (let [{session-data (keyword (name table) "session-data")
          session-id   (keyword (name table) "session-id")
@@ -33,7 +33,7 @@
     (let [[_ data] (first (un-objectify table session-data))]
       data)))
 
-(defn connect
+(defn- connect
   [{backend-config :xiana/session-backend :as cfg}]
   (let [ds-config {:xiana/postgresql backend-config
                    :xiana/jdbc-opts  {:builder-fn as-kebab-maps}}
@@ -140,7 +140,18 @@
     state))
 
 (def interceptor
-  "Returns with 401 when the referred session is missing"
+  "`:enter`: Fetches and injects previously stored session from session backend, into
+  ```clojure
+  (-> state :session-data)
+  ```
+  `:leave`: Stores session data from state
+
+  When session is missing from session backend it'll return with
+  ```clojure
+  {:body   {:message \"Invalid or missing session\"}
+            :status 401}
+  ```
+  on `:enter`"
   {:name  ::session-interceptor
    :enter fetch-session
    :leave store-session})
@@ -163,8 +174,11 @@
    :leave store-session})
 
 (defn init-backend
-  "Initializing session backend, if `(-> config :xiana/session-backend :storage` is `:database` it'll be use postgres
-  else it will be an in-memory storage"
+  "Initializing session backend, if
+  ```clojure
+  (= :database (-> config :xiana/session-backend :storage))
+  ```
+  it'll be use postgres else it will be an in-memory storage"
   [{session-backend    :session-backend
     {storage :storage} :xiana/session-backend
     :as                config}]

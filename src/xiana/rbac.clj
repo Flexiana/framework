@@ -26,8 +26,11 @@
 (def interceptor
   "On enter it validates if the resource is restricted,
   and available at the current state (actual user with a role)
-  If it's not restricted do nothing,
-  if the given user has no rights, it throws ex-info with data {:status 403 :body \"Forbidden\"}.
+  If it's not restricted does nothing,
+  if the given user has no rights, it throws `ex-info` with data
+  ```clojure
+  {:status 403 :body \"Forbidden\"}
+  ```
   On leave executes restriction function if any."
   {:enter (fn [state]
             (let [operation-restricted (get-in state [:request-data :permission])

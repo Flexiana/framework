@@ -10,16 +10,17 @@
   "Returns handler function for server, which  do the routing, and executes interceptors and given action.
 
    Execution order:
-    router interceptors: enters in order
-    router interceptors leaves in reversed order
-      routing
-    around interceptors enters in order
-    controller interceptors enters in order
-    inside interceptors enters in order
-      action
-    inside interceptors leaves in reversed order
-    controller interceptors leaves in reversed order
-    around interceptors leaves in reversed order"
+   
+    - router interceptors: enters in order
+    - router interceptors leaves in reversed order
+        - routing
+    - around interceptors enters in order
+    - controller interceptors enters in order
+    - inside interceptors enters in order
+        - action
+    - inside interceptors leaves in reversed order
+    - controller interceptors leaves in reversed order
+    - around interceptors leaves in reversed order"
   [deps]
   (fn handle*
     ([http-request]

@@ -1,7 +1,10 @@
 (ns xiana.hash
   "Cryptography helper for creating, and resolving passwords.
   Supported algorithms are bcrypr, pbkdf2, and scrypt.
-  The required algorithm should be in (-> state :deps :auth :hash-algorithm)"
+  The required algorithm should be in
+  ```clojure
+  (-> state :deps :auth :hash-algorithm)
+  ```"
   (:require
     [crypto.password.bcrypt :as hash-b]
     [crypto.password.pbkdf2 :as hash-p]
