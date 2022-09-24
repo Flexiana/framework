@@ -2,7 +2,6 @@
 
 - [Dependencies and configuration](#dependencies-and-configuration)
 - [Database migration](#database-migration)
-- [Database seed with data](#database-seed-with-data)
 - [Interceptors typical use-case, and ordering](#interceptors-typical-use-case-and-ordering)
 - [Defining new interceptors](#defining-new-interceptors)
     - [Interceptor example](#interceptor-example)
@@ -67,71 +66,74 @@ The system configuration and start-up with the chainable set-up:
 
 ## Database migration
 
-In migratus library there is an Achilles point:
+Database Migration Framework is based on the following principles:
 
-It has no option to define separate migrations by profiles. Xiana
-decorates [Migratus](https://github.com/yogthos/migratus), to handle this weakness.
+1.  The migration process is based on a stack of immutable changes. If
+    at some point you want to change the schema or the content of the
+    database you don\'t change the previous scripts but add new scripts
+    at the top of the stack.
+2.  There should be a single standard resources/migrations migration
+    directory
+3.  If a specific platform (dev, stage, test, etc) needs additional
+    scripts, specific directories should be created and in config set
+    the appropriate migrations-dir as a vector containing the standard
+    directory and the auxiliary directory.
+4.  The order in which scripts are executed depends only on the script
+    id and not on the directory where the script is located
 
-You can run `lein migrate` with migratus parameters like: `create`, `destroy`, `up`, `down`, `init`, `reset`, `migrate`
-, `rollback`. It will do the same as migratus, except one more thing: you can use `with profile` lein parameter to
-define settings migratus should use. So instead of having only one migration folder you can define one for each of your
-profiles.
+### Configuration
 
-```shell
-lein with-profile +test migrate create default-users
+The migration process requires a config file containing:
+
+``` clojure
+:xiana/postgresql {:port 5432
+                   :dbname "framework"
+                   :host "localhost"
+                   :dbtype "postgresql"
+                   :user "postgres"
+                   :password "postgres"}
+:xiana/migration {:store :database
+                   :migration-dir ["resources/migrations"]
+                   :init-in-transaction? false
+                   :migration-table-name "migrations"}
 ```
 
-Will create `up` and `down` SQL files in folder configured in `config/test/config.edn`, and
+The :migration-dir param is a vector of classpath relative paths
+containing database migrations scripts.
 
-```shell
-lein with-profile +test migrate migrate
+### Usage
+
+The `xiana.db.migrate`{.verbatim} implements a cli for migrations
+framework.
+
+If you add to `deps.edn`{.verbatim} in `:aliases`{.verbatim} section:
+
+``` clojure
+:migrate
+{:main-opts ["-m" "xiana.db.migrate"]}
 ```
 
-will use it.
+you could access this cli from clojure command.
 
-But without profile:
+To see all commands and options available run:
 
-```shell
-lein migrate migrate
+``` shell
+clojure -M:migrate --help
 ```
 
-migratus will use the migrations from a folder, what is configured in `config/dev/config.edn`.
+Examples of commands:
 
-## Database seed with data
-
-With extending migration configuration with `seeds-dir` and `seeds-table-name` you can use
-
-```shell
-lein seed create
-lein seed migrate
-lein seed reset
-lein seed destroy
+``` shell
+# update the database to current version:
+clojure -M:migrate migrate -c resources/config.edn
+# rollback the last run migration script:
+clojure -M:migrate rollback -c resources/config.edn
+# rollback the database down until id script: 
+clojure -M:migrate rollback -i 20220103163538 -c resources/config.edn
+# create the migrations scripts pair: 
+clojure -M:migrate create -d resources/migrations -n the-name-of-the-script
 ```
 
-commands. Every defined profile can have a different seeds directory to have different dataset for different
-environments. If you're using this method to seed your data, keep your eye on the database structure is already updated
-when the seeding is happens.
-
-Example for configuration:
-
-```clojure
-:xiana/migration {:store                :database
-                  :migration-dir        "migrations"
-                  :seeds-dir            "dev_seeds"
-                  :migration-table-name "migrations"
-                  :seeds-table-name     "seeds"}
-```
-
-Example of using it from application start
-
-```clojure
-(-> (config/config app-cfg)
-    ...
-    db/connect
-    db/migrate!
-    seed/seed!
-    ...)
-```
 
 ## Interceptors typical use-case, and ordering
 
