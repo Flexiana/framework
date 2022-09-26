@@ -97,7 +97,7 @@ An interceptor is a pair of unary functions. Each function must recieve and retu
 an analogy to AOP's around aspect, or as on a pair of middlewares. They work mostly the same way
 as [pedestal](http://pedestal.io/reference/interceptors) and [sieppari](https://github.com/metosin/sieppari)
 interceptors.
-Xiana provides a set of base [interceptors](interceptors.md), for the most common use cases.
+Xiana provides a set of base interceptors, for the most common use cases.
 
 This figure shows how interceptors are executed ideally:
 

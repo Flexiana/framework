@@ -11,15 +11,15 @@
 ;; define session protocol
 (defprotocol Session
   ;; fetch an element (no side effect)
-  (fetch [_ k])
+  (fetch [_ k] "fetch an element (no side effect)")
   ;; fetch all elements (no side effect)
-  (dump [_])
+  (dump [_] "fetch all elements (no side effect)")
   ;; add an element (side effect)
-  (add! [_ k v])
+  (add! [_ k v] "add an element (side effect)")
   ;; delete an element (side effect)
-  (delete! [_ k])
+  (delete! [_ k] "delete an element (side effect)")
   ;; erase all elements (side effect)
-  (erase! [_]))
+  (erase! [_] "erase all elements (side effect)"))
 
 (defn- un-objectify
   [table data]

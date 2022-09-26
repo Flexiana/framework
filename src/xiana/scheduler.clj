@@ -17,7 +17,7 @@
       (swap! (:channels this) disj c)
       (close! c))))
 
-(defonce channels
+(defonce ^:private channels
   (atom #{}))
 
 (defn start

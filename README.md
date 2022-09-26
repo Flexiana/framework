@@ -28,7 +28,6 @@ Add it to your project as a dependency from clojars:
 
 - First check out the [conventions](./doc/conventions.md).
 - To start working with xiana, read the [tutorials](./doc/tutorials.md).
-- A hands-on approach in the [how-to](./doc/How-To.md)s.
 - To contribute, see the [contribution](./doc/contribution.md) docs.
 
 ### Examples

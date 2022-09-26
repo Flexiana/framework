@@ -34,7 +34,6 @@ offering an API, and a frontend that displays something from the database.
 
 - First check out the [conventions](./conventions.md).
 - To start working with xiana, read the [tutorials](./tutorials.md).
-- A hands-on approach in the [how-to](./How-To.md)s.
 - To contribute, see the [contribution](./contribution.md) docs.
 
 ### Examples
