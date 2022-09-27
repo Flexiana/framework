@@ -1,5 +1,6 @@
 (ns xiana-fixture
   (:require
+    [clj-test-containers.core :as tc]
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [xiana.commons :refer [rename-key]]
     [xiana.config :as config]
@@ -8,8 +9,7 @@
     [xiana.route :as routes]
     [xiana.session :as session-backend]
     [xiana.sse :as sse]
-    [xiana.webserver :as ws]
-    [clj-test-containers.core :as tc]))
+    [xiana.webserver :as ws]))
 
 (defn docker-postgres!
   [{pg-config :xiana/postgresql :as config}]

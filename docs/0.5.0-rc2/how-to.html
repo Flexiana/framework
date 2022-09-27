@@ -51,9 +51,12 @@
           (assoc state :response {:status 500 :body "Error occurred while printing out state"}))}
 </code></pre>
 <h2><a href="#providing-default-interceptors" id="providing-default-interceptors"></a>Providing default interceptors</h2>
-<pre><code class="language-clojure">{:router-interceptors     [...]
- :controller-interceptors [...]
- :web-socket-interceptors [...]}
+<p>The router and controller interceptors definition is part of the application startup. The system’s dependency map should contain two sequence of interceptors like</p>
+<pre><code class="language-clojure">(def app-cfg
+  {:routes                  routes
+   :router-interceptors     [...]
+   :controller-interceptors [...]
+   :web-socket-interceptors [...]})
 </code></pre>
 <h2><a href="#interceptor-overriding" id="interceptor-overriding"></a>Interceptor overriding</h2>
 <p>On route definition you can interfere with the default controller interceptors. With the route definition you are able to set up different controller interceptors other than the ones already defined with the app. There are three ways to do it:</p>

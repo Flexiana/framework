@@ -114,8 +114,8 @@ Route definition is done via [reitit's routing](https://github.com/metosin/reiti
 with `xiana.route` namespace. At route definition you can define.
 
 - The [action](#action) that should be executed
-- [Interceptor overriding](#interceptor-overriding)
-- The required permission for [rbac](#role-based-access-and-data-ownership-control)
+- [Interceptor overriding](how-to.md#interceptor-overriding)
+- The required permission for [rbac](how-to.md#role-based-access-and-data-ownership-control)
 - [WebSockets](#websockets) action definition
 
 If any extra parameter is provided here, it's injected into
@@ -455,7 +455,7 @@ have the entire [state](conventions.md#state) to work with.
 
 `xiana.websockets` offers a router function, which supports Xiana concepts. You can define a reitit route and use it
 inside WebSockets reactive functions. With Xiana [state](conventions.md#state)
-and support of [interceptors](conventions.md#interceptors), with [interceptor override](#interceptor-overriding). You
+and support of [interceptors](conventions.md#interceptors), with [interceptor override](how-to.md#interceptor-overriding). You
 can define a [fallback function](#websockets), to handle missing actions.
 
 ```clojure

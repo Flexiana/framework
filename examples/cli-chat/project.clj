@@ -1,7 +1,7 @@
 (defproject cli-chat "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[com.flexiana/framework "0.5.0-rc2"]]
+  :dependencies [[com.flexiana/framework "0.5.0-rc3"]]
   :plugins []
   :main ^:skip-aot cli-chat.core
   :uberjar-name "cli-chat.jar"

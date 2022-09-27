@@ -94,8 +94,8 @@
 <p>Route definition is done via <a href="https://github.com/metosin/reitit">reitit’s routing</a> library. Route processing is done with <code>xiana.route</code> namespace. At route definition you can define.</p>
 <ul>
 <li>The <a href="#action">action</a> that should be executed</li>
-<li><a href="#interceptor-overriding">Interceptor overriding</a></li>
-<li>The required permission for <a href="#role-based-access-and-data-ownership-control">rbac</a></li>
+<li><a href="how-to.html#interceptor-overriding">Interceptor overriding</a></li>
+<li>The required permission for <a href="how-to.html#role-based-access-and-data-ownership-control">rbac</a></li>
 <li><a href="#websockets">WebSockets</a> action definition</li>
 </ul>
 <p>If any extra parameter is provided here, it’s injected into</p>
@@ -327,7 +327,7 @@ clojure -M:migrate create -d resources/migrations -n the-name-of-the-script
 </code></pre>
 <p>The creation of the actual channel happens in Xiana’s <a href="conventions.html#handler">handler</a>. All provided reactive functions have the entire <a href="conventions.html#state">state</a> to work with.</p>
 <h3><a href="#websockets-routing" id="websockets-routing"></a>WebSockets routing</h3>
-<p><code>xiana.websockets</code> offers a router function, which supports Xiana concepts. You can define a reitit route and use it inside WebSockets reactive functions. With Xiana <a href="conventions.html#state">state</a> and support of <a href="conventions.html#interceptors">interceptors</a>, with <a href="#interceptor-overriding">interceptor override</a>. You can define a <a href="#websockets">fallback function</a>, to handle missing actions.</p>
+<p><code>xiana.websockets</code> offers a router function, which supports Xiana concepts. You can define a reitit route and use it inside WebSockets reactive functions. With Xiana <a href="conventions.html#state">state</a> and support of <a href="conventions.html#interceptors">interceptors</a>, with <a href="how-to.html#interceptor-overriding">interceptor override</a>. You can define a <a href="#websockets">fallback function</a>, to handle missing actions.</p>
 <pre><code class="language-clojure">(def routes
   (r/router [["/login" {:action       behave/login
                         :interceptors {:inside [interceptors/side-effect

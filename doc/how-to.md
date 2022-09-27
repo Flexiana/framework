@@ -55,10 +55,15 @@ The provided functions are should have one parameter, the application state, and
 
 ## Providing default interceptors
 
+The router and controller interceptors definition is part of the application startup. The system's dependency map should
+contain two sequence of interceptors like
+
 ```clojure
-{:router-interceptors     [...]
- :controller-interceptors [...]
- :web-socket-interceptors [...]}
+(def app-cfg
+  {:routes                  routes
+   :router-interceptors     [...]
+   :controller-interceptors [...]
+   :web-socket-interceptors [...]})
 ```
 
 ## Interceptor overriding
