@@ -45,6 +45,7 @@
           :exec-args   {:output-path  "docs/new/"
                         :themes       [:default :xiana]
                         :metadata     {:doc/format :markdown}
+                        :source-uri   "https://github.com/Flexiana/framework/blob/{git-commit}/{filepath}#L{line}"
                         :source-paths ["src"]
                         :doc-files    ["doc/welcome.md"
                                        "doc/conventions.md"
