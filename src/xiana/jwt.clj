@@ -2,7 +2,10 @@
   (:require
     [buddy.core.keys :as keys]
     [buddy.sign.jwt :as jwt]
-    [buddy.sign.util :as util]))
+    [buddy.sign.util :as util])
+  (:import
+    (java.util
+      Base64)))
 
 (defn- calculate-time-claims
   "Calculates exp and nbf posix values according to the configuration
@@ -61,3 +64,24 @@
   [_ payload {:keys [alg private-key]}]
   (let [pkey (keys/str->private-key private-key)]
     (jwt/sign payload pkey {:alg alg})))
+
+(defn init-from-file
+  [config]
+  (let [jwt-config (:xiana/jwt config)
+        slurped (into {} (map (fn [x]
+                                (-> x
+                                    (update-in [1 :public-key] slurp)
+                                    (update-in [1 :private-key] slurp)))
+                              jwt-config))]
+    (assoc config :xiana/jwt slurped)))
+
+(defn init-from-base64
+  [config]
+  (let [jwt-config (:xiana/jwt config)
+        decode #(slurp (.decode (Base64/getDecoder) %))
+        decoded (into {} (map (fn [x]
+                                (-> x
+                                    (update-in [1 :public-key] decode)
+                                    (update-in [1 :private-key] decode)))
+                              jwt-config))]
+    (assoc config :xiana/jwt decoded)))

@@ -8,17 +8,16 @@
                          :password           "postgres"}
  :xiana/web-server      {:port  3000
                          :join? false}
- :xiana/jwt
- {:auth
-  {:alg :rs256
-   :public-key "$jwt-public-key"
-   :private-key "$jwt-private-key"
-   :in-claims {:iss "xiana-api"
-               :aud "api-consumer"
-               :leeway 0
-               :max-age 40}
-   :out-claims {:exp 1000
-                :iss "xiana-api"
-                :aud "api-consumer"
-                :nbf 0}}}}
+ :xiana/jwt             {:auth
+                         {:alg         :rs256
+                          :public-key  "$jwt-public-key | resources/_files/jwtRS256.key.pub"
+                          :private-key "$jwt-private-key | resources/_files/jwtRS256.key"
+                          :in-claims   {:iss     "xiana-api"
+                                        :aud     "api-consumer"
+                                        :leeway  0
+                                        :max-age 40}
+                          :out-claims  {:exp 1000
+                                        :iss "xiana-api"
+                                        :aud "api-consumer"
+                                        :nbf 0}}}}
 

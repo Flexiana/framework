@@ -55,23 +55,3 @@
    :error
    (fn [state]
      (helpers/unauthorized state "Signature could not be verified"))})
-
-(defn- decode-b64-key
-  [jwt-config key key-type]
-  (let [kt (get-in jwt-config [key key-type])]
-    (slurp (.decode (Base64/getDecoder) kt))))
-
-(defn- add-decoded-keys
-  [jwt-config key]
-  (->> jwt-config
-       (assoc-in [key :public-key] (decode-b64-key jwt-config key :public-key))
-       (assoc-in [key :private-key] (decode-b64-key jwt-config key :private-key))))
-
-(defn init-jwt-config
-  [{jwt-config :xiana/jwt :as config}]
-  (let [jwt-keys (keys jwt-config)]
-    (assoc config
-           :xiana/jwt
-           (map (fn [key]
-                  (add-decoded-keys jwt-config key))
-                jwt-keys))))

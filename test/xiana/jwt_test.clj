@@ -3,28 +3,31 @@
     [clojure.test :refer [deftest testing is]]
     [xiana.jwt :as sut]))
 
-(def test-private-key (slurp "test/resources/_files/jwtRS256.key"))
+(def private-key-file "test/resources/_files/jwtRS256.key")
+(def public-key-file "test/resources/_files/jwtRS256.key.pub")
 
-(def test-public-key (slurp "test/resources/_files/jwtRS256.key.pub"))
+(def test-private-key (slurp private-key-file))
+
+(def test-public-key (slurp public-key-file))
 
 (def config
   {:xiana/jwt
-   {:auth {:public-key test-public-key
-           :private-key test-private-key
-           :alg :rs256
-           :in-claims {:iss "fake-issuer"
-                       :aud "fake-audience"
-                       :sub "fake-subject"
-                       :leeway 0
-                       :max-age 40}
-           :out-claims {:exp 10
-                        :iss "fake-issuer"
-                        :aud "fake-audience"
-                        :sub "fake-subject"
-                        :nbf 0}}
-    :content {:public-key test-public-key
+   {:auth    {:public-key  test-public-key
               :private-key test-private-key
-              :alg :rs256}}})
+              :alg         :rs256
+              :in-claims   {:iss     "fake-issuer"
+                            :aud     "fake-audience"
+                            :sub     "fake-subject"
+                            :leeway  0
+                            :max-age 40}
+              :out-claims  {:exp 10
+                            :iss "fake-issuer"
+                            :aud "fake-audience"
+                            :sub "fake-subject"
+                            :nbf 0}}
+    :content {:public-key  test-public-key
+              :private-key test-private-key
+              :alg         :rs256}}})
 
 (defn sign-and-verify-jwt
   [type payload cfg]
@@ -37,7 +40,7 @@
 
 (deftest test-jwt-auth
   (let [cfg (get-in config [:xiana/jwt :auth])
-        type    :claims
+        type :claims
         payload {:user "test"}]
 
     (testing "Sign and verify succeeded"

@@ -8,6 +8,7 @@
     [xiana.handler :as x-handler]
     [xiana.interceptor :as x-interceptors]
     [xiana.interceptor.error]
+    [xiana.jwt :as jwt]
     [xiana.jwt.interceptors :as jwt-interceptors]
     [xiana.route :as x-routes]
     [xiana.webserver :as ws]))
@@ -24,7 +25,7 @@
 (defn ->system
   [app-cfg]
   (-> (config/config app-cfg)
-      jwt-interceptors/init-jwt-config
+      jwt/init-from-file
       x-routes/reset
       ws/start
       closeable-map))
