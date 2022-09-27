@@ -5,8 +5,7 @@
     [xiana.route.helpers :as helpers])
   (:import
     (clojure.lang
-      ExceptionInfo)
-    java.util.Base64))
+      ExceptionInfo)))
 
 (def jwt-auth
   {:name ::jwt-authentication

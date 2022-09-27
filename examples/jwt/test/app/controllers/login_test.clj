@@ -2,7 +2,10 @@
   (:require
     [app.controllers.login :refer [login-controller]]
     [clojure.test :refer :all]
-    [xiana.jwt :as jwt]))
+    [xiana.jwt :as jwt])
+  (:import
+    (java.util
+      Base64)))
 
 (deftest login-controller-test
   (testing "use string keys"
