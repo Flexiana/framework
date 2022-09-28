@@ -1,4 +1,4 @@
-{:paths ["src/backend"]
+{:paths ["src/backend" "resources"]
  :deps {com.flexiana/framework {:mvn/version "0.5.0-rc3"}}
  :aliases
  {:run
