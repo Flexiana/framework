@@ -72,7 +72,7 @@ Database migration is based on the following principles:
 1. The migration process is based on a stack of immutable changes. If at some point you want to change the schema or the
    content of the database you don't change the previous scripts but add new scripts at the top of the stack.
 2. There should be a single standard resources/migrations migration directory
-3. If a specific platform (dev, stage, test, etc) needs additional scripts, specific directories should be created and
+3. If a specific environment (dev, stage, test, etc) needs additional scripts, specific directories should be created and
    in config set the appropriate migrations-dir as a vector containing the standard directory and the auxiliary
    directory.
 4. The order in which scripts are executed depends only on the script id and not on the directory where the script is
