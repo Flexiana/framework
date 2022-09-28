@@ -60,7 +60,7 @@
       (import-gpg!)
       (println "Deploying a release version")
 
-      (run-shell-cmd "clj" "-M:release" "--version" version)
+      (run-shell-cmd "clojure" "-M:release" "--version" version)
       (println "Deploy was successful"))))
 
 (deploy!)
