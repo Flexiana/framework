@@ -60,7 +60,7 @@
       (import-gpg!)
       (println "Deploying a release version")
 
-      (run-shell-cmd "clojure" "-M:release" "--version" version)
+      (run-shell-cmd "clojure" "-M:release" "--version" version "--clojars-username" :env/clojars_login "--clojars-password" :env/clojars_password)
       (println "Deploy was successful"))))
 
 (deploy!)
