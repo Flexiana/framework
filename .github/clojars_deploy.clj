@@ -46,7 +46,9 @@
     (run-shell-cmd "gpg" "--import-ownertrust" :in (decode-base64 ownertrust))))
 
 (defn deploy! []
-  (let [tag (not-empty (tag-name))]
+  (let [tag (not-empty (tag-name))
+        username (System/getenv "CLOJARS_LOGIN")
+        password (System/getenv "CLOJARS_PASSWORD")]
     (when-not (can-deploy?)
       (throw (ex-info "Can't deploy this version - release version already exist on clojars"
                       {:version version})))
@@ -60,7 +62,7 @@
       (import-gpg!)
       (println "Deploying a release version")
 
-      (run-shell-cmd "clojure" "-M:release" "--version" version "--clojars-username" :env/clojars_login "--clojars-password" :env/clojars_password)
+      (run-shell-cmd "clojure" "-M:release" "--version" version "--clojars-username" username "--clojars-password" password)
       (println "Deploy was successful"))))
 
 (deploy!)
