@@ -48,7 +48,9 @@
 (defn deploy! []
   (let [tag (not-empty (tag-name))
         username (System/getenv "CLOJARS_LOGIN")
-        password (System/getenv "CLOJARS_PASSWORD")]
+        password (System/getenv "CLOJARS_PASSWORD")
+        envs (System/getenv)]
+    (println envs)
     (when-not (can-deploy?)
       (throw (ex-info "Can't deploy this version - release version already exist on clojars"
                       {:version version})))
