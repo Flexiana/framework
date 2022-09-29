@@ -64,7 +64,7 @@
       (import-gpg!)
       (println "Deploying a release version")
 
-      (run-shell-cmd "clojure" "-M:release" "--version" version "--clojars-username" (decode-base64 username) "--clojars-password" (decode-base64 password))
+      (run-shell-cmd "clojure" "-M:release" "--version" version "--clojars-username" username "--clojars-password" password)
       (println "Deploy was successful"))))
 
 (deploy!)
