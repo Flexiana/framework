@@ -39,16 +39,14 @@
     result))
 
 (defn- import-gpg! []
-  (let [secret (System/getenv "GPG_SECRET_KEYS")
+  (let [secret     (System/getenv "GPG_SECRET_KEYS")
         ownertrust (System/getenv "GPG_OWNERTRUST")]
     (when-not (and secret ownertrust) (throw (ex-info "Can't find GPG keys!" {})))
     (run-shell-cmd "gpg" "--import" :in (decode-base64 secret))
     (run-shell-cmd "gpg" "--import-ownertrust" :in (decode-base64 ownertrust))))
 
 (defn deploy! []
-  (let [tag (not-empty (tag-name))
-        username (System/getenv "CLOJARS_LOGIN")
-        password (System/getenv "CLOJARS_PASSWORD")
+  (let [tag  (not-empty (tag-name))
         envs (System/getenv)]
     (println envs)
     (when-not (can-deploy?)
@@ -64,7 +62,7 @@
       (import-gpg!)
       (println "Deploying a release version")
 
-      (run-shell-cmd "clojure" "-M:release" "--version" version "--clojars-username" username "--clojars-password" password)
+      (run-shell-cmd "clojure" "-M:release" "--version" version)
       (println "Deploy was successful"))))
 
 (deploy!)
