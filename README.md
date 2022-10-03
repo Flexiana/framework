@@ -1,9 +1,10 @@
-![Xiana logo](resources/images/Xiana.png)
+![Xiana logo](doc/resources/images/Xiana.png)
+
 # Xiana framework
 
 Xiana is a lightweight web-application framework written in Clojure, for Clojure. The goal is to be simple, fast, and
-most importantly - a welcoming platform for web programmers with different backgrounds who want to experience the wonders
-of functional programming!
+most importantly - a welcoming platform for web programmers with different backgrounds who want to experience the
+wonders of functional programming!
 
 It's easy to install, fun to experiment with, and a powerful tool to produce monolithic web applications.
 
@@ -16,7 +17,9 @@ Xiana has its own Leiningen template, so you can create a skeleton project with
 ```shell
 lein new xiana app
 ```
-[getting-started](./doc/getting-started.md) explains how to use this to create a very simple app with a db, a backend offering an API, and a frontend that displays something from the database.
+
+[getting-started](./doc/getting-started.md) explains how to use this to create a very simple app with a db, a backend
+offering an API, and a frontend that displays something from the database.
 
 ### As a dependency
 
@@ -43,5 +46,7 @@ Visit [examples folder](examples), to see how you can perform
 ## References
 
 ### Concept of interceptors
+
 http://pedestal.io/reference/interceptors
+
 https://github.com/metosin/sieppari
