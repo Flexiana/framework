@@ -88,14 +88,142 @@ The system configuration and start-up with the chainable set-up:
 
 (defn -main
   [& _args]
-  (->system app-cfg))                                           ;starting the application
+  (->system (app-cfg {})))
 ```
 
-## Router and controller interceptors
+## Database migration
 
-The router and controller interceptors are executed in the exact same order (enter functions in order, leave functions
-in reversed order), but not in the same place of the execution flow. Router interceptors are executed around Xiana's
-router, controller interceptors executed around the defined action.
+Database migration is based on the following principles:
+
+1. The migration process is based on a stack of immutable changes. If at some point you want to change the schema or the
+   content of the database you don't change the previous scripts but add new scripts at the top of the stack.
+2. There should be a single standard resources/migrations migration directory
+3. If a specific environment (dev, stage, test, etc) needs additional scripts, specific directories should be created and
+   in config set the appropriate migrations-dir as a vector containing the standard directory and the auxiliary
+   directory.
+4. The order in which scripts are executed depends only on the script id and not on the directory where the script is
+   located
+
+### Configure migration
+
+The migration process requires a config file containing:
+
+```clojure
+:xiana/postgresql {:port     5432
+                   :dbname   "framework"
+                   :host     "localhost"
+                   :dbtype   "postgresql"
+                   :user     "postgres"
+                   :password "postgres"}
+:xiana/migration {:store                :database
+                  :migration-dir        ["resources/migrations"]
+                  :init-in-transaction? false
+                  :migration-table-name "migrations"}
+```
+
+The :migration-dir param is a vector of classpath relative paths containing database migrations scripts.
+
+### Usage
+
+The `xiana.db.migrate` implements a cli for migrations framework.
+
+If you add to `deps.edn` in `:aliases` section:
+
+```clojure
+:migrate {:main-opts ["-m" "xiana.db.migrate"]}
+```
+
+you could access this cli from clojure command.
+
+To see all commands and options available run:
+
+```shell
+clojure -M:migrate --help
+```
+
+Examples of commands:
+
+```shell
+# update the database to current version:
+clojure -M:migrate migrate -c resources/config.edn
+# rollback the last run migration script:
+clojure -M:migrate rollback -c resources/config.edn
+# rollback the database down until id script: 
+clojure -M:migrate rollback -i 20220103163538 -c resources/config.edn
+# create the migrations scripts pair: 
+clojure -M:migrate create -d resources/migrations -n the-name-of-the-script
+```
+
+## Interceptors typical use-case, and ordering
+
+Typical use-case, and ordering looks like this:
+
+```clojure
+{:router-interceptors     [app/route-override?]
+ :controller-interceptors [(interceptors/muuntaja)
+                           interceptors/params
+                           session/interceptor
+                           interceptors/view
+                           interceptors/db-access
+                           rbac/interceptor]}
+```
+
+Which means:
+
+1. executes app/route-override :enter function
+2. executes app/route-override :leave function
+3. The router injects :request-data, and decides what action should be executed
+4. Muuntaja does the request's encoding
+5. parameters injected via reitit
+6. injecting session-data into the state
+7. view does nothing on :enter
+8. db-access does nothing on :enter
+9. RBAC tests for permissions
+10. execution of the given action
+11. RBAC applies data ownership function
+12. db-access executes the given query
+13. rendering response map
+14. updating session storage from state/session-data
+15. Params do nothing on :leave
+16. muuntaja converts the response body to the accepted format
+
+## Defining new interceptors
+
+    An interceptor is a map of three functions.
+    :enter Runs while we are going down from the request to it's action, in the order of executors
+    :leave Runs while we're going up from the action to the response.
+    :error Executed when any error thrown while executing the two other functions
+
+The provided function should have one parameter, the application state, and should return the state.
+
+### Interceptor example
+
+```clojure
+
+{:enter (fn [state]
+          (println "Enter: " state)
+          (-> state
+              (transform-somehow)
+              (or-do-side-effects))
+ :leave (fn [state]
+          (println "Leave: " state)
+          state)
+ :error (fn [state]
+          (println "Error: " state)
+          ;; Here `state` should have previously thrown exception
+          ;; stored in `:error` key.
+          ;; you can do something useful with it (e.g. log it)
+          ;; and/or handle it by `dissoc`ing from the state.
+          ;; In that case remaining `leave` interceptors will be executed.
+          (assoc state :response {:status 500 :body "Error occurred while printing out state"}))}
+```
+
+#### Router and controller interceptors
+
+    The router and controller interceptors are executed in the exact same order (enter functions in order, leave 
+    functions in reversed order), but not in the same place of the execution flow.
+
+The handler function executes interceptors in this order
 
 1. router interceptors :enter functions in order
 2. router interceptors :leave functions in reversed order
@@ -304,8 +432,10 @@ successful login, or injects the `Unauthorized` response into the state.
           user (-> state :response-data :db-data first)]
       (xiana-sessions/add! session-backend new-session-id user)
       (assoc-in state [:response :headers "Session-id"] new-session-id))
-    (assoc state :response {:status 401
-                            :body   "Unauthorized"})))
+    (throw (ex-info "Missing session data"
+                    {:xiana/response
+                     {:status 401
+                      :body   "You don't have rights to do this"}}))))
 ```
 
 ## Session management
