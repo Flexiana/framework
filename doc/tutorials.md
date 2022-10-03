@@ -67,70 +67,65 @@ The system configuration and start-up with the chainable set-up:
 
 ## Database migration
 
-In migratus library there is an Achilles point:
+Database migration is based on the following principles:
 
-It has no option to define separate migrations by profiles. Xiana
-decorates [Migratus](https://github.com/yogthos/migratus), to handle this weakness.
+1. The migration process is based on a stack of immutable changes. If at some point you want to change the schema or the
+   content of the database you don't change the previous scripts but add new scripts at the top of the stack.
+2. There should be a single standard resources/migrations migration directory
+3. If a specific environment (dev, stage, test, etc) needs additional scripts, specific directories should be created and
+   in config set the appropriate migrations-dir as a vector containing the standard directory and the auxiliary
+   directory.
+4. The order in which scripts are executed depends only on the script id and not on the directory where the script is
+   located
 
-You can run `lein migrate` with migratus parameters like: `create`, `destroy`, `up`, `down`, `init`, `reset`, `migrate`
-, `rollback`. It will do the same as migratus, except one more thing: you can use `with profile` lein parameter to
-define settings migratus should use. So instead of having only one migration folder you can define one for each of your
-profiles.
+### Configure migration
 
-```shell
-lein with-profile +test migrate create default-users
-```
-
-Will create `up` and `down` SQL files in folder configured in `config/test/config.edn`, and
-
-```shell
-lein with-profile +test migrate migrate
-```
-
-will use it.
-
-But without profile:
-
-```shell
-lein migrate migrate
-```
-
-migratus will use the migrations from a folder, what is configured in `config/dev/config.edn`.
-
-## Database seed with data
-
-With extending migration configuration with `seeds-dir` and `seeds-table-name` you can use
-
-```shell
-lein seed create
-lein seed migrate
-lein seed reset
-lein seed destroy
-```
-
-commands. Every defined profile can have a different seeds directory to have different dataset for different
-environments. If you're using this method to seed your data, keep your eye on the database structure is already updated
-when the seeding is happens.
-
-Example for configuration:
+The migration process requires a config file containing:
 
 ```clojure
+:xiana/postgresql {:port     5432
+                   :dbname   "framework"
+                   :host     "localhost"
+                   :dbtype   "postgresql"
+                   :user     "postgres"
+                   :password "postgres"}
 :xiana/migration {:store                :database
-                  :migration-dir        "migrations"
-                  :seeds-dir            "dev_seeds"
-                  :migration-table-name "migrations"
-                  :seeds-table-name     "seeds"}
+                  :migration-dir        ["resources/migrations"]
+                  :init-in-transaction? false
+                  :migration-table-name "migrations"}
 ```
 
-Example of using it from application start
+The :migration-dir param is a vector of classpath relative paths containing database migrations scripts.
+
+### Usage
+
+The `xiana.db.migrate` implements a cli for migrations framework.
+
+If you add to `deps.edn` in `:aliases` section:
 
 ```clojure
-(-> (config/config app-cfg)
-    ...
-    db/connect
-    db/migrate!
-    seed/seed!
-    ...)
+:migrate {:main-opts ["-m" "xiana.db.migrate"]}
+```
+
+you could access this cli from clojure command.
+
+To see all commands and options available run:
+
+```shell
+clojure -M:migrate --help
+```
+
+Examples of commands:
+
+```shell
+# update the database to current version:
+clojure -M:migrate migrate -c resources/config.edn
+# rollback the last run migration script:
+clojure -M:migrate rollback -c resources/config.edn
+# rollback the database down until id script: 
+clojure -M:migrate rollback -i 20220103163538 -c resources/config.edn
+# create the migrations scripts pair: 
+clojure -M:migrate create -d resources/migrations -n the-name-of-the-script
 ```
 
 ## Interceptors typical use-case, and ordering
@@ -184,17 +179,17 @@ The provided function should have one parameter, the application state, and shou
           (-> state
               (transform-somehow)
               (or-do-side-effects))
- :leave (fn [state]
-          (println "Leave: " state)
-          state)
- :error (fn [state]
-          (println "Error: " state)
-          ;; Here `state` should have previously thrown exception
-          ;; stored in `:error` key.
-          ;; you can do something useful with it (e.g. log it)
-          ;; and/or handle it by `dissoc`ing from the state.
-          ;; In that case remaining `leave` interceptors will be executed.
-          (assoc state :response {:status 500 :body "Error occurred while printing out state"}))}
+          :leave (fn [state]
+                   (println "Leave: " state)
+                   state)
+          :error (fn [state]
+                   (println "Error: " state)
+                   ;; Here `state` should have previously thrown exception
+                   ;; stored in `:error` key.
+                   ;; you can do something useful with it (e.g. log it)
+                   ;; and/or handle it by `dissoc`ing from the state.
+                   ;; In that case remaining `leave` interceptors will be executed.
+                   (assoc state :response {:status 500 :body "Error occurred while printing out state"}))}
 ```
 
 #### Router and controller interceptors
@@ -381,9 +376,9 @@ Adding to the previous examples:
       (update-user-last-login! state id)
       (assoc-in state [:response :headers "Session-id"] new-session-id))
     (throw (ex-info "Missing session data"
-                                         {:xiana/response
-                                             {:status 401
-                                              :body "You don't have rights to do this"}}))))
+                    {:xiana/response
+                     {:status 401
+                      :body   "You don't have rights to do this"}}))))
 ```
 
 ## Session management

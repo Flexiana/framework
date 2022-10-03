@@ -45,6 +45,7 @@ jobs:
     - name: Deploy to Clojars
       env:
         CLOJARS_LOGIN: ${{ secrets.CLOJARS_LOGIN }}
+        CLOJARS_USERNAME: ${{ secrets.CLOJARS_LOGIN }}
         CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
         GPG_OWNERTRUST: ${{ secrets.GPG_OWNERTRUST }}
         GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
