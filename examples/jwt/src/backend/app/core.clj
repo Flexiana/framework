@@ -3,7 +3,6 @@
     [app.controllers.index :as index]
     [app.controllers.login :as login]
     [app.controllers.secret :as secret]
-    [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [xiana.config :as config]
     [xiana.handler :as x-handler]
     [xiana.interceptor :as x-interceptors]
@@ -27,8 +26,7 @@
   (-> (config/config app-cfg)
       jwt/init-from-file
       x-routes/reset
-      ws/start
-      closeable-map))
+      ws/start))
 
 (def app-cfg
   {:routes                  routes
