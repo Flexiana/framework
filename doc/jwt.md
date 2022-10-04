@@ -2,7 +2,8 @@
 
 - [Overview](#Overview)
 - [Config](#Config)
-- [jwt methods](#jwt methods)
+- [Initialization](#initialization)
+- [jwt methods](#jwt-methods)
 - [interceptors](#interceptors)
 
 ## Overview
@@ -32,7 +33,7 @@ In order to use the interceptors implemented in xiana, the config map should loo
                    :aud     "api-consumer"
                    :sub     "example-subject"
                    :leeway  0
-                   :max-age 40}
+                   :max-age 1000}
      :out-claims  {:exp 1000
                    :iss "xiana-api"
                    :sub "example-subject"
@@ -83,6 +84,51 @@ openssl rsa -in rs256.key -pubout -outform PEM -out rs256.key.pub
 Keep in mind that all claim keys are optional, but if they are present in the signed JWT, the methods will try to
 validate them.
 
+## Initialization
+
+The public and private keys can be passed in three different way. As plain text, from file and thought Base64 encoding.
+In case of plain text no additional initialization is necessary. For loading keys from files the system startup should
+looks
+like:
+
+```clojure
+
+;with configuration:
+;:xiana/jwt             {:auth
+;                        {:alg         :rs256
+;                         :public-key  "$jwt-public-key | resources/_files/jwtRS256.key.pub"
+;                         :private-key "$jwt-private-key | resources/_files/jwtRS256.key"
+;                         :in-claims   {:iss     "xiana-api"
+;                                       :aud     "api-consumer"
+;                                       :leeway  0
+;                                       :max-age 1000}
+;                         :out-claims  {:exp 1000
+;                                       :iss "xiana-api"
+;                                       :aud "api-consumer"
+;                                       :nbf 0}}}
+
+(defn ->system
+  [app-cfg]
+  (-> (config/config app-cfg)
+      jwt/init-from-file           ;slurps the keys from files
+      x-routes/reset
+      ws/start))
+```
+
+You can use `xiana.jwt/init-from-base64` if your key is Base64 encoded, and of course you can combine those like
+
+```clojure
+(defn ->system
+  [app-cfg]
+  (-> (config/config app-cfg)
+      jwt/init-from-file           ;slurps the keys from files
+      jwt/init-from-base64         ;Decode slurped keys
+      x-routes/reset
+      ws/start))
+```
+
+Both methods are safe, in case of exception they do not modify the passed configuration.
+
 ## jwt methods
 
 The `verify-jwt` and `sign` methods have two implementations: `:claims` and `:no-claims`.
@@ -93,4 +139,4 @@ the `:no-claims` method will not need those configurations to be there. If using
 
 ## interceptors
 
-Please refer to the [interceptors]("./doc/interceptors.md") documentation.
+Please refer to the [interceptors](interceptors.md#jwt-auth) documentation.
