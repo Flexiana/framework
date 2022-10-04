@@ -15,7 +15,7 @@
                           :in-claims   {:iss     "xiana-api"
                                         :aud     "api-consumer"
                                         :leeway  0
-                                        :max-age 40}
+                                        :max-age 1000}
                           :out-claims  {:exp 1000
                                         :iss "xiana-api"
                                         :aud "api-consumer"
