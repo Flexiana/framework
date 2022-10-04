@@ -20,14 +20,14 @@
 
 (defmulti verify-jwt
   "Checks if the signature of a token is correct given the algorithm and public-key
-  provided in the configuration. Returns the payload in case of success
-  and an ExceptionInfo in case it fails."
+                  provided in the configuration. Returns the payload in case of success
+                  and an ExceptionInfo in case it fails."
   (fn [type _ _]
     type))
 
 (defmethod verify-jwt :claims
   [_ token {:keys [alg public-key in-claims]}]
-  (let [pkey (keys/str->public-key public-key)
+  (let [pkey   (keys/str->public-key public-key)
         claims (when (seq in-claims)
                  (assoc in-claims :now (util/now)))]
     (try
@@ -47,14 +47,14 @@
 
 (defmulti sign
   "Tries to sign a token given the algorithm and private-key
-  provided in the configuration. Returns the signed token."
+                  provided in the configuration. Returns the signed token."
   (fn
     [type _ _]
     type))
 
 (defmethod sign :claims
   [_ payload {:keys [alg private-key out-claims]}]
-  (let [pkey (keys/str->private-key private-key)
+  (let [pkey   (keys/str->private-key private-key)
         claims (-> payload
                    (merge out-claims)
                    (calculate-time-claims))]
@@ -67,21 +67,25 @@
 
 (defn init-from-file
   [config]
-  (let [jwt-config (:xiana/jwt config)
-        slurped (into {} (map (fn [x]
-                                (-> x
-                                    (update-in [1 :public-key] slurp)
-                                    (update-in [1 :private-key] slurp)))
-                              jwt-config))]
-    (assoc config :xiana/jwt slurped)))
+  (try
+    (let [jwt-config (:xiana/jwt config)
+          slurped    (into {} (map (fn [x]
+                                     (-> x
+                                         (update-in [1 :public-key] slurp)
+                                         (update-in [1 :private-key] slurp)))
+                                   jwt-config))]
+      (assoc config :xiana/jwt slurped))
+    (catch Exception _ config)))
 
 (defn init-from-base64
   [config]
-  (let [jwt-config (:xiana/jwt config)
-        decode #(slurp (.decode (Base64/getDecoder) %))
-        decoded (into {} (map (fn [x]
-                                (-> x
-                                    (update-in [1 :public-key] decode)
-                                    (update-in [1 :private-key] decode)))
-                              jwt-config))]
-    (assoc config :xiana/jwt decoded)))
+  (try
+    (let [jwt-config (:xiana/jwt config)
+          decode     #(slurp (.decode (Base64/getDecoder) %))
+          decoded    (into {} (map (fn [x]
+                                     (-> x
+                                         (update-in [1 :public-key] decode)
+                                         (update-in [1 :private-key] decode)))
+                                   jwt-config))]
+      (assoc config :xiana/jwt decoded))
+    (catch Exception _ config)))
