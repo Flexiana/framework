@@ -1,5 +1,5 @@
 {:paths ["src/backend" "resources"]
- :deps {com.flexiana/framework {:mvn/version "0.5.0-rc3"}}
+ :deps {com.flexiana/framework {:mvn/version "0.5.0-rc4"}}
  :aliases
  {:run
   {:extra-paths ["config/dev"]
