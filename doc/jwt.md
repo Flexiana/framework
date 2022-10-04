@@ -56,9 +56,9 @@ correctly [acording to the config lib](https://github.com/yogthos/config).
 - `:alg` key is used to inform which algorithm the JWT is/will be
   signed [More on accepted algorithms](https://funcool.github.io/buddy-sign/latest/01-jwt.html).
 
-- `:private-key` informs the private-key in which the JWT will be signed.
+- `:private-key` sets the private-key in which the JWT will be signed.
 
-- `:public-key` informs the public-key needed to verify the JWT.
+- `:public-key` sets the public-key needed to verify the JWT.
 
 Example to generate priv/public keys (rsa256):
 
@@ -69,7 +69,7 @@ ssh-keygen -t rsa -b 4096 -m PEM -f rs256.key
 openssl rsa -in rs256.key -pubout -outform PEM -out rs256.key.pub
 ```
 
-- `:out-claims` key contains keys to inform claims when signing the JWT.
+- `:out-claims` key contains keys to set claims when signing the JWT.
     * `:exp` and `:nbf` (expiration and not before, respectively) should be a value in seconds and when the JWT is beign
       signed will be added to the current time. `:exp` sets the token's expiration, while `:nbf` tells the validator to
       not accept the token before the time provided by it.
