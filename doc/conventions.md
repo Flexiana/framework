@@ -13,9 +13,7 @@
 ## Overview
 
 The diagram bellow gives you an overview, how a request is processed in Xiana based applications.
-
 ![diagram](./conventions-1.svg)
-
 ## State
 
 State is created for each HTTP request and represents the current state of the application. It contains:
@@ -81,9 +79,7 @@ interceptors.
 Xiana provides a set of base interceptors, for the most common use cases.
 
 This figure shows how interceptors are executed ideally:
-
 ![diagram](./conventions-2.svg)
-
 ## Interceptors error handling:
 
 The interceptor executor handles the exceptional states like sieppari does. If an exception happens, it tries to handle
@@ -92,5 +88,4 @@ handlers for the beginning of the interceptor queue. When and `:error` function 
 exception, the executor calls the queue `:leave` functions in reserved order, where the handler has been found.
 
 This diagram shows how the error cases handled:
-
 ![diagram](./conventions-3.svg)

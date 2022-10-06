@@ -12,8 +12,7 @@
 <li><a href="#interceptors-error-handling">Interceptors error handling</a></li>
 </ul>
 <h2><a href="#overview" id="overview"></a>Overview</h2>
-<p>The diagram bellow gives you an overview, how a request is processed in Xiana based applications.</p>
-<p><img src="./conventions-1.svg" alt="diagram" /></p>
+<p>The diagram bellow gives you an overview, how a request is processed in Xiana based applications. <img src="./conventions-1.svg" alt="diagram" /></p>
 <h2><a href="#state" id="state"></a>State</h2>
 <p>State is created for each HTTP request and represents the current state of the application. It contains:</p>
 <ul>
@@ -51,10 +50,8 @@
 <p>Modules can depend on external resources, configurations, as well as on other modules. These dependencies are added to the state on state creation, and defined on application startup.</p>
 <h2><a href="#interceptors" id="interceptors"></a>Interceptors</h2>
 <p>An interceptor is a pair of unary functions. Each function must recieve and return a state map. You can look at it as on an analogy to AOP’s around aspect, or as on a pair of middlewares. They work mostly the same way as <a href="http://pedestal.io/reference/interceptors">pedestal</a> and <a href="https://github.com/metosin/sieppari">sieppari</a> interceptors. Xiana provides a set of base interceptors, for the most common use cases.</p>
-<p>This figure shows how interceptors are executed ideally:</p>
-<p><img src="./conventions-2.svg" alt="diagram" /></p>
+<p>This figure shows how interceptors are executed ideally: <img src="./conventions-2.svg" alt="diagram" /></p>
 <h2><a href="#interceptors-error-handling" id="interceptors-error-handling"></a>Interceptors error handling:</h2>
 <p>The interceptor executor handles the exceptional states like sieppari does. If an exception happens, it tries to handle first in the same interceptor. If it has and <code>:error</code> handler, it will call it, otherwise it’ll search for <code>:error</code> handlers for the beginning of the interceptor queue. When and <code>:error</code> function found, and matched with the given exception, the executor calls the queue <code>:leave</code> functions in reserved order, where the handler has been found.</p>
-<p>This diagram shows how the error cases handled:</p>
-<p><img src="./conventions-3.svg" alt="diagram" /></p>
+<p>This diagram shows how the error cases handled: <img src="./conventions-3.svg" alt="diagram" /></p>
 </div></div></div></body></html>

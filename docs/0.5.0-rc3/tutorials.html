@@ -77,10 +77,109 @@
 
 (defn -main
   [&amp; _args]
-  (-&gt;system app-cfg))                                           ;starting the application
+  (-&gt;system (app-cfg {})))
 </code></pre>
-<h2><a href="#router-and-controller-interceptors" id="router-and-controller-interceptors"></a>Router and controller interceptors</h2>
-<p>The router and controller interceptors are executed in the exact same order (enter functions in order, leave functions in reversed order), but not in the same place of the execution flow. Router interceptors are executed around Xiana’s router, controller interceptors executed around the defined action.</p>
+<h2><a href="#database-migration" id="database-migration"></a>Database migration</h2>
+<p>Database migration is based on the following principles:</p>
+<ol>
+<li>The migration process is based on a stack of immutable changes. If at some point you want to change the schema or the content of the database you don’t change the previous scripts but add new scripts at the top of the stack.</li>
+<li>There should be a single standard resources/migrations migration directory</li>
+<li>If a specific environment (dev, stage, test, etc) needs additional scripts, specific directories should be created and in config set the appropriate migrations-dir as a vector containing the standard directory and the auxiliary directory.</li>
+<li>The order in which scripts are executed depends only on the script id and not on the directory where the script is located</li>
+</ol>
+<h3><a href="#configure-migration" id="configure-migration"></a>Configure migration</h3>
+<p>The migration process requires a config file containing:</p>
+<pre><code class="language-clojure">:xiana/postgresql {:port     5432
+                   :dbname   "framework"
+                   :host     "localhost"
+                   :dbtype   "postgresql"
+                   :user     "postgres"
+                   :password "postgres"}
+:xiana/migration {:store                :database
+                  :migration-dir        ["resources/migrations"]
+                  :init-in-transaction? false
+                  :migration-table-name "migrations"}
+</code></pre>
+<p>The :migration-dir param is a vector of classpath relative paths containing database migrations scripts.</p>
+<h3><a href="#usage" id="usage"></a>Usage</h3>
+<p>The <code>xiana.db.migrate</code> implements a cli for migrations framework.</p>
+<p>If you add to <code>deps.edn</code> in <code>:aliases</code> section:</p>
+<pre><code class="language-clojure">:migrate {:main-opts ["-m" "xiana.db.migrate"]}
+</code></pre>
+<p>you could access this cli from clojure command.</p>
+<p>To see all commands and options available run:</p>
+<pre><code class="language-shell">clojure -M:migrate --help
+</code></pre>
+<p>Examples of commands:</p>
+<pre><code class="language-shell"># update the database to current version:
+clojure -M:migrate migrate -c resources/config.edn
+# rollback the last run migration script:
+clojure -M:migrate rollback -c resources/config.edn
+# rollback the database down until id script: 
+clojure -M:migrate rollback -i 20220103163538 -c resources/config.edn
+# create the migrations scripts pair: 
+clojure -M:migrate create -d resources/migrations -n the-name-of-the-script
+</code></pre>
+<h2><a href="#interceptors-typical-use-case-and-ordering" id="interceptors-typical-use-case-and-ordering"></a>Interceptors typical use-case, and ordering</h2>
+<p>Typical use-case, and ordering looks like this:</p>
+<pre><code class="language-clojure">{:router-interceptors     [app/route-override?]
+ :controller-interceptors [(interceptors/muuntaja)
+                           interceptors/params
+                           session/interceptor
+                           interceptors/view
+                           interceptors/db-access
+                           rbac/interceptor]}
+</code></pre>
+<p>Which means:</p>
+<ol>
+<li>executes app/route-override :enter function</li>
+<li>executes app/route-override :leave function</li>
+<li>The router injects :request-data, and decides what action should be executed</li>
+<li>Muuntaja does the request’s encoding</li>
+<li>parameters injected via reitit</li>
+<li>injecting session-data into the state</li>
+<li>view does nothing on :enter</li>
+<li>db-access does nothing on :enter</li>
+<li>RBAC tests for permissions</li>
+<li>execution of the given action</li>
+<li>RBAC applies data ownership function</li>
+<li>db-access executes the given query</li>
+<li>rendering response map</li>
+<li>updating session storage from state/session-data</li>
+<li>Params do nothing on :leave</li>
+<li>muuntaja converts the response body to the accepted format</li>
+</ol>
+<h2><a href="#defining-new-interceptors" id="defining-new-interceptors"></a>Defining new interceptors</h2>
+<pre><code>An interceptor is a map of three functions.
+:enter Runs while we are going down from the request to it's action, in the order of executors
+:leave Runs while we're going up from the action to the response.
+:error Executed when any error thrown while executing the two other functions
+</code></pre>
+<p>The provided function should have one parameter, the application state, and should return the state.</p>
+<h3><a href="#interceptor-example" id="interceptor-example"></a>Interceptor example</h3>
+<pre><code class="language-clojure">
+{:enter (fn [state]
+          (println "Enter: " state)
+          (-&gt; state
+              (transform-somehow)
+              (or-do-side-effects))
+ :leave (fn [state]
+          (println "Leave: " state)
+          state)
+ :error (fn [state]
+          (println "Error: " state)
+          ;; Here `state` should have previously thrown exception
+          ;; stored in `:error` key.
+          ;; you can do something useful with it (e.g. log it)
+          ;; and/or handle it by `dissoc`ing from the state.
+          ;; In that case remaining `leave` interceptors will be executed.
+          (assoc state :response {:status 500 :body "Error occurred while printing out state"}))}
+</code></pre>
+<h4><a href="#router-and-controller-interceptors" id="router-and-controller-interceptors"></a>Router and controller interceptors</h4>
+<pre><code>The router and controller interceptors are executed in the exact same order (enter functions in order, leave 
+functions in reversed order), but not in the same place of the execution flow.
+</code></pre>
+<p>The handler function executes interceptors in this order</p>
 <ol>
 <li>router interceptors :enter functions in order</li>
 <li>router interceptors :leave functions in reversed order</li>
@@ -219,8 +318,10 @@ clojure -M:migrate create -d resources/migrations -n the-name-of-the-script
           user (-&gt; state :response-data :db-data first)]
       (xiana-sessions/add! session-backend new-session-id user)
       (assoc-in state [:response :headers "Session-id"] new-session-id))
-    (assoc state :response {:status 401
-                            :body   "Unauthorized"})))
+    (throw (ex-info "Missing session data"
+                    {:xiana/response
+                     {:status 401
+                      :body   "You don't have rights to do this"}}))))
 </code></pre>
 <h2><a href="#session-management" id="session-management"></a>Session management</h2>
 <p>Session management has two mayor components</p>
