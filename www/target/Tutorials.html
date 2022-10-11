@@ -1,0 +1,256 @@
+<p><img src="resources/images/Xiana.png" width="242"></p><h1 id="tutorials">Tutorials</h1><ul><li><a href='#application_startup'>Application startup</a></li><li><a href='#configuration'>Configuration</a></li><li><a href='#dependencies'>Dependencies</a></li><li><a href='#router_and_controller_interceptors'>Router and controller interceptors</a></li><li><a href='#routes'>Routes</a></li><li><a href='#action'>Action</a></li><li><a href='#database_migration'>Database migration</a></li><li><a href='#database_access'>Database-access</a></li><li><a href='#view'>View</a></li><li><a href='#side_effects'>Side-effects</a></li><li><a href='#session_management'>Session management</a><ul><li><a href='#in_memory_session_backend'>In memory backend</a></li><li><a href='#persistent_session_backend'>Persistent backend</a></li><li><a href='#session_interceptors'>Session interceptors</a></li></ul></li><li><a href='#websockets'>WebSockets</a><ul><li><a href='#websockets_routing'>WebSockets routing</a></li><li><a href='#route_matching'>Route matching</a></li></ul></li><li><a href='#server_sent_events_sse'>Server-Sent Events (SSE)</a></li><li><a href='#scheduler'>Scheduler</a></li></ul><h2 id="application&#95;startup">Application startup</h2><p>Starting up an application takes several well-defined steps:</p><ul><li>reading the configuration</li><li>setting up dependencies</li><li>spinning up a web-server</li></ul><h2 id="configuration">Configuration</h2><p>Apps built with Xiana are configurable in several ways. It uses <a href='https://github.com/yogthos/config'>yogthos/config</a> to resolve basic configuration from <code>config.edn</code>, <code>.lein-env</code>, <code>.boot-env</code> files, environment variables and system properties. Additionally</p><ul><li>Xiana looks for an <code>.edn</code> file pointed with <code>:xiana-config</code> variable for overrides</li><li>You can define a key to read from any other (already defined) value, and/or pass a default value.</li></ul><p>In practice this means you can define a config value like this:</p><pre><code class="clojure">:xiana/test {:test-value-1 &quot;$property&quot;
+             :test-value-2 &quot;$foo | baz&quot;}
+</code></pre><p>and this will be resolved as</p><pre><code class="clojure">:xiana/test {:test-value-1 &quot;the value of 'property' key, or nil&quot;
+             :test-value-2 &quot;the value of `foo` key or \&quot;baz\&quot;&quot;}
+</code></pre><p>The value of property key can come from the config files, environment variables, or from system properties.</p><h2 id="dependencies">Dependencies</h2><p>Database connection, external APIs or session storage, the route definition, setting up scheduled executors or doing migrations are our dependencies. These dependencies should be reachable via the passed around state. To achieve this, it should be part of the <code>:deps</code> map in the state. Any other configuration what you need in runtime should be part of this map too.</p><p>The system configuration and start-up with the chainable set-up:</p><pre><code class="clojure">&#40;defn -&gt;system
+  &#91;app-cfg&#93;
+  &#40;-&gt; &#40;config/config app-cfg&#41;                    ;Read config
+      routes/reset                               ;set up routing
+      db/start                                   ;set up database connection
+      db/migrate!                                ;running migrations
+      session/init-backend                       ;initialize session storage
+      &#40;scheduler/start actions/ping 10000&#41;       ;starting a scheduler
+      ws/start&#41;&#41;                                 ;spinning up the webserver
+
+&#40;def app-cfg
+  {:routes                  routes                              ;injecting route definition
+   :router-interceptors     &#91;&#93;                                  ;definition of router interceptors
+   :controller-interceptors &#91;&#40;xiana-interceptors/muuntaja&#41;      ;definition of controller interceptors
+                             cookies/interceptor
+                             xiana-interceptors/params
+                             session/interceptor
+                             xiana-interceptors/view
+                             xiana-interceptors/side-effect
+                             db/db-access&#93;}&#41;
+
+&#40;defn -main
+  &#91;&amp; &#95;args&#93;
+  &#40;-&gt;system &#40;app-cfg {}&#41;&#41;&#41;
+</code></pre><h2 id="database&#95;migration">Database migration</h2><p>Database migration is based on the following principles:</p><ol><li>The migration process is based on a stack of immutable changes. If at some point you want to change the schema or the   content of the database you don't change the previous scripts but add new scripts at the top of the stack.</li><li>There should be a single standard resources/migrations migration directory</li><li>If a specific environment (dev, stage, test, etc) needs additional scripts, specific directories should be created and   in config set the appropriate migrations-dir as a vector containing the standard directory and the auxiliary   directory.</li><li>The order in which scripts are executed depends only on the script id and not on the directory where the script is   located</li></ol><h3 id="configure&#95;migration">Configure migration</h3><p>The migration process requires a config file containing:</p><pre><code class="clojure">:xiana/postgresql {:port     5432
+                   :dbname   &quot;framework&quot;
+                   :host     &quot;localhost&quot;
+                   :dbtype   &quot;postgresql&quot;
+                   :user     &quot;postgres&quot;
+                   :password &quot;postgres&quot;}
+:xiana/migration {:store                :database
+                  :migration-dir        &#91;&quot;resources/migrations&quot;&#93;
+                  :init-in-transaction? false
+                  :migration-table-name &quot;migrations&quot;}
+</code></pre><p>The :migration-dir param is a vector of classpath relative paths containing database migrations scripts.</p><h3 id="usage">Usage</h3><p>The <code>xiana.db.migrate</code> implements a cli for migrations framework.</p><p>If you add to <code>deps.edn</code> in <code>:aliases</code> section:</p><pre><code class="clojure">:migrate {:main-opts &#91;&quot;-m&quot; &quot;xiana.db.migrate&quot;&#93;}
+</code></pre><p>you could access this cli from clojure command.</p><p>To see all commands and options available run:</p><pre><code class="shell">clojure -M:migrate --help
+</code></pre><p>Examples of commands:</p><pre><code class="shell"># update the database to current version:
+clojure -M:migrate migrate -c resources/config.edn
+# rollback the last run migration script:
+clojure -M:migrate rollback -c resources/config.edn
+# rollback the database down until id script: 
+clojure -M:migrate rollback -i 20220103163538 -c resources/config.edn
+# create the migrations scripts pair: 
+clojure -M:migrate create -d resources/migrations -n the-name-of-the-script
+</code></pre><h2 id="interceptors&#95;typical&#95;use-case,&#95;and&#95;ordering">Interceptors typical use-case, and ordering</h2><p>Typical use-case, and ordering looks like this:</p><pre><code class="clojure">{:router-interceptors     &#91;app/route-override?&#93;
+ :controller-interceptors &#91;&#40;interceptors/muuntaja&#41;
+                           interceptors/params
+                           session/interceptor
+                           interceptors/view
+                           interceptors/db-access
+                           rbac/interceptor&#93;}
+</code></pre><p>Which means:</p><ol><li>executes app/route-override :enter function</li><li>executes app/route-override :leave function</li><li>The router injects :request-data, and decides what action should be executed</li><li>Muuntaja does the request's encoding</li><li>parameters injected via reitit</li><li>injecting session-data into the state</li><li>view does nothing on :enter</li><li>db-access does nothing on :enter</li><li>RBAC tests for permissions</li><li>execution of the given action</li><li>RBAC applies data ownership function</li><li>db-access executes the given query</li><li>rendering response map</li><li>updating session storage from state/session-data</li><li>Params do nothing on :leave</li><li>muuntaja converts the response body to the accepted format</li></ol><h2 id="defining&#95;new&#95;interceptors">Defining new interceptors</h2><pre><code>An interceptor is a map of three functions.
+:enter Runs while we are going down from the request to it's action, in the order of executors
+:leave Runs while we're going up from the action to the response.
+:error Executed when any error thrown while executing the two other functions</code></pre><p>The provided function should have one parameter, the application state, and should return the state.</p><h3 id="interceptor&#95;example">Interceptor example</h3><pre><code class="clojure">
+{:enter &#40;fn &#91;state&#93;
+          &#40;println &quot;Enter: &quot; state&#41;
+          &#40;-&gt; state
+              &#40;transform-somehow&#41;
+              &#40;or-do-side-effects&#41;&#41;
+ :leave &#40;fn &#91;state&#93;
+          &#40;println &quot;Leave: &quot; state&#41;
+          state&#41;
+ :error &#40;fn &#91;state&#93;
+          &#40;println &quot;Error: &quot; state&#41;
+          ;; Here `state` should have previously thrown exception
+          ;; stored in `:error` key.
+          ;; you can do something useful with it &#40;e.g. log it&#41;
+          ;; and/or handle it by `dissoc`ing from the state.
+          ;; In that case remaining `leave` interceptors will be executed.
+          &#40;assoc state :response {:status 500 :body &quot;Error occurred while printing out state&quot;}&#41;&#41;}
+</code></pre><h4 id="router&#95;and&#95;controller&#95;interceptors">Router and controller interceptors</h4><pre><code>The router and controller interceptors are executed in the exact same order &#40;enter functions in order, leave 
+functions in reversed order&#41;, but not in the same place of the execution flow.</code></pre><p>The handler function executes interceptors in this order</p><ol><li>router interceptors :enter functions in order</li><li>router interceptors :leave functions in reversed order</li><li>routing, and matching</li><li>controller interceptors :enter functions in order</li><li>action</li><li>controller interceptors :leave functions in reversed order</li></ol><p>In router interceptors, you are able to interfere with the routing mechanism. Controller interceptors can be interfered with via route definition. There is an option to define interceptors around creating WebSocket channels, these interceptors are executed around the <code>:ws-action</code> instead of <code>:action</code>.</p><h2 id="routes">Routes</h2><p>Route definition is done via <a href='https://github.com/metosin/reitit'>reitit's routing</a> library. Route processing is done with <code>xiana.route</code> namespace. At route definition you can define.</p><ul><li>The <a href='#action'>action</a> that should be executed</li><li><a href='how-to.md#interceptor-overriding'>Interceptor overriding</a></li><li>The required permission for <a href='how-to.md#role-based-access-and-data-ownership-control'>rbac</a></li><li><a href='#websockets'>WebSockets</a> action definition</li></ul><p>If any extra parameter is provided here, it's injected into</p><pre><code class="clojure">&#40;-&gt; state :request-data :match&#41;
+</code></pre><p>in routing step.</p><p>Example route definition:</p><pre><code class="clojure">&#91;&quot;/api&quot; {}
+ &#91;&quot;/login&quot; {:post {:action       #'user-controllers/login                     ;Login controller
+                   :interceptors {:except &#91;session/interceptor&#93;}}}&#93;           ;the user doesn't have a valid session yet
+ &#91;&quot;/posts&quot; {:get    {:action     #'posts-controllers/fetch                    ;controller definition for fetching posts
+                     :permission :posts/read}                                 ;set up the permission for fetching posts
+            :put    {:action     #'posts-controllers/add
+                     :permission :posts/create}
+            :post   {:action     #'posts-controllers/update-post
+                     :permission :posts/update}
+            :delete {:action     #'posts-controllers/delete-post
+                     :permission :posts/delete}}&#93;
+ &#91;&quot;/notifications&quot; {:get {:ws-action  #'websockets/notifications               ;websocket controller for sending notifications
+                          :action     #'notifications/fetch                    ;REST endpoint for fetching notifications
+                          :permission :notifications/read}}&#93;                   ;inject permission
+ &#91;&quot;/style&quot; {:get {:action       #'style/fetch
+                  :organization :who}}&#93;&#93;                                       ;this is not a usual key, the value will go to 
+;&#40;-&gt; state :request-data :match :organization&#41; 
+;at the routing process 
+</code></pre><h2 id="action">Action</h2><p>The action function (controller) in a single <a href='https://en.wikipedia.org/wiki/Create,_read,_update_and_delete#RESTful_APIs'>CRUD application</a> is for defining a <a href='#view'>view</a>, a <a href='#database-access'>database-query</a> (model) and optionally a <a href='#side-effects'>side-effect</a> function which will be executed in the following interceptor steps.</p><pre><code class="clojure">&#40;defn action
+  &#91;state&#93;
+  &#40;assoc state :view view/success
+               :side-effect behaviour/update-sessions-and-db!
+               :query model/fetch-query&#41;&#41;
+</code></pre><h2 id="database&#95;migration">Database migration</h2><p>Database migration is based on the following principles:</p><ol><li>The migration process is based on a stack of immutable changes. If at some point you want to change the schema or the   content of the database you don't change the previous scripts but add new scripts at the top of the stack.</li><li>There should be a single standard resources/migrations migration directory</li><li>If a specific platform (dev, stage, test, etc) needs additional scripts, specific directories should be created and   in config set the appropriate migrations-dir as a vector containing the standard directory and the auxiliary   directory.</li><li>The order in which scripts are executed depends only on the script id and not on the directory where the script is   located</li></ol><h3 id="configure&#95;migration">Configure migration</h3><p>The migration process requires a config file containing:</p><pre><code class="clojure">:xiana/postgresql {:port     5432
+                   :dbname   &quot;framework&quot;
+                   :host     &quot;localhost&quot;
+                   :dbtype   &quot;postgresql&quot;
+                   :user     &quot;postgres&quot;
+                   :password &quot;postgres&quot;}
+:xiana/migration {:store                :database
+                  :migration-dir        &#91;&quot;resources/migrations&quot;&#93;
+                  :init-in-transaction? false
+                  :migration-table-name &quot;migrations&quot;}
+</code></pre><p>The :migration-dir param is a vector of classpath relative paths containing database migrations scripts.</p><h3 id="usage">Usage</h3><p>The <code>xiana.db.migrate</code> implements a cli for migrations framework.</p><p>If you add to <code>deps.edn</code> in <code>:aliases</code> section:</p><pre><code class="clojure">:migrate {:main-opts &#91;&quot;-m&quot; &quot;xiana.db.migrate&quot;&#93;}
+</code></pre><p>you could access this cli from clojure command.</p><p>To see all commands and options available run:</p><pre><code class="shell">clojure -M:migrate --help
+</code></pre><p>Examples of commands:</p><pre><code class="shell"># update the database to current version:
+clojure -M:migrate migrate -c resources/config.edn
+# rollback the last run migration script:
+clojure -M:migrate rollback -c resources/config.edn
+# rollback the database down until id script: 
+clojure -M:migrate rollback -i 20220103163538 -c resources/config.edn
+# create the migrations scripts pair: 
+clojure -M:migrate create -d resources/migrations -n the-name-of-the-script
+</code></pre><h2 id="database&#95;access">Database access</h2><p>The <code>xiana.db/db-access</code> executes queries from <code>:query</code> (for single, non-transactional database access) and <code>:db-queries</code> in this order against the datasource extracted from state. The result will be available in <code>&#40;-&gt; state :response-data :db-data&#41;</code> which is always a sequence.</p><p><code>db-queries</code> is still a map, contains <code>:queries</code> and <code>:transaction?</code> keys. If <code>:transaction?</code> is set to <code>true</code>, all <code>queries</code> in <code>db-queries</code> will be executed in one transaction.</p><p>The query should be in <a href='https://github.com/nilenso/honeysql-postgres'>honey SQL</a> format, it will be sql-formatted on execution:</p><pre><code class="clojure">&#40;-&gt; &#40;select :&#42;&#41;
+    &#40;from :users&#41;
+    &#40;where &#91;:and
+            :is&#95;active
+            &#91;:or
+             &#91;:= :email login&#93;
+             &#91;:= :username login&#93;&#93;&#93;&#41;&#41;
+</code></pre><p>is equal to</p><pre><code class="clojure">{:select &#91;:&#42;&#93;
+ :from   &#91;:users&#93;
+ :where  &#91;:and
+          :is-active
+          &#91;:or
+           &#91;:= :email login&#93;
+           &#91;:= :user-name login&#93;&#93;&#93;}
+</code></pre><p>Both examples above are leads to</p><pre><code class="postgres-sql">&#91;&quot;SELECT &#42; FROM users WHERE is&#95;active AND &#40;email = ? OR user&#95;name = ?&#41;&quot; login login&#93; 
+</code></pre><h2 id="view">View</h2><p>A view is a function to prepare the final response and saving it into the state based on whatever happened before.</p><pre><code class="clojure">&#40;defn success
+  &#91;state&#93;
+  &#40;let &#91;{:users/keys &#91;id&#93;} &#40;-&gt; state :response-data :db-data first&#41;&#93;
+    &#40;assoc state :response {:status 200
+                            :body   {:view-type &quot;login&quot;
+                                     :data      {:login   &quot;succeed&quot;
+                                                 :user-id id}}}&#41;&#41;&#41;
+</code></pre><h2 id="side-effects">Side-effects</h2><p>Conventionally, side-effects interceptor is placed after <a href='#action'>action</a> and <a href='#database-access'>database-access</a>, just right before <a href='#view'>view</a>. At this point, we already have the result of database execution, so we are able to do some extra refinements, like sending notifications, updating the application state, filtering or mapping the result and so on.</p><p>This example shows you, how can you react on a login request. This stores the user data in the actual session on successful login, or injects the <code>Unauthorized</code> response into the state.</p><pre><code class="clojure">&#40;defn update-sessions-and-db!
+  &quot;Creates and adds a new session to the server's store for the user that wants to sign-in.
+   Avoids duplication by firstly removing the session that is related to this user &#40;if it exists&#41;.
+   After the session addition, it updates the user's last-login value in the database.&quot;
+  &#91;state&#93;
+  &#40;if &#40;valid-credentials? state&#41;
+    &#40;let &#91;new-session-id &#40;str &#40;UUID/randomUUID&#41;&#41;
+          session-backend &#40;-&gt; state :deps :session-backend&#41;
+          user &#40;-&gt; state :response-data :db-data first&#41;&#93;
+      &#40;xiana-sessions/add! session-backend new-session-id user&#41;
+      &#40;assoc-in state &#91;:response :headers &quot;Session-id&quot;&#93; new-session-id&#41;&#41;
+    &#40;throw &#40;ex-info &quot;Missing session data&quot;
+                    {:xiana/response
+                     {:status 401
+                      :body   &quot;You don't have rights to do this&quot;}}&#41;&#41;&#41;&#41;
+</code></pre><h2 id="session&#95;management">Session management</h2><p>Session management has two mayor components</p><ul><li>session backend</li><li>session interceptors</li></ul><p>The session backend can be in-memory or persisted using a json storage in postgres database.</p><h3 id="in&#95;memory&#95;session&#95;backend">In memory session backend</h3><p>Basically it's an atom backed session protocol implementation, allows you to <code>fetch</code> <code>add!</code> <code>delete!</code> <code>dump</code> and <code>erase!</code> session data or the whole session storage. It doesn't require any additional configuration, and this is the default set up for handling session storage. All stored session data is wiped out on system restart.</p><h3 id="persistent&#95;session&#95;backend">Persistent session backend</h3><p>Instead of atom, it uses a postgresql table to store session data. Has the same protocol as in-memory. Configuration is necessary to use it.</p><ul><li>it's necessary to have a table in postgres:<pre><code class="postgres-sql">CREATE TABLE sessions &#40;
+    session&#95;data json not null,
+    session&#95;id uuid primary key,
+    modified&#95;at timestamp DEFAULT CURRENT&#95;TIMESTAMP
+&#41;;
+</code></pre></li><li>you need to define the session's configuration in you <code>config.edn</code> files:<pre><code class="clojure"> :xiana/session-backend {:storage            :database
+                         :session-table-name :sessions}
+</code></pre></li><li>in case of<ul><li>missing <code>:storage</code> key, <code>in-memory</code> session backend will be used</li><li>missing <code>:session-table-name</code> key, <code>:sessions</code> table will be used</li></ul></li><li>the database connection can be configured in three ways:<ul><li>via additional configuration<pre><code class="clojure">     :xiana/session-backend {:storage            :database
+                             :session-table-name :sessions
+                             :port               5433
+                             :dbname             &quot;app-db&quot;
+                             :host               &quot;localhost&quot;
+                             :dbtype             &quot;postgresql&quot;
+                             :user               &quot;db-user&quot;
+                             :password           &quot;db-password&quot;}
+    </code></pre></li><li>using the same datasource as the application use:</li></ul></li></ul><p>  Just init the backend after the database connection<pre><code class="clojure">    &#40;defn -&gt;system
+    &#91;app-cfg&#93;
+    &#40;-&gt; &#40;config/config app-cfg&#41;
+        routes/reset
+        db-core/connect
+        db-core/migrate!
+        session/init-backend
+        ws/start&#41;&#41;
+    </code></pre></p><pre><code>- Creating new datasource</code></pre><p>  If no datasource is provided on initialization, the <code>init-backend</code> function merges the database config with the   session backend configuration, and creates a new datasource from the result.</p><h3 id="session&#95;interceptors">Session interceptors</h3><p>The session interceptors interchanges session data between the session-backend and the app state.</p><p>The <code>xiana.session/interceptor</code> throws an exception when no valid session-id can be found in the headers, cookies or as query parameter.</p><p>The <code>xiana.session/guest-session-interceptor</code> creates a guest session if the session-id is missing, or invalid, which means:</p><pre><code class="clojure">{:session-id &#40;UUID/randomUUID&#41;
+ :users/role :guest
+ :users/id   &#40;UUID/randomUUID&#41;}
+</code></pre><p>will be injected to the session data.</p><p>Both interceptors fetching already stored session data into the state at <code>:enter</code>, and on <code>:leave</code> updates session storage with the data from <code>&#40;-&gt; state :session-data&#41;</code></p><h2 id="websockets">WebSockets</h2><p>To use an endpoint to serve a WebSockets connection, you can define it on route-definition alongside the restfull action:</p><pre><code class="clojure">&#40;def routes
+  &#91;&#91;...&#93;
+   &#91;&quot;/ws&quot; {:ws-action websocket/echo
+           :action    restfull/hello}&#93;&#93;&#41;
+</code></pre><p>In <code>:ws-action</code> function you can provide the reactive functions in <code>&#40;-&gt; state :response-data :channel&#41;</code></p><pre><code class="clojure">&#40;:require
+  ...
+  &#91;xiana.websockets :refer &#91;router string-&gt;&#93;&#93;
+  ...&#41;
+
+&#40;defonce channels &#40;atom {}&#41;&#41;
+
+&#40;def routing
+  &#40;partial router routes string-&gt;&#41;&#41;
+
+&#40;defn chat-action
+  &#91;state&#93;
+  &#40;assoc-in state &#91;:response-data :channel&#93;
+            {:on-receive &#40;fn &#91;ch msg&#93;
+                           &#40;routing &#40;update state :request-data
+                                            merge {:ch         ch
+                                                   :income-msg msg
+                                                   :fallback   views/fallback
+                                                   :channels   channels}&#41;&#41;&#41;
+             :on-open    &#40;fn &#91;ch&#93;
+                           &#40;routing &#40;update state :request-data
+                                            merge {:ch         ch
+                                                   :channels   channels
+                                                   :income-msg &quot;/welcome&quot;}&#41;&#41;&#41;
+             :on-ping    &#40;fn &#91;ch data&#93;&#41;
+             :on-close   &#40;fn &#91;ch status&#93; &#40;swap! channels dissoc ch&#41;&#41;
+             :init       &#40;fn &#91;ch&#93;&#41;}&#41;&#41;
+</code></pre><p>The creation of the actual channel happens in Xiana's <a href='conventions.md#handler'>handler</a>. All provided reactive functions have the entire <a href='conventions.md#state'>state</a> to work with.</p><h3 id="websockets&#95;routing">WebSockets routing</h3><p><code>xiana.websockets</code> offers a router function, which supports Xiana concepts. You can define a reitit route and use it inside WebSockets reactive functions. With Xiana <a href='conventions.md#state'>state</a> and support of <a href='conventions.md#interceptors'>interceptors</a>, with <a href='how-to.md#interceptor-overriding'>interceptor override</a>. You can define a <a href='#websockets'>fallback function</a>, to handle missing actions.</p><pre><code class="clojure">&#40;def routes
+  &#40;r/router &#91;&#91;&quot;/login&quot; {:action       behave/login
+                        :interceptors {:inside &#91;interceptors/side-effect
+                                                interceptors/db-access&#93;}
+                        :hide         true}&#93;&#93;              ;; xiana.websockets/router will not log the message 
+            {:data {:default-interceptors &#91;&#40;interceptors/message &quot;Incoming message...&quot;&#41;&#93;}}&#41;&#41;
+</code></pre><h3 id="route&#95;matching">Route matching</h3><p>For route matching Xiana provides a couple of modes:</p><ul><li>extract from string</li></ul><p>  The first word of given message as actionable symbol</p><ul><li>from JSON</li></ul><p>  The given message parsed as JSON, and <code>:action</code> is the actionable symbol</p><ul><li>from EDN</li></ul><p>  The given message parsed as EDN, and <code>:action</code> is the actionable symbol</p><ul><li>Probe</li></ul><p>  It tries to decode the message as JSON, EDN or string in corresponding order.</p><p>You can also define your own matching, and use it as a parameter to <code>xiana.websockets/router</code></p><h2 id="server-sent&#95;events&#95;(sse)">Server-Sent Events (SSE)</h2><p>Xiana contains a simple SSE solution over WebSockets protocol.</p><p>Initialization is done by calling <code>xiana.sse/init</code>. Clients can subscribe by a route with <code>xiana.sse/sse-action</code> as <code>:ws-action</code>. Messages are sent with <code>xiana.sse/put!</code> function.</p><pre><code class="clojure">&#40;def routes
+  &#91;&#91;&quot;/sse&quot; {:action sse/sse-action}&#93;
+   &#91;&quot;/broadcast&quot; {:action &#40;fn &#91;state&#93;
+                            &#40;sse/put! state {:message &quot;This is not a drill!&quot;}&#41;
+                            state&#41;}&#93;&#93;&#41;
+
+&#40;defn -&gt;system
+  &#91;app-cfg&#93;
+  &#40;-&gt; &#40;config/config app-cfg&#41;
+      &#40;route/reset routes&#41;
+      sse/init
+      ws/start&#41;&#41;
+
+&#40;defn -main
+  &#91;&amp; &#95;args&#93;
+  &#40;-&gt;system {}&#41;&#41;
+</code></pre><h2 id="scheduler">Scheduler</h2><p>To repeatedly execute a function, you can use the <code>xiana.scheduler/start</code> function. Below is an implementation of SSE ping:</p><pre><code class="clojure">&#40;ns app.core
+  &#40;:require
+    &#91;xiana.scheduler :as scheduler&#93;
+    &#91;clojure.core.async :as async&#93;&#41;&#41;
+
+&#40;defn ping &#91;deps&#93;
+  &#40;let &#91;channel &#40;get-in deps &#91;:events-channel :channel&#93;&#41;&#93;
+    &#40;async/&gt;!! channel {:type      :ping
+                        :id        &#40;str &#40;UUID/randomUUID&#41;&#41;
+                        :timestamp &#40;.getTime &#40;Date.&#41;&#41;}&#41;&#41;&#41;
+
+&#40;defn -&gt;system
+  &#91;app-cfg&#93;
+  &#40;-&gt; &#40;config/config&#41;
+      &#40;merge app-cfg&#41;
+      ...
+      sse/init
+      &#40;scheduler/start ping 10000&#41;
+      ...&#41;&#41;
+</code></pre>
