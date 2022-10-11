@@ -123,3 +123,4 @@ pom.xml.asc
 *.iml
 /node_modules/
 /package.json
+/www/target/
