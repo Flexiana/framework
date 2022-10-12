@@ -1,47 +1,31 @@
 (ns xiana.websockets
   (:require
-    [clojure.data.json :refer [read-str]]
-    [clojure.edn :as edn]
     [clojure.string :as str]
     [reitit.core :as r]
     [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log]
-    [xiana.interceptor.queue :as queue]))
+    [xiana.interceptor.queue :as queue]
+    [xiana.websockets.router-helpers :refer [probe->]]))
 
-(def send! jetty/send!)
-(def close! jetty/close!)
+(def send!
+  "Sending a message on websockets"
+  jetty/send!)
 
-(defn string->
-  "String to 'uri', uses the first word as action key"
-  [s]
-  (first (str/split s #"\s")))
-
-(defn edn->
-  "EDN to 'uri', converts edn string to map, extract :action key"
-  [e]
-  (:action (edn/read-string e)))
-
-(defn json->
-  "JSON to 'uri', converts json string to map, extract :action key"
-  [j]
-  (:action (read-str j :key-fn keyword)))
-
-(defn probe->
-  [e]
-  (name
-    (or (try (json-> e)
-             (catch Exception _ nil))
-        (try (edn-> e)
-             (catch Exception _ nil))
-        (try (string-> e)
-             (catch Exception _ nil)))))
+(def close!
+  "Closes a websockets channel"
+  jetty/close!)
 
 (defn router
   "Router for webSockets.
   Parameters:
     routes: reitit routes
     msg->uri: function makes routing base from message. If missing tries to solve message as json, edn and string
-    state: xiana state record"
+    state: xiana state record
+
+  Example:
+  ```clojure
+  (def routing (partial router routes string->))
+  ```"
   ([routes state]
    (router routes probe-> state))
   ([routes msg->uri {{income-msg :income-msg
@@ -61,3 +45,11 @@
                             (queue/execute default-interceptors))]
        (when-let [reply-fn (get-in update-state [:response-data :reply-fn])]
          (reply-fn update-state))))))
+
+(defn ws-action
+  "Injects ws-handler as response channel.
+  For ws-handler, follow: [ring-adapter's doc-string](https://github.com/sunng87/ring-jetty9-adapter/blob/master/src/ring/adapter/jetty9/websocket.clj#L235)"
+  [ws-handler]
+  (fn [state]
+    (assoc-in state [:response-data :channel]
+              ws-handler)))

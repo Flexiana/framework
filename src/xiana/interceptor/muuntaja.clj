@@ -1,5 +1,5 @@
 (ns xiana.interceptor.muuntaja
-  "Muuntaja interceptor encoder/decode.."
+  "Request/response format interceptor based on muuntaja"
   (:require
     [clojure.data.xml :as xml]
     [clojure.string]
@@ -8,7 +8,7 @@
     [muuntaja.format.json :as json]
     [muuntaja.interceptor]))
 
-(defn xml-encoder
+(defn ^:no-doc xml-encoder
   "XML encoder."
   [_]
   (let [helper-fn
@@ -25,7 +25,7 @@
         [_ data charset]
         (.getBytes ^String (helper-fn data) ^String charset)))))
 
-(def instance
+(def ^:private instance
   "Define muuntaja's default encoder/decoder instance."
   (muuntaja.core/create
     (-> muuntaja.core/default-options

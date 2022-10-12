@@ -1,7 +1,7 @@
 (defproject state-events "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[com.flexiana/framework "0.5.0-rc2"]
+  :dependencies [[com.flexiana/framework "0.5.0-rc3"]
                  [metosin/jsonista "0.3.6"]
                  [tick "0.5.0-RC5"]]
   :main ^:skip-aot state-events.core

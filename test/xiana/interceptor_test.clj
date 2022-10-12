@@ -41,16 +41,6 @@
            :from   [:users]
            :where  [:= :users/username "admin"]}})
 
-;; auxiliary session user id interceptor
-(def session-user-id
-  "Instance of the session user id interceptor."
-  (interceptor/session-user-id))
-
-;; auxiliary session user role interceptor
-(def session-user-role
-  "Instance of the session user role interceptor."
-  (interceptor/session-user-role))
-
 (def ok-fn
   "Ok response function."
   #(assoc % :response {:status 200, :body "ok"}))
@@ -122,36 +112,6 @@
     ;; verify msg execution
     (is (and (= enter state)
              (= leave state)))))
-
-;; test if the session-user-id handles new sessions
-(deftest contains-new-session
-  (let [session-data (-> {}
-                         (fetch-execute session-user-id :enter)
-                         (:session-data))]
-    ;; verify if session-id was registered
-    (is (= (:new-session session-data) true))))
-
-(deftest persiste-session-id
-  ;; compute a single interceptor semi cycle (enter-leave-enter)
-  (let [enter-resp (fetch-execute sample-state session-user-id :enter)
-        leave-resp (fetch-execute enter-resp session-user-id :leave)
-        header (get-in leave-resp [:response :headers])
-        new-state (assoc-in sample-state [:request :headers] header)
-        last-resp (fetch-execute new-state session-user-id :enter)]
-    ;; verify if the uuid strings are equal
-    (is (= (get-in last-resp [:request :headers :session-id])
-           (str (get-in last-resp [:session-data :session-id]))))))
-
-(deftest contains-session-user-role
-  ;; compute a single interceptor semi cycle (enter-leave-enter)
-  (let [sample-resp (fetch-execute sample-state session-user-role :enter)
-        simple-resp (fetch-execute simple-state session-user-role :enter)]
-    ;; verify if has the user and the right authorization strings
-    (is (and (= (get-in sample-resp [:session-data :user :role]) :guest)
-             (= (get-in sample-resp [:session-data :authorization]) "auth")))
-    ;; verify if has the user and the right authorization is nil
-    (is (and (= (get-in simple-resp [:session-data :user :role]) :guest)
-             (nil? (get-in simple-resp [:session-data :authorization]))))))
 
 (deftest contains-muuntaja-interceptor
   (let [interceptor (interceptor/muuntaja)]

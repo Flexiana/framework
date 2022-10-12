@@ -1,4 +1,6 @@
 (ns xiana.scheduler
+  "Scheduler creates a channel for all scheduled jobs,
+  and calls it in a go-loop after a given timeout"
   (:require
     [clojure.core.async :as async :refer [chan timeout close! go-loop]]
     [clojure.core.async.impl.protocols :refer [closed?]]
@@ -15,10 +17,11 @@
       (swap! (:channels this) disj c)
       (close! c))))
 
-(defonce channels
+(defonce ^:private channels
   (atom #{}))
 
 (defn start
+  "Starts to repeat an action with given timeout"
   [deps action interval-msecs]
   (let [chan (chan)]
     (go-loop [chan chan]

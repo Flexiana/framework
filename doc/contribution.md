@@ -1,9 +1,37 @@
+<img src="resources/images/Xiana.png" width="242">
+
 # Contribution
 
+- [Ticket system](#ticket-system)
+- [Coding standards](#coding-standards)
+- [Submitting a PR](#submitting-a-pr)
 - [Development dependencies](#development-dependencies)
 - [Setup](#setup)
 - [Deps](#deps)
 - [Releasing](#releasing)
+- [Generating API docs](#generating-api-docs)
+
+## Ticket system
+
+We're using GitHub [issues](https://github.com/Flexiana/framework/issues) for tracking and discussing ideas and
+requests.
+
+## Coding standards
+
+Please follow `clj-style` and `kondo` instructions. `Kibit` isn't a showstopper, but PRs are more welcome if they don't
+break `kibit`.
+
+## Submitting a PR
+
+Before you submit a PR be sure:
+
+- You've updated the documentation and the [CHANGELOG](../CHANGELOG.md)
+- the PR has an issue in GitHub, with a good description
+- you have added tests
+- you provided an example project for a new feature
+
+All PRs need at least two approvals and pls
+follow [Semantic Versioning 2.0.0](https://semver.org/#semantic-versioning-200)
 
 ## Development dependencies
 
@@ -31,12 +59,8 @@
 | nilenso/honeysql-postgres       | 0.2.6   | PostGreSQL          |
 | org.postgresql/postgresql       | 42.2.2  | PostGreSQL          |
 | crypto-password/crypto-password | 0.2.1   | Security            |
-
-#### Optional
-
-| Name                | Version | Provide |
-|---------------------|---------|---------|
-| clj-kondo/clj-kondo | RELEASE | Tests   |
+| clj-kondo/clj-kondo             | RELEASE | Tests               |
+| npx                             | RELEASE | Documentation       |
 
 ## Setup
 
@@ -84,4 +108,38 @@ clj -M:install
 
 - Be sure all examples has the same framework version as it is in `release.edn` as dependency
 - Execute `./example-tests.sh` script. It will install the actual version of xiana, and go through the examples folder
-  for `check-style` and `lein test`. 
+  for `check-style` and `lein test`.
+
+## Generating API Docs
+
+This is done with [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) and a forked version
+of [Codox](https://github.com/Flexiana/codox).
+
+We're using mermaid-cli to render UML-diagrams in markdown files, see the `doc/conventions_template.md` for example.
+These files need to be added to the `/script/build-docs.sh` . For using it you need to have `npx`.
+
+Codox is forked because markdown anchors aren't converted to HTML anchors in the official release. To use it you need
+
+```shell
+git clone git@github.com:Flexiana/codox.git
+cd codox/codox
+lein install
+```
+
+it before generating the documentation.
+
+To generate or update the current version run the script:
+
+```shell
+./script/build-docs.sh
+```
+
+This runs the following:
+
+```shell
+npx -py @mermaid-js/mermaid-cli mmdc -i doc/conventions_template.md -o doc/conventions.md
+clj -X:codox
+mv docs/new docs/{{version-number}}
+```
+
+It also updates the index.html file to point to the new version.

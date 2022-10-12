@@ -10,16 +10,17 @@
   "Returns handler function for server, which  do the routing, and executes interceptors and given action.
 
    Execution order:
-    router interceptors: enters in order
-    router interceptors leaves in reversed order
-      routing
-    around interceptors enters in order
-    controller interceptors enters in order
-    inside interceptors enters in order
-      action
-    inside interceptors leaves in reversed order
-    controller interceptors leaves in reversed order
-    around interceptors leaves in reversed order"
+   
+    - router interceptors: enters in order
+    - router interceptors leaves in reversed order
+        - routing
+    - around interceptors enters in order
+    - controller interceptors enters in order
+    - inside interceptors enters in order
+        - action
+    - inside interceptors leaves in reversed order
+    - controller interceptors leaves in reversed order
+    - around interceptors leaves in reversed order"
   [deps]
   (fn handle*
     ([http-request]
@@ -27,9 +28,9 @@
            state (state/make deps http-request)
            queue (list #(interceptor.queue/execute % (:router-interceptors deps))
                        #(route/match %)
-                       #(interceptor.queue/execute % (if websocket?
-                                                       (:web-socket-interceptors deps)
-                                                       (:controller-interceptors deps))))
+                       #(interceptor.queue/execute % (or (and websocket?
+                                                              (:web-socket-interceptors deps))
+                                                         (:controller-interceptors deps))))
            result (reduce (fn [s f] (f s)) state queue)
            channel (get-in result [:response-data :channel])]
        (if (and websocket? channel)

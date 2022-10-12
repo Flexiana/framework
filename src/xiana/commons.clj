@@ -1,4 +1,5 @@
-(ns xiana.commons)
+(ns xiana.commons
+  "Commonly used utility functions")
 
 (defn ?assoc-in
   "Same as assoc-in, but skip the assoc if v is nil"
@@ -10,6 +11,7 @@
     m))
 
 (defn map-keys
+  "Do mapping on map's keys"
   [f m]
   (zipmap (map f (keys m))
           (vals m)))
