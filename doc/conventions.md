@@ -12,7 +12,7 @@
 
 ## Overview
 
-The diagram bellow gives you an overview, how a request is processed in Xiana based applications.
+The diagram bellow gives you an overview how a request is processed in Xiana based applications.
 ![diagram](./conventions-1.svg)
 ## State
 
@@ -23,7 +23,7 @@ State is created for each HTTP request and represents the current state of the a
 - request-data
 - response
 
-This structure is very volatile, will be updated quite often on the application's life cycle.
+This structure is very volatile, and will be updated quite often on the application's life cycle.
 
 The main modules that update the state are:
 
@@ -33,7 +33,7 @@ The main modules that update the state are:
 
 - Interceptors:
 
-  Add, consumes or remove information from the state map. More details in [Interceptors](#interceptors) section.
+  Add, consume or remove information from the state map. More details in [Interceptors](#interceptors) section.
 
 - Actions:
 
@@ -47,7 +47,7 @@ The state is renewed on every request.
 
 The action conventionally is the control point of the application flow. This is the place were you can define how the
 rest of your execution flow would behave. Here you can provide the database query, restriction function, the view, and
-the additional side effect functions are you want to execute.
+the additional side effect functions that you want to execute.
 
 Actions are defined in the routes vector
 
@@ -67,13 +67,13 @@ Routing means selecting the actions to execute depending on the request URL, and
 
 ## Dependencies
 
-Modules can depend on external resources, configurations, as well as on other modules. These dependencies are added to
+Modules can depend on external resources and configurations, as well as on other modules. These dependencies are added to
 the state on state creation, and defined on application startup.
 
 ## Interceptors
 
-An interceptor is a pair of unary functions. Each function must recieve and return a state map. You can look at it as on
-an analogy to AOP's around aspect, or as on a pair of middlewares. They work mostly the same way
+An interceptor is a pair of unary functions. Each function must recieve and return a state map. Look at it as an analogy
+to AOP's around aspect, or as on a pair of middlewares. They work mostly the same way
 as [pedestal](http://pedestal.io/reference/interceptors) and [sieppari](https://github.com/metosin/sieppari)
 interceptors.
 Xiana provides a set of base interceptors, for the most common use cases.
@@ -83,9 +83,9 @@ This figure shows how interceptors are executed ideally:
 ## Interceptors error handling:
 
 The interceptor executor handles the exceptional states like sieppari does. If an exception happens, it tries to handle
-first in the same interceptor. If it has and `:error` handler, it will call it, otherwise it'll search for `:error`
-handlers for the beginning of the interceptor queue. When and `:error` function found, and matched with the given
-exception, the executor calls the queue `:leave` functions in reserved order, where the handler has been found.
+first in the same interceptor. If it has an `:error` handler, it will call it, otherwise it'll search for `:error`
+handlers from the beginning of the interceptor queue. When an `:error` function found, and matched with the given
+exception, the executor calls the queue of `:leave` functions in reserved order from where the handler was found.
 
-This diagram shows how the error cases handled:
+This diagram shows how the error cases are handled:
 ![diagram](./conventions-3.svg)

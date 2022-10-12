@@ -12,7 +12,7 @@
 <li><a href="#interceptors-error-handling">Interceptors error handling</a></li>
 </ul>
 <h2><a href="#overview" id="overview"></a>Overview</h2>
-<p>The diagram bellow gives you an overview, how a request is processed in Xiana based applications. <img src="./conventions-1.svg" alt="diagram" /></p>
+<p>The diagram bellow gives you an overview how a request is processed in Xiana based applications. <img src="./conventions-1.svg" alt="diagram" /></p>
 <h2><a href="#state" id="state"></a>State</h2>
 <p>State is created for each HTTP request and represents the current state of the application. It contains:</p>
 <ul>
@@ -21,7 +21,7 @@
 <li>request-data</li>
 <li>response</li>
 </ul>
-<p>This structure is very volatile, will be updated quite often on the application’s life cycle.</p>
+<p>This structure is very volatile, and will be updated quite often on the application’s life cycle.</p>
 <p>The main modules that update the state are:</p>
 <ul>
 <li>Routes:</li>
@@ -30,7 +30,7 @@
 <ul>
 <li>Interceptors:</li>
 </ul>
-<p>Add, consumes or remove information from the state map. More details in <a href="#interceptors">Interceptors</a> section.</p>
+<p>Add, consume or remove information from the state map. More details in <a href="#interceptors">Interceptors</a> section.</p>
 <ul>
 <li>Actions:</li>
 </ul>
@@ -38,7 +38,7 @@
 <p>At the last step of execution the handler extracts the response value from the state.</p>
 <p>The state is renewed on every request.</p>
 <h2><a href="#action" id="action"></a>Action</h2>
-<p>The action conventionally is the control point of the application flow. This is the place were you can define how the rest of your execution flow would behave. Here you can provide the database query, restriction function, the view, and the additional side effect functions are you want to execute.</p>
+<p>The action conventionally is the control point of the application flow. This is the place were you can define how the rest of your execution flow would behave. Here you can provide the database query, restriction function, the view, and the additional side effect functions that you want to execute.</p>
 <p>Actions are defined in the routes vector</p>
 <pre><code class="language-clojure">["/" {:get {:action #(do something)}}]
 </code></pre>
@@ -47,11 +47,11 @@
 <h2><a href="#routing" id="routing"></a>Routing</h2>
 <p>Routing means selecting the actions to execute depending on the request URL, and HTTP method.</p>
 <h2><a href="#dependencies" id="dependencies"></a>Dependencies</h2>
-<p>Modules can depend on external resources, configurations, as well as on other modules. These dependencies are added to the state on state creation, and defined on application startup.</p>
+<p>Modules can depend on external resources and configurations, as well as on other modules. These dependencies are added to the state on state creation, and defined on application startup.</p>
 <h2><a href="#interceptors" id="interceptors"></a>Interceptors</h2>
-<p>An interceptor is a pair of unary functions. Each function must recieve and return a state map. You can look at it as on an analogy to AOP’s around aspect, or as on a pair of middlewares. They work mostly the same way as <a href="http://pedestal.io/reference/interceptors">pedestal</a> and <a href="https://github.com/metosin/sieppari">sieppari</a> interceptors. Xiana provides a set of base interceptors, for the most common use cases.</p>
+<p>An interceptor is a pair of unary functions. Each function must recieve and return a state map. Look at it as an analogy to AOP’s around aspect, or as on a pair of middlewares. They work mostly the same way as <a href="http://pedestal.io/reference/interceptors">pedestal</a> and <a href="https://github.com/metosin/sieppari">sieppari</a> interceptors. Xiana provides a set of base interceptors, for the most common use cases.</p>
 <p>This figure shows how interceptors are executed ideally: <img src="./conventions-2.svg" alt="diagram" /></p>
 <h2><a href="#interceptors-error-handling" id="interceptors-error-handling"></a>Interceptors error handling:</h2>
-<p>The interceptor executor handles the exceptional states like sieppari does. If an exception happens, it tries to handle first in the same interceptor. If it has and <code>:error</code> handler, it will call it, otherwise it’ll search for <code>:error</code> handlers for the beginning of the interceptor queue. When and <code>:error</code> function found, and matched with the given exception, the executor calls the queue <code>:leave</code> functions in reserved order, where the handler has been found.</p>
-<p>This diagram shows how the error cases handled: <img src="./conventions-3.svg" alt="diagram" /></p>
+<p>The interceptor executor handles the exceptional states like sieppari does. If an exception happens, it tries to handle first in the same interceptor. If it has an <code>:error</code> handler, it will call it, otherwise it’ll search for <code>:error</code> handlers from the beginning of the interceptor queue. When an <code>:error</code> function found, and matched with the given exception, the executor calls the queue of <code>:leave</code> functions in reserved order from where the handler was found.</p>
+<p>This diagram shows how the error cases are handled: <img src="./conventions-3.svg" alt="diagram" /></p>
 </div></div></div></body></html>

@@ -15,17 +15,16 @@
 <h2><a href="#ticket-system" id="ticket-system"></a>Ticket system</h2>
 <p>We’re using GitHub <a href="https://github.com/Flexiana/framework/issues">issues</a> for tracking and discussing ideas and requests.</p>
 <h2><a href="#coding-standards" id="coding-standards"></a>Coding standards</h2>
-<p>Please follow <code>clj-style</code> and <code>kondo</code> instructions. <code>Kibit</code> isn’t a showstopper, but PRs are more welcomed if not breaking <code>kibit</code>.</p>
+<p>Please follow <code>clj-style</code> and <code>kondo</code> instructions. <code>Kibit</code> isn’t a showstopper, but PRs are more welcome if they don’t break <code>kibit</code>.</p>
 <h2><a href="#submitting-a-pr" id="submitting-a-pr"></a>Submitting a PR</h2>
-<p>Before you are submitting a PR be sure:</p>
+<p>Before you submit a PR be sure:</p>
 <ul>
 <li>You’ve updated the documentation and the <a href="../CHANGELOG.html">CHANGELOG</a></li>
 <li>the PR has an issue in GitHub, with a good description</li>
 <li>you have added tests</li>
 <li>you provided an example project for a new feature</li>
-<li>All PRs need at least two approvals</li>
-<li>Follow <a href="https://semver.org/#semantic-versioning-200">Semantic Versioning 2.0.0</a></li>
 </ul>
+<p>All PRs need at least two approvals and pls follow <a href="https://semver.org/#semantic-versioning-200">Semantic Versioning 2.0.0</a></p>
 <h2><a href="#development-dependencies" id="development-dependencies"></a>Development dependencies</h2>
 <h3><a href="#mandatory" id="mandatory"></a>Mandatory</h3>
 <ul>
@@ -88,9 +87,9 @@ $ ./script/auto.sh -y all
 <li>Execute <code>./example-tests.sh</code> script. It will install the actual version of xiana, and go through the examples folder for <code>check-style</code> and <code>lein test</code>.</li>
 </ul>
 <h2><a href="#generating-api-docs" id="generating-api-docs"></a>Generating API Docs</h2>
-<p>This is done with using <a href="https://github.com/mermaid-js/mermaid-cli">mermaid-cli</a> and a forked version of <a href="https://github.com/Flexiana/codox">Codox</a>.</p>
-<p>We’re using mermaid-cli for render UML-diagrams in markdown files, see the <code>doc/conventions_template.md</code> for example. These files need to be added to the <code>/script/build-docs.sh</code> . For using it you need to have <code>npx</code>.</p>
-<p>Codox is forked because markdown anchors aren’t converted to HTML anchors in the official release. For use, you need to</p>
+<p>This is done with <a href="https://github.com/mermaid-js/mermaid-cli">mermaid-cli</a> and a forked version of <a href="https://github.com/Flexiana/codox">Codox</a>.</p>
+<p>We’re using mermaid-cli to render UML-diagrams in markdown files, see the <code>doc/conventions_template.md</code> for example. These files need to be added to the <code>/script/build-docs.sh</code> . For using it you need to have <code>npx</code>.</p>
+<p>Codox is forked because markdown anchors aren’t converted to HTML anchors in the official release. To use it you need</p>
 <pre><code class="language-shell">git clone git@github.com:Flexiana/codox.git
 cd codox/codox
 lein install

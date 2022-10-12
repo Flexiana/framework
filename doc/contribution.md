@@ -18,19 +18,20 @@ requests.
 
 ## Coding standards
 
-Please follow `clj-style` and `kondo` instructions. `Kibit` isn't a showstopper, but PRs are more welcomed if not
-breaking `kibit`.
+Please follow `clj-style` and `kondo` instructions. `Kibit` isn't a showstopper, but PRs are more welcome if they don't
+break `kibit`.
 
 ## Submitting a PR
 
-Before you are submitting a PR be sure:
+Before you submit a PR be sure:
 
 - You've updated the documentation and the [CHANGELOG](../CHANGELOG.md)
 - the PR has an issue in GitHub, with a good description
 - you have added tests
 - you provided an example project for a new feature
-- All PRs need at least two approvals
-- Follow [Semantic Versioning 2.0.0](https://semver.org/#semantic-versioning-200)
+
+All PRs need at least two approvals and pls
+follow [Semantic Versioning 2.0.0](https://semver.org/#semantic-versioning-200)
 
 ## Development dependencies
 
@@ -111,13 +112,13 @@ clj -M:install
 
 ## Generating API Docs
 
-This is done with using [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) and a forked version
+This is done with [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) and a forked version
 of [Codox](https://github.com/Flexiana/codox).
 
-We're using mermaid-cli for render UML-diagrams in markdown files, see the `doc/conventions_template.md` for example.
+We're using mermaid-cli to render UML-diagrams in markdown files, see the `doc/conventions_template.md` for example.
 These files need to be added to the `/script/build-docs.sh` . For using it you need to have `npx`.
 
-Codox is forked because markdown anchors aren't converted to HTML anchors in the official release. For use, you need to
+Codox is forked because markdown anchors aren't converted to HTML anchors in the official release. To use it you need
 
 ```shell
 git clone git@github.com:Flexiana/codox.git
