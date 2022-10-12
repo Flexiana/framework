@@ -123,3 +123,8 @@ pom.xml.asc
 *.iml
 /node_modules/
 /package.json
+/xiana-site/node_modules
+/xiana-site/public
+/xiana-site/resources
+/xiana-site/.netlify
+/xiana-site/.hugo_build.lock
