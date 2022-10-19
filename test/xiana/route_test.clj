@@ -155,10 +155,3 @@
             (is (=
                  index-generated-methods-by-sample
                  helpers/all-methods))))))))
-
-(-> sample-routes-with-handler
-    :routes
-    (xsw/routes->swagger-json :type :edn))
-
-(comment
-  (clojure.test/test-vars [#'swagger-route-data-generation]))
