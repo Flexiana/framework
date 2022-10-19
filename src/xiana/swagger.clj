@@ -18,5 +18,5 @@
   (let [routes-swagger-data (-> config
                                 :routes
                                 .routes
-                                (routes->swagger-json :type json))]
+                                (routes->swagger-json :type :json))]
     (assoc config :swagger-data routes-swagger-data)))
