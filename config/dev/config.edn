@@ -18,7 +18,8 @@
 
  :xiana/web-server {:port  3000
                     :join? false}
- :xiana/swagger    {:uri-path "swagger/swagger.json" :path :swagger.json}
+ :xiana/swagger    {:uri-path "swagger/swagger.json"
+                    :path :swagger.json}
  :xiana/swagger-ui {:uri-path "swagger/swagger-ui"}
  :xiana/migration  {:store                :database
                     :migration-dir        "resources/migrations"
