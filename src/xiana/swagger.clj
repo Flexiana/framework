@@ -3,10 +3,15 @@
    [jsonista.core :as json]
    [xiana.route.helpers :as helpers]))
 
-(defn routes->swagger-json [routes & {type :type}]
+(defn routes->swagger-json [routes
+                            & {type :type
+                               render? :render?
+                               route-opt-map :route-opt-map}]
   (-> routes
       helpers/routes->routes'
-      helpers/routes->swagger-data
+      ((if render?
+         #(helpers/routes->swagger-data % :route-opt-map route-opt-map)
+         identity))
       ((cond
          (= type :json) json/write-value-as-string
          (= type :edn) identity
@@ -24,11 +29,16 @@
 
 (defn ->swagger-data
   "Update routes for swagger data generation."
-  [config & {routes :routes}]
+  [config & {routes :routes
+             render? :render?
+             type :type
+             route-opt-map :route-opt-map}]
   (if (swagger-configs-there? config)
     (let [routes (or routes (-> config :routes))
          routes-swagger-data (routes->swagger-json routes
-                                                   :type :json)
+                                                   :type type
+                                                   :render? render?
+                                                   :route-opt-map route-opt-map)
          config-key (-> config
                         (get :xiana/swagger {})
                         (get :path :swagger.json))]

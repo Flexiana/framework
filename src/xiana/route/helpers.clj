@@ -63,9 +63,9 @@
        (keep %)
        vec))
 
-(defn routes->swagger-data [routes']
+(defn routes->swagger-data [routes' & {route-opt-map :route-opt-map}]
   (let [request-method :get
-        routes' (-> routes' routes->routes' (ring/router {}))
+        routes' (-> routes' routes->routes' (ring/router (or route-opt-map {})))
         {:keys [id] :or {id ::default} :as swagger} (-> routes' :result request-method :data :swagger)
         ids (trie/into-set id)
         strip-top-level-keys #(dissoc % :id :info :host :basePath :definitions :securityDefinitions)
@@ -86,8 +86,8 @@
                                [method
                                 (meta-merge
                                  base-swagger-spec
-                                 ;;(apply meta-merge (keep (comp :swagger :data) middleware))
-                                 ;;(apply meta-merge (keep (comp :swagger :data) interceptors))
+                                 (apply meta-merge (keep (comp :swagger :data) middleware))
+                                 (apply meta-merge (keep (comp :swagger :data) interceptors))
                                  (if coercion
                                    (rcoercion/get-apidocs coercion :swagger data))
                                  (select-keys data [:tags :summary :description])
