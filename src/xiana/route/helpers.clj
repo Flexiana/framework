@@ -2,7 +2,6 @@
   "The default not found and action functions"
   (:require
    [reitit.trie :as trie]
-   [clojure.set :as set]
    [clojure.string :as str]
    [reitit.coercion :as rcoercion]
    [reitit.core :as r]
@@ -73,27 +72,24 @@
         swagger (->> (strip-endpoint-keys swagger)
                      (merge {:swagger "2.0"
                              :x-id ids}))
-        accept-route (fn [route]
-                       (-> route second :swagger :id (or ::default) (trie/into-set) (set/intersection ids) seq))
         swagger-path (fn [path opts]
                        (-> path (trie/normalize opts) (str/replace #"\{\*" "{")))
         base-swagger-spec {:responses ^:displace {:default {:description ""}}}
         transform-endpoint (fn [[method {{:keys [coercion no-doc swagger] :as data} :data
                                          middleware :middleware
-                                         interceptors :interceptors
-                                         :as args}]]
-                             (if (and data (not no-doc))
+                                         interceptors :interceptors}]]
+                             (when (and data (not no-doc))
                                [method
                                 (meta-merge
                                  base-swagger-spec
                                  (apply meta-merge (keep (comp :swagger :data) middleware))
                                  (apply meta-merge (keep (comp :swagger :data) interceptors))
-                                 (if coercion
+                                 (when coercion
                                    (rcoercion/get-apidocs coercion :swagger data))
                                  (select-keys data [:tags :summary :description])
                                  (strip-top-level-keys swagger))]))
         transform-path (fn [[p _ c]]
-                         (if-let [endpoint (some->> c (keep transform-endpoint) (seq) (into {}))]
+                         (when-let [endpoint (some->> c (keep transform-endpoint) (seq) (into {}))]
                            [(swagger-path p (r/options routes')) endpoint]))
         map-in-order #(->> % (apply concat) (apply array-map))
         paths (->> routes' (r/compiled-routes)

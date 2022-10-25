@@ -17,11 +17,12 @@
          (= type :edn) identity
          :else identity))))
 
-(defn swagger-configs-there? [config]
+(defn swagger-configs-there?
   "Checks if the config has the required keys for swagger functionality.
    Required keys:
    * :xiana/swagger
    * :xiana/swagger-ui"
+  [config]
   (->> config
        ((juxt :xiana/swagger-ui :xiana/swagger))
        (reduce #(and % %2) true)
