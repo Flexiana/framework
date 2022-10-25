@@ -9,7 +9,7 @@
                                route-opt-map :route-opt-map}]
   (-> routes
       helpers/routes->routes'
-      ((if render?
+      ((if (not (false? render?))
          #(helpers/routes->swagger-data % :route-opt-map route-opt-map)
          identity))
       ((cond
