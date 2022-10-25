@@ -1,7 +1,7 @@
 (ns xiana.swagger
   (:require
-   [jsonista.core :as json]
-   [xiana.route.helpers :as helpers]))
+    [jsonista.core :as json]
+    [xiana.route.helpers :as helpers]))
 
 (defn routes->swagger-json [routes
                             & {type :type
@@ -36,12 +36,12 @@
              route-opt-map :route-opt-map}]
   (if (swagger-configs-there? config)
     (let [routes (or routes (-> config :routes))
-         routes-swagger-data (routes->swagger-json routes
-                                                   :type type
-                                                   :render? render?
-                                                   :route-opt-map route-opt-map)
-         config-key (-> config
-                        (get :xiana/swagger {})
-                        (get :path :swagger.json))]
-     (assoc config config-key routes-swagger-data))
+          routes-swagger-data (routes->swagger-json routes
+                                                    :type type
+                                                    :render? render?
+                                                    :route-opt-map route-opt-map)
+          config-key (-> config
+                         (get :xiana/swagger {})
+                         (get :path :swagger.json))]
+      (assoc config config-key routes-swagger-data))
     config))

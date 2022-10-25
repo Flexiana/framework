@@ -1,10 +1,10 @@
 (ns xiana.route-test
   (:require
-   [clojure.test :refer :all]
-   [xiana.route :as route]
-   [xiana.route.helpers :as helpers]
-   [xiana.swagger :as xsw]
-   [xiana.state :as state]))
+    [clojure.test :refer :all]
+    [xiana.route :as route]
+    [xiana.route.helpers :as helpers]
+    [xiana.state :as state]
+    [xiana.swagger :as xsw]))
 
 (def sample-request
   {:uri "/" :request-method :get})
@@ -41,8 +41,8 @@
 (deftest contains-updated-request-data
   ;; get state from sample request micro/match flow
   (let [state (route/match (state/make
-                            (route/reset sample-routes)
-                            sample-request))
+                             (route/reset sample-routes)
+                             sample-request))
         ;; expected request data
         expected {:method :get
                   :match  #{[:data {:action :action}]
@@ -61,8 +61,8 @@
 (deftest contains-not-found-action
   ;; get action from sample request micro/match flow
   (let [action (-> (state/make
-                    (route/reset sample-routes)
-                    sample-not-found-request)
+                     (route/reset sample-routes)
+                     sample-not-found-request)
                    route/match
                    :request-data
                    :action)
@@ -75,8 +75,8 @@
 (deftest route-contains-default-action
   ;; get action from the updated state/match (micro) flow computation
   (let [action (-> (state/make
-                    (route/reset sample-routes-with-handler)
-                    sample-request)
+                     (route/reset sample-routes-with-handler)
+                     sample-request)
                    route/match
                    :request-data
                    :action)
@@ -89,8 +89,8 @@
 (deftest handles-route-without-action-or-handler
   ;; get action from the updated state/match (micro) flow computation
   (let [action (-> (state/make
-                    (route/reset sample-routes-without-action)
-                    sample-request)
+                     (route/reset sample-routes-without-action)
+                     sample-request)
                    route/match
                    :request-data
                    :action)
@@ -117,41 +117,41 @@
                                        (xsw/routes->swagger-json :type :edn))]
         (testing "One swagger route for one route entry?"
           (let [generated-route-count (->>
-                                       generated-swagger-data
-                                       :paths
-                                       keys
-                                       count)]
+                                        generated-swagger-data
+                                        :paths
+                                        keys
+                                        count)]
             (is (= generated-route-count
                    1))))
         (testing "Actions should generate every methods"
           (let [index-generated-methods-by-sample (->>
-                                                   generated-swagger-data
-                                                   :paths
-                                                   (#(get % "/"))
-                                                   keys
-                                                   vec)]
+                                                    generated-swagger-data
+                                                    :paths
+                                                    (#(get % "/"))
+                                                    keys
+                                                    vec)]
             (is (=
-                 index-generated-methods-by-sample
-                 helpers/all-methods))))))
+                  index-generated-methods-by-sample
+                  helpers/all-methods))))))
     (testing "Swagger Data from Sample Route /w action"
       (let [generated-swagger-data (-> sample-routes
                                        :routes
                                        (xsw/routes->swagger-json :type :edn))]
         (testing "One swagger route for one route entry?"
           (let [generated-route-count (->>
-                                       generated-swagger-data
-                                       :paths
-                                       keys
-                                       count)]
+                                        generated-swagger-data
+                                        :paths
+                                        keys
+                                        count)]
             (is (= generated-route-count
                    1))))
         (testing "Actions should generate every methods"
           (let [index-generated-methods-by-sample (->>
-                                                   generated-swagger-data
-                                                   :paths
-                                                   (#(get % "/"))
-                                                   keys
-                                                   vec)]
+                                                    generated-swagger-data
+                                                    :paths
+                                                    (#(get % "/"))
+                                                    keys
+                                                    vec)]
             (is (=
-                 index-generated-methods-by-sample
-                 helpers/all-methods))))))))
+                  index-generated-methods-by-sample
+                  helpers/all-methods))))))))

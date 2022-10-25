@@ -1,12 +1,12 @@
 (ns xiana.route.helpers
   "The default not found and action functions"
   (:require
-   [reitit.trie :as trie]
-   [clojure.string :as str]
-   [reitit.coercion :as rcoercion]
-   [reitit.core :as r]
-   [meta-merge.core :refer [meta-merge]]
-   [reitit.ring :as ring]))
+    [clojure.string :as str]
+    [meta-merge.core :refer [meta-merge]]
+    [reitit.coercion :as rcoercion]
+    [reitit.core :as r]
+    [reitit.ring :as ring]
+    [reitit.trie :as trie]))
 
 (defn not-found
   "Default not-found response handler helper."
@@ -81,20 +81,20 @@
                              (when (and data (not no-doc))
                                [method
                                 (meta-merge
-                                 base-swagger-spec
-                                 (apply meta-merge (keep (comp :swagger :data) middleware))
-                                 (apply meta-merge (keep (comp :swagger :data) interceptors))
-                                 (when coercion
-                                   (rcoercion/get-apidocs coercion :swagger data))
-                                 (select-keys data [:tags :summary :description])
-                                 (strip-top-level-keys swagger))]))
+                                  base-swagger-spec
+                                  (apply meta-merge (keep (comp :swagger :data) middleware))
+                                  (apply meta-merge (keep (comp :swagger :data) interceptors))
+                                  (when coercion
+                                    (rcoercion/get-apidocs coercion :swagger data))
+                                  (select-keys data [:tags :summary :description])
+                                  (strip-top-level-keys swagger))]))
         transform-path (fn [[p _ c]]
                          (when-let [endpoint (some->> c (keep transform-endpoint) (seq) (into {}))]
                            [(swagger-path p (r/options routes')) endpoint]))
         map-in-order #(->> % (apply concat) (apply array-map))
         paths (->> routes' (r/compiled-routes)
                    ;; (filter accept-route)
-                   ;;(map transform-endpoint)
+                   ;; (map transform-endpoint)
                    (map transform-path)
                    map-in-order)]
     (meta-merge swagger {:paths paths})))
