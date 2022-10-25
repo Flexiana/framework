@@ -132,7 +132,7 @@
                                                     vec)]
             (is (=
                   index-generated-methods-by-sample
-                  helpers/all-methods))))))
+                  xsw/all-methods))))))
     (testing "Swagger Data from Sample Route /w action"
       (let [generated-swagger-data (-> sample-routes
                                        :routes
@@ -154,4 +154,4 @@
                                                     vec)]
             (is (=
                   index-generated-methods-by-sample
-                  helpers/all-methods))))))))
+                  xsw/all-methods))))))))
