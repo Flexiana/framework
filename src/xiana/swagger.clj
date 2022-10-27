@@ -1,13 +1,18 @@
 (ns xiana.swagger
   (:require
-    [clojure.string :as str]
-    [jsonista.core :as json]
-    [meta-merge.core :refer [meta-merge]]
-    [reitit.coercion :as rcoercion]
-    [reitit.core :as r]
-    [reitit.ring :as ring]
-    [reitit.trie :as trie]
-    [ring.util.response]))
+   [clojure.string :as str]
+   [jsonista.core :as json]
+   [meta-merge.core :refer [meta-merge]]
+   [reitit.coercion :as rcoercion]
+   [reitit.core :as r]
+   [reitit.ring :as ring]
+   [reitit.trie :as trie]
+   [ring.util.response]
+   [reitit.coercion.malli]
+   [malli.util]
+   [reitit.swagger]
+   [hiccup.core :as h]
+   [xiana.config :as config]))
 
 (defonce all-methods
   [:get :patch :trace :connect :delete :head :post :options :put])
@@ -61,13 +66,13 @@
                              (when (and data (not no-doc))
                                [method
                                 (meta-merge
-                                  base-swagger-spec
-                                  (apply meta-merge (keep (comp :swagger :data) middleware))
-                                  (apply meta-merge (keep (comp :swagger :data) interceptors))
-                                  (when coercion
-                                    (rcoercion/get-apidocs coercion :swagger data))
-                                  (select-keys data [:tags :summary :description])
-                                  (strip-top-level-keys swagger))]))
+                                 base-swagger-spec
+                                 (apply meta-merge (keep (comp :swagger :data) middleware))
+                                 (apply meta-merge (keep (comp :swagger :data) interceptors))
+                                 (when coercion
+                                   (rcoercion/get-apidocs coercion :swagger data))
+                                 (select-keys data [:tags :summary :description])
+                                 (strip-top-level-keys swagger))]))
         transform-path (fn [[p _ c]]
                          (when-let [endpoint (some->> c (keep transform-endpoint) (seq) (into {}))]
                            [(swagger-path p (r/options routes')) endpoint]))
@@ -79,23 +84,92 @@
                    map-in-order)]
     (meta-merge swagger {:paths paths})))
 
-(def default-internal-swagger-endpoints
-  [^{:no-doc true}
-   ["/swagger-ui"
-    {:get {:action
-           (fn [state]
-             (assoc state
-                    :response
-                    (-> "swaggerui.html"
-                        (ring.util.response/resource-response {:root "public"})
-                        (ring.util.response/header "Content-Type" "text/html; charset=utf-8"))))}}]
-   ^{:no-doc true}
-   ["/swagger.json"
-    {:action (fn [state]
+(defn ->default-internal-swagger-ui-html [config]
+  (let [schema-protocol (get-in config [:deps :xiana/web-server :protocol] :http)
+        swagger-json-uri-path (get-in config [:deps :xiana/swagger :uri-path])]
+    (h/html [:html {:lang "en"}
+             [:head
+              [:meta {:charset "UTF-8"}]
+              [:title "Swagger UI"]
+              [:link
+               {:referrerpolicy "no-referrer",
+                :crossorigin "anonymous",
+                :integrity
+                "sha512-lfbw/3iTOqI2s3gVb0fIwex5Y9WpcFM8Oq6XMpD8R5jMjOgzIgXjDNg7mNqbWS1I6qqC7sFaaMHXNsnVstkQYQ==",
+                :href
+                "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.4/swagger-ui.min.css",
+                :rel "stylesheet"}]
+              [:style
+               "html {box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll;}
+               *, *:before, *:after { box-sizing: inherit;}
+               body {margin: 0; background: #fafafa;}"]
+              [:link
+               {:sizes "32x32",
+                :href "./favicon-32x32.png",
+                :type "image/png",
+                :rel "icon"}]
+              [:link
+               {:sizes "16x16",
+                :href "./favicon-16x16.png",
+                :type "image/png",
+                :rel "icon"}]]
+             [:body
+              [:div#swagger-ui]
+              [:script
+               {:referrerpolicy "no-referrer",
+                :crossorigin "anonymous",
+                :integrity
+                "sha512-w+D7rGMfhW/r7/lGU7mu92gjvuo4ZQddFOm5iJ0EAQNS7mmhCb10I8GcgrGTr1zJvCYcxj4roHMo66sLNQOgqA==",
+                :src
+                "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.4/swagger-ui-bundle.min.js"}]
+              [:script
+               {:referrerpolicy "no-referrer",
+                :crossorigin "anonymous",
+                :integrity
+                "sha512-OdiS0y42zD5WmBnJ6H8K3SCYjAjIJQrUOAraBx5PH1QSLtq+KNLy80uQKruXCJTGZKdQ7hhu/AD+WC+wuYUS+w==",
+                :src
+                "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.4/swagger-ui-standalone-preset.min.js"}]
+              [:script
+               (str "window.onload = function ()
+{
+// TODO: [Seçkin] can be replace-able with in-app configuration and pass it with json-encoding
+    window.ui = SwaggerUIBundle(
+        {
+            url: '" swagger-json-uri-path "',
+            schemes: ['" (name schema-protocol) "'],
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [SwaggerUIBundle.presets.apis,
+                      SwaggerUIStandalonePreset],
+            plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+            layout: 'StandaloneLayout'}
+    );
+};")]]])))
+
+#_(-> (config/config {:framework-edn-config "config/dev/config.edn"})
+      ->default-internal-swagger-ui-html)
+
+(defn ->default-internal-swagger-endpoints [config]
+  [(let [{:keys [uri-path]} (get-in config [:xiana/swagger-ui])]
+     ^{:no-doc true}
+     [uri-path
+      {:get {:action
+             (fn [state]
                (assoc state
                       :response
-                      (ring.util.response/response
-                        (str (-> state :deps ((-> state :deps :xiana/swagger :path)))))))}]])
+                      (-> state
+                          ->default-internal-swagger-ui-html
+                          ring.util.response/response
+                          (ring.util.response/header "Content-Type" "text/html; charset=utf-8"))))}}])
+   (let [{:keys [uri-path]} (get-in config [:xiana/swagger])]
+     ^{:no-doc true}
+     [uri-path
+      {:action (fn [state]
+                 (assoc state
+                        :response
+                        (-> (str (-> state :deps ((get-in state [:deps :xiana/swagger :path]))))
+                            ring.util.response/response
+                            (ring.util.response/header "Content-Type" "application/json; charset=utf-8"))))}])])
 
 (defn routes->swagger-json [routes
                             & {type :type
@@ -126,16 +200,26 @@
              render? :render?
              type :type
              route-opt-map :route-opt-map}]
-  (if (swagger-configs-there? config)
-    (let [routes (or routes
-                     (get config :routes []))
-          routes (if internal?
-                   (apply conj routes default-internal-swagger-endpoints)
-                   routes)
-          routes-swagger-data (routes->swagger-json routes
-                                                    :type type
-                                                    :render? render?
-                                                    :route-opt-map route-opt-map)
-          config-key (get-in config [:xiana/swagger :path] :swagger.json)]
-      (assoc config config-key routes-swagger-data))
-    config))
+  (let [internal? (or internal? true)
+        render? (or render? true)
+        type (or type :json)
+        config (update-in config [:xiana/swagger :data] eval)
+        route-opt-map {:data (or (get-in config [:xiana/swagger :data])
+                                 route-opt-map)}
+        config (update-in config [:xiana/swagger :data] (constantly route-opt-map))]
+    (if (swagger-configs-there? config)
+      (let [routes (or routes
+                       (get config :routes []))
+            routes (if internal?
+                     (apply conj routes (->default-internal-swagger-endpoints config))
+                     routes)
+            routes-swagger-data (routes->swagger-json routes
+                                                      :type type
+                                                      :render? render?
+                                                      :route-opt-map route-opt-map)
+            #_"TODO: [Seçkin] You can't just place not-found value."
+            config-key (get-in config [:xiana/swagger :path] :swagger.json)]
+        (-> config
+            (assoc config-key routes-swagger-data)
+            (assoc :routes routes)))
+      config)))
