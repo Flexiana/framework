@@ -11,8 +11,7 @@
    [reitit.coercion.malli]
    [malli.util]
    [reitit.swagger]
-   [hiccup.core :as h]
-   [xiana.config :as config]))
+   [hiccup.core :as h]))
 
 (defonce all-methods
   [:get :patch :trace :connect :delete :head :post :options :put])
