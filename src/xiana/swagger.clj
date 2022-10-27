@@ -1,17 +1,17 @@
 (ns xiana.swagger
   (:require
-   [clojure.string :as str]
-   [jsonista.core :as json]
-   [meta-merge.core :refer [meta-merge]]
-   [reitit.coercion :as rcoercion]
-   [reitit.core :as r]
-   [reitit.ring :as ring]
-   [reitit.trie :as trie]
-   [ring.util.response]
-   [reitit.coercion.malli]
-   [malli.util]
-   [reitit.swagger]
-   [hiccup.core :as h]))
+    [clojure.string :as str]
+    [hiccup.core :as h]
+    [jsonista.core :as json]
+    [malli.util]
+    [meta-merge.core :refer [meta-merge]]
+    [reitit.coercion :as rcoercion]
+    [reitit.coercion.malli]
+    [reitit.core :as r]
+    [reitit.ring :as ring]
+    [reitit.swagger]
+    [reitit.trie :as trie]
+    [ring.util.response]))
 
 (defonce all-methods
   [:get :patch :trace :connect :delete :head :post :options :put])
@@ -65,13 +65,13 @@
                              (when (and data (not no-doc))
                                [method
                                 (meta-merge
-                                 base-swagger-spec
-                                 (apply meta-merge (keep (comp :swagger :data) middleware))
-                                 (apply meta-merge (keep (comp :swagger :data) interceptors))
-                                 (when coercion
-                                   (rcoercion/get-apidocs coercion :swagger data))
-                                 (select-keys data [:tags :summary :description])
-                                 (strip-top-level-keys swagger))]))
+                                  base-swagger-spec
+                                  (apply meta-merge (keep (comp :swagger :data) middleware))
+                                  (apply meta-merge (keep (comp :swagger :data) interceptors))
+                                  (when coercion
+                                    (rcoercion/get-apidocs coercion :swagger data))
+                                  (select-keys data [:tags :summary :description])
+                                  (strip-top-level-keys swagger))]))
         transform-path (fn [[p _ c]]
                          (when-let [endpoint (some->> c (keep transform-endpoint) (seq) (into {}))]
                            [(swagger-path p (r/options routes')) endpoint]))
