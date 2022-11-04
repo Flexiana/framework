@@ -180,7 +180,9 @@
          db-queries :db-queries
          :as        state}]
      (let [datasource (get-in state [:deps :db :datasource])
-           query (if (map? query?) query? (query? state))
+           query (cond
+                   (fn? query?) (query? state)
+                   :else query?)
            db-data (cond-> []
                      query (into (execute datasource query))
                      db-queries (into (multi-execute! datasource db-queries))
