@@ -176,10 +176,13 @@
   Remember the entry query must be a sql-map, e.g:
   {:select [:*] :from [:users]}."
   {:leave
-   (fn [{query      :query
-         db-queries :db-queries
+   (fn [{query-or-fn   :query
+         db-queries    :db-queries
          :as        state}]
      (let [datasource (get-in state [:deps :db :datasource])
+           query (cond
+                   (fn? query-or-fn) (query-or-fn state)
+                   :else query-or-fn)
            db-data (cond-> []
                      query (into (execute datasource query))
                      db-queries (into (multi-execute! datasource db-queries))
