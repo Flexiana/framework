@@ -2,15 +2,15 @@
   "Request and response validation by given malli rules.
    The rule can be defined at route definition,
    the schema can be defined with registry function.
-   
+
    Path definition example:
-   
+
    [\"/api/siege-machines/{mydomain/id}\" {:hander     ws/handler-fn
                                            :action     mydomain.siege-machines/get-by-id
                                            :parameters {:path [:map [:mydomain/id int?]]}
                                            :responses  {200 {:body :mydomain/SiegeMachine}}}]
-                                           
-   Registry example: 
+
+   Registry example:
     (registry {:mydomain/SiegeMachine [:map
                                          [:id int?]
                                          [:name keyword?]
@@ -42,7 +42,14 @@
   on request error: responds {:status 400, :body \"Request coercion failed\"}
   on response error: responds {:status 400, :body \"Response validation failed\"}"
   {:enter (fn [state]
-            (let [cc (coercion/coerce! (get-in state [:request-data :match]))]
+            (let [state (update-in state [:request-data :match]
+                                   merge (select-keys (:request state)
+                                                      [:form-params
+                                                       :headers
+                                                       :body-params
+                                                       :query-params
+                                                       :multipart-params]))
+                  cc (coercion/coerce! (get-in state [:request-data :match]))]
               (update-in state [:request :params] merge cc)))
    :error (fn [{exception :error :as state}]
             (if (-> exception ex-data :type (= ::coercion/request-coercion))
