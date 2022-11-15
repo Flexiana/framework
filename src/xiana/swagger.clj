@@ -145,9 +145,6 @@
     );
 };")]]])))
 
-#_(-> (config/config {:framework-edn-config "config/dev/config.edn"})
-      ->default-internal-swagger-ui-html)
-
 (defn ->default-internal-swagger-endpoints [config]
   [(let [{:keys [uri-path]} (get-in config [:xiana/swagger-ui])]
      ^{:no-doc true}
