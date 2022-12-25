@@ -45,5 +45,5 @@ Visit [examples folder](examples), to see how you can perform
 ## References
 
 ### Concept of interceptors
-http://pedestal.io/reference/interceptors
-https://github.com/metosin/sieppari
+* http://pedestal.io/reference/interceptors
+* https://github.com/metosin/sieppari
