@@ -26,6 +26,9 @@
 (def ->json json/write-value-as-string)
 (def <-json #(json/read-value % mapper))
 
+(defn <> [& {:as m}]
+  (with-meta m {:c true}))
+
 (defn ->pgobject
   "Transforms Clojure data to a PGobject that contains the data as
   JSON. PGObject type defaults to `jsonb` but can be changed via
@@ -168,6 +171,45 @@
       (mapv #(in-transaction tx % (:options datasource)) queries))
     (mapv #(execute datasource %) queries)))
 
+(defn multi-execute-deps!
+  [q' state datasource & tx']
+  (jdbc/with-transaction
+    [tx datasource]
+    (let [tx (or (first tx') tx)]
+      ((fn [q]
+         (cond
+           (vector? q)
+           (reduce (fn [acc query]
+                     (-> query
+                         (multi-execute-deps! state datasource tx)
+                         (#(cond
+                             (fn? %) (% acc)
+                             (-> % meta ((juxt :c :evaluated)) ((partial every? true?))) %
+                             (-> % meta :_query-result true?) %
+                             :else (multi-execute-deps! % state datasource tx)))
+                         (#(cond
+                             (and (map? %)
+                                  (-> % meta :evaluated nil?))
+                             (multi-execute-deps! % state datasource tx)
+                             :else %))))
+                   nil q)
+
+           (fn? q)
+           q
+
+           (-> q meta :c true?)
+           (with-meta (reduce-kv (fn [m k v]
+                                   (assoc m k (multi-execute-deps! v state datasource tx)))
+                                 {}
+                                 q)
+             {:c true
+              :evaluated true})
+
+           (map? q)
+           (with-meta (in-transaction tx q (:options datasource)) {:_query-result true})))
+       q'))))
+
+
 (def db-access
   "Database access interceptor, works from `:query` and from `db-queries` keys
   Enter: nil.
@@ -175,9 +217,11 @@
   driver, if succeeds associate its results into state response data.
   Remember the entry query must be a sql-map, e.g:
   {:select [:*] :from [:users]}."
-  {:leave
-   (fn [{query-or-fn   :query
-         db-queries    :db-queries
+  {:name :db-access!
+   :leave
+   (fn [{query-or-fn    :query
+         db-queries     :db-queries
+         db-dep-queries :db-dep-queries
          :as        state}]
      (let [datasource (get-in state [:deps :db :datasource])
            query (cond
@@ -186,5 +230,6 @@
            db-data (cond-> []
                      query (into (execute datasource query))
                      db-queries (into (multi-execute! datasource db-queries))
+                     db-dep-queries (into (multi-execute-deps! db-dep-queries state datasource))
                      :always seq)]
        (assoc-in state [:response-data :db-data] db-data)))})
