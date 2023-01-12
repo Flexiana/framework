@@ -19,7 +19,7 @@
        (try
          (->>
            (jwt/verify-jwt :claims auth cfg)
-           (assoc state :session-data))
+           (assoc-in state [:session-data :jwt-authentication]))
          (catch ExceptionInfo e
            (assoc state :error e)))))
    :error
