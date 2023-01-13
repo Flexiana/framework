@@ -1,7 +1,7 @@
 (defproject frames "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[com.flexiana/framework "0.5.0-rc2"]]
+  :dependencies [[com.flexiana/framework "0.5.0-rc4"]]
   :plugins [[lein-shadow "0.4.0"]]
   :main ^:skip-aot frames.core
   :uberjar-name "frames.jar"

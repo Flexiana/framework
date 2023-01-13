@@ -4,12 +4,20 @@ for f in ./examples/*; do
     if [ -d "$f" ]; then
         cd $f
         pwd
-        lein check-style src test
+        if test -f project.clj; then
+          lein check-style src test
+        else
+          clojure -M:format check
+        fi
         status=$?
         if ! test $status -eq 0; then
           exit $status
         fi
-        lein test
+        if test -f project.clj; then
+          lein test
+        else
+          clojure -M:test
+        fi
         status=$?
         if ! test $status -eq 0; then
           exit $status

@@ -248,7 +248,7 @@ _setup ()
 
 _tests ()
 {
-    env FRAMEWORK_EDN_CONFIG=${_CONFIG} clj -M:test
+    env XIANA_CONFIG=${_CONFIG} clj -M:test
 }
 
 _stops ()

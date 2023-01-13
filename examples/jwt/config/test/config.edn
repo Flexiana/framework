@@ -1,0 +1,22 @@
+{:xiana/session-backend {:storage            :database
+                         :session-table-name :sessions
+                         :port               5432
+                         :dbname             "sessions"
+                         :host               "localhost"
+                         :dbtype             "postgresql"
+                         :user               "sessions"
+                         :password           "postgres"}
+ :xiana/web-server      {:port  3333
+                         :join? false}
+ :xiana/jwt             {:auth
+                         {:alg         :rs256
+                          :public-key  "$jwt-public-key | resources/_files/jwtRS256.key.pub"
+                          :private-key "$jwt-private-key | resources/_files/jwtRS256.key"
+                          :in-claims   {:iss     "xiana-api"
+                                        :aud     "api-consumer"
+                                        :leeway  0
+                                        :max-age 40}
+                          :out-claims  {:exp 1000
+                                        :iss "xiana-api"
+                                        :aud "api-consumer"
+                                        :nbf 0}}}}

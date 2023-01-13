@@ -17,6 +17,8 @@
          migratus/migratus                       {:git/url "https://github.com/Flexiana/migratus"
                                                   :sha     "fba4aa9d57da6cc6a1d6e8c4a2b4198ad5a44315"}
          nilenso/honeysql-postgres               {:mvn/version "0.4.112"},
+         buddy/buddy-core                        {:mvn/version "1.10.413"},
+         buddy/buddy-sign                        {:mvn/version "3.4.333"},
          org.clojure/java.jdbc                   {:mvn/version "0.7.12"},
          clj-test-containers/clj-test-containers {:mvn/version "0.7.2"},
          org.postgresql/postgresql               {:mvn/version "42.3.3"},
@@ -39,13 +41,13 @@
   {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2022.05.31"}}
    :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
 
-  :codox {:extra-deps {codox/codox {:mvn/version "0.10.8"}}
+  :codox {:extra-deps  {codox/codox {:mvn/version "0.10.8"}}
           :extra-paths ["resources"]
-          :exec-fn    codox.main/generate-docs
-          :exec-args  {:output-path  "docs/new/"
-                       :themes       [:default :xiana]
-                       :source-paths ["src"]
-                       :doc-files    ["doc/getting-started.md", "doc/How-To.md", "doc/Development-Guide.md"]}}
+          :exec-fn     codox.main/generate-docs
+          :exec-args   {:output-path  "docs/new/"
+                        :themes       [:default :xiana]
+                        :source-paths ["src"]
+                        :doc-files    ["doc/getting-started.md", "doc/How-To.md", "doc/Development-Guide.md"]}}
 
   :kibit
   {:extra-deps {tvaughan/kibit-runner {:mvn/version "1.0.1"}}
