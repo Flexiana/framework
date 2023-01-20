@@ -78,7 +78,7 @@
 
 (defn routes->swagger-data [routes' & {route-opt-map :route-opt-map}]
   (let [request-method :get
-        routes' (-> routes' routes->routes' (ring/router (or route-opt-map {})))
+        routes' (-> routes' xiana-routes->reitit-routes (ring/router (or route-opt-map {})))
         {:keys [id] :or {id ::default} :as swagger} (-> routes' :result request-method :data :swagger)
         ids (trie/into-set id)
         strip-top-level-keys #(dissoc % :id :info :host :basePath :definitions :securityDefinitions)
@@ -205,7 +205,7 @@
                                render? :render?
                                route-opt-map :route-opt-map}]
   (-> routes
-      routes->routes'
+      xiana-routes->reitit-routes
       ((if (not (false? render?))
          #(routes->swagger-data % :route-opt-map route-opt-map)
          identity))
