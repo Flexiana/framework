@@ -1,50 +1,80 @@
 (ns xiana.swagger
   (:require
-    [clojure.string :as str]
-    [hiccup.core :as h]
-    [jsonista.core :as json]
-    [malli.util]
-    [meta-merge.core :refer [meta-merge]]
-    [reitit.coercion :as rcoercion]
-    [reitit.coercion.malli]
-    [reitit.core :as r]
-    [reitit.ring :as ring]
-    [reitit.swagger]
-    [reitit.trie :as trie]
-    [ring.util.response]))
+   [clojure.string :as str]
+   [hiccup.core :as h]
+   [jsonista.core :as json]
+   [malli.util]
+   [meta-merge.core :refer [meta-merge]]
+   [reitit.coercion :as rcoercion]
+   [reitit.coercion.malli]
+   [reitit.core :as r]
+   [reitit.ring :as ring]
+   [reitit.swagger]
+   [reitit.trie :as trie]
+   [ring.util.response]))
 
 (defonce all-methods
   [:get :patch :trace :connect :delete :head :post :options :put])
 
-(def routes->routes'
-  #(-> (fn *** [[url opt-map & nested-routes :as route]]
-         (let [new-opt-map (if (:action opt-map)
-                             (let [action' (:action opt-map)
-                                   swagger-base-of-endpoint (:swagger-* opt-map)]
-                               (reduce (fn [acc method]
-                                         (-> acc
-                                             (assoc-in [method :handler] identity)
-                                             (assoc-in [method :action] action')
-                                             (merge swagger-base-of-endpoint)))
-                                       opt-map
-                                       all-methods))
-                             (let [swagger-base-of-endpoint (get opt-map :swagger-* {})]
-                               (reduce (fn [acc method]
-                                         (if (get acc method)
-                                           (if (get-in acc [method :handler])
-                                             acc
-                                             (-> acc
-                                                 (assoc-in [method :handler] identity)
-                                                 (merge swagger-base-of-endpoint)))
-                                           acc))
-                                       opt-map
-                                       all-methods)))]
-           (if (-> route meta :no-doc)
-             nil
-             (apply conj [url new-opt-map]
-                    (map *** nested-routes)))))
-       (keep %)
-       vec))
+(defn xiana-route->reitit-route
+  "xiana-route->reitit-route is taking route entry of our custom shape of routes
+  and transforms it into proper reitit route entry that is valid on the Swagger
+  implemention of reitit.
+
+  (xiana-route->reitit-route [\"/swagger-ui\" {:action :swagger-ui
+                                               :some-values true}])
+  ;; => [\"/swagger-ui\"
+         {:get
+          {:handler #function[clojure.core/identity], :action :swagger-ui},
+          :patch
+          {:handler #function[clojure.core/identity], :action :swagger-ui},
+          :trace
+          {:handler #function[clojure.core/identity], :action :swagger-ui},
+          :connect
+          {:handler #function[clojure.core/identity], :action :swagger-ui},
+          :delete
+          {:handler #function[clojure.core/identity], :action :swagger-ui},
+          :head
+          {:handler #function[clojure.core/identity], :action :swagger-ui},
+          :post
+          {:handler #function[clojure.core/identity], :action :swagger-ui},
+          :action :swagger-ui,
+          :options
+          {:handler #function[clojure.core/identity], :action :swagger-ui},
+          :put
+          {:handler #function[clojure.core/identity], :action :swagger-ui},
+          :some-values true}]
+  "
+  [[url opt-map & nested-routes :as route]]
+  (let [new-opt-map (if (:action opt-map)
+                      (let [action' (:action opt-map)
+                            swagger-base-of-endpoint (:swagger-* opt-map)]
+                        (reduce (fn [acc method]
+                                  (-> acc
+                                      (assoc-in [method :handler] identity)
+                                      (assoc-in [method :action] action')
+                                      (merge swagger-base-of-endpoint)))
+                                opt-map
+                                all-methods))
+                      (let [swagger-base-of-endpoint (get opt-map :swagger-* {})]
+                        (reduce (fn [acc method]
+                                  (if (get acc method)
+                                    (if (get-in acc [method :handler])
+                                      acc
+                                      (-> acc
+                                          (assoc-in [method :handler] identity)
+                                          (merge swagger-base-of-endpoint)))
+                                    acc))
+                                opt-map
+                                all-methods)))]
+    (if (-> route meta :no-doc)
+      nil
+      (apply conj [url new-opt-map]
+             (map *** nested-routes)))))
+
+(defn xiana-routes->reitit-routes [all-methods routes]
+  (vec
+   (keep (partial xiana-route->reitit-route (all-methods)) routes)))
 
 (defn routes->swagger-data [routes' & {route-opt-map :route-opt-map}]
   (let [request-method :get
@@ -65,13 +95,13 @@
                              (when (and data (not no-doc))
                                [method
                                 (meta-merge
-                                  base-swagger-spec
-                                  (apply meta-merge (keep (comp :swagger :data) middleware))
-                                  (apply meta-merge (keep (comp :swagger :data) interceptors))
-                                  (when coercion
-                                    (rcoercion/get-apidocs coercion :swagger data))
-                                  (select-keys data [:tags :summary :description])
-                                  (strip-top-level-keys swagger))]))
+                                 base-swagger-spec
+                                 (apply meta-merge (keep (comp :swagger :data) middleware))
+                                 (apply meta-merge (keep (comp :swagger :data) interceptors))
+                                 (when coercion
+                                   (rcoercion/get-apidocs coercion :swagger data))
+                                 (select-keys data [:tags :summary :description])
+                                 (strip-top-level-keys swagger))]))
         transform-path (fn [[p _ c]]
                          (when-let [endpoint (some->> c (keep transform-endpoint) (seq) (into {}))]
                            [(swagger-path p (r/options routes')) endpoint]))
@@ -131,7 +161,7 @@
               [:script
                (str "window.onload = function ()
 {
-// TODO: [Seçkin] can be replace-able with in-app configuration and pass it with json-encoding
+// TODO: [@LeaveNhA] can be replace-able with in-app configuration and pass it with json-encoding
     window.ui = SwaggerUIBundle(
         {
             url: '" swagger-json-uri-path "',
@@ -144,6 +174,9 @@
             layout: 'StandaloneLayout'}
     );
 };")]]])))
+
+#_(-> (config/config {:framework-edn-config "config/dev/config.edn"})
+      ->default-internal-swagger-ui-html)
 
 (defn ->default-internal-swagger-endpoints [config]
   [(let [{:keys [uri-path]} (get-in config [:xiana/swagger-ui])]
@@ -213,7 +246,7 @@
                                                       :type type
                                                       :render? render?
                                                       :route-opt-map route-opt-map)
-            #_"TODO: [Seçkin] You can't just place not-found value."
+            #_"TODO: [@LeaveNhA] You can't just place not-found value."
             config-key (get-in config [:xiana/swagger :path] :swagger.json)]
         (-> config
             (assoc config-key routes-swagger-data)
