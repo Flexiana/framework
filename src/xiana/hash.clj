@@ -5,9 +5,10 @@
   (:require
     [crypto.password.bcrypt :as hash-b]
     [crypto.password.pbkdf2 :as hash-p]
-    [crypto.password.scrypt :as hash-s]))
+    [crypto.password.scrypt :as hash-s]
+    [crypto.password.argon2 :as argon2]))
 
-(def supported [:bcrypt :pbkdf2 :scrypt])
+(def supported [:bcrypt :pbkdf2 :scrypt :argon2])
 
 (defn- dispatch
   ([state password]
@@ -48,6 +49,10 @@
     (:iterations pbkdf2-settings)
     (if (= :sha1 (:type pbkdf2-settings))
       "HMAC-SHA1" "HMAC-SHA256")))
+
+(defmethod make :argon2
+  [state password]
+  (argon2/encrypt password))
 
 (defmulti check
   "Validating password."

@@ -4,11 +4,12 @@
          org.clojure/tools.cli                   {:mvn/version "1.0.206"}
          org.clojure/data.json                   {:mvn/version "2.4.0"},
          org.clojure/data.xml                    {:mvn/version "0.0.8"},
-
          com.draines/postal                      {:mvn/version "2.0.5"},
          com.flexiana/tiny-rbac                  {:mvn/version "0.1.1"},
          com.taoensso/timbre                     {:mvn/version "5.2.1"},
-         crypto-password/crypto-password         {:mvn/version "0.3.0"},
+         ;; crypto-password/crypto-password         {:mvn/version "0.3.0"},
+         de.mkammerer/argon2-jvm                 {:mvn/version "2.11"}
+         crypto-password/crypto-password         {:local/root "../crypto-password"},
          funcool/cuerdas                         {:mvn/version "2.2.1"},
          info.sunng/ring-jetty9-adapter          {:mvn/version "0.17.5"},
          metosin/malli                           {:mvn/version "0.8.4"},
