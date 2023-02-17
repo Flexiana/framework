@@ -4,6 +4,18 @@
                     :dbtype   "postgresql"
                     :user     "postgres"
                     :password "postgres"}
+
+ :xiana/hikari-pool-params {:auto-commit        true
+                            :read-only          false
+                            :connection-timeout 30000
+                            :validation-timeout 5000
+                            :idle-timeout       600000
+                            :max-lifetime       1800000
+                            :minimum-idle       10
+                            :maximum-pool-size  10
+                            :pool-name          "db-pool"
+                            :register-mbeans    false}
+
  :xiana/web-server {:port  3000
                     :join? false}
  :xiana/migration  {:store                :database
@@ -16,10 +28,10 @@
                     :tls  true
                     :port 587
                     :from ""}
- :xiana/auth       {:hash-algorithm  :bcrypt                ; Available values: :bcrypt, :scrypt, and :pbkdf2
+ :xiana/auth       {:hash-algorithm  :bcrypt ; Available values: :bcrypt, :scrypt, and :pbkdf2
                     :bcrypt-settings {:work-factor 11}
                     :scrypt-settings {:cpu-cost        32768 ; Must be a power of 2
                                       :memory-cost     8
                                       :parallelization 1}
-                    :pbkdf2-settings {:type       :sha1     ; Available values: :sha1 and :sha256
+                    :pbkdf2-settings {:type       :sha1 ; Available values: :sha1 and :sha256
                                       :iterations 100000}}}

@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Add support for custom datasource
 - JWT signing support for authentication and content exchange via interceptors.
 
 ## 0.5.0-rc3

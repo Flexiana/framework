@@ -10,6 +10,7 @@
     - [Access control](#access-control)
     - [Data ownership](#data-ownership)
     - [All together](#all-together)
+- [Database configuration](#database-configuration)
 
 ## Login implementation
 
@@ -283,6 +284,8 @@ CREATE TABLE sessions (
 
   If no datasource is provided on initialization, the `init-backend` function merges the database config with the
   session backend configuration, and creates a new datasource from the result.
+  
+ 
 
 ### Session interceptors
 
@@ -470,4 +473,50 @@ And finally, the only missing piece of code: the model, and the action
     (-> state
         (assoc :query (delete-query state))
         (assoc-in [:request-data :restriction-fn] restriction-fn)))
+```
+
+### Database configuration
+
+#### Using hikari-cp database pool
+
+For using [hikari-cp](https://github.com/tomekw/hikari-cp) database pool enter the pool's configuration under the `:xiana/hikari-pool-params` in the config like that:
+``` clojure
+:xiana/hikari-pool-params {:auto-commit        true
+                           :read-only          false
+                           :connection-timeout 30000
+                           :validation-timeout 5000
+                           :idle-timeout       600000
+                           :max-lifetime       1800000
+                           :minimum-idle       10
+                           :maximum-pool-size  10
+                           :pool-name          "db-pool"
+                           :adapter            "postgresql"
+                           :username           "username"
+                           :password           "password"
+                           :database-name      "database"
+                           :server-name        "localhost"
+                           :port-number        5432
+                           :register-mbeans    false}
+```
+
+The database connection params under the `:xiana/postgresql` key will be applied to the pool as well, if not speficied.
+
+#### Using custom datasource
+
+For using a completely custom datasource you can insert the `:xiana/create-custom-datasource` key into your `app-cfg`. For example like that:
+```clojure
+(defn get-custom-datasource [postgresql-config]
+  (reify javax.sql.DataSource
+    (getConnection [_this]
+      ...)))
+
+
+(def app-cfg
+  {:routes                  routes
+   :role-set                role-set
+   :controller-interceptors [interceptors/params
+                             session/interceptor
+                             rbac/interceptor
+                             interceptors/db-access]
+   :xiana/create-custom-datasource get-custom-datasource})
 ```

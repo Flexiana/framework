@@ -4,7 +4,6 @@
          org.clojure/tools.cli                   {:mvn/version "1.0.206"}
          org.clojure/data.json                   {:mvn/version "2.4.0"},
          org.clojure/data.xml                    {:mvn/version "0.0.8"},
-
          com.draines/postal                      {:mvn/version "2.0.5"},
          com.flexiana/tiny-rbac                  {:mvn/version "0.1.1"},
          com.taoensso/timbre                     {:mvn/version "5.2.1"},
@@ -24,7 +23,8 @@
          org.postgresql/postgresql               {:mvn/version "42.3.3"},
          piotr-yuxuan/closeable-map              {:mvn/version "0.35.0"},
          seancorfield/next.jdbc                  {:mvn/version "1.2.659"},
-         yogthos/config                          {:mvn/version "1.2.0"}}
+         yogthos/config                          {:mvn/version "1.2.0"}
+         hikari-cp/hikari-cp                     {:mvn/version "3.0.1"}}
 
  :aliases
  {:dev
