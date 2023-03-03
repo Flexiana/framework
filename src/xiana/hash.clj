@@ -3,10 +3,10 @@
   Supported algorithms are bcrypr, pbkdf2, and scrypt.
   The required algorithm should be in (-> state :deps :auth :hash-algorithm)"
   (:require
+    [crypto.password.argon2 :as hash-a]
     [crypto.password.bcrypt :as hash-b]
     [crypto.password.pbkdf2 :as hash-p]
-    [crypto.password.scrypt :as hash-s]
-    [crypto.password.argon2 :as hash-a]))
+    [crypto.password.scrypt :as hash-s]))
 
 (def supported [:bcrypt :pbkdf2 :scrypt :argon2])
 
