@@ -37,7 +37,7 @@
 
 (deftest test-assert-functionality
   (let [fragment {:deps {:auth {:hash-algorithm :argon2}}}]
-    (is (hash/check (hash/make fragment password) password))))
+    (is (hash/check fragment password (hash/make fragment password)))))
 
 (deftest hash-behavior
   (let [pwd "not_nil"

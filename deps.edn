@@ -7,9 +7,8 @@
          com.draines/postal                      {:mvn/version "2.0.5"},
          com.flexiana/tiny-rbac                  {:mvn/version "0.1.1"},
          com.taoensso/timbre                     {:mvn/version "5.2.1"},
-         ;; crypto-password/crypto-password         {:mvn/version "0.3.0"},
-         de.mkammerer/argon2-jvm                 {:mvn/version "2.11"}
-         crypto-password/crypto-password         {:local/root "../crypto-password"},
+         com.flexiana/crypto-password            {:git/url "https://github.com/Flexiana/crypto-password"
+                                                  :sha "31a43d50fa5eb6ba2cc913ca052c17a881089606"},
          funcool/cuerdas                         {:mvn/version "2.2.1"},
          info.sunng/ring-jetty9-adapter          {:mvn/version "0.17.5"},
          metosin/malli                           {:mvn/version "0.8.4"},

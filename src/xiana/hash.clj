@@ -6,7 +6,7 @@
     [crypto.password.bcrypt :as hash-b]
     [crypto.password.pbkdf2 :as hash-p]
     [crypto.password.scrypt :as hash-s]
-    [crypto.password.argon2 :as argon2]))
+    [crypto.password.argon2 :as hash-a]))
 
 (def supported [:bcrypt :pbkdf2 :scrypt :argon2])
 
@@ -52,7 +52,7 @@
 
 (defmethod make :argon2
   [state password]
-  (argon2/encrypt password))
+  (hash-a/encrypt password))
 
 (defmulti check
   "Validating password."
@@ -66,3 +66,6 @@
 
 (defmethod check :pbkdf2 [_ password encrypted]
   (hash-p/check password encrypted))
+
+(defmethod check :argon2 [_ password encrypted]
+  (hash-a/check password encrypted))
