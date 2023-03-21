@@ -2,6 +2,7 @@
   "Data source builder"
   (:require
     [clj-test-containers.core :as tc]
+    [hikari-cp.core :as hcp]
     [honeysql-postgres.format]
     [honeysql.core :as sql]
     [jsonista.core :as json]
@@ -81,15 +82,31 @@
 
 (def default-opts {:return-keys true})
 
+(defn get-pool-datasource
+  [{:xiana/keys [hikari-pool-params postgresql]}]
+  (when (and hikari-pool-params postgresql)
+    (fn [{:keys [port dbname host dbtype user password]}]
+      (hcp/make-datasource
+        (merge {:adapter            dbtype
+                :username           user
+                :password           password
+                :database-name      dbname
+                :server-name        host
+                :port-number        port}
+               hikari-pool-params)))))
+
 (defn get-datasource
   ([config]
    (get-datasource config 0))
   ([config count]
-   (let [jdbc-opts (merge default-opts
+   (let [create-datasource (or (:xiana/create-custom-datasource config)
+                               (get-pool-datasource config)
+                               jdbc/get-datasource)
+         jdbc-opts (merge default-opts
                           (:xiana/jdbc-opts config))]
      (try (-> config
               :xiana/postgresql
-              jdbc/get-datasource
+              create-datasource
               (jdbc/with-options jdbc-opts))
           (catch Exception e (if (< count 10)
                                (get-datasource config (inc count))
