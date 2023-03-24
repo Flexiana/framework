@@ -17,9 +17,8 @@
     (java.lang
       AutoCloseable)
     (java.sql
+      Connection
       PreparedStatement)
-    (org.postgresql.jdbc
-      PgConnection)
     (org.postgresql.util
       PGobject)))
 
@@ -173,7 +172,7 @@
   ([tx sql-map]
    (in-transaction tx sql-map nil))
   ([tx sql-map jdbc-opts]
-   {:pre [(instance? PgConnection tx)]}
+   {:pre [(instance? Connection tx)]}
    (let [sql-params (->sql-params sql-map)]
      (jdbc/execute! tx sql-params (merge default-opts jdbc-opts)))))
 
