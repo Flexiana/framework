@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Fix `xiana.db/in-transaction` to support any `java.sql.Connection`
 - Add support for custom datasource
 - JWT signing support for authentication and content exchange via interceptors.
 
