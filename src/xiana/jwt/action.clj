@@ -1,5 +1,6 @@
 (ns xiana.jwt.action
-  (:require [xiana.jwt :as jwt]))
+  (:require
+    [xiana.jwt :as jwt]))
 
 (defn refresh-token
   [state]

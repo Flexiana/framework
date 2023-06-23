@@ -172,13 +172,13 @@
                     schemas (merge (get-in state [:request-data :match :data :parameters])
                                    (get-in state [:request-data :match :data method :parameters]))
                     cc (cond-> {}
-                               (:path schemas)
-                               (assoc :path (valid? (:path schemas) path))
+                         (:path schemas)
+                         (assoc :path (valid? (:path schemas) path))
 
-                               (:query schemas)
-                               (assoc :query (valid? (:query schemas) query))
+                         (:query schemas)
+                         (assoc :query (valid? (:query schemas) query))
 
-                               (:form schemas)
-                               (assoc :form (valid? (:form schemas) form-params)))]
+                         (:form schemas)
+                         (assoc :form (valid? (:form schemas) form-params)))]
 
                 (update-in state [:request :params] merge cc))))})
