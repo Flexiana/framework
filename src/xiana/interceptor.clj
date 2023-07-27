@@ -3,6 +3,8 @@
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.walk :refer [keywordize-keys]]
+    [malli.core :as m]
+    [malli.transform :as mt]
     [ring.middleware.params :as middleware.params]
     [xiana.interceptor.muuntaja :as muuntaja]
     [xiana.session :as session])
@@ -140,3 +142,43 @@
             (if (get-request? request)
               (update state :request dissoc :body :body-params)
               state))})
+
+(defn- valid? [?schema data]
+  (let [value (m/decode ?schema data (mt/transformer
+                                       (mt/json-transformer)
+                                       (mt/string-transformer)
+                                       (mt/strip-extra-keys-transformer)))
+        details (m/explain ?schema value)]
+    (if (nil? details)
+      value
+      (throw (ex-info "Request schema validation error"
+                      {:xiana/response {:status 400
+                                        :body   (pr-str details)}})))))
+
+(def coercion
+  "On enter: validates request parameters
+  On leave: validates response body
+  on request error: responds {:status 400, :body \"Request coercion failed\"}
+  on response error: responds {:status 400, :body \"Response validation failed\"}"
+  {:enter (fn [state]
+            (if (= :options (-> state :request :request-method))
+              state
+              (let [path (get-in state [:request-data :match :path-params])
+                    query (get-in state [:request :query-params])
+                    form-params (or (not-empty (get-in state [:request :form-params]))
+                                    (not-empty (get-in state [:request :multipart-params]))
+                                    (not-empty (get-in state [:request :body-params])))
+                    method (get-in state [:request :request-method])
+                    schemas (merge (get-in state [:request-data :match :data :parameters])
+                                   (get-in state [:request-data :match :data method :parameters]))
+                    cc (cond-> {}
+                         (:path schemas)
+                         (assoc :path (valid? (:path schemas) path))
+
+                         (:query schemas)
+                         (assoc :query (valid? (:query schemas) query))
+
+                         (:form schemas)
+                         (assoc :form (valid? (:form schemas) form-params)))]
+
+                (update-in state [:request :params] merge cc))))})

@@ -8,6 +8,7 @@
     [xiana.interceptor :as x-interceptors]
     [xiana.interceptor.error]
     [xiana.jwt :as jwt]
+    [xiana.jwt.action :as jwt-a]
     [xiana.jwt.interceptors :as jwt-interceptors]
     [xiana.route :as x-routes]
     [xiana.webserver :as ws]))
@@ -19,7 +20,9 @@
               {:action       login/login-controller
                :interceptors {:except [jwt-interceptors/jwt-auth]}}}]
    ["/secret" {:post
-               {:action secret/protected-controller}}]])
+               {:action secret/protected-controller}}]
+   ["/token" {:get
+              {:action #'jwt-a/refresh-token}}]])
 
 (defn ->system
   [app-cfg]
