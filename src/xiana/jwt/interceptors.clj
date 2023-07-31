@@ -1,6 +1,6 @@
 (ns xiana.jwt.interceptors
   (:require
-    [clojure.string :as cstr]
+    [clojure.string :as str]
     [xiana.jwt :as jwt]
     [xiana.route.helpers :as helpers])
   (:import
@@ -11,17 +11,26 @@
   {:name ::jwt-authentication
    :enter
    (fn [{request :request :as state}]
-     (let [auth (-> request
-                    (get-in [:headers :authorization])
-                    (cstr/split #" ")
-                    second)
-           cfg (get-in state [:deps :xiana/jwt :auth])]
-       (try
-         (->>
-           (jwt/verify-jwt :claims auth cfg)
-           (assoc-in state [:session-data :jwt-authentication]))
-         (catch ExceptionInfo e
-           (assoc state :error e)))))
+     (let [auth (get-in request [:headers :authorization])]
+       (cond
+         (= :options (:request-method request))
+         state
+
+         auth
+         (let [auth (-> request
+                        (get-in [:headers :authorization])
+                        (str/split #" ")
+                        second)
+               cfg (get-in state [:deps :xiana/jwt :auth])]
+           (try
+             (->>
+               (jwt/verify-jwt :claims auth cfg)
+               (assoc-in state [:session-data :jwt-authentication]))
+             (catch ExceptionInfo e
+               (assoc state :error e))))
+
+         (nil? auth)
+         (assoc state :error (ex-info "Authorization header not provided" {:type :authorization})))))
    :error
    (fn [state]
      (let [error (:error state)
@@ -33,6 +42,7 @@
          (helpers/unauthorized state "One or more Claims were invalid.")
          :else
          (helpers/unauthorized state "Signature could not be verified."))))})
+
 
 (def jwt-content
   {:name ::jwt-content-exchange

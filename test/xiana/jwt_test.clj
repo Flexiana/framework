@@ -1,7 +1,8 @@
 (ns xiana.jwt-test
   (:require
     [clojure.test :refer [deftest testing is]]
-    [xiana.jwt :as sut]))
+    [xiana.jwt :as sut])
+  (:import (clojure.lang ExceptionInfo)))
 
 (def private-key-file "test/resources/_files/jwtRS256.key")
 (def public-key-file "test/resources/_files/jwtRS256.key.pub")
@@ -35,7 +36,7 @@
     (sut/verify-jwt type
                     (sut/sign type payload cfg)
                     cfg)
-    (catch clojure.lang.ExceptionInfo e
+    (catch ExceptionInfo e
       (ex-data e))))
 
 (deftest test-jwt-auth
