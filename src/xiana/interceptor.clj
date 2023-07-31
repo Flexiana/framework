@@ -5,6 +5,7 @@
     [clojure.walk :refer [keywordize-keys]]
     [malli.core :as m]
     [malli.transform :as mt]
+    [ring.middleware.multipart-params :refer [multipart-params-request]]
     [ring.middleware.params :as middleware.params]
     [xiana.interceptor.muuntaja :as muuntaja]
     [xiana.session :as session])
@@ -53,9 +54,9 @@
   Leave: nil."
   {:name  ::params
    :enter (fn [state]
-            (let [f #(keywordize-keys
-                       ((middleware.params/wrap-params identity) %))]
-              (update state :request f)))})
+            (let [wrap-params #(keywordize-keys
+                                 ((middleware.params/wrap-params identity) %))]
+              (update state :request (comp wrap-params multipart-params-request))))})
 
 (defn message                                               ; TODO: remove, use logger
   "This interceptor creates a function that prints predefined message.
@@ -68,7 +69,7 @@
 (defn session-user-id
   "This interceptor handles the session user id management.
   Enter: Get the session id from the request header, if
-  that operation doesn't succeeds a new session is created an associated to the
+  that operation doesn't succeed a new session is created an associated to the
   current state, otherwise the cached session data is used.
   Leave: Verify if the state has a session id, if so add it to
   the session instance and remove the new session property of the current state.

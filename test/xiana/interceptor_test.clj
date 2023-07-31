@@ -94,7 +94,8 @@
         request (fetch-execute state interceptor/params :enter)
         expected {:request {:form-params  {},
                             :params       {},
-                            :query-params {}}}]
+                            :query-params {}
+                            :multipart-params {}}}]
     ;; expected request value?
     (is (= request expected))))
 
