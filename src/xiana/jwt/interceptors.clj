@@ -43,7 +43,6 @@
          :else
          (helpers/unauthorized state "Signature could not be verified."))))})
 
-
 (def jwt-content
   {:name ::jwt-content-exchange
    :enter

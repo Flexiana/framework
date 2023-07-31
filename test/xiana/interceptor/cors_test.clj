@@ -1,6 +1,7 @@
 (ns xiana.interceptor.cors-test
-  (:require [clojure.test :refer [deftest is testing]]
-            [xiana.interceptor.cors :refer [cors-headers interceptor]]))
+  (:require
+    [clojure.test :refer [deftest is testing]]
+    [xiana.interceptor.cors :refer [cors-headers interceptor]]))
 
 (deftest cors-interceptor-test
   (testing "cross-origin-headers interceptor"

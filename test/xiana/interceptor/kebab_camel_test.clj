@@ -1,6 +1,7 @@
 (ns xiana.interceptor.kebab-camel-test
-  (:require [clojure.test :refer [deftest is testing]])
-  (:require [xiana.interceptor.kebab-camel :as kc]))
+  (:require
+    [clojure.test :refer [deftest is testing]]
+    [xiana.interceptor.kebab-camel :as kc]))
 
 (deftest req->kebab-resp->camel-test
   (testing "Transforms keys of request params to kebab case"

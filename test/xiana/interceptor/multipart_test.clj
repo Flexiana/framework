@@ -5,7 +5,9 @@
     [peridot.multipart :as p]
     [ring.mock.request :as mock]
     [xiana.interceptor :as interceptor])
-  (:import (java.io File)))
+  (:import
+    (java.io
+      File)))
 
 (defn state []
   {:request

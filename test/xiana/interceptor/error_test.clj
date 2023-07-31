@@ -1,7 +1,8 @@
 (ns xiana.interceptor.error-test
-  (:require [clojure.test :refer [deftest is testing]]
-            [ring.util.response :as ring]
-            [xiana.interceptor.error :refer [response]]))
+  (:require
+    [clojure.test :refer [deftest is testing]]
+    [ring.util.response :as ring]
+    [xiana.interceptor.error :refer [response]]))
 
 (defn make-error-state [response]
   {:error (ex-info "Test exception" {:xiana/response response})})

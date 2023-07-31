@@ -2,7 +2,9 @@
   (:require
     [clojure.test :refer [deftest testing is]]
     [xiana.jwt :as sut])
-  (:import (clojure.lang ExceptionInfo)))
+  (:import
+    (clojure.lang
+      ExceptionInfo)))
 
 (def private-key-file "test/resources/_files/jwtRS256.key")
 (def public-key-file "test/resources/_files/jwtRS256.key.pub")

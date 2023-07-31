@@ -1,8 +1,9 @@
 (ns xiana.jwt.interceptors-test
-  (:require [clojure.test :refer [deftest is testing]]
-            [xiana.jwt :as jwt]
-            [xiana.jwt.interceptors :refer [jwt-auth]]
-            [xiana.route.helpers :as helpers]))
+  (:require
+    [clojure.test :refer [deftest is testing]]
+    [xiana.jwt :as jwt]
+    [xiana.jwt.interceptors :refer [jwt-auth]]
+    [xiana.route.helpers :as helpers]))
 
 (defn mock-jwt-verify [_ _ _] "mocky")
 

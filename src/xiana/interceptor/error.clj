@@ -1,5 +1,6 @@
 (ns xiana.interceptor.error
-  (:require [ring.util.response :as ring]))
+  (:require
+    [ring.util.response :as ring]))
 
 (def response
   "Handles the exception if there's `ex-info` exception with non-empty
