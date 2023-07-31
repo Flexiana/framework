@@ -1,7 +1,6 @@
 (ns xiana.interceptor.error-test
   (:require
     [clojure.test :refer [deftest is testing]]
-    [ring.util.response :as ring]
     [xiana.interceptor.error :refer [response]]))
 
 (defn make-error-state [response]
@@ -13,7 +12,7 @@
           error-state (make-error-state resp)
           f (:error response)
           result (f error-state)]
-      (is (= {:response (ring/bad-request resp)} result))
+      (is (= {:response resp} result))
 
       (testing "When :error is nil"
         (let [error-state {:error nil}
