@@ -9,6 +9,6 @@
    :error (fn [state]
             (if-let [resp (-> state :error ex-data :xiana/response)]
               (-> state
-                  (assoc :response (ring/bad-request resp))
+                  (assoc :response resp)
                   (dissoc :error))
               state))})
