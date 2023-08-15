@@ -4,6 +4,7 @@
 
 - docker
 - docker-compose
+- node
 
 ## Create a new app
 
@@ -33,7 +34,7 @@ You need to have docker and docker-compose installed on your machine for the fol
 docker-compose up -d
 ```
 
-This should spin up a PostgreSQL database on port 5433. Name of the DB is `todo_app` You can verify that the database is running by connecting to it. Value of `username` and `password` is *`postgres`.*  
+This should spin up a PostgreSQL database on port 5433. Name of the DB is `todo_app` You can verify that the database is running by connecting to it. Value of `username` and `password` is *`postgres`.*
 
 ```bash
 docker exec -it todo-app_db_1 psql -U postgres -d todo_app
@@ -48,10 +49,10 @@ On application start, the framework will look for database migrations located in
 It is possible to create migrations by running from the project directory
 
 ```bash
-lein migrate create todos
+lein migrate create -n todos -d resources/migrations/common/
 ```
 
-This will create two migration files inside the *resources/migrations* directory. Both file names will be prefixed by the timestamp value of the file creation. 
+This will create two migration files inside the *resources/migrations/common* directory. Both file names will be prefixed by the timestamp value of the file creation.
 
 Put the following SQL code inside the *todos-up.sql* file
 
@@ -110,14 +111,14 @@ Change the implementation of *fetch* function to display "Hello World!" every ti
 (defn fetch
   [state]
   (assoc state :response {:status 200
-                                    :body "Hello World!"}))
+                          :body "Hello World!"}))
 ```
 
 Reload the modified function and restart the application.
 
 ### 8. Return contents of the todos table
 
-Change the implementation of function *fetch* once again and create a new *view* function. 
+Change the implementation of function *fetch* once again and create a new *view* function.
 
 Function:
 
@@ -128,15 +129,15 @@ Function:
 (defn view
   [{{db-data :db-data} :response-data :as state}]
   (assoc state :response {:status 200
-                                    :body (mapv :todos/label db-data)}))
+                          :body (map :todos/label db-data)}))
 (defn fetch
   [state]
   (assoc state
-                   :view view
-                   :query {:select [:*] :from [:todos]}))
+         :view view
+         :query {:select [:*] :from [:todos]}))
 ```
 
-Again, reload the modified function and restart the application. 
+Again, reload the modified function and restart the application.
 
 After running following curl command from your shell, live data from your database should appear on your screen.
 
@@ -242,10 +243,10 @@ Replace contents of *src/frontend/todo_app/views.cljs* file with the following c
 
 (defn main-panel []
   (re-frame/dispatch [::events/fetch-todos!])
-    (let [todos (re-frame/subscribe [::subs/todos])]
-      [:div
-        (map #(identity [:ul  %])
-             @todos)]))
+  (let [todos (re-frame/subscribe [::subs/todos])]
+    [:div
+      (map #(identity [:ul  %])
+           @todos)]))
 ```
 
 ### 6. Define frontend routes
