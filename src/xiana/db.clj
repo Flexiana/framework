@@ -203,4 +203,9 @@
                      query (into (execute datasource query))
                      db-queries (into (multi-execute! datasource db-queries))
                      :always seq)]
-       (assoc-in state [:response-data :db-data] db-data)))})
+       (assoc-in state [:response-data :db-data] db-data)))
+   :error
+   (fn [state]
+     (merge state
+            {:response {:status 500
+                        :body   (pr-str (:error state))}}))})
