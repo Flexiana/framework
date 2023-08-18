@@ -85,8 +85,9 @@
 
 (defn get-db-config
   [config]
-  (let [db-config (:xiana/postgresql config)
-        db (if-let [ds (:datasource db-config)]
+  (let [db-selected (:xiana/db-selected config)
+        db-config (db-selected config)
+        db (if-let [ds (get-in db-config [:config :datasource])]
              {:datasource (jdbc/get-datasource ds)}
              db-config)]
     (log/debug "config:" config)

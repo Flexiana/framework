@@ -1,9 +1,18 @@
-{:xiana/postgresql {:port     5432
-                    :dbname   "framework"
-                    :host     "localhost"
-                    :dbtype   "postgresql"
-                    :user     "postgres"
-                    :password "postgres"}
+{:xiana/selected-db :xiana/postgresql
+
+ :xiana/postgresql {:config {:port     5432
+                             :dbname   "framework"
+                             :host     "localhost"
+                             :dbtype   "postgresql"
+                             :user     "postgres"
+                             :password "postgres"}}
+
+ :xiana/mysql {:config {:port     3306
+                        :dbname   "framework"
+                        :host     "localhost"
+                        :dbtype   "mysql"
+                        :user     "flexiana"
+                        :password "flexiana"}}
 
  :xiana/hikari-pool-params {:auto-commit        true
                             :read-only          false
@@ -18,16 +27,19 @@
 
  :xiana/web-server {:port  3000
                     :join? false}
+
  :xiana/migration  {:store                :database
                     :migration-dir        "resources/migrations"
                     :init-in-transaction? false
                     :migration-table-name "migrations"}
+
  :xiana/emails     {:host ""
                     :user ""
                     :pass ""
                     :tls  true
                     :port 587
                     :from ""}
+
  :xiana/auth       {:hash-algorithm  :bcrypt ; Available values: :bcrypt, :scrypt, and :pbkdf2
                     :bcrypt-settings {:work-factor 11}
                     :scrypt-settings {:cpu-cost        32768 ; Must be a power of 2

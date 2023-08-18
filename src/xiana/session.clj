@@ -3,7 +3,7 @@
   (:require
     [honeysql.format :as sqlf]
     [next.jdbc.result-set :refer [as-kebab-maps]]
-    [xiana.db :as db])
+    [xiana.db-provisional :as dbp])
   (:import
     (java.util
       UUID)))
@@ -33,20 +33,27 @@
     (let [[_ data] (first (un-objectify table session-data))]
       data)))
 
+(defn validate-config-data [record]
+  (every? (into {} record) [:port :dbname :host :dbtype :user :password]))
+
 (defn connect
   [{backend-config :xiana/session-backend :as cfg}]
-  (let [ds-config {:xiana/postgresql backend-config
-                   :xiana/jdbc-opts  {:builder-fn as-kebab-maps}}
-        connection (cond (every? backend-config [:port :dbname :host :dbtype :user :password]) (db/connect ds-config)
-                         (get-in cfg [:db :datasource]) cfg
-                         :else (db/connect {:xiana/postgresql (merge (:xiana/postgresql cfg) backend-config)
-                                            :xiana/jdbc-opts {:builder-fn as-kebab-maps}}))]
-    (get-in connection [:db :datasource])))
+  (let [selected-db (:xiana/selected-db backend-config)
+        db-record-type (selected-db dbp/dbms-map)
+        db-record-instance (db-record-type backend-config {:builder-fn as-kebab-maps})
+        connection (cond (validate-config-data db-record-instance) db-record-instance
+                         (get-in cfg [:db :config :datasource]) (db-record-type (:config cfg)
+                                                                                {:builder-fn as-kebab-maps}
+                                                                                nil)
+                         :else (db-record-type (merge (selected-db cfg) backend-config)
+                                               {:builder-fn as-kebab-maps}
+                                               nil))]
+    connection))
 
 (defn- init-in-db
   "Initialize persistent database session storage."
   [{backend-config :xiana/session-backend :as cfg}]
-  (let [ds (connect cfg)
+  (let [conn-obj (connect cfg)
         table (:session-table-name backend-config :sessions)
         get-all {:select [:*]
                  :from   [table]}
@@ -67,18 +74,18 @@
            ;; implement the Session protocol
            (reify Session
              ;; fetch session key:element
-             (fetch [_ k] (->session-data table (db/execute ds (get-one k))))
+             (fetch [_ k] (->session-data table (.execute conn-obj (get-one k))))
              ;; fetch all elements (no side effect)
-             (dump [_] (into {} (map unpack (db/execute ds get-all))))
+             (dump [_] (into {} (map unpack (.execute conn-obj get-all))))
              ;; add session key:element
              (add!
                [_ k v]
                (let [k (or k (UUID/randomUUID))]
-                 (when v (first (map unpack (db/execute ds (insert-session k v)))))))
+                 (when v (first (map unpack (.execute conn-obj (insert-session k v)))))))
              ;; delete session key:element
-             (delete! [_ k] (first (map unpack (db/execute ds (delete-session k)))))
+             (delete! [_ k] (first (map unpack (.execute conn-obj (delete-session k)))))
              ;; erase session
-             (erase! [_] (db/execute ds erase-session-store))))))
+             (erase! [_] (.execute conn-obj erase-session-store))))))
 
 (defn- init-in-memory
   "Initialize session in memory."

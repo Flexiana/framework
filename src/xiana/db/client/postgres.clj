@@ -1,32 +1,30 @@
-(ns xiana.db
-  "Data source builder"
-  (:require
-    [clj-test-containers.core :as tc]
-    [hikari-cp.core :as hcp]
-    [honeysql-postgres.format]
-    [honeysql.core :as sql]
-    [jsonista.core :as json]
-    [next.jdbc :as jdbc]
-    [next.jdbc.prepare :as prepare]
-    [next.jdbc.result-set :as rs]
-    [xiana.db.migrate :as migr])
+(ns xiana.db.client.postgres
+  (:require [xiana.db.protocol :as db-protocol]
+            [clj-test-containers.core :as tc]
+            [hikari-cp.core :as hcp]
+            [honeysql-postgres.format]
+            [honeysql.core :as sql]
+            [jsonista.core :as json]
+            [next.jdbc :as jdbc]
+            [next.jdbc.prepare :as prepare]
+            [next.jdbc.result-set :as rs]
+            [xiana.db.migrate :as migr])
   (:import
-    (clojure.lang
-      IPersistentMap
-      IPersistentVector)
-    (java.lang
-      AutoCloseable)
-    (java.sql
-      Connection
-      PreparedStatement)
-    (org.postgresql.util
-      PGobject)))
+   (clojure.lang
+    IPersistentMap
+    IPersistentVector)
+   (java.lang
+    AutoCloseable)
+   (java.sql
+    Connection
+    PreparedStatement)
+   (org.postgresql.util
+    PGobject)))
 
 (def mapper (json/object-mapper {:decode-key-fn keyword}))
 (def ->json json/write-value-as-string)
 (def <-json #(json/read-value % mapper))
 (def default-opts {:return-keys true})
-
 
 (defn ->pgobject
   "Transforms Clojure data to a PGobject that contains the data as
@@ -68,19 +66,6 @@
   (read-column-by-index [^PGobject v _ _]
     (<-pgobject v)))
 
-(defrecord db
-  [dbtype
-   classname
-   port
-   dbname
-   user
-   embedded
-   datasource]
-  AutoCloseable
-  (close [this]
-    (when-let [emb (embedded this)]
-      (.close emb))))
-
 (defn get-pool-datasource
   [{:xiana/keys [hikari-pool-params postgresql]}]
   (when (and hikari-pool-params postgresql)
@@ -115,19 +100,19 @@
   [{pg-config :xiana/postgresql :as config}]
   (let [{:keys [dbname user password image-name]} pg-config
         container (tc/start!
-                    (tc/create
-                      {:image-name    image-name
-                       :exposed-ports [5432]
-                       :env-vars      {"POSTGRES_DB"       dbname
-                                       "POSTGRES_USER"     user
-                                       "POSTGRES_PASSWORD" password}}))
+                   (tc/create
+                    {:image-name    image-name
+                     :exposed-ports [5432]
+                     :env-vars      {"POSTGRES_DB"       dbname
+                                     "POSTGRES_USER"     user
+                                     "POSTGRES_PASSWORD" password}}))
 
         port (get (:mapped-ports container) 5432)
         pg-config (assoc
-                    pg-config
-                    :port port
-                    :embedded container
-                    :subname (str "//localhost:" port "/" dbname))]
+                   pg-config
+                   :port port
+                   :embedded container
+                   :subname (str "//localhost:" port "/" dbname))]
     (tc/wait {:wait-strategy :log
               :message       "accept connections"} (:container container))
     (assoc config :xiana/postgresql pg-config)))
@@ -147,7 +132,7 @@
   "Adds `:datasource` key to the `:xiana/postgresql` config section
   and duplicates `:xiana/postgresql` under the top-level `:db` key."
   [{pg-config :xiana/postgresql :as config}]
-  (let [pg-config (assoc pg-config :datasource (get-datasource config))]
+  (let [pg-config (assoc-in pg-config [:config :datasource] (get-datasource config))]
     (assoc config
            :xiana/postgresql pg-config
            :db pg-config)))
@@ -184,6 +169,48 @@
       (mapv #(in-transaction tx % (:options datasource)) queries))
     (mapv #(execute datasource %) queries)))
 
+(defrecord PostgresDB [config jdbc-opts embedded]
+  db-protocol/DatabaseP
+  (->db-object [_this obj]
+    (->pgobject obj))
+
+  (<-db-object [_this obj]
+    (<-pgobject obj))
+
+  (define-container [this]
+    (docker-postgres! (:config this)))
+
+  (define-migration [this]
+    (migrate! (:config this)))
+
+  (define-migration [this count]
+    (migrate! (:config this) count))
+
+  (connect [this]
+    (connect (:config this)))
+
+  (define-parameters [_this sql-map]
+    (->sql-params sql-map))
+
+  (execute [this sql-map]
+    (let [ds (get-in this [:config :datasource])]
+      (execute ds sql-map)))
+
+  (in-transaction [_this tx sql-map]
+    (in-transaction tx sql-map))
+
+  (multi-execute [this query-map]
+    (let [ds (get-in this [:config :datasource])]
+      (multi-execute! ds query-map)))
+
+  AutoCloseable
+  (close [this]
+    (when-let [emb (embedded this)]
+      (.close emb))))
+
+(defn create-postgres-DB [config jdbc-opts]
+  (->PostgresDB config jdbc-opts nil))
+
 (def db-access
   "Database access interceptor, works from `:query` and from `db-queries` keys
   Enter: nil.
@@ -195,7 +222,7 @@
    (fn [{query-or-fn   :query
          db-queries    :db-queries
          :as        state}]
-     (let [datasource (get-in state [:deps :db :datasource])
+     (let [datasource (get-in state [:deps :db :config :datasource])
            query (cond
                    (fn? query-or-fn) (query-or-fn state)
                    :else query-or-fn)
@@ -209,3 +236,13 @@
      (merge state
             {:response {:status 500
                         :body   (pr-str (:error state))}}))})
+
+
+;; For config-map
+
+;; dbtype
+;; classname
+;; port
+;; dbname
+;; user
+;; datasource
