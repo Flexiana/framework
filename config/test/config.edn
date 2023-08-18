@@ -1,4 +1,6 @@
-{:xiana/postgresql {:image-name "postgres:14-alpine"
+{:xiana/selected-db :xiana/postgresql
+
+ :xiana/postgresql {:image-name "postgres:14-alpine"
                     :port       5432
                     :dbname     "framework"
                     :host       "localhost"
@@ -6,6 +8,12 @@
                     :user       "postgres"
                     :password   "postgres"}
 
+ :xiana/mysql {:config {:port     3306
+                        :dbname   "framework"
+                        :host     "localhost"
+                        :dbtype   "mysql"
+                        :user     "flexiana"
+                        :password "flexiana"}}
 
  :xiana/hikari-pool-params {:auto-commit        true
                             :read-only          false

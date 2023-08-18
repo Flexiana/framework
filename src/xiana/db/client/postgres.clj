@@ -186,8 +186,10 @@
   (define-migration [this count]
     (migrate! (:config this) count))
 
-  (connect [this]
-    (connect (:config this)))
+  (connect [_this]
+    (let [new-config {:xiana/postgresql config
+                      :xiana/jdbc-opts jdbc-opts}]
+      (connect new-config)))
 
   (define-parameters [_this sql-map]
     (->sql-params sql-map))
