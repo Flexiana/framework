@@ -3,7 +3,8 @@
   (:require
     [honeysql.format :as sqlf]
     [next.jdbc.result-set :refer [as-kebab-maps]]
-    [xiana.db-provisional :as dbp])
+    [xiana.db-provisional :as dbp]
+    [taoensso.timbre :as log])
   (:import
     (java.util
       UUID)))
@@ -37,15 +38,17 @@
   (every? (into {} record) [:port :dbname :host :dbtype :user :password]))
 
 (defn connect
-  [{backend-config :xiana/session-backend :as cfg}]
-  (let [selected-db (:xiana/selected-db backend-config)
+  [{backend-config :xiana/session-backend :as cfg}] 
+  (let [selected-db (:xiana/selected-db cfg)
+        db-cfg (selected-db cfg)
         db-record-type (selected-db dbp/dbms-map)
-        db-record-instance (db-record-type backend-config {:builder-fn as-kebab-maps})
+        db-record-instance (db-record-type db-cfg {:builder-fn as-kebab-maps} nil)
+        _ (log/info db-record-instance)
         connection (cond (validate-config-data db-record-instance) db-record-instance
-                         (get-in cfg [:db :config :datasource]) (db-record-type (:config cfg)
+                         (get-in cfg [:db :config :datasource]) (db-record-type db-cfg
                                                                                 {:builder-fn as-kebab-maps}
                                                                                 nil)
-                         :else (db-record-type (merge (selected-db cfg) backend-config)
+                         :else (db-record-type (merge db-cfg backend-config)
                                                {:builder-fn as-kebab-maps}
                                                nil))]
     connection))

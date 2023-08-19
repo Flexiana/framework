@@ -85,12 +85,11 @@
 
 (defn get-db-config
   [config]
-  (let [db-selected (:xiana/db-selected config)
-        db-config (db-selected config)
-        db (if-let [ds (get-in db-config [:config :datasource])]
+  (let [db-selected (:xiana/selected-db config)
+        db-config (db-selected config) 
+        db (if-let [ds (:datasource db-config)]
              {:datasource (jdbc/get-datasource ds)}
-             db-config)]
-    (log/debug "config:" config)
+             db-config)] 
     (assoc (:xiana/migration config) :db db)))
 
 (defn migrate
@@ -112,9 +111,9 @@
 (defn migrate-action
   [options]
   (log/info "Migrate database")
-  (log/debug "options:" options)
+  ;(log/debug "options:" options)
   (let [cfg (get-db-config (load-config options))]
-    (log/debug "config:" cfg)
+    ;(log/debug "config:" cfg)
     (if-let [id (:id options)]
       (migrate cfg id)
       (migrate cfg))))
@@ -122,9 +121,9 @@
 (defn rollback-action
   [options]
   (log/info "Rollback database")
-  (log/debug "options:" options)
+  ;(log/debug "options:" options)
   (let [cfg (get-db-config (load-config options))]
-    (log/debug "config:" cfg)
+    ;(log/debug "config:" cfg)
     (if-let [id (:id options)]
       (rollback cfg id)
       (rollback cfg))))
@@ -132,7 +131,7 @@
 (defn create-script-action
   [{:keys [dir name] :as options}]
   (log/info "Create migration scripts skeleton")
-  (log/debug "options:" options)
+  ;(log/debug "options:" options)
   (create-script dir name))
 
 (defn run

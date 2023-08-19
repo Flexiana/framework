@@ -82,14 +82,13 @@
 (defn get-datasource
   ([config]
    (get-datasource config 0))
-  ([config count]
+  ([config count] 
    (let [create-datasource (or (:xiana/create-custom-datasource config)
                                (get-pool-datasource config)
                                jdbc/get-datasource)
          jdbc-opts (merge default-opts
-                          (:xiana/jdbc-opts config))]
-     (try (-> config
-              :xiana/postgresql
+                          (:xiana/jdbc-opts config))] 
+     (try (-> config 
               create-datasource
               (jdbc/with-options jdbc-opts))
           (catch Exception e (if (< count 10)
@@ -121,7 +120,7 @@
   ([config]
    (migrate! config 0))
   ([config count]
-   (try
+   (try 
      (migr/migrate (migr/get-db-config config))
      (catch Exception e (if (< count 10)
                           (migrate! config (inc count))
@@ -131,11 +130,11 @@
 (defn connect
   "Adds `:datasource` key to the `:xiana/postgresql` config section
   and duplicates `:xiana/postgresql` under the top-level `:db` key."
-  [{pg-config :xiana/postgresql :as config}]
-  (let [pg-config (assoc-in pg-config [:config :datasource] (get-datasource config))]
+  [{pg-config :xiana/postgresql :as config}] 
+  (let [new-pg-config (assoc-in pg-config [:config :datasource] (get-datasource (:config pg-config)))] 
     (assoc config
-           :xiana/postgresql pg-config
-           :db pg-config)))
+           :xiana/postgresql (:config new-pg-config)
+           :db (:config new-pg-config))))
 
 (defn ->sql-params
   "Parse sql-map using honeysql format function with pre-defined
@@ -177,14 +176,14 @@
   (<-db-object [_this obj]
     (<-pgobject obj))
 
-  (define-container [this]
-    (docker-postgres! (:config this)))
+  (define-container [_this]
+    (docker-postgres! config))
 
-  (define-migration [this]
-    (migrate! (:config this)))
+  (define-migration [_this]
+    (migrate! config))
 
-  (define-migration [this count]
-    (migrate! (:config this) count))
+  (define-migration [_this count]
+    (migrate! config count))
 
   (connect [_this]
     (let [new-config {:xiana/postgresql config
@@ -210,9 +209,6 @@
     (when-let [emb (embedded this)]
       (.close emb))))
 
-(defn create-postgres-DB [config jdbc-opts]
-  (->PostgresDB config jdbc-opts nil))
-
 (def db-access
   "Database access interceptor, works from `:query` and from `db-queries` keys
   Enter: nil.
@@ -224,7 +220,7 @@
    (fn [{query-or-fn   :query
          db-queries    :db-queries
          :as        state}]
-     (let [datasource (get-in state [:deps :db :config :datasource])
+     (let [datasource (get-in state [:deps :db :datasource])
            query (cond
                    (fn? query-or-fn) (query-or-fn state)
                    :else query-or-fn)
@@ -238,13 +234,3 @@
      (merge state
             {:response {:status 500
                         :body   (pr-str (:error state))}}))})
-
-
-;; For config-map
-
-;; dbtype
-;; classname
-;; port
-;; dbname
-;; user
-;; datasource

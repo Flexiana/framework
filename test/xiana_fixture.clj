@@ -3,7 +3,7 @@
     [piotr-yuxuan.closeable-map :refer [closeable-map]]
     [xiana.commons :refer [rename-key]]
     [xiana.config :as config]
-    [xiana.db :as db-core]
+    ;[xiana.db :as db-core]
     [xiana.rbac :as rbac]
     [xiana.route :as routes]
     [xiana.session :as session-backend]
@@ -15,9 +15,9 @@
   (-> (config/config)
       (merge app-cfg)
       (rename-key :xiana/auth :auth)
-      db-core/docker-postgres!
-      db-core/connect
-      db-core/migrate!
+      ;db-core/docker-postgres!
+      ;db-core/connect
+      ;db-core/migrate!
       session-backend/init-backend
       routes/reset
       rbac/init
