@@ -1,8 +1,6 @@
 (ns xiana.db.protocol)
 
-(defprotocol DatabaseP
-  (->db-object [this obj])
-  (<-db-object [this obj])
+(defprotocol DatabaseP 
   (define-container [this])
   (define-migration [this] [this count])
   (connect [this])

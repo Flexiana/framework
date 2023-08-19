@@ -170,12 +170,7 @@
 
 (defrecord PostgresDB [config jdbc-opts embedded]
   db-protocol/DatabaseP
-  (->db-object [_this obj]
-    (->pgobject obj))
-
-  (<-db-object [_this obj]
-    (<-pgobject obj))
-
+  
   (define-container [_this]
     (docker-postgres! config))
 
