@@ -17,9 +17,14 @@ _ACTION="tests"
 # flags
 _YES_FLAG=1
 
+# default dbms
+_DBMS=postgresql
+
 # compose variables: file and service
 _COMPOSE_FILE=./docker/docker-compose.yml
-_COMPOSE_SERVICE=postgres
+_COMPOSE_SERVICE_LIST=("postgresql" "mysql")
+_COMPOSE_SERVICE=$_DBMS
+_COMPOSE_PROFILE=$_DBMS
 
 # default edn config file
 _CONFIG=./config/test/config.edn
@@ -27,7 +32,7 @@ _CONFIG=./config/test/config.edn
 # sql script
 _DB_USER=postgres
 _DB_NAME=framework
-_DB_SCRIPT=/sql/test.sql
+_DB_SCRIPT=/sql/postgresql/test.sql
 
 usage ()
 {
@@ -37,13 +42,13 @@ usage ()
 
     [ AUTO HELPER SCRIPT ]
 
-    usage: ${0} [-yxve] [-C {edn_config}] {ACTION}
+    usage: ${0} [-yxve] [-C {edn_config}] [-D [postgres|mysql]] {ACTION}
 
     ACTIONS:
 
     help                  show this message and exit
     opts                  show default options
-    docker                setup postgres docker instance
+    docker                setup selected database docker instance
     setup                 execute defined sql scripts
     tests                 run the local tests
     all                   execute docker, setup and tests: shortcut
@@ -59,6 +64,9 @@ usage ()
 
     -C EDN_CONFIG         set the edn configuration file
                           default: ./config/test/test.edn
+
+    -D DBMS               set the dbms to use. Options: postgresql, mysql, all
+                          default: postgres
 
 EOF
     printf $_RESET
@@ -100,6 +108,7 @@ CONFIG    = ${_CONFIG}
 DB_USER   = ${_DB_USER}
 DB_NAME   = ${_DB_NAME}
 DB_SCRIPT = ${_DB_SCRIPT}
+DBMS      = ${_DBMS}
 \n"
 }
 
@@ -159,6 +168,9 @@ parse_opts ()
 
             # set edn config file
             -C) shift 1; _CONFIG=${1}; shift 1 ;;
+
+            # set DBMS
+            -D) shift 1; _DBMS=${2}; shift 1 ;;
         esac
     done
 
@@ -218,27 +230,64 @@ handle_info ()
     exit 0
 }
 
-_compose_exec ()
-{
-    local _cmd=$1
 
-    docker-compose -f ${_COMPOSE_FILE} exec ${_COMPOSE_SERVICE} bash -c "$_cmd"
-}
 
 _compose_up ()
 {
     # up: create and instantiate postgre service
-    docker-compose -f ${_COMPOSE_FILE} up -d
+    COMPOSE_PROFILES=${_COMPOSE_PROFILE} docker-compose -f ${_COMPOSE_FILE} up -d
+}
+
+_select_init_command ()
+{
+  local _cs=$1
+  case ${_cs} in
+      "postgresql") return "psql -U $_DB_USER -f /sql/postgresql/init.sql" ;;
+      "mysql") return "mysql -u $_DB_USER -p < /sql/mysql/init.sql" ;;
+  esac
+}
+
+_select_test_command ()
+{
+  local _cs=$1
+  case ${_cs} in
+      "postgresql") return "psql -U $_DB_USER -f /sql/postgresql/test.sql" ;;
+      "mysql") return "mysql -u $_DB_USER -p < /sql/mysql/test.sql" ;;
+  esac
+}
+
+_compose_exec ()
+{
+    local _cmd=$1
+    local _compose_service=$2
+
+    docker-compose -f $_compose_service exec $_compose_service bash -c "$_cmd"
 }
 
 _db_init_script ()
 {
-    _compose_exec "psql -U $_DB_USER -f /sql/init.sql"
+    if [ "${_COMPOSE_SERVICE}" == "all" ]; then
+        for _cs in ${_COMPOSE_SERVICE_LIST}; do
+            _command=$_select_init_command ${_cs}
+            _compose_exec $_command $_cs 
+        done
+    else
+        _command=$_select_init_command ${_COMPOSE_SERVICE}
+        _compose_exec $_command ${_COMPOSE_SERVICE}
+    fi
 }
 
 _db_test_script ()
 {
-    _compose_exec "psql -U $_DB_USER -d $_DB_NAME -f /sql/test.sql"
+    if [ "${_COMPOSE_SERVICE}" == "all" ]; then
+        for _cs in ${_COMPOSE_SERVICE_LIST}; do
+            _command=$_select_test_command ${_cs}
+            _compose_exec $_command $_cs 
+        done
+    else
+        _command=$_select_test_command ${_COMPOSE_SERVICE}
+        _compose_exec $_command ${_COMPOSE_SERVICE}
+    fi
 }
 
 _setup ()

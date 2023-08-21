@@ -2,6 +2,7 @@ version: "3.3"
 
 services:
   mysql:
+    profiles: ["all", "mysql"]
     image: percona:5.7
     environment:
       - MYSQL_ROOT_PASSWORD
@@ -9,11 +10,15 @@ services:
       - "3306:3306"
     command:
       [--character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+    volumes:
+        - ./sql-scripts:/sql # I don't know too much about volumes(May I share this?). Ask or research about this
+        # - db-data:/var/lib/postgresql/data
 
-  postgres:
+  postgresql:
+    profiles: ["all", "postgresql"]
     build:
       context: .
-      dockerfile: postgres.dockerfile
+      dockerfile: postgresql.dockerfile
     # environment:
     #   POSTGRES_DB: framework
     volumes:
