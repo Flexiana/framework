@@ -170,7 +170,7 @@ parse_opts ()
             -C) shift 1; _CONFIG=${1}; shift 1 ;;
 
             # set DBMS
-            -D) shift 1; _DBMS=${2}; shift 1 ;;
+            -D) shift 1; _DBMS=${1}; _COMPOSE_SERVICE=$_DBMS; _COMPOSE_PROFILE=$_DBMS; shift 1 ;;
         esac
     done
 
@@ -242,8 +242,8 @@ _select_init_command ()
 {
   local _cs=$1
   case ${_cs} in
-      "postgresql") return "psql -U $_DB_USER -f /sql/postgresql/init.sql" ;;
-      "mysql") return "mysql -u $_DB_USER -p < /sql/mysql/init.sql" ;;
+      "postgresql") _DB_USER=postgres; echo "psql -U $_DB_USER -f /sql/postgresql/init.sql" ;;
+      "mysql") _DB_USER=root; echo "mysql -u $_DB_USER -p < /sql/mysql/init.sql" ;;
   esac
 }
 
@@ -251,8 +251,8 @@ _select_test_command ()
 {
   local _cs=$1
   case ${_cs} in
-      "postgresql") return "psql -U $_DB_USER -f /sql/postgresql/test.sql" ;;
-      "mysql") return "mysql -u $_DB_USER -p < /sql/mysql/test.sql" ;;
+      "postgresql") $_DB_USER=postgres; echo "psql -U $_DB_USER -f /sql/postgresql/test.sql" ;;
+      "mysql") $_DB_USER=root; echo "mysql -u $_DB_USER -p < /sql/mysql/test.sql" ;;
   esac
 }
 
@@ -261,6 +261,8 @@ _compose_exec ()
     local _cmd=$1
     local _compose_service=$2
 
+    echo $_cmd
+
     docker-compose -f $_compose_service exec $_compose_service bash -c "$_cmd"
 }
 
@@ -268,12 +270,12 @@ _db_init_script ()
 {
     if [ "${_COMPOSE_SERVICE}" == "all" ]; then
         for _cs in ${_COMPOSE_SERVICE_LIST}; do
-            _command=$_select_init_command ${_cs}
-            _compose_exec $_command $_cs 
+            _command=$(_select_init_command "$_cs")
+            _compose_exec "$_command" ${_cs}    
         done
     else
-        _command=$_select_init_command ${_COMPOSE_SERVICE}
-        _compose_exec $_command ${_COMPOSE_SERVICE}
+        _command=$(_select_init_command "$_COMPOSE_SERVICE")
+        _compose_exec "$_command" ${_COMPOSE_SERVICE}
     fi
 }
 
@@ -281,12 +283,12 @@ _db_test_script ()
 {
     if [ "${_COMPOSE_SERVICE}" == "all" ]; then
         for _cs in ${_COMPOSE_SERVICE_LIST}; do
-            _command=$_select_test_command ${_cs}
-            _compose_exec $_command $_cs 
+            _command=$(_select_test_command "$_cs")
+            _compose_exec "$_command" ${_cs}    
         done
     else
-        _command=$_select_test_command ${_COMPOSE_SERVICE}
-        _compose_exec $_command ${_COMPOSE_SERVICE}
+        _command=$(_select_test_command "$_COMPOSE_SERVICE")
+        _compose_exec "$_command" ${_COMPOSE_SERVICE}
     fi
 }
 

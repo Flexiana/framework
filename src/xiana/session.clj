@@ -63,11 +63,18 @@
         get-one (fn [k] {:select [:session_data :modified_at]
                          :from   [table]
                          :where  [:= :session_id k]})
-        insert-session (fn [k v] {:insert-into table
-                                  :values      [{:session_id   k
-                                                 :session_data (sqlf/value v)}]
-                                  :upsert      {:on-conflict   [:session_id]
-                                                :do-update-set [:session_data :modified-at]}})
+        insert-session (fn [k v]
+                         (log/info conn-obj)
+                         (case (-> conn-obj :config :dbtype)
+                           "postgresql" {:insert-into table
+                                         :values      [{:session_id   k
+                                                        :session_data (sqlf/value v)}]
+                                         :upsert      {:on-conflict   [:session_id]
+                                                       :do-update-set [:session_data :modified-at]}}
+                           "mysql" {:insert-into table
+                                    :values      [{:session_id   k
+                                                   :session_data (sqlf/value v)}]
+                                    :upsert      {:on-duplicate-key-update [:session_data :modified_at]}}))
         erase-session-store {:truncate table}
         delete-session (fn [k] {:delete-from table
                                 :where       [:= :session_id k]})

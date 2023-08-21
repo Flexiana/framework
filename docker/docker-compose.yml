@@ -3,7 +3,7 @@ version: "3.3"
 services:
   mysql:
     profiles: ["all", "mysql"]
-    image: percona:5.7
+    image: mysql/mysql-server:latest
     environment:
       - MYSQL_ROOT_PASSWORD
     ports:
@@ -11,8 +11,8 @@ services:
     command:
       [--character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
     volumes:
-        - ./sql-scripts:/sql # I don't know too much about volumes(May I share this?). Ask or research about this
-        # - db-data:/var/lib/postgresql/data
+        # - ./sql-scripts:/sql # I don't know too much about volumes(May I share this?). Ask or research about this
+        - db-data:/var/lib/mysql/data
 
   postgresql:
     profiles: ["all", "postgresql"]
@@ -22,10 +22,11 @@ services:
     # environment:
     #   POSTGRES_DB: framework
     volumes:
-        - ./sql-scripts:/sql
-        # - db-data:/var/lib/postgresql/data
+        #- ./sql-scripts:/sql
+        - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
-# volumes:
-#   db-data:
+volumes:
+#   ./sql-scripts:/sql:
+  db-data:
