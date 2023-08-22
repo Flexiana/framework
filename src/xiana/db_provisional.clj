@@ -4,12 +4,12 @@
             [taoensso.timbre :as log]))
 
 (defn generate-table-existence-query
-  [table-name dbms]
+  [table-name dbms db-name]
   (case dbms
     "mysql" {:select [:table_name :table_schema]
              :from [:information_schema.tables]
              :where [:and
-                     [:= :table_schema "public"]
+                     [:= :table_schema db-name]
                      [:= :table_name table-name]]}
     "postgresql" {:select [:table_name]
                   :from [:information_schema.tables]
@@ -22,7 +22,8 @@
   [table-name connection-object]
   (let [db-cfg (:config connection-object)
         dbms (:dbtype db-cfg)
-        query (generate-table-existence-query (name table-name) dbms)
+        db-name (:dbname db-cfg)
+        query (generate-table-existence-query (name table-name) dbms db-name)
         _ (log/info "== Verifying table existence ==")
         result (.execute connection-object query)
         _ (log/info result)]

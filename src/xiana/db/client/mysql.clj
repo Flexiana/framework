@@ -5,7 +5,8 @@
             [honeysql.core :as sql]
             [jsonista.core :as jsonista]
             [xiana.db.migrate :as migr]
-            [xiana.db.protocol :as db-protocol])
+            [xiana.db.protocol :as db-protocol]
+            [taoensso.timbre :as log])
   (:import [clojure.lang 
             IPersistentMap
             IPersistentVector]
@@ -128,12 +129,16 @@
 (defn ->sql-params
   "Parse sql-map using honeysql format function with pre-defined
   options that target mysql."
-  [sql-map]
-  (sql/format sql-map
-              {;:quoting            :ansi
-               :dialect            :mysql
-               :parameterizer      :mysql
-               :return-param-names false}))
+  [sql-map] 
+  (if (not= (type sql-map) clojure.lang.PersistentVector)
+    (sql/format sql-map
+                {;:quoting            :ansi
+                 :dialect            :mysql
+                 :parameterizer      :mysql
+                 :return-param-names false})
+    (do
+      (log/info "Trying to return a raw sql")
+      sql-map)))
 
 (defn execute
   "Gets datasource, parse the given sql-map (query) and

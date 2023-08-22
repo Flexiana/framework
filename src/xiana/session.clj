@@ -51,10 +51,13 @@
     connection))
 
 (defn- create-sessions-table-query [] 
-   {:create-table :sessions
-    :with-columns [[:session_id :uuid [:not nil]]
-                   [:session_data :varchar]
-                   [:modified_at :timestamp]]})
+  ;;  {:create-table :sessions
+  ;;   :with-columns [[:session_id :uuid [:not nil]]
+  ;;                  [:session_data :varchar]
+  ;;                  [:modified_at :timestamp]]} Trying to figure out how to support this with Honeysql
+  ["CREATE TABLE sessions (session_id CHAR (36) PRIMARY KEY,
+                                    session_data JSON,
+                                    modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);"])
 
 (defn- init-in-db
   "Initialize persistent database session storage."
@@ -68,6 +71,8 @@
                          :where  [:= :session_id k]})
         create-session (create-sessions-table-query)
         insert-session (fn [k v]
+                         (log/info "== Key to be evaluated == " k)
+                         (log/info "== Value to be inserted==" v)
                          (case (-> conn-obj :config :dbtype)
                            "postgresql" {:insert-into table
                                          :values      [{:session_id   k
@@ -75,7 +80,7 @@
                                          :upsert      {:on-conflict   [:session_id]
                                                        :do-update-set [:session_data :modified-at]}}
                            "mysql" {:insert-into table
-                                    :values      [{:session_id   k
+                                    :values      [{:session_id   (str k)
                                                    :session_data (sqlf/value v)}]
                                     :upsert      {:on-duplicate-key-update [:session_data :modified_at]}}))
         erase-session-store {:truncate table}
