@@ -1,16 +1,59 @@
 (ns xiana.db.client.mysql
-  (:require [xiana.db.protocol :as db-protocol]
-            [clj-test-containers.core :as tc]
-            [next.jdbc :as jdbc]
+  (:require [clj-test-containers.core :as tc]
+            [next.jdbc :as jdbc] 
             [hikari-cp.core :as hcp]
             [honeysql.core :as sql]
-            [xiana.db.migrate :as migr])
-  (:import (java.sql
-            Connection)
+            [jsonista.core :as jsonista]
+            [xiana.db.migrate :as migr]
+            [xiana.db.protocol :as db-protocol])
+  (:import [clojure.lang 
+            IPersistentMap
+            IPersistentVector]
            (java.lang
-            AutoCloseable)))
+            AutoCloseable)
+           (java.sql
+            Connection
+            PreparedStatement)
+           (java.sql
+            Connection)))
 
 (def default-opts {:return-keys true})
+
+(def mapper (jsonista/object-mapper {:decode-key-fn keyword}))
+
+(defn ->json [data]
+  (jsonista/write-value-as-string data mapper))
+
+(defn <-json [json-str]
+  (jsonista/read-value json-str mapper))
+
+;; (defn ->mysqlobject [x]
+;;   (let [mysqltype "jsonb"]
+;;     (doto (com.mysql.cj.api.json.JsonString. (->json x))
+;;       (.setType mysqltype))))
+
+;; (defn <-mysqlobject [v]
+;;   (let [type (.getType v)
+;;         value (.getValue v)]
+;;     (if (#{"jsonb" "json"} type)
+;;       (some-> value
+;;               <-json)
+;;       value)))
+
+;; (extend-protocol prepare/SettableParameter
+;;   IPersistentMap
+;;   (set-parameter [^IPersistentMap m ^PreparedStatement s i]
+;;     (.setObject s i (->mysqlobject m)))
+
+;;   IPersistentVector
+;;   (set-parameter [^IPersistentVector v ^PreparedStatement s i]
+;;     (.setObject s i (->mysqlobject v))))
+
+;; (extend-protocol rs/ReadableColumn 
+;;   (read-column-by-label [v _]
+;;     (<-mysqlobject v))
+;;   (read-column-by-index [v _ _]
+;;     (<-mysqlobject v)))
 
 (defn get-pool-datasource
   [{:xiana/keys [hikari-pool-params mysql]}]
@@ -87,7 +130,8 @@
   options that target mysql."
   [sql-map]
   (sql/format sql-map
-              {:quoting            :ansi
+              {;:quoting            :ansi
+               :dialect            :mysql
                :parameterizer      :mysql
                :return-param-names false}))
 

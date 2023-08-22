@@ -1,10 +1,9 @@
 (ns xiana.session
   "Xiana's session management"
-  (:require
-    [honeysql.format :as sqlf]
-    [next.jdbc.result-set :refer [as-kebab-maps]]
-    [xiana.db-provisional :as dbp]
-    [taoensso.timbre :as log])
+  (:require [honeysql.format :as sqlf]
+            [next.jdbc.result-set :refer [as-kebab-maps]]
+            [xiana.db-provisional :as dbp] 
+            [taoensso.timbre :as log])
   (:import
     (java.util
       UUID)))
@@ -38,20 +37,24 @@
   (every? (into {} record) [:port :dbname :host :dbtype :user :password]))
 
 (defn connect
-  [{backend-config :xiana/session-backend :as cfg}] 
+  [{backend-config :xiana/session-backend :as cfg}]
   (let [selected-db (:xiana/selected-db cfg)
         db-cfg (selected-db cfg)
-        db-record-type (selected-db dbp/dbms-map)
-        db-record-instance (db-record-type db-cfg {:builder-fn as-kebab-maps} nil)
-        _ (log/info db-record-instance)
+        db-record-instance (dbp/construct selected-db db-cfg {:builder-fn as-kebab-maps} nil)
         connection (cond (validate-config-data db-record-instance) db-record-instance
-                         (get-in cfg [:db :config :datasource]) (db-record-type db-cfg
-                                                                                {:builder-fn as-kebab-maps}
-                                                                                nil)
-                         :else (db-record-type (merge db-cfg backend-config)
-                                               {:builder-fn as-kebab-maps}
-                                               nil))]
+                         (get-in cfg [:db :config :datasource]) (dbp/construct selected-db db-cfg
+                                                                               {:builder-fn as-kebab-maps}
+                                                                               nil)
+                         :else (dbp/construct selected-db (merge db-cfg backend-config)
+                                              {:builder-fn as-kebab-maps}
+                                              nil))]
     connection))
+
+(defn- create-sessions-table-query [] 
+   {:create-table :sessions
+    :with-columns [[:session_id :uuid [:not nil]]
+                   [:session_data :varchar]
+                   [:modified_at :timestamp]]})
 
 (defn- init-in-db
   "Initialize persistent database session storage."
@@ -63,8 +66,8 @@
         get-one (fn [k] {:select [:session_data :modified_at]
                          :from   [table]
                          :where  [:= :session_id k]})
+        create-session (create-sessions-table-query)
         insert-session (fn [k v]
-                         (log/info conn-obj)
                          (case (-> conn-obj :config :dbtype)
                            "postgresql" {:insert-into table
                                          :values      [{:session_id   k
@@ -91,7 +94,13 @@
              (add!
                [_ k v]
                (let [k (or k (UUID/randomUUID))]
-                 (when v (first (map unpack (.execute conn-obj (insert-session k v)))))))
+                 (if (dbp/table-exists? table conn-obj)
+                   (do
+                     (log/info "Adding data because the table exists")
+                     (when v (first (map unpack (.execute conn-obj (insert-session k v))))))
+                   (do
+                     (log/info "Creating session because table doesn't exists in DB")
+                     (.execute conn-obj create-session)))))
              ;; delete session key:element
              (delete! [_ k] (first (map unpack (.execute conn-obj (delete-session k)))))
              ;; erase session
@@ -173,21 +182,21 @@
     (add! session-backend session-id session-data)
     (dissoc (assoc state :session-data session-data) :response)))
 
+
 (def guest-session-interceptor
   "Inserts a new session when no session found"
   {:name ::guest-session-interceptor
-   :enter
-   (fn [state]
-     (try (fetch-session state)
-          (catch Exception _ ; TODO: more specific exception, it might be better to return nil when session is missing
-            (let [session-backend (-> state :deps :session-backend)
-                  session-id (UUID/randomUUID)
-                  user-id (UUID/randomUUID)
-                  session-data {:session-id session-id
-                                :users/role :guest
-                                :users/id   user-id}]
-              (add! session-backend session-id session-data)
-              (assoc state :session-data session-data)))))
+   :enter (fn [state]
+            (try (fetch-session state)
+                 (catch Exception _; TODO: more specific exception, it might be better to return nil when session is missing
+                   (let [session-backend (-> state :deps :session-backend)
+                         session-id (UUID/randomUUID)
+                         user-id (UUID/randomUUID)
+                         session-data {:session-id session-id
+                                       :users/role :guest
+                                       :users/id   user-id}]
+                     (add! session-backend session-id session-data)
+                     (assoc state :session-data session-data)))))
    :leave store-session})
 
 (defn init-backend
