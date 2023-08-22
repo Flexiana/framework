@@ -3,7 +3,8 @@
   (:require [honeysql.format :as sqlf]
             [next.jdbc.result-set :refer [as-kebab-maps]]
             [xiana.db-provisional :as dbp] 
-            [taoensso.timbre :as log])
+            [taoensso.timbre :as log]
+            [jsonista.core :as json])
   (:import
     (java.util
       UUID)))
@@ -56,8 +57,8 @@
   ;;                  [:session_data :varchar]
   ;;                  [:modified_at :timestamp]]} Trying to figure out how to support this with Honeysql
   ["CREATE TABLE sessions (session_id CHAR (36) PRIMARY KEY,
-                                    session_data JSON,
-                                    modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);"])
+                           session_data JSON,
+                           modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);"])
 
 (defn- init-in-db
   "Initialize persistent database session storage."
@@ -81,7 +82,7 @@
                                                        :do-update-set [:session_data :modified-at]}}
                            "mysql" {:insert-into table
                                     :values      [{:session_id   (str k)
-                                                   :session_data (sqlf/value v)}]
+                                                   :session_data (json/write-value-as-string v)}]
                                     :upsert      {:on-duplicate-key-update [:session_data :modified_at]}}))
         erase-session-store {:truncate table}
         delete-session (fn [k] {:delete-from table
