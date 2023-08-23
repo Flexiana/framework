@@ -1,13 +1,16 @@
 (ns xiana.session
   "Xiana's session management"
-  (:require [honeysql.format :as sqlf]
-            [next.jdbc.result-set :refer [as-kebab-maps]]
-            [xiana.db-provisional :as dbp] 
+  (:require [next.jdbc.result-set :refer [as-kebab-maps]]
+            [xiana.db-provisional :as dbp]
             [taoensso.timbre :as log]
             [jsonista.core :as json])
   (:import
-    (java.util
-      UUID)))
+   (java.util
+    UUID)
+   (java.sql
+    Timestamp)
+   (java.time
+    Instant)))
 
 ;; define session protocol
 (defprotocol Session
@@ -37,6 +40,8 @@
 (defn validate-config-data [record]
   (every? (into {} record) [:port :dbname :host :dbtype :user :password]))
 
+
+
 (defn connect
   [{backend-config :xiana/session-backend :as cfg}]
   (let [selected-db (:xiana/selected-db cfg)
@@ -51,14 +56,11 @@
                                               nil))]
     connection))
 
-(defn- create-sessions-table-query [] 
-  ;;  {:create-table :sessions
-  ;;   :with-columns [[:session_id :uuid [:not nil]]
-  ;;                  [:session_data :varchar]
-  ;;                  [:modified_at :timestamp]]} Trying to figure out how to support this with Honeysql
-  ["CREATE TABLE sessions (session_id CHAR (36) PRIMARY KEY,
-                           session_data JSON,
-                           modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);"])
+(def create-sessions-table-query
+  ["CREATE TABLE IF NOT EXISTS sessions (session_id CHAR (36) PRIMARY KEY,
+                                         session_data JSON,
+                                        modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);"])
+
 
 (defn- init-in-db
   "Initialize persistent database session storage."
@@ -70,20 +72,21 @@
         get-one (fn [k] {:select [:session_data :modified_at]
                          :from   [table]
                          :where  [:= :session_id k]})
-        create-session (create-sessions-table-query)
+        create-session create-sessions-table-query
         insert-session (fn [k v]
-                         (log/info "== Key to be evaluated == " k)
-                         (log/info "== Value to be inserted==" v)
+                         (log/debug "== Key to be evaluated == " k)
+                         (log/debug "== Value to be inserted==" v)
                          (case (-> conn-obj :config :dbtype)
                            "postgresql" {:insert-into table
                                          :values      [{:session_id   k
-                                                        :session_data (sqlf/value v)}]
+                                                        :session_data (json/write-value-as-string v)}]
                                          :upsert      {:on-conflict   [:session_id]
                                                        :do-update-set [:session_data :modified-at]}}
                            "mysql" {:insert-into table
-                                    :values      [{:session_id   (str k)
-                                                   :session_data (json/write-value-as-string v)}]
-                                    :upsert      {:on-duplicate-key-update [:session_data :modified_at]}}))
+                                    :values                   [{:session_id   (str k)
+                                                                :session_data (json/write-value-as-string v)}]
+                                    :on-duplicate-key-update  {:session_data (json/write-value-as-string v)
+                                                               :modified_at (Timestamp/from (Instant/now))}}))
         erase-session-store {:truncate table}
         delete-session (fn [k] {:delete-from table
                                 :where       [:= :session_id k]})
@@ -100,13 +103,8 @@
              (add!
                [_ k v]
                (let [k (or k (UUID/randomUUID))]
-                 (if (dbp/table-exists? table conn-obj)
-                   (do
-                     (log/info "Adding data because the table exists")
-                     (when v (first (map unpack (.execute conn-obj (insert-session k v))))))
-                   (do
-                     (log/info "Creating session because table doesn't exists in DB")
-                     (.execute conn-obj create-session)))))
+                 (.execute conn-obj create-session)
+                 (when v (first (map unpack (.execute conn-obj (insert-session k v)))))))
              ;; delete session key:element
              (delete! [_ k] (first (map unpack (.execute conn-obj (delete-session k)))))
              ;; erase session

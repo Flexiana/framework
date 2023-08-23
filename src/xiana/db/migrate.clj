@@ -121,9 +121,9 @@
 (defn rollback-action
   [options]
   (log/info "Rollback database")
-  ;(log/debug "options:" options)
+  (log/debug "options:" options)
   (let [cfg (get-db-config (load-config options))]
-    ;(log/debug "config:" cfg)
+    (log/debug "config:" cfg)
     (if-let [id (:id options)]
       (rollback cfg id)
       (rollback cfg))))
@@ -131,7 +131,7 @@
 (defn create-script-action
   [{:keys [dir name] :as options}]
   (log/info "Create migration scripts skeleton")
-  ;(log/debug "options:" options)
+  (log/debug "options:" options)
   (create-script dir name))
 
 (defn run

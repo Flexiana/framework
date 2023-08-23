@@ -2,59 +2,18 @@
   (:require [clj-test-containers.core :as tc]
             [next.jdbc :as jdbc] 
             [hikari-cp.core :as hcp]
-            [honeysql.core :as sql]
-            [jsonista.core :as jsonista]
+            [honey.sql :as sql] 
             [xiana.db.migrate :as migr]
             [xiana.db.protocol :as db-protocol]
             [taoensso.timbre :as log])
-  (:import [clojure.lang 
-            IPersistentMap
-            IPersistentVector]
-           (java.lang
+  (:import (java.lang
             AutoCloseable)
            (java.sql
-            Connection
-            PreparedStatement)
+            Connection)
            (java.sql
             Connection)))
 
 (def default-opts {:return-keys true})
-
-(def mapper (jsonista/object-mapper {:decode-key-fn keyword}))
-
-(defn ->json [data]
-  (jsonista/write-value-as-string data mapper))
-
-(defn <-json [json-str]
-  (jsonista/read-value json-str mapper))
-
-;; (defn ->mysqlobject [x]
-;;   (let [mysqltype "jsonb"]
-;;     (doto (com.mysql.cj.api.json.JsonString. (->json x))
-;;       (.setType mysqltype))))
-
-;; (defn <-mysqlobject [v]
-;;   (let [type (.getType v)
-;;         value (.getValue v)]
-;;     (if (#{"jsonb" "json"} type)
-;;       (some-> value
-;;               <-json)
-;;       value)))
-
-;; (extend-protocol prepare/SettableParameter
-;;   IPersistentMap
-;;   (set-parameter [^IPersistentMap m ^PreparedStatement s i]
-;;     (.setObject s i (->mysqlobject m)))
-
-;;   IPersistentVector
-;;   (set-parameter [^IPersistentVector v ^PreparedStatement s i]
-;;     (.setObject s i (->mysqlobject v))))
-
-;; (extend-protocol rs/ReadableColumn 
-;;   (read-column-by-label [v _]
-;;     (<-mysqlobject v))
-;;   (read-column-by-index [v _ _]
-;;     (<-mysqlobject v)))
 
 (defn get-pool-datasource
   [{:xiana/keys [hikari-pool-params mysql]}]
@@ -144,7 +103,9 @@
   "Gets datasource, parse the given sql-map (query) and
   execute it using `jdbc/execute!`, and returns the modified keys"
   [datasource sql-map]
+  (log/debug "== Executing the following query ==")
   (let [sql-params (->sql-params sql-map)]
+    (log/debug sql-params)
     (jdbc/execute! datasource sql-params default-opts)))
 
 (defn in-transaction
