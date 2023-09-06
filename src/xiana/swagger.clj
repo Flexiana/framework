@@ -13,6 +13,8 @@
    [reitit.trie :as trie]
    [ring.util.response]))
 
+(def start-one 1)
+
 (defonce all-methods
   [:get :patch :trace :connect :delete :head :post :options :put])
 
@@ -45,7 +47,8 @@
           {:handler #function[clojure.core/identity], :action :swagger-ui},
           :some-values true}]
   "
-  [[url opt-map & nested-routes :as route]]
+;;; changed the order of args to not break functions
+  [[url opt-map & nested-routes :as route] all-methods]
   (let [new-opt-map (if (:action opt-map)
                       (let [action' (:action opt-map)
                             swagger-base-of-endpoint (:swagger-* opt-map)]
@@ -70,15 +73,23 @@
     (if (-> route meta :no-doc)
       nil
       (apply conj [url new-opt-map]
-             (map *** nested-routes)))))
+             (map #(xiana-route->reitit-route % all-methods) nested-routes)))))
+;;; ^^ changed the function to get all-methods
 
-(defn xiana-routes->reitit-routes [all-methods routes]
+(defn partial-second
+  [f second-arg]
+  (fn [x]
+    (f x second-arg)))
+
+;;; ^^ helper function for below vv we need this to keep the order of Seç
+(defn xiana-routes->reitit-routes [routes all-methods]
   (vec
-   (keep (partial xiana-route->reitit-route (all-methods)) routes)))
+   (keep (partial-second xiana-route->reitit-route all-methods) routes)))
+;;; TODO ^^ use #(xiana-route->reitit-route % all-methods)
 
 (defn routes->swagger-data [routes' & {route-opt-map :route-opt-map}]
   (let [request-method :get
-        routes' (-> routes' xiana-routes->reitit-routes (ring/router (or route-opt-map {})))
+        routes' (-> (xiana-routes->reitit-routes routes' all-methods) (ring/router (or route-opt-map {})))
         {:keys [id] :or {id ::default} :as swagger} (-> routes' :result request-method :data :swagger)
         ids (trie/into-set id)
         strip-top-level-keys #(dissoc % :id :info :host :basePath :definitions :securityDefinitions)
@@ -205,7 +216,7 @@
                                render? :render?
                                route-opt-map :route-opt-map}]
   (-> routes
-      xiana-routes->reitit-routes
+      (xiana-routes->reitit-routes all-methods)
       ((if (not (false? render?))
          #(routes->swagger-data % :route-opt-map route-opt-map)
          identity))
@@ -224,11 +235,13 @@
 
 (defn ->swagger-data
   "Update routes for swagger data generation."
+;;; vv maybe remove optional parameter here, because it is unused somehow!!!
   [config & {routes :routes
              internal? :internal?
              render? :render?
              type :type
-             route-opt-map :route-opt-map}]
+             route-opt-map :route-opt-map
+             :as m}]
   (let [internal? (or internal? true)
         render? (or render? true)
         type (or type :json)
@@ -236,12 +249,17 @@
         route-opt-map {:data (or (get-in config [:xiana/swagger :data])
                                  route-opt-map)}
         config (update-in config [:xiana/swagger :data] (constantly route-opt-map))]
+;;; ^^ this could be (assoc-in config [:xiana/swagger :data] route-opt-map) ??
+;;; it is adding nothing at all to config just eval the [:xiana/swagger :data]
+;;; only if :data must be a fn now it is doing something
+
     (if (swagger-configs-there? config)
       (let [routes (or routes
                        (get config :routes []))
             routes (if internal?
                      (apply conj routes (->default-internal-swagger-endpoints config))
                      routes)
+            _ (def routes* routes)
             routes-swagger-data (routes->swagger-json routes
                                                       :type type
                                                       :render? render?
