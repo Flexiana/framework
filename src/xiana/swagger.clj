@@ -89,7 +89,7 @@
 
 (defn routes->swagger-data [routes' & {route-opt-map :route-opt-map}]
   (let [request-method :get
-        routes' (-> (xiana-routes->reitit-routes routes' all-methods) (ring/router (or route-opt-map {})))
+        routes' (-> routes' (ring/router (or route-opt-map {})))
         {:keys [id] :or {id ::default} :as swagger} (-> routes' :result request-method :data :swagger)
         ids (trie/into-set id)
         strip-top-level-keys #(dissoc % :id :info :host :basePath :definitions :securityDefinitions)
@@ -189,7 +189,10 @@
 #_(-> (config/config {:framework-edn-config "config/dev/config.edn"})
       ->default-internal-swagger-ui-html)
 
-(defn ->default-internal-swagger-endpoints [config]
+
+(defn ->default-internal-swagger-endpoints
+  "This will return a vector of two items, swagger.json and swagger-ui, each a route vector"
+  [config]
   [(let [{:keys [uri-path]} (get-in config [:xiana/swagger-ui])]
      ^{:no-doc true}
      [uri-path
@@ -217,7 +220,7 @@
                                route-opt-map :route-opt-map}]
   (-> routes
       (xiana-routes->reitit-routes all-methods)
-      ((if (not (false? render?))
+      ((if render?
          #(routes->swagger-data % :route-opt-map route-opt-map)
          identity))
       ((cond
@@ -242,8 +245,8 @@
              type :type
              route-opt-map :route-opt-map
              :as m}]
-  (let [internal? (or internal? true)
-        render? (or render? true)
+  (let [internal? true
+        render? true
         type (or type :json)
         config (update-in config [:xiana/swagger :data] eval)
         route-opt-map {:data (or (get-in config [:xiana/swagger :data])
@@ -252,14 +255,12 @@
 ;;; ^^ this could be (assoc-in config [:xiana/swagger :data] route-opt-map) ??
 ;;; it is adding nothing at all to config just eval the [:xiana/swagger :data]
 ;;; only if :data must be a fn now it is doing something
-
     (if (swagger-configs-there? config)
       (let [routes (or routes
                        (get config :routes []))
             routes (if internal?
                      (apply conj routes (->default-internal-swagger-endpoints config))
                      routes)
-            _ (def routes* routes)
             routes-swagger-data (routes->swagger-json routes
                                                       :type type
                                                       :render? render?
