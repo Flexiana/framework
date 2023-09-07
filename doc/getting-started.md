@@ -166,7 +166,7 @@ Add following dependencies into *project.clj* file.
 
 ### 2. Set initial value of re-frame database
 
-File *src/frontend/todo_app/db.cljs* contains initial value of re-frame databse. Inside of this file replace value of *default-db* to following:
+File *src/frontend/todo_app/db.cljs* contains initial value of re-frame database. Inside of this file replace value of *default-db* to following:
 
 ```clojure
 (def default-db
