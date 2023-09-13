@@ -170,11 +170,16 @@
                                     (not-empty (get-in state [:request :multipart-params]))
                                     (not-empty (get-in state [:request :body-params])))
                     method (get-in state [:request :request-method])
-                    schemas (or (get-in state [:request-data :match :data method :parameters])
-                                (get-in state [:request-data :match :data :parameters]))
-                    cc (cond
-                         (:path schemas) (valid? (:path schemas) path)
-                         (:query schemas) (valid? (:query schemas) query)
-                         (:form schemas) (valid? (:form schemas) form-params))]
 
+                    schemas (merge (get-in state [:request-data :match :data :parameters])
+                                   (get-in state [:request-data :match :data method :parameters]))
+                    cc (cond-> {}
+                         (:path schemas)
+                         (assoc :path (valid? (:path schemas) path))
+
+                         (:query schemas)
+                         (assoc :query (valid? (:query schemas) query))
+
+                         (:form schemas)
+                         (assoc :form (valid? (:form schemas) form-params)))]
                 (update-in state [:request :params] merge cc))))})
