@@ -16,7 +16,8 @@
 (def start-one 1)
 
 (defonce all-methods
-  [:get :patch :trace :connect :delete :head :post :options :put])
+  #_[:get :patch :trace :connect :delete :head :post :options :put]
+  [:get :post])
 
 (defn xiana-route->reitit-route
   "xiana-route->reitit-route is taking route entry of our custom shape of routes
@@ -223,7 +224,7 @@
       ((if render?
          #(routes->swagger-data % :route-opt-map route-opt-map)
          identity))
-      ((cond
+      ((cond  
          (= type :json) json/write-value-as-string
          (= type :edn) identity
          :else identity))))
@@ -238,34 +239,20 @@
 
 (defn ->swagger-data
   "Update routes for swagger data generation."
-;;; vv maybe remove optional parameter here, because it is unused somehow!!!
-  [config & {routes :routes
-             internal? :internal?
-             render? :render?
-             type :type
-             route-opt-map :route-opt-map
-             :as m}]
+  [config]
   (let [internal? true
         render? true
-        type (or type :json)
+        type :json
         config (update-in config [:xiana/swagger :data] eval)
-        route-opt-map {:data (or (get-in config [:xiana/swagger :data])
-                                 route-opt-map)}
-        config (update-in config [:xiana/swagger :data] (constantly route-opt-map))]
-;;; ^^ this could be (assoc-in config [:xiana/swagger :data] route-opt-map) ??
-;;; it is adding nothing at all to config just eval the [:xiana/swagger :data]
-;;; only if :data must be a fn now it is doing something
+        route-opt-map {:data (get-in config [:xiana/swagger :data])}
+        config (assoc-in config [:xiana/swagger :data] route-opt-map)]
     (if (swagger-configs-there? config)
-      (let [routes (or routes
-                       (get config :routes []))
-            routes (if internal?
-                     (apply conj routes (->default-internal-swagger-endpoints config))
-                     routes)
+      (let [routes (get config :routes)
+            routes (apply conj routes (->default-internal-swagger-endpoints config))
             routes-swagger-data (routes->swagger-json routes
                                                       :type type
                                                       :render? render?
                                                       :route-opt-map route-opt-map)
-            #_"TODO: [@LeaveNhA] You can't just place not-found value."
             config-key (get-in config [:xiana/swagger :path] :swagger.json)]
         (-> config
             (assoc config-key routes-swagger-data)
