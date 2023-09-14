@@ -75,18 +75,10 @@
       nil
       (apply conj [url new-opt-map]
              (map #(xiana-route->reitit-route % all-methods) nested-routes)))))
-;;; ^^ changed the function to get all-methods
 
-(defn partial-second
-  [f second-arg]
-  (fn [x]
-    (f x second-arg)))
-
-;;; ^^ helper function for below vv we need this to keep the order of Seç
 (defn xiana-routes->reitit-routes [routes all-methods]
   (vec
-   (keep (partial-second xiana-route->reitit-route all-methods) routes)))
-;;; TODO ^^ use #(xiana-route->reitit-route % all-methods)
+   (keep #(xiana-route->reitit-route % all-methods) routes)))
 
 (defn routes->swagger-data [routes' & {route-opt-map :route-opt-map}]
   (let [request-method :get
@@ -219,15 +211,10 @@
                             & {type :type
                                render? :render?
                                route-opt-map :route-opt-map}]
-  (-> routes
-      (xiana-routes->reitit-routes all-methods)
-      ((if render?
-         #(routes->swagger-data % :route-opt-map route-opt-map)
-         identity))
-      ((cond  
-         (= type :json) json/write-value-as-string
-         (= type :edn) identity
-         :else identity))))
+  (let [reitit-routes (xiana-routes->reitit-routes routes all-methods)]
+    (if (and render? (= type :json))
+      (json/write-value-as-string (routes->swagger-data reitit-routes :route-opt-map route-opt-map))
+      reitit-routes)))
 
 (defn swagger-configs-there?
   "Checks if the config has the required keys for swagger functionality.
