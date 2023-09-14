@@ -80,40 +80,43 @@
   (vec
    (keep #(xiana-route->reitit-route % all-methods) routes)))
 
-(defn routes->swagger-data [routes' & {route-opt-map :route-opt-map}]
-  (let [request-method :get
-        routes' (-> routes' (ring/router (or route-opt-map {})))
-        {:keys [id] :or {id ::default} :as swagger} (-> routes' :result request-method :data :swagger)
-        ids (trie/into-set id)
-        strip-top-level-keys #(dissoc % :id :info :host :basePath :definitions :securityDefinitions)
-        strip-endpoint-keys #(dissoc % :id :parameters :responses :summary :description)
-        swagger (->> (strip-endpoint-keys swagger)
-                     (merge {:swagger "2.0"
-                             :x-id ids}))
-        swagger-path (fn [path opts]
-                       (-> path (trie/normalize opts) (str/replace #"\{\*" "{")))
-        base-swagger-spec {:responses ^:displace {:default {:description ""}}}
-        transform-endpoint (fn [[method {{:keys [coercion no-doc swagger] :as data} :data
-                                         middleware :middleware
-                                         interceptors :interceptors}]]
-                             (when (and data (not no-doc))
-                               [method
-                                (meta-merge
-                                 base-swagger-spec
-                                 (apply meta-merge (keep (comp :swagger :data) middleware))
-                                 (apply meta-merge (keep (comp :swagger :data) interceptors))
-                                 (when coercion
-                                   (rcoercion/get-apidocs coercion :swagger data))
-                                 (select-keys data [:tags :summary :description])
-                                 (strip-top-level-keys swagger))]))
-        transform-path (fn [[p _ c]]
-                         (when-let [endpoint (some->> c (keep transform-endpoint) (seq) (into {}))]
-                           [(swagger-path p (r/options routes')) endpoint]))
+(defn strip-top-level-keys
+  [m]
+  (dissoc m :id :info :host :basePath :definitions :securityDefinitions))
+
+(def base-swagger-spec {:responses ^:displace {:default {:description ""}}})
+
+(defn transform-endpoint
+  [[method {{:keys [coercion no-doc swagger] :as data} :data
+            middleware :middleware
+            interceptors :interceptors}]]
+  (when (and data (not no-doc))
+    [method
+     (meta-merge
+      base-swagger-spec
+      (apply meta-merge (keep (comp :swagger :data) middleware))
+      (apply meta-merge (keep (comp :swagger :data) interceptors))
+      (when coercion
+        (rcoercion/get-apidocs coercion :swagger data))
+      (select-keys data [:tags :summary :description])
+      (strip-top-level-keys swagger))]))
+
+(defn swagger-path
+  [path opts]
+  (-> path (trie/normalize opts) (str/replace #"\{\*" "{")))
+
+(defn transform-path
+  [[p _ c] router]
+  (when-let [endpoint (some->> c (keep transform-endpoint) (seq) (into {}))]
+    [(swagger-path p (r/options router)) endpoint]))
+
+(defn routes->swagger-data [routes & {route-opt-map :route-opt-map}]
+  (let [router (ring/router routes (or route-opt-map {}))
+        swagger {:swagger "2.0"
+                 :x-id ::default}
         map-in-order #(->> % (apply concat) (apply array-map))
-        paths (->> routes' (r/compiled-routes)
-                   ;; (filter accept-route)
-                   ;; (map transform-endpoint)
-                   (map transform-path)
+        paths (->> router (r/compiled-routes)
+                   (map #(transform-path % router))
                    map-in-order)]
     (meta-merge swagger {:paths paths})))
 
