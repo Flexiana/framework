@@ -4,7 +4,9 @@
     [clojure.pprint :refer [pprint]]
     [clojure.walk :refer [keywordize-keys]]
     [malli.core :as m]
+    [malli.error :as me]
     [malli.transform :as mt]
+    [ring.middleware.multipart-params :refer [multipart-params-request]]
     [ring.middleware.params :as middleware.params]
     [xiana.interceptor.muuntaja :as muuntaja]
     [xiana.session :as session])
@@ -53,9 +55,9 @@
   Leave: nil."
   {:name  ::params
    :enter (fn [state]
-            (let [f #(keywordize-keys
-                       ((middleware.params/wrap-params identity) %))]
-              (update state :request f)))})
+            (let [wrap-params #(keywordize-keys
+                                 ((middleware.params/wrap-params identity) %))]
+              (update state :request (comp wrap-params multipart-params-request))))})
 
 (defn message                                               ; TODO: remove, use logger
   "This interceptor creates a function that prints predefined message.
@@ -68,7 +70,7 @@
 (defn session-user-id
   "This interceptor handles the session user id management.
   Enter: Get the session id from the request header, if
-  that operation doesn't succeeds a new session is created an associated to the
+  that operation doesn't succeed a new session is created an associated to the
   current state, otherwise the cached session data is used.
   Leave: Verify if the state has a session id, if so add it to
   the session instance and remove the new session property of the current state.
@@ -143,7 +145,7 @@
               (update state :request dissoc :body :body-params)
               state))})
 
-(defn- valid? [?schema data]
+(defn valid? [?schema data]
   (let [value (m/decode ?schema data (mt/transformer
                                        (mt/json-transformer)
                                        (mt/string-transformer)
@@ -151,9 +153,8 @@
         details (m/explain ?schema value)]
     (if (nil? details)
       value
-      (throw (ex-info "Request schema validation error"
-                      {:xiana/response {:status 400
-                                        :body   (pr-str details)}})))))
+      (throw (ex-info "Request schema validation/coercion error"
+                      {:xiana/response {:details (me/humanize details)}})))))
 
 (def coercion
   "On enter: validates request parameters
@@ -161,7 +162,7 @@
   on request error: responds {:status 400, :body \"Request coercion failed\"}
   on response error: responds {:status 400, :body \"Response validation failed\"}"
   {:enter (fn [state]
-            (if (= :options (-> state :request :request-method))
+            (if (= :options (get-in state [:request :request-method]))
               state
               (let [path (get-in state [:request-data :match :path-params])
                     query (get-in state [:request :query-params])
@@ -169,6 +170,7 @@
                                     (not-empty (get-in state [:request :multipart-params]))
                                     (not-empty (get-in state [:request :body-params])))
                     method (get-in state [:request :request-method])
+
                     schemas (merge (get-in state [:request-data :match :data :parameters])
                                    (get-in state [:request-data :match :data method :parameters]))
                     cc (cond-> {}
@@ -180,5 +182,4 @@
 
                          (:form schemas)
                          (assoc :form (valid? (:form schemas) form-params)))]
-
                 (update-in state [:request :params] merge cc))))})

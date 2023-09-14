@@ -59,17 +59,17 @@
       (wrap/middleware->enter middleware/wrap-format-request)
       (wrap/middleware->leave middleware/wrap-format-response)))
 
-(deftest contains-midleware-enter
+(deftest contains-middleware-enter
   (let [enter (:enter (wrap/middleware->enter middleware/wrap-format-request))
         result (enter sample-state)]
     ;; verify middleware identity
     (is (= result sample-state))))
 
-(deftest contains-midleware-leave
+(deftest contains-middleware-leave
   (let [leave (:leave (wrap/middleware->leave middleware/wrap-format-request))]
     (is (function? leave))))
 
-(deftest contains-middleware-formated-response-body
+(deftest contains-middleware-formatted-response-body
   (is (= ByteArrayInputStream
          (-> ((:leave middleware-interceptor) sample-state)
              :response

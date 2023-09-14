@@ -7,7 +7,7 @@
     [xiana-fixture :as fixture]
     [xiana.handler :refer [handler-fn]]
     [xiana.interceptor :as interceptors]
-    [xiana.interceptor.error]
+    [xiana.interceptor.error :as error]
     [xiana.rbac :as rbac]
     [xiana.session :as session])
   (:import
@@ -52,7 +52,7 @@
   {:routes                  routes
    :session-backend         backend
    :xiana/role-set          role-set
-   :controller-interceptors [xiana.interceptor.error/response
+   :controller-interceptors [error/response
                              interceptors/params
                              session/interceptor
                              rbac/interceptor]})
