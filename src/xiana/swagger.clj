@@ -13,8 +13,6 @@
    [reitit.trie :as trie]
    [ring.util.response]))
 
-(def start-one 1)
-
 (defonce all-methods
   #_[:get :patch :trace :connect :delete :head :post :options :put]
   [:get :post])
@@ -76,7 +74,9 @@
       (apply conj [url new-opt-map]
              (map #(xiana-route->reitit-route % all-methods) nested-routes)))))
 
-(defn xiana-routes->reitit-routes [routes all-methods]
+(defn xiana-routes->reitit-routes
+  "Transforms routes to the proper reitit form."
+ [routes all-methods]
   (vec
    (keep #(xiana-route->reitit-route % all-methods) routes)))
 
@@ -106,21 +106,27 @@
   (-> path (trie/normalize opts) (str/replace #"\{\*" "{")))
 
 (defn transform-path
-  [[p _ c] router]
-  (when-let [endpoint (some->> c (keep transform-endpoint) (seq) (into {}))]
-    [(swagger-path p (r/options router)) endpoint]))
+  "Transform a path of a compiled route to swagger format."
+  [[path _ api-verb-map] router]
+  (when-let [endpoint (some->> api-verb-map (keep transform-endpoint) (seq) (into {}))]
+    [(swagger-path path (r/options router)) endpoint]))
 
-(defn routes->swagger-data [routes & {route-opt-map :route-opt-map}]
+(defn routes->swagger-data
+  "Creates the json representation of the routes "
+ [routes & {route-opt-map :route-opt-map}]
   (let [router (ring/router routes (or route-opt-map {}))
         swagger {:swagger "2.0"
                  :x-id ::default}
         map-in-order #(->> % (apply concat) (apply array-map))
-        paths (->> router (r/compiled-routes)
+        paths (->> router
+                   (r/compiled-routes)
                    (map #(transform-path % router))
                    map-in-order)]
     (meta-merge swagger {:paths paths})))
 
-(defn ->default-internal-swagger-ui-html [config]
+(defn ->default-internal-swagger-ui-html
+  "Generate the html for swagger UI"
+ [config]
   (let [schema-protocol (get-in config [:deps :xiana/web-server :protocol] :http)
         swagger-json-uri-path (get-in config [:deps :xiana/swagger :uri-path])]
     (h/html [:html {:lang "en"}
@@ -210,10 +216,11 @@
                             ring.util.response/response
                             (ring.util.response/header "Content-Type" "application/json; charset=utf-8"))))}])])
 
-(defn routes->swagger-json [routes
-                            & {type :type
-                               render? :render?
-                               route-opt-map :route-opt-map}]
+(defn routes->swagger-json
+  "Create swagger.json for all methods for each endpoint"
+  [routes & {type :type
+             render? :render?
+             route-opt-map :route-opt-map}]
   (let [reitit-routes (xiana-routes->reitit-routes routes all-methods)]
     (if (and render? (= type :json))
       (json/write-value-as-string (routes->swagger-data reitit-routes :route-opt-map route-opt-map))
@@ -228,7 +235,7 @@
   (every? some? ((juxt :xiana/swagger-ui :xiana/swagger) config)))
 
 (defn ->swagger-data
-  "Update routes for swagger data generation."
+  "Update config with swagger data"
   [config]
   (let [internal? true
         render? true
