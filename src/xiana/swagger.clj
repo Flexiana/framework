@@ -237,8 +237,7 @@
 (defn ->swagger-data
   "Update config with swagger data"
   [config]
-  (let [internal? true
-        render? true
+  (let [render? true
         type :json
         config (update-in config [:xiana/swagger :data] eval)
         route-opt-map {:data (get-in config [:xiana/swagger :data])}
