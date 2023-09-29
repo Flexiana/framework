@@ -1,6 +1,6 @@
 (ns xiana.state-test
   (:require
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is]]
     [xiana.state :as state]))
 
 (def state-initial-map

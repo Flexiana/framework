@@ -1,6 +1,6 @@
 (ns xiana.interceptor.queue-test
   (:require
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is testing]]
     [xiana.interceptor.queue :as queue]))
 
 (def A-interceptor
@@ -202,7 +202,7 @@
           (= last-leave "F-leave")
           (= response expected)))))
 
-(deftest queue-both-interceptors-execution
+(deftest queue-both-interceptors-execution-test
   (let [state (make-state ok-action except-interceptors)
         result (queue/execute state default-interceptors)
         response (:response result)

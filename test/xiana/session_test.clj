@@ -1,6 +1,6 @@
 (ns xiana.session-test
   (:require
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is]]
     [xiana.session :as session])
   (:import
     (java.util
@@ -22,7 +22,8 @@
 (deftest session-protocol-delete!
   (let [user-id (session/fetch session-instance :user-id)]
     ;; remove user identification
-    (session/delete! session-instance :user-id)
+    (when user-id
+      (session/delete! session-instance :user-id))
     ;; verify if was removed
     (is (nil? (session/fetch session-instance :user-id)))))
 

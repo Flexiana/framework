@@ -1,6 +1,6 @@
 (ns xiana.config-test
   (:require
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is]]
     [xiana.config :as config]))
 
 (def config-map (config/config))

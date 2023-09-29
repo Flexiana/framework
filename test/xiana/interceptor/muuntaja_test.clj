@@ -1,7 +1,7 @@
 (ns xiana.interceptor.muuntaja-test
   (:require
     [clojure.string :as str]
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is]]
     [muuntaja.format.core :as format]
     [xiana.interceptor.muuntaja :as muuntaja]))
 

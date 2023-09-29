@@ -1,6 +1,6 @@
 (ns xiana.rbac.interceptor-test
   (:require
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is]]
     [honeysql.helpers :as sql]
     [tiny-rbac.builder :as b]
     [xiana.rbac :refer [interceptor]]
