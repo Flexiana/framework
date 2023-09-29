@@ -3,8 +3,7 @@
     [clojure.test :refer :all]
     [xiana.route :as route]
     [xiana.route.helpers :as helpers]
-    [xiana.state :as state]
-    [xiana.swagger :as xsw]))
+    [xiana.state :as state]))
 
 (def sample-request
   {:uri "/" :request-method :get})
