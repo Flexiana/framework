@@ -13,9 +13,8 @@
    [reitit.trie :as trie]
    [ring.util.response]))
 
-(defonce all-methods
-  #_[:get :patch :trace :connect :delete :head :post :options :put]
-  [:get :post])
+(def all-methods
+  [:get :patch :trace :connect :delete :head :post :options :put])
 
 (defn xiana-route->reitit-route
   "xiana-route->reitit-route is taking route entry of our custom shape of routes
@@ -222,8 +221,14 @@
              render? :render?
              route-opt-map :route-opt-map}]
   (let [reitit-routes (xiana-routes->reitit-routes routes all-methods)]
-    (if (and render? (= type :json))
-      (json/write-value-as-string (routes->swagger-data reitit-routes :route-opt-map route-opt-map))
+    (if render?
+      (let [swagger-data (routes->swagger-data reitit-routes :route-opt-map route-opt-map)]
+        (cond
+          (= type :json)
+          (json/write-value-as-string swagger-data)
+
+          (= type :edn)
+          swagger-data))
       reitit-routes)))
 
 (defn swagger-configs-there?
@@ -254,3 +259,6 @@
             (assoc config-key routes-swagger-data)
             (assoc :routes routes)))
       config)))
+
+(comment
+  (->swagger-data {}))
