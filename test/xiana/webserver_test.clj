@@ -1,6 +1,6 @@
 (ns xiana.webserver-test
   (:require
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest function? is]]
     [xiana.handler :refer [handler-fn]]
     [xiana.route :as route]))
 

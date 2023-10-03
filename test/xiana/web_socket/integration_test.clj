@@ -1,7 +1,7 @@
 (ns xiana.web-socket.integration-test
   (:require
     [clj-http.client :as client]
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is use-fixtures]]
     [http.async.client :as a-client]
     [taoensso.timbre :as log]
     [xiana-fixture :as fixture]

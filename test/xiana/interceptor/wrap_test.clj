@@ -1,6 +1,6 @@
 (ns xiana.interceptor.wrap-test
   (:require
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest function? is]]
     [muuntaja.middleware :as middleware]
     [xiana.interceptor.wrap :as wrap])
   (:import

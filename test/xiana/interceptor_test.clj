@@ -1,6 +1,6 @@
 (ns xiana.interceptor-test
   (:require
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is testing]]
     [xiana.db :as db]
     [xiana.interceptor :as interceptor]
     [xiana.session :as session]))

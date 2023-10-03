@@ -1,7 +1,7 @@
 (ns xiana.web-socket.router-test
   (:require
     [clojure.data.json :as json]
-    [clojure.test :refer :all]
+    [clojure.test :refer [deftest is]]
     [reitit.core :as r]
     [xiana.interceptor :as interceptors]
     [xiana.websockets :refer [router]]))
