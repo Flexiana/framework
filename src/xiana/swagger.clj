@@ -191,29 +191,31 @@
       ->default-internal-swagger-ui-html)
 
 
-(defn ->default-internal-swagger-endpoints
-  "This will return a vector of two items, swagger.json and swagger-ui, each a route vector"
+(defn- swagger-ui-endpoint
   [config]
-  [(let [{:keys [uri-path]} (get-in config [:xiana/swagger-ui])]
-     ^{:no-doc true}
-     [uri-path
-      {:get {:action
-             (fn [state]
-               (assoc state
-                      :response
-                      (-> state
-                          ->default-internal-swagger-ui-html
-                          ring.util.response/response
-                          (ring.util.response/header "Content-Type" "text/html; charset=utf-8"))))}}])
-   (let [{:keys [uri-path]} (get-in config [:xiana/swagger])]
-     ^{:no-doc true}
-     [uri-path
-      {:action (fn [state]
-                 (assoc state
-                        :response
-                        (-> (str (-> state :deps ((get-in state [:deps :xiana/swagger :path]))))
-                            ring.util.response/response
-                            (ring.util.response/header "Content-Type" "application/json; charset=utf-8"))))}])])
+  (let [{:keys [uri-path]} (get-in config [:xiana/swagger-ui])]
+    ^{:no-doc true}
+    [uri-path
+     {:get {:action
+            (fn [state]
+              (assoc state
+                     :response
+                     (-> state
+                         ->default-internal-swagger-ui-html
+                         ring.util.response/response
+                         (ring.util.response/header "Content-Type" "text/html; charset=utf-8"))))}}]))
+
+(defn- swagger-json-endpoint
+  [config]
+  (let [{:keys [uri-path]} (get-in config [:xiana/swagger])]
+    ^{:no-doc true}
+    [uri-path
+     {:action (fn [state]
+                (assoc state
+                       :response
+                       (-> (str (-> state :deps ((get-in state [:deps :xiana/swagger :path]))))
+                           ring.util.response/response
+                           (ring.util.response/header "Content-Type" "application/json; charset=utf-8"))))}]))
 
 (defn routes->swagger-json
   "Create swagger.json for all methods for each endpoint"
@@ -231,7 +233,7 @@
           swagger-data))
       reitit-routes)))
 
-(defn swagger-configs-there?
+(defn swagger-config?
   "Checks if the config has the required keys for swagger functionality.
    Required keys:
    * :xiana/swagger
@@ -239,26 +241,23 @@
   [config]
   (every? some? ((juxt :xiana/swagger-ui :xiana/swagger) config)))
 
-(defn ->swagger-data
-  "Update config with swagger data"
+(defn add-swagger-endpoints
+  "Takes the config and returns it with the swagger endpoints added"
   [config]
   (let [render? true
         type :json
         config (update-in config [:xiana/swagger :data] eval)
         route-opt-map {:data (get-in config [:xiana/swagger :data])}
         config (assoc-in config [:xiana/swagger :data] route-opt-map)]
-    (if (swagger-configs-there? config)
+    (if (swagger-config? config)
       (let [routes (get config :routes)
-            routes (apply conj routes (->default-internal-swagger-endpoints config))
-            routes-swagger-data (routes->swagger-json routes
-                                                      :type type
-                                                      :render? render?
-                                                      :route-opt-map route-opt-map)
-            config-key (get-in config [:xiana/swagger :path] :swagger.json)]
+            swagger-routes (apply conj routes [(swagger-ui-endpoint config) (swagger-json-endpoint config)])
+            json-routes (routes->swagger-json swagger-routes
+                                              :type type
+                                              :render? render?
+                                              :route-opt-map route-opt-map)
+            swagger-data-endpoint-key (get-in config [:xiana/swagger :path] :swagger.json)]
         (-> config
-            (assoc config-key routes-swagger-data)
-            (assoc :routes routes)))
+            (assoc swagger-data-endpoint-key json-routes)
+            (assoc :routes swagger-routes)))
       config)))
-
-(comment
-  (->swagger-data {}))
