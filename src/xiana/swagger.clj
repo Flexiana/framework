@@ -205,17 +205,20 @@
                          ring.util.response/response
                          (ring.util.response/header "Content-Type" "text/html; charset=utf-8"))))}}]))
 
+(defn swagger-json-endpoint-action
+  [state]
+  (assoc state
+         :response
+         (-> (str (-> state :deps :swagger.json))
+             ring.util.response/response
+             (ring.util.response/header "Content-Type" "application/json; charset=utf-8"))))
+
 (defn- swagger-json-endpoint
   [config]
   (let [{:keys [uri-path]} (get-in config [:xiana/swagger])]
     ^{:no-doc true}
     [uri-path
-     {:action (fn [state]
-                (assoc state
-                       :response
-                       (-> (str (-> state :deps ((get-in state [:deps :xiana/swagger :path]))))
-                           ring.util.response/response
-                           (ring.util.response/header "Content-Type" "application/json; charset=utf-8"))))}]))
+     {:action swagger-json-endpoint-action}]))
 
 (defn routes->swagger-json
   "Create swagger.json for all methods for each endpoint"
@@ -255,9 +258,10 @@
             json-routes (routes->swagger-json swagger-routes
                                               :type type
                                               :render? render?
-                                              :route-opt-map route-opt-map)
-            swagger-data-endpoint-key (get-in config [:xiana/swagger :path] :swagger.json)]
+                                              :route-opt-map route-opt-map)]
         (-> config
-            (assoc swagger-data-endpoint-key json-routes)
+            (assoc :swagger.json json-routes)
             (assoc :routes swagger-routes)))
       config)))
+
+
