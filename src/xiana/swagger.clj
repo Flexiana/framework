@@ -45,7 +45,6 @@
           {:handler #function[clojure.core/identity], :action :swagger-ui},
           :some-values true}]
   "
-;;; changed the order of args to not break functions
   [[url opt-map & nested-routes :as route] all-methods]
   (let [new-opt-map (if (:action opt-map)
                       (let [action' (:action opt-map)
@@ -110,7 +109,7 @@
   (when-let [endpoint (some->> api-verb-map (keep transform-endpoint) (seq) (into {}))]
     [(swagger-path path (r/options router)) endpoint]))
 
-(defn routes->swagger-data
+(defn routes->swagger-map
   "Creates the json representation of the routes "
  [routes & {route-opt-map :route-opt-map}]
   (let [router (ring/router routes (or route-opt-map {}))
@@ -220,21 +219,15 @@
     [uri-path
      {:action swagger-json-endpoint-action}]))
 
-(defn routes->swagger-json
+(defn swagger-dot-json
   "Create swagger.json for all methods for each endpoint"
   [routes & {type :type
-             render? :render?
              route-opt-map :route-opt-map}]
-  (let [reitit-routes (xiana-routes->reitit-routes routes all-methods)]
-    (if render?
-      (let [swagger-data (routes->swagger-data reitit-routes :route-opt-map route-opt-map)]
-        (cond
-          (= type :json)
-          (json/write-value-as-string swagger-data)
-
-          (= type :edn)
-          swagger-data))
-      reitit-routes)))
+  (let [reitit-routes (xiana-routes->reitit-routes routes all-methods)
+        swagger-map (routes->swagger-map reitit-routes :route-opt-map route-opt-map)]
+    (cond
+      (= type :json) (json/write-value-as-string swagger-map)
+      (= type :edn)  swagger-map)))
 
 (defn swagger-config?
   "Checks if the config has the required keys for swagger functionality.
@@ -247,17 +240,15 @@
 (defn add-swagger-endpoints
   "Takes the config and returns it with the swagger endpoints added"
   [config]
-  (let [render? true
-        type :json
+  (let [type :json
         config (update-in config [:xiana/swagger :data] eval)
         route-opt-map {:data (get-in config [:xiana/swagger :data])}
         config (assoc-in config [:xiana/swagger :data] route-opt-map)]
     (if (swagger-config? config)
       (let [routes (get config :routes)
             swagger-routes (apply conj routes [(swagger-ui-endpoint config) (swagger-json-endpoint config)])
-            json-routes (routes->swagger-json swagger-routes
+            json-routes (swagger-dot-json swagger-routes
                                               :type type
-                                              :render? render?
                                               :route-opt-map route-opt-map)]
         (-> config
             (assoc :swagger.json json-routes)
