@@ -1,17 +1,16 @@
 (ns xiana.swagger
   (:require
-   [clojure.string :as str]
-   [hiccup.core :as h]
-   [jsonista.core :as json]
-   [malli.util]
-   [meta-merge.core :refer [meta-merge]]
-   [reitit.coercion :as rcoercion]
-   [reitit.coercion.malli]
-   [reitit.core :as r]
-   [reitit.ring :as ring]
-   [reitit.swagger]
-   [reitit.trie :as trie]
-   [ring.util.response]))
+    [clojure.string :as str]
+    [hiccup.core :as h]
+    [jsonista.core :as json]
+    [malli.util]
+    [meta-merge.core :refer [meta-merge]]
+    [reitit.coercion :as coercion]
+    [reitit.coercion.malli]
+    [reitit.core :as r]
+    [reitit.ring :as ring]
+    [reitit.trie :as trie]
+    [ring.util.response]))
 
 (def all-methods
   [:get :patch :trace :connect :delete :head :post :options :put])
@@ -74,9 +73,9 @@
 
 (defn xiana-routes->reitit-routes
   "Transforms routes to the proper reitit form."
- [routes all-methods]
+  [routes all-methods]
   (vec
-   (keep #(xiana-route->reitit-route % all-methods) routes)))
+    (keep #(xiana-route->reitit-route % all-methods) routes)))
 
 (defn strip-top-level-keys
   [m]
@@ -91,13 +90,13 @@
   (when (and data (not no-doc))
     [method
      (meta-merge
-      base-swagger-spec
-      (apply meta-merge (keep (comp :swagger :data) middleware))
-      (apply meta-merge (keep (comp :swagger :data) interceptors))
-      (when coercion
-        (rcoercion/get-apidocs coercion :swagger data))
-      (select-keys data [:tags :summary :description])
-      (strip-top-level-keys swagger))]))
+       base-swagger-spec
+       (apply meta-merge (keep (comp :swagger :data) middleware))
+       (apply meta-merge (keep (comp :swagger :data) interceptors))
+       (when coercion
+         (coercion/get-apidocs coercion :swagger data))
+       (select-keys data [:tags :summary :description])
+       (strip-top-level-keys swagger))]))
 
 (defn swagger-path
   [path opts]
@@ -111,7 +110,7 @@
 
 (defn routes->swagger-map
   "Creates the json representation of the routes "
- [routes & {route-opt-map :route-opt-map}]
+  [routes & {route-opt-map :route-opt-map}]
   (let [router (ring/router routes (or route-opt-map {}))
         swagger {:swagger "2.0"
                  :x-id ::default}
@@ -122,9 +121,12 @@
                    map-in-order)]
     (meta-merge swagger {:paths paths})))
 
+#_(-> (config/config {:framework-edn-config "config/dev/config.edn"})
+      ->default-internal-swagger-ui-html)
+
 (defn ->default-internal-swagger-ui-html
   "Generate the html for swagger UI"
- [config]
+  [config]
   (let [schema-protocol (get-in config [:deps :xiana/web-server :protocol] :http)
         swagger-json-uri-path (get-in config [:deps :xiana/swagger :uri-path])]
     (h/html [:html {:lang "en"}
@@ -186,10 +188,6 @@
     );
 };")]]])))
 
-#_(-> (config/config {:framework-edn-config "config/dev/config.edn"})
-      ->default-internal-swagger-ui-html)
-
-
 (defn- swagger-ui-endpoint
   [config]
   (let [{:keys [uri-path]} (get-in config [:xiana/swagger-ui])]
@@ -248,11 +246,9 @@
       (let [routes (get config :routes)
             swagger-routes (apply conj routes [(swagger-ui-endpoint config) (swagger-json-endpoint config)])
             json-routes (swagger-dot-json swagger-routes
-                                              :type type
-                                              :route-opt-map route-opt-map)]
+                                          :type type
+                                          :route-opt-map route-opt-map)]
         (-> config
             (assoc :swagger.json json-routes)
             (assoc :routes swagger-routes)))
       config)))
-
-
