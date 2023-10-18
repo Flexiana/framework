@@ -1,6 +1,7 @@
 (ns xiana.swagger-test
-  (:require [xiana.swagger :as sut]
-            [clojure.test :as t :refer [deftest is testing]]))
+  (:require
+    [clojure.test :as t :refer [deftest is testing]]
+    [xiana.swagger :as sut]))
 
 (def sample-routes
   "Sample routes structure."
@@ -36,11 +37,11 @@
             (is (= generated-route-count 1))))
         (testing "Actions should generate every methods"
           (let [index-generated-methods-by-sample (->
-                                                   generated-swagger-data
-                                                   :paths
-                                                   (get "/")
-                                                   keys
-                                                   set)]
+                                                    generated-swagger-data
+                                                    :paths
+                                                    (get "/")
+                                                    keys
+                                                    set)]
             (is (= index-generated-methods-by-sample
                    (set sut/all-methods)))))))
 
@@ -50,40 +51,19 @@
                                        (sut/swagger-dot-json :type :edn))]
         (testing "One swagger route for one route entry?"
           (let [generated-route-count (->
-                                       generated-swagger-data
-                                       :paths
-                                       keys
-                                       count)]
+                                        generated-swagger-data
+                                        :paths
+                                        keys
+                                        count)]
             (is (= generated-route-count
                    1))))
         (testing "Actions should generate every methods"
           (let [index-generated-methods-by-sample (->
-                                                   generated-swagger-data
-                                                   :paths
-                                                   (get "/")
-                                                   keys
-                                                   set)]
+                                                    generated-swagger-data
+                                                    :paths
+                                                    (get "/")
+                                                    keys
+                                                    set)]
             (is (=
-                 index-generated-methods-by-sample
-                 (set sut/all-methods)))))))))
-
-
-
-
-
-(comment
-;  (def all-methods [:get :post])
-  ;; (deftest routes
-  ;;   (testing "single-route"
-  ;;     (= ["/"
-  ;;         {:action :swagger-ui
-  ;;          :some-values true
-  ;;          :get
-  ;;          {:handler #'identity :action :swagger-ui}
-  ;;          :post
-  ;;          {:handler #'identity :action :swagger-ui}}]
-  ;;        (sut/xiana-route->reitit-route
-  ;;         all-methods
-  ;;         ["/" {:action :swagger-ui
-  ;;               :some-values true}]))))
-  )
+                  index-generated-methods-by-sample
+                  (set sut/all-methods)))))))))
