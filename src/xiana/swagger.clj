@@ -9,6 +9,7 @@
     [reitit.coercion.malli]
     [reitit.core :as r]
     [reitit.ring :as ring]
+    [reitit.swagger]
     [reitit.trie :as trie]
     [ring.util.response]))
 
