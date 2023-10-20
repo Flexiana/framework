@@ -16,6 +16,9 @@ Xiana has its own Leiningen template, so you can create a skeleton project with
 ```shell
 lein new xiana app
 ```
+
+It also has a deps.edn template. Instructions for using it are [here](https://github.com/Flexiana/templates)
+
 [getting-started](./doc/getting-started.md) explains how to use this to create a very simple app with a db, a backend offering an API, and a frontend that displays something from the database.
 
 ### As a dependency
