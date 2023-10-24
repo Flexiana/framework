@@ -15,9 +15,17 @@
   "Sample routes structure."
   {:routes [["/" {:action :action}]]})
 
+(def sample-routes-with-no-doc
+  "Sample routes structure with no-documentation meta flag."
+  {:routes [^{:no-doc true} ["/" {:action :action}]]})
+
 (def sample-routes-with-handler
   "Sample routes structure."
   {:routes [["/" {:handler :handler}]]})
+
+(def sample-routes-with-handler-and-no-doc
+  "Sample routes structure with no-documentation meta flag."
+  {:routes [^{:no-doc true} ["/" {:handler :handler}]]})
 
 (def sample-routes-without-action
   "Sample routes structure (without action or handler)."
@@ -89,3 +97,4 @@
         expected helpers/not-found]
     ;; verify if action has the expected value
     (is (= action expected))))
+

@@ -1,5 +1,5 @@
 (ns xiana.route.helpers
-  "The default not found, unauthorized and action functions")
+  "The default not found and action functions")
 
 (defn not-found
   "Default not-found response handler helper."
