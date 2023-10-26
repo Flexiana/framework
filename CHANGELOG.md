@@ -1,5 +1,8 @@
 ## Unreleased
 
+## 0.5.0-rc4
+
+- added swagger-ui
 - Fix `xiana.db/in-transaction` to support any `java.sql.Connection`
 - Add support for custom datasource
 - JWT signing support for authentication and content exchange via interceptors.
