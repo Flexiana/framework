@@ -1,5 +1,10 @@
 ## Unreleased
 
+## 0.5.0-rc5
+
+- Bump info.sunng/ring-jetty9-adapter ring adapter library
+- Refactor swagger
+
 ## 0.5.0-rc4
 
 - added swagger-ui
