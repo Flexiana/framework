@@ -13,64 +13,68 @@
     [reitit.trie :as trie]
     [ring.util.response]))
 
+;; "xiana-route->reitit-route is taking route entry of our custom shape of routes
+;; and transforms it into proper reitit route entry that is valid on the Swagger
+;; implemention of reitit.
+
+;; (xiana-route->reitit-route [\"/swagger-ui\" {:action :swagger-ui
+;;                                              :some-values true}])
+;; ;; => [\"/swagger-ui\"
+;;        {:get
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :patch
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :trace
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :connect
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :delete
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :head
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :post
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :action :swagger-ui,
+;;         :options
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :put
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :some-values true}]
+;; "
+
 (def all-methods
   [:get :patch :trace :connect :delete :head :post :options :put])
 
-(defn xiana-route->reitit-route
-  "xiana-route->reitit-route is taking route entry of our custom shape of routes
-  and transforms it into proper reitit route entry that is valid on the Swagger
-  implemention of reitit.
+(defn- no-method?
+  [opt-map]
+  (:action opt-map))
 
-  (xiana-route->reitit-route [\"/swagger-ui\" {:action :swagger-ui
-                                               :some-values true}])
-  ;; => [\"/swagger-ui\"
-         {:get
-          {:handler #function[clojure.core/identity], :action :swagger-ui},
-          :patch
-          {:handler #function[clojure.core/identity], :action :swagger-ui},
-          :trace
-          {:handler #function[clojure.core/identity], :action :swagger-ui},
-          :connect
-          {:handler #function[clojure.core/identity], :action :swagger-ui},
-          :delete
-          {:handler #function[clojure.core/identity], :action :swagger-ui},
-          :head
-          {:handler #function[clojure.core/identity], :action :swagger-ui},
-          :post
-          {:handler #function[clojure.core/identity], :action :swagger-ui},
-          :action :swagger-ui,
-          :options
-          {:handler #function[clojure.core/identity], :action :swagger-ui},
-          :put
-          {:handler #function[clojure.core/identity], :action :swagger-ui},
-          :some-values true}]
-  "
+(defn- reduce-opt-map
+  [opt-map all-methods]
+  (reduce (fn [acc method]
+            (if (get acc method)
+              (if (get-in acc [method :handler])
+                acc
+                (-> acc
+                    (assoc-in [method :handler] identity)))
+              acc))
+          opt-map
+          all-methods))
+
+(defn- process-opt-map
+  [opt-map all-methods]
+  (if (no-method? opt-map)
+    (-> opt-map
+        (assoc-in [:get :handler] identity)
+        (assoc-in [:get :action] (:action opt-map)))
+    (reduce-opt-map opt-map all-methods)))
+
+(defn xiana-route->reitit-route
   [[url opt-map & nested-routes :as route] all-methods]
-  (let [new-opt-map (if (:action opt-map)
-                      (let [action' (:action opt-map)
-                            swagger-base-of-endpoint (:swagger-* opt-map)]
-                        (reduce (fn [acc method]
-                                  (-> acc
-                                      (assoc-in [method :handler] identity)
-                                      (assoc-in [method :action] action')
-                                      (merge swagger-base-of-endpoint)))
-                                opt-map
-                                all-methods))
-                      (let [swagger-base-of-endpoint (get opt-map :swagger-* {})]
-                        (reduce (fn [acc method]
-                                  (if (get acc method)
-                                    (if (get-in acc [method :handler])
-                                      acc
-                                      (-> acc
-                                          (assoc-in [method :handler] identity)
-                                          (merge swagger-base-of-endpoint)))
-                                    acc))
-                                opt-map
-                                all-methods)))]
-    (if (-> route meta :no-doc)
-      nil
-      (apply conj [url new-opt-map]
-             (map #(xiana-route->reitit-route % all-methods) nested-routes)))))
+  (when-not (-> route meta :no-doc)
+    (apply conj
+           [url (process-opt-map opt-map all-methods)]
+           (map #(xiana-route->reitit-route % all-methods) nested-routes))))
 
 (defn xiana-routes->reitit-routes
   "Transforms routes to the proper reitit form."

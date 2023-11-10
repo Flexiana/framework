@@ -57,7 +57,7 @@
                                         count)]
             (is (= generated-route-count
                    1))))
-        (testing "Actions should generate every methods"
+        (testing "Actions should generate only get methods if not specified"
           (let [index-generated-methods-by-sample (->
                                                     generated-swagger-data
                                                     :paths
@@ -66,4 +66,4 @@
                                                     set)]
             (is (=
                   index-generated-methods-by-sample
-                  (set sut/all-methods)))))))))
+                  (set [:get])))))))))
