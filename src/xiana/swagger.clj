@@ -13,35 +13,34 @@
     [reitit.trie :as trie]
     [ring.util.response]))
 
+;; "xiana-route->reitit-route is taking route entry of our custom shape of routes
+;; and transforms it into proper reitit route entry that is valid on the Swagger
+;; implemention of reitit.
 
-  ;; "xiana-route->reitit-route is taking route entry of our custom shape of routes
-  ;; and transforms it into proper reitit route entry that is valid on the Swagger
-  ;; implemention of reitit.
-
-  ;; (xiana-route->reitit-route [\"/swagger-ui\" {:action :swagger-ui
-  ;;                                              :some-values true}])
-  ;; ;; => [\"/swagger-ui\"
-  ;;        {:get
-  ;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
-  ;;         :patch
-  ;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
-  ;;         :trace
-  ;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
-  ;;         :connect
-  ;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
-  ;;         :delete
-  ;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
-  ;;         :head
-  ;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
-  ;;         :post
-  ;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
-  ;;         :action :swagger-ui,
-  ;;         :options
-  ;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
-  ;;         :put
-  ;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
-  ;;         :some-values true}]
-  ;; "
+;; (xiana-route->reitit-route [\"/swagger-ui\" {:action :swagger-ui
+;;                                              :some-values true}])
+;; ;; => [\"/swagger-ui\"
+;;        {:get
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :patch
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :trace
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :connect
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :delete
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :head
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :post
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :action :swagger-ui,
+;;         :options
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :put
+;;         {:handler #function[clojure.core/identity], :action :swagger-ui},
+;;         :some-values true}]
+;; "
 
 (def all-methods
   [:get :patch :trace :connect :delete :head :post :options :put])
@@ -69,7 +68,6 @@
         (assoc-in [:get :handler] identity)
         (assoc-in [:get :action] (:action opt-map)))
     (reduce-opt-map opt-map all-methods)))
-
 
 (defn xiana-route->reitit-route
   [[url opt-map & nested-routes :as route] all-methods]
