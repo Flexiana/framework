@@ -2,27 +2,27 @@
  :deps  {org.clojure/clojure                     {:mvn/version "1.11.1"}
          org.clojure/core.async                  {:mvn/version "1.5.648"}
          org.clojure/tools.cli                   {:mvn/version "1.0.206"}
-         org.clojure/data.json                   {:mvn/version "2.4.0"},
-         org.clojure/data.xml                    {:mvn/version "0.0.8"},
-         com.draines/postal                      {:mvn/version "2.0.5"},
-         com.flexiana/tiny-rbac                  {:mvn/version "0.1.1"},
-         com.taoensso/timbre                     {:mvn/version "5.2.1"},
-         crypto-password/crypto-password         {:mvn/version "0.3.0"},
-         funcool/cuerdas                         {:mvn/version "2.2.1"},
-         info.sunng/ring-jetty9-adapter          {:mvn/version "0.30.1"},
-         metosin/malli                           {:mvn/version "0.8.4"},
-         metosin/reitit                          {:mvn/version "0.5.18"},
-         ;; migratus/migratus               {:mvn/version "1.3.7"},
+         org.clojure/data.json                   {:mvn/version "2.4.0"}
+         org.clojure/data.xml                    {:mvn/version "0.0.8"}
+         com.draines/postal                      {:mvn/version "2.0.5"}
+         com.flexiana/tiny-rbac                  {:mvn/version "0.1.1"}
+         com.taoensso/timbre                     {:mvn/version "5.2.1"}
+         crypto-password/crypto-password         {:mvn/version "0.3.0"}
+         funcool/cuerdas                         {:mvn/version "2.2.1"}
+         info.sunng/ring-jetty9-adapter          {:mvn/version "0.30.1"}
+         metosin/malli                           {:mvn/version "0.8.4"}
+         metosin/reitit                          {:mvn/version "0.5.18"}
+         ;; migratus/migratus               {:mvn/version "1.3.7"}
          migratus/migratus                       {:git/url "https://github.com/Flexiana/migratus"
                                                   :sha     "fba4aa9d57da6cc6a1d6e8c4a2b4198ad5a44315"}
-         nilenso/honeysql-postgres               {:mvn/version "0.4.112"},
-         buddy/buddy-core                        {:mvn/version "1.10.413"},
-         buddy/buddy-sign                        {:mvn/version "3.4.333"},
-         org.clojure/java.jdbc                   {:mvn/version "0.7.12"},
-         clj-test-containers/clj-test-containers {:mvn/version "0.7.2"},
-         org.postgresql/postgresql               {:mvn/version "42.3.3"},
-         piotr-yuxuan/closeable-map              {:mvn/version "0.35.0"},
-         seancorfield/next.jdbc                  {:mvn/version "1.2.659"},
+         nilenso/honeysql-postgres               {:mvn/version "0.4.112"}
+         buddy/buddy-core                        {:mvn/version "1.10.413"}
+         buddy/buddy-sign                        {:mvn/version "3.4.333"}
+         org.clojure/java.jdbc                   {:mvn/version "0.7.12"}
+         clj-test-containers/clj-test-containers {:mvn/version "0.7.2"}
+         org.postgresql/postgresql               {:mvn/version "42.3.3"}
+         piotr-yuxuan/closeable-map              {:mvn/version "0.35.0"}
+         seancorfield/next.jdbc                  {:mvn/version "1.2.659"}
          yogthos/config                          {:mvn/version "1.2.0"}
          hikari-cp/hikari-cp                     {:mvn/version "3.0.1"}
          org.slf4j/slf4j-simple                  {:mvn/version "2.0.7"}
