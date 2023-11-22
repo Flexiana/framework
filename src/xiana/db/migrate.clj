@@ -63,7 +63,7 @@
       (zero? (count arguments)) {:exit-message (error-msg ["Missing action"])}
 
       ;; wrong action
-      (not (#{"migrate" "rollback" "create"} (first arguments))) {:exit-message (error-msg ["Wrong action name"])}
+      (not (#{"migrate" "rollback" "create" "reset"} (first arguments))) {:exit-message (error-msg ["Wrong action name"])}
 
       ;; missing required config opt for migrate and rollback
       (and (some #{"migrate" "rollback"} arguments)
@@ -100,6 +100,10 @@
   ([config] (mig/rollback config))
   ([config id] (mig/rollback-until-just-after config (Long/parseLong id))))
 
+(defn reset
+  [config]
+  (mig/reset config))
+
 (defn create-script
   [dir name]
   (mig/create {:migration-dir dir} name))
@@ -117,6 +121,14 @@
     (if-let [id (:id options)]
       (migrate cfg id)
       (migrate cfg))))
+
+(defn reset-action
+  [options]
+  (log/info "Reset database")
+  (log/debug "options:" options)
+  (let [cfg (get-db-config (load-config options))]
+    (log/debug "config:" cfg)
+    (reset cfg)))
 
 (defn rollback-action
   [options]
@@ -144,7 +156,8 @@
       (case action
         "migrate"  (migrate-action options)
         "rollback" (rollback-action options)
-        "create"   (create-script-action options)))))
+        "create"   (create-script-action options)
+        "reset"    (reset-action options)))))
 
 (defn -main
   [& args]
