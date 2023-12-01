@@ -55,8 +55,7 @@
             (if (get acc method)
               (if (get-in acc [method :handler])
                 acc
-                (-> acc
-                    (assoc-in [method :handler] identity)))
+                (assoc-in acc [method :handler] identity))
               acc))
           opt-map
           all-methods))
@@ -118,7 +117,8 @@
   [routes & {route-opt-map :route-opt-map}]
   (let [router (ring/router routes (or route-opt-map {}))
         swagger {:swagger "2.0"
-                 :x-id ::default}
+                 :x-id ::default
+                 :info (get-in route-opt-map [:data :info])}
         map-in-order #(->> % (apply concat) (apply array-map))
         paths (->> router
                    (r/compiled-routes)
