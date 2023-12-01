@@ -55,8 +55,7 @@
             (if (get acc method)
               (if (get-in acc [method :handler])
                 acc
-                (-> acc
-                    (assoc-in [method :handler] identity)))
+                (assoc-in acc [method :handler] identity))
               acc))
           opt-map
           all-methods))
