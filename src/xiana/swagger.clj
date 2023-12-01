@@ -119,7 +119,7 @@
   (let [router (ring/router routes (or route-opt-map {}))
         swagger {:swagger "2.0"
                  :x-id ::default
-                 :info {:title (get-in route-opt-map [:data :description])}}
+                 :info (get-in route-opt-map [:data :info])}
         map-in-order #(->> % (apply concat) (apply array-map))
         paths (->> router
                    (r/compiled-routes)
