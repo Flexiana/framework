@@ -29,7 +29,7 @@
          camel-snake-kebab/camel-snake-kebab     {:mvn/version "0.4.3"}
          ring/ring                               {:mvn/version "1.10.0"}
          javax.servlet/servlet-api               {:mvn/version "2.5"}
-         hiccup/hiccup                           {:mvn/version "1.0.5"}}
+         hiccup/hiccup                           {:mvn/version "2.0.0-RC2"}}
 
  :aliases
  {:dev
