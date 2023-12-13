@@ -1,5 +1,13 @@
 ## Unreleased
 
+## 0.5.0-rc6
+
+- kebab camel interceptor for all request type #263
+- dev/reset migratus #264
+- Add swagger documentation #266
+- Feature/swagger toplevel description #268
+- Bump hiccup/hiccup to version 2.0.0-RC2 #269
+
 ## 0.5.0-rc5
 
 - Bump info.sunng/ring-jetty9-adapter ring adapter library

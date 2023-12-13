@@ -121,3 +121,4 @@ pom.xml.asc
 .clj-kondo/*
 !.clj-kondo/config.edn
 *.iml
+doc/swagger.org
