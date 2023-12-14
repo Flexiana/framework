@@ -1,7 +1,8 @@
 (ns post-helpers
   (:require
     [clojure.data.json :refer [read-str]]
-    [helpers]))
+    [helpers]
+    [jsonista.core :as j]))
 
 (defn init-db-with-two-posts
   []
