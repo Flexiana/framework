@@ -25,7 +25,7 @@
 (defn json->
   "JSON to 'uri', converts json string to map, extract :action key"
   [j]
-  (:action (read-str j :key-fn keyword)))
+  (:action (j/read-value j j/keyword-keys-object-mapper)))
 
 (defn probe->
   [e]
