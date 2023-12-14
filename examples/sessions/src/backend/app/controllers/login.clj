@@ -41,7 +41,7 @@
                     :response {:status  200
                                :headers {"Content-Type" "application/json"
                                          "Session-id"   (str session-id)}
-                               :body    (json/write-str (update session-data :session-id str))}))
+                               :body    (j/write-value-as-string (update session-data :session-id str))}))
            (assoc state :response {:status 401
                                    :body   "Incorrect credentials"})))
        (catch Exception _ (missing-credentials state))))
