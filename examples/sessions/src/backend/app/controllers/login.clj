@@ -1,6 +1,6 @@
 (ns app.controllers.login
   (:require
-    [clojure.data.json :as json]
+    [jsonista.core :as j]
     [ring.util.request :refer [body-string]]
     [xiana.session :as session])
   (:import
