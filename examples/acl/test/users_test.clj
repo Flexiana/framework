@@ -18,7 +18,7 @@
   [response]
   (-> response
       :body
-      (json/read-str :key-fn keyword)
+      (j/read-value j/keyword-keys-object-mapper)
       :data
       :users))
 
