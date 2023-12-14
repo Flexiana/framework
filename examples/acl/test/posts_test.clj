@@ -3,7 +3,6 @@
     [acl]
     [acl-fixture]
     [clj-http.client :as http]
-    [clojure.data.json :as json]
     [clojure.test :refer [deftest is use-fixtures]]
     [helpers :refer [delete
                      put
