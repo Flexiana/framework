@@ -23,7 +23,7 @@
                 :body    (j/write-value-as-string {:email    email
                                                    :password password})})
       :body
-      (json/read-str :key-fn keyword)
+      (j/read-value j/keyword-keys-object-mapper)
       :auth-token))
 
 (deftest unauthorized-secret
@@ -67,6 +67,6 @@
     (is (= 200 (:status new-token)))
     (is (map? (xiana.jwt/verify-jwt
                 :no-claims
-                (-> new-token :body (json/read-str :key-fn keyword) :auth-token)
+                (-> new-token :body (j/read-value j/keyword-keys-object-mapper) :auth-token)
                 (get-in @jwt-fixture/test-system [:xiana/jwt :auth]))))))
 
