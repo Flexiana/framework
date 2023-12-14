@@ -3,6 +3,7 @@
     [clojure.data.json :refer [read-str]]
     [clojure.edn :as edn]
     [clojure.string :as str]
+    [jsonista.core :as j]
     [reitit.core :as r]
     [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log]
