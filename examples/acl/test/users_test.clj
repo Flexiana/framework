@@ -9,6 +9,7 @@
                      post
                      test_member
                      test_admin]]
+    [jsonista.core :as j]
     [post-helpers]))
 
 (use-fixtures :once acl-fixture/std-system-fixture)
