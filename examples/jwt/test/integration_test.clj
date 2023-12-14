@@ -3,6 +3,7 @@
     [clj-http.client :refer [request]]
     [clojure.data.json :as json]
     [clojure.test :refer [deftest is use-fixtures]]
+    [jsonista.core :as j]
     [jwt-fixture :refer [std-system-fixture]]))
 
 (use-fixtures :once std-system-fixture)
