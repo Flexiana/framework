@@ -1,7 +1,6 @@
 (ns users-test
   (:require
     [acl-fixture]
-    [clojure.data.json :as json]
     [clojure.test :refer [deftest is use-fixtures]]
     [helpers :refer [delete
                      put
