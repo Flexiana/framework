@@ -1,6 +1,5 @@
 (ns xiana.websockets
   (:require
-    [clojure.data.json :refer [read-str]]
     [clojure.edn :as edn]
     [clojure.string :as str]
     [jsonista.core :as j]
