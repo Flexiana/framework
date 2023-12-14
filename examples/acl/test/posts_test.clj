@@ -12,6 +12,7 @@
                      test_member
                      test_admin
                      test_staff]]
+    [jsonista.core :as j]
     [post-helpers :refer [post-ids
                           update-count
                           init-db-with-two-posts
