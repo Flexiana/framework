@@ -3,7 +3,8 @@
     [clojure.core.async :as async :refer (<! go-loop)]
     [clojure.data.json :as json]
     [ring.adapter.jetty9 :as jetty]
-    [taoensso.timbre :as log])
+    [taoensso.timbre :as log]
+    [jsonista.core :as j])
   (:import
     (java.lang
       AutoCloseable)))
