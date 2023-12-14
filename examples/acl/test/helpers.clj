@@ -1,7 +1,8 @@
 (ns helpers
   (:require
     [clj-http.client :refer [request]]
-    [clojure.data.json :refer [write-str]]))
+    [clojure.data.json :refer [write-str]]
+    [jsonista.core :as j]))
 
 (def test_member "611d7f8a-456d-4f3c-802d-4d869dcd89bf")
 (def test_admin "b651939c-96e6-4fbb-88fb-299e728e21c8")
