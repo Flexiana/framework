@@ -20,7 +20,7 @@
                                        :content "Test comment on first post"})
     (let [new-posts (-> (helpers/fetch "posts/comments" test_admin)
                         :body
-                        (read-str :key-fn keyword)
+                        (j/read-value j/keyword-keys-object-mapper)
                         :data
                         :posts)]
       (is (= 1 (->> (filter #(#{first-id} (:posts/id %)) new-posts)
@@ -37,7 +37,7 @@
   [response]
   (-> response
       :body
-      (read-str :key-fn keyword)
+      (j/read-value j/keyword-keys-object-mapper)
       :data
       :comments))
 
