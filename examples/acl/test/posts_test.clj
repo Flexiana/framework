@@ -152,7 +152,7 @@
                 :headers              {"Authorization" test_admin
                                        "Content-Type"  "application/json;charset=utf-8"}
                 :unexceptional-status (constantly true)
-                :body                 (json/write-str {:ids (butlast ids)})
+                :body                 (j/write-value-as-string {:ids (butlast ids)})
                 :method               :post}
                http/request
                :body
