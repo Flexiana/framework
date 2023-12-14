@@ -2,7 +2,6 @@
   (:require
     [acl]
     [acl-fixture :refer [std-system-fixture]]
-    [clojure.data.json :refer [read-str]]
     [clojure.test :refer [deftest is use-fixtures]]
     [helpers :refer [test_member
                      test_admin]]
