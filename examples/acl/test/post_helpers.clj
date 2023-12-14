@@ -13,7 +13,7 @@
 (defn post-ids
   [body]
   (map :posts/id (-> body
-                     (read-str :key-fn keyword)
+                     (j/read-value j/keyword-keys-object-mapper)
                      :data
                      :posts)))
 
@@ -26,6 +26,6 @@
 (defn update-count
   [body]
   (-> body
-      (read-str :key-fn clojure.core/keyword)
+      (j/read-value j/keyword-keys-object-mapper)
       (get-in [:data :posts])
       count))
