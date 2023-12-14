@@ -30,7 +30,7 @@
 
 (deftest router-test
   (let [string-action "/log-string"
-        json-action (json/write-str {:action :log-json})
+        json-action (j/write-value-as-string {:action :log-json})
         edn-action "{:action :log-edn}"]
     (is (= "Log was called via string"
            (-> (routing {:request-data
