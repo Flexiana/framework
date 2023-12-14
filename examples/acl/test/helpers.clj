@@ -47,14 +47,14 @@
              :headers              {"Authorization" test_admin
                                     "Content-Type"  "application/json;charset=utf-8"}
              :url                  (format "http://localhost:3333/%s" (name uri))
-             :body                 (write-str content)}))
+             :body                 (j/write-value-as-string content)}))
   ([uri user content]
    (request {:unexceptional-status (constantly true)
              :method               :put
              :headers              {"Authorization" user
                                     "Content-Type"  "application/json;charset=utf-8"}
              :url                  (format "http://localhost:3333/%s" (name uri))
-             :body                 (write-str content)})))
+             :body                 (j/write-value-as-string content)})))
 
 (defn post
   [uri user id content]
@@ -64,5 +64,5 @@
                                    "Content-Type"  "application/json;charset=utf-8"}
             :url                  (format "http://localhost:3333/%s" (name uri))
             :query-params         {:id id}
-            :body                 (write-str content)}))
+            :body                 (j/write-value-as-string content)}))
 
