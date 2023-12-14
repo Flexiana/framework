@@ -169,7 +169,7 @@
                                       :content "test comment on test post"})
         result (-> (fetch "posts/comments" test_member)
                    :body
-                   (json/read-str :key-fn keyword)
+                   (j/read-value j/keyword-keys-object-mapper)
                    :data
                    :posts
                    first)]
