@@ -2,6 +2,7 @@
   (:require
     [clojure.data.json :as json]
     [clojure.test :refer [deftest is]]
+    [jsonista.core :as j]
     [reitit.core :as r]
     [xiana.interceptor :as interceptors]
     [xiana.websockets :refer [router]]))
