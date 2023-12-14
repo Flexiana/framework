@@ -6,6 +6,7 @@
     [clojure.test :refer [deftest is use-fixtures]]
     [helpers :refer [test_member
                      test_admin]]
+    [jsonista.core :as j]
     [post-helpers :refer [init-db-with-two-posts
                           all-post-ids]]))
 
