@@ -28,7 +28,7 @@
   [{request :request :as state}]
   (try (let [rbody (or (some-> request
                                body-string
-                               (json/read-str :key-fn keyword))
+                               (j/read-value j/keyword-keys-object-mapper))
                        (throw (ex-message "Missing body")))
              user (find-user (:email rbody))
              session-id (UUID/randomUUID)
