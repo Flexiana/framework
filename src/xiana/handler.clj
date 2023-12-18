@@ -25,8 +25,11 @@
     ([http-request]
      (let [websocket? (jetty/ws-upgrade-request? http-request)
            state (state/make deps http-request)
-           queue (list #(interceptor.queue/execute % (:router-interceptors deps))
+           enter-routes (map #(select-keys % [:enter :name]) (:router-interceptors deps))
+           leave-routes (map #(select-keys % [:leave :name]) (:router-interceptors deps))
+           queue (list #(interceptor.queue/execute % enter-routes)
                        #(route/match %)
+                       #(interceptor.queue/execute % leave-routes)
                        #(interceptor.queue/execute % (if websocket?
                                                        (:web-socket-interceptors deps)
                                                        (:controller-interceptors deps))))
