@@ -7,10 +7,7 @@
     [xiana-fixture :as fixture]
     [xiana.interceptor :as interceptors]
     [xiana.rbac :as rbac]
-    [xiana.websockets :as ws])
-  (:import
-    (java.util
-      UUID)))
+    [xiana.websockets :as ws]))
 
 (defn echo [{req :request :as state}]
   (assoc-in state [:response-data :channel]
@@ -47,7 +44,7 @@
 (deftest http-async
   (with-open [client (a-client/create-client)]
     (let [latch (promise)
-          session-id (str (UUID/randomUUID))
+          session-id (str (random-uuid))
           ws (a-client/websocket client "ws://localhost:3333/ws"
                                  :headers {:session-id session-id}
                                  :text (fn [_con mesg]

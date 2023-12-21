@@ -9,10 +9,7 @@
     [ring.middleware.multipart-params :refer [multipart-params-request]]
     [ring.middleware.params :as middleware.params]
     [xiana.interceptor.muuntaja :as muuntaja]
-    [xiana.session :as session])
-  (:import
-    (java.util
-      UUID)))
+    [xiana.session :as session]))
 
 (def log
   "Log interceptor.
@@ -80,7 +77,7 @@
   {:enter
    (fn [{request :request :as state}]
      (let [session-backend (-> state :deps :session-backend)
-           session-id (try (UUID/fromString
+           session-id (try (parse-uuid
                              (get-in request [:headers :session-id]))
                            (catch Exception _ nil))
            session-data (when session-id
@@ -91,7 +88,7 @@
          (assoc state :session-data session-data)
          ;; else, associate a new session
          (assoc-in
-           (assoc-in state [:session-data :session-id] (UUID/randomUUID))
+           (assoc-in state [:session-data :session-id] (random-uuid))
            [:session-data :new-session] true))))
    :leave
    (fn [state]

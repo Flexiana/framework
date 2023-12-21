@@ -1,10 +1,7 @@
 (ns interceptors.load-user
   (:require
     [honeysql.helpers :refer [select from where]]
-    [xiana.db :as db])
-  (:import
-    (java.util
-      UUID)))
+    [xiana.db :as db]))
 
 (defn ->role
   [user]
@@ -18,7 +15,7 @@
 
 (defn valid-user?
   [{:keys [request] :as state}]
-  (let [user-id (UUID/fromString (get-in request [:headers :authorization]))
+  (let [user-id (parse-uuid (get-in request [:headers :authorization]))
         datasource (get-in state [:deps :db :datasource])
         query (-> {}
                   (select :*)
@@ -31,8 +28,8 @@
 (def load-user!
   {:enter (fn [{:keys [request] :as state}]
             (let [guest-user {:users/role :guest
-                              :users/id   (UUID/randomUUID)}
-                  session-id (get-in request [:headers :session-id] (UUID/randomUUID))
+                              :users/id   (random-uuid)}
+                  session-id (get-in request [:headers :session-id] (random-uuid))
                   user (try (let [valid-user (valid-user? state)]
                               (if (empty? valid-user)
                                 guest-user

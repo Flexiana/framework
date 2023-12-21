@@ -4,9 +4,7 @@
     [tick.core :as t])
   (:import
     (java.sql
-      Timestamp)
-    (java.util
-      UUID)))
+      Timestamp)))
 
 (defn- clean-pg
   [obj]
@@ -36,7 +34,7 @@
         creator (-> state :session-data :users/id)
         event {:payload     p
                :resource    (name (:resource params))
-               :resource-id (UUID/fromString (:id params))
+               :resource-id (parse-uuid (:id params))
                :modified-at (Timestamp/from (t/now))
                :action      action
                :creator     creator}]

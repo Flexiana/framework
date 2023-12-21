@@ -3,10 +3,7 @@
   (:require
     [honeysql.format :as sqlf]
     [next.jdbc.result-set :refer [as-kebab-maps]]
-    [xiana.db :as db])
-  (:import
-    (java.util
-      UUID)))
+    [xiana.db :as db]))
 
 ;; define session protocol
 (defprotocol Session
@@ -73,7 +70,7 @@
              ;; add session key:element
              (add!
                [_ k v]
-               (let [k (or k (UUID/randomUUID))]
+               (let [k (or k (random-uuid))]
                  (when v (first (map unpack (db/execute ds (insert-session k v)))))))
              ;; delete session key:element
              (delete! [_ k] (first (map unpack (db/execute ds (delete-session k)))))
@@ -95,7 +92,7 @@
             ;; add session key:element
             (add!
               [_ k v]
-              (let [k (or k (UUID/randomUUID))]
+              (let [k (or k (random-uuid))]
                 (swap! m assoc k v)))
             ;; delete session key:element
             (delete! [_ k] (swap! m dissoc k))
@@ -113,7 +110,7 @@
                                :value)
                       (some->> query-params
                                :SESSIONID))]
-    (and (seq uuid) (UUID/fromString uuid))))
+    (and (seq uuid) (parse-uuid uuid))))
 
 (defn- fetch-session
   [state]
@@ -148,8 +145,8 @@
 (defn add-guest-user
   [state]
   (let [session-backend (-> state :deps :session-backend)
-        session-id (UUID/randomUUID)
-        user-id (UUID/randomUUID)
+        session-id (random-uuid)
+        user-id (random-uuid)
         session-data {:session-id session-id
                       :users/role :guest
                       :users/id   user-id}]
@@ -164,8 +161,8 @@
      (try (fetch-session state)
           (catch Exception _ ; TODO: more specific exception, it might be better to return nil when session is missing
             (let [session-backend (-> state :deps :session-backend)
-                  session-id (UUID/randomUUID)
-                  user-id (UUID/randomUUID)
+                  session-id (random-uuid)
+                  user-id (random-uuid)
                   session-data {:session-id session-id
                                 :users/role :guest
                                 :users/id   user-id}]

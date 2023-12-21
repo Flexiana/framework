@@ -8,17 +8,14 @@
                               left-join
                               sset
                               delete-from]
-     :as helpers])
-  (:import
-    (java.util
-      UUID)))
+     :as helpers]))
 
 (defn fetch-query
   [{{{id :id} :query-params} :request
     :as                      state}]
   (assoc state :query (cond->
                         (from (select :*) :posts)
-                        id (where [:= :id (UUID/fromString id)]))))
+                        id (where [:= :id (parse-uuid id)]))))
 
 (defn add-query
   [{{user-id :users/id} :session-data
@@ -35,7 +32,7 @@
   (let [content (or (get-in state [:request :params :content])
                     (get-in state [:request :body-params :content]))]
     (assoc state :query (-> (helpers/update :posts)
-                            (where [:= :id (UUID/fromString id)])
+                            (where [:= :id (parse-uuid id)])
                             (sset {:content content})))))
 
 (defn delete-query
@@ -43,15 +40,15 @@
     :as                      state}]
   (assoc state :query (cond->
                         (delete-from :posts)
-                        id (where [:= :id (UUID/fromString id)]))))
+                        id (where [:= :id (parse-uuid id)]))))
 
 (defn fetch-by-ids-query
   [{{{ids :ids} :body-params} :request
     :as                       state}]
   (assoc state :query (cond->
                         (from (select :*) :posts)
-                        ids (where [:in :id (map #(UUID/fromString %) [ids])])
-                        (coll? ids) (where [:in :id (map #(UUID/fromString %) ids)]))))
+                        ids (where [:in :id (map #(parse-uuid %) [ids])])
+                        (coll? ids) (where [:in :id (map #(parse-uuid %) ids)]))))
 
 (defn fetch-with-comments-query
   [{{{id :id} :query-params} :request
@@ -59,4 +56,4 @@
   (assoc state :query (cond-> (-> (select :*)
                                   (from :posts)
                                   (left-join :comments [:= :posts.id :comments.post_id]))
-                        id (where [:= :posts.id (UUID/fromString id)]))))
+                        id (where [:= :posts.id (parse-uuid id)]))))

@@ -48,7 +48,8 @@
                                                        :headers
                                                        :body-params
                                                        :query-params
-                                                       :multipart-params]))
+                                                       :multipart-params
+                                                       :path-params]))
                   cc (coercion/coerce! (get-in state [:request-data :match]))]
               (update-in state [:request :params] merge cc)))
    :error (fn [{exception :error :as state}]

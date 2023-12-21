@@ -2,10 +2,7 @@
   (:require
     [clojure.data.json :as json]
     [ring.util.request :refer [body-string]]
-    [xiana.session :as session])
-  (:import
-    (java.util
-      UUID)))
+    [xiana.session :as session]))
 
 (def db
   [{:id         1
@@ -31,7 +28,7 @@
                                (json/read-str :key-fn keyword))
                        (throw (ex-message "Missing body")))
              user (find-user (:email rbody))
-             session-id (UUID/randomUUID)
+             session-id (random-uuid)
              session-data {:session-id session-id
                            :user       (dissoc user :password)}]
          (if (and user (= (:password user) (:password rbody)))

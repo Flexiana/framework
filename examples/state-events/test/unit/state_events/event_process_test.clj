@@ -1,10 +1,7 @@
 (ns unit.state-events.event-process-test
   (:require
     [clojure.test :refer :all]
-    [state-events.interceptors.event-process :as pr])
-  (:import
-    (java.util
-      UUID)))
+    [state-events.interceptors.event-process :as pr]))
 
 (defn- <-db
   "Mimics database store and query"
@@ -14,8 +11,8 @@
                 event)))
 
 (deftest event-interceptor-handles-one-event
-  (let [resource-uuid (UUID/fromString "68849768-fc9f-4602-814e-8b6cbeedd4b3")
-        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+  (let [resource-uuid (parse-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3")
+        user-id (parse-uuid "54749a36-8305-4adb-a69c-d447ea19de45")
         state {:request      {:params {:id       (str resource-uuid)
                                        :action   :create
                                        :resource :persons}
@@ -40,7 +37,7 @@
 
 (deftest event-interceptor-aggregates-events
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
-        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        user-id (parse-uuid "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:id       resource-uuid
                                   :action   :create
                                   :resource :persons}
@@ -96,7 +93,7 @@
 
 (deftest event-interceptor-one-undo-events
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
-        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        user-id (parse-uuid "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:action   :create
                                   :id       resource-uuid
                                   :resource :persons}
@@ -137,7 +134,7 @@
 
 (deftest event-interceptor-two-undo-events
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
-        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        user-id (parse-uuid "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:action   :create
                                   :id       resource-uuid
                                   :resource :persons}
@@ -187,7 +184,7 @@
 
 (deftest event-interceptor-modify-after-undo
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
-        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        user-id (parse-uuid "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:action   :create
                                   :id       resource-uuid
                                   :resource :persons}
@@ -235,7 +232,7 @@
 
 (deftest event-interceptor-clean
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
-        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        user-id (parse-uuid "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:action   :create
                                   :id       resource-uuid
                                   :resource :persons}
@@ -276,7 +273,7 @@
 
 (deftest event-interceptor-clean-and-modify
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
-        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        user-id (parse-uuid "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:id       resource-uuid
                                   :action   :create
                                   :resource :persons}
@@ -333,7 +330,7 @@
 
 (deftest event-interceptor-one-undo-and-redo
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
-        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        user-id (parse-uuid "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:action   :create
                                   :id       resource-uuid
                                   :resource :persons}
@@ -379,7 +376,7 @@
 
 (deftest event-interceptor-clean-and-undo
   (let [resource-uuid "68849768-fc9f-4602-814e-8b6cbeedd4b3"
-        user-id (UUID/fromString "54749a36-8305-4adb-a69c-d447ea19de45")
+        user-id (parse-uuid "54749a36-8305-4adb-a69c-d447ea19de45")
         event-requests [{:params {:action   :create
                                   :id       resource-uuid
                                   :resource :persons}

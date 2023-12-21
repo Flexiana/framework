@@ -9,10 +9,7 @@
     [xiana.interceptor :as interceptors]
     [xiana.interceptor.error :as error]
     [xiana.rbac :as rbac]
-    [xiana.session :as session])
-  (:import
-    (java.util
-      UUID)))
+    [xiana.session :as session]))
 
 (defn restriction-fn
   [state]
@@ -61,14 +58,14 @@
 
 (def guest
   {:users/role :guest
-   :users/id   (str (UUID/randomUUID))})
+   :users/id   (str (random-uuid))})
 
 (def member
   {:users/role :member
-   :users/id   (str (UUID/randomUUID))})
+   :users/id   (str (random-uuid))})
 
 (deftest delete-request-by-member
-  (let [session-id (UUID/randomUUID)
+  (let [session-id (random-uuid)
         _          (session/add! backend session-id (assoc member :session-id session-id))
         response   (http/delete "http://localhost:3333/api/image"
                                 {:throw-exceptions false
@@ -76,7 +73,7 @@
     (is (= 200 (:status response)))))
 
 (deftest delete-request-by-guest
-  (let [session-id (UUID/randomUUID)
+  (let [session-id (random-uuid)
         _          (session/add! backend session-id (assoc guest :session-id session-id))
         response   (http/delete "http://localhost:3333/api/image"
                                 {:throw-exceptions false

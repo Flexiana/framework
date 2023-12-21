@@ -22,7 +22,7 @@
 </code></pre>
 <p>To implement login, you need to <a href="tutorials.md#interceptor-overriding">use the session interceptor</a> in</p>
 <pre><code class="clojure">(let [;; Create a unique ID
-      session-id (UUID/randomUUID)]
+      session-id (random-uuid)]
   ;; Store a new session in session storage
   (add! session-storage session-id {:session-id session-id})
   ;; Make sure session-id is part of the response
@@ -45,7 +45,7 @@
 <pre><code class="clojure">(let [;; Get user from database result
       user (-&gt; state :response-data :db-data first)
       ;; Create session
-      session-id (UUID/randomUUID)]
+      session-id (random-uuid)]
   ;; Store the new session in session storage. Notice the addition of user. 
   (add! session-storage session-id (assoc user :session-id session-id))
   ;; Make sure session-id is part of the response
@@ -60,7 +60,7 @@
                ;; Remove password for session storage
                (dissoc :users/password))
       ;; Create session id
-      session-id (UUID/randomUUID)]
+      session-id (random-uuid)]
   ;; Store the new session in session storage
   (add! session-storage session-id (assoc user :session-id session-id))
   ;; Make sure session-id is part of the response
@@ -76,7 +76,7 @@
                  ;; Remove password for session storage
                  (dissoc :users/password))
         ;; Create session ID
-        session-id (UUID/randomUUID)]
+        session-id (random-uuid)]
     ;; Store the new session in session storage
     (add! session-storage session-id (assoc user :session-id session-id))
     ;; Make sure session-id is part of the response
