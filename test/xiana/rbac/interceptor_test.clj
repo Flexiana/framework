@@ -4,10 +4,7 @@
     [honeysql.helpers :as sql]
     [tiny-rbac.builder :as b]
     [xiana.rbac :refer [interceptor]]
-    [xiana.session :as session])
-  (:import
-    (java.util
-      UUID)))
+    [xiana.session :as session]))
 
 (def role-set
   (-> (b/add-resource {} :image)
@@ -22,19 +19,19 @@
 
 (def guest
   {:users/role :guest
-   :users/id   (str (UUID/randomUUID))})
+   :users/id   (str (random-uuid))})
 
 (def member
   {:users/role :member
-   :users/id   (str (UUID/randomUUID))})
+   :users/id   (str (random-uuid))})
 
 (def mixed
   {:users/role :mixed
-   :users/id   (str (UUID/randomUUID))})
+   :users/id   (str (random-uuid))})
 
 (defn state
   [user permission]
-  (let [session-id (str (UUID/randomUUID))
+  (let [session-id (str (random-uuid))
         session-backend (:session-backend (session/init-backend {}))]
     (session/add! session-backend session-id user)
     (-> (assoc-in {} [:request-data :permission] permission)
@@ -86,7 +83,7 @@
 
 (deftest restrictions
   (let [user member
-        image-id (str (UUID/randomUUID))]
+        image-id (str (random-uuid))]
     (is (= {:delete [:*],
             :from   [:images],
             :where  [:and
@@ -99,7 +96,7 @@
                :query))
         "Add filter if user has restricted to ':own'"))
   (let [user guest
-        image-id (str (UUID/randomUUID))]
+        image-id (str (random-uuid))]
     (is (thrown-with-msg? Exception #"Forbidden"
           (-> (state user :image/delete)
               ((:enter interceptor))
@@ -108,7 +105,7 @@
               :response)
           "Returns 403: Forbidden if action is forbidden"))
     (let [user mixed
-          image-id (str (UUID/randomUUID))]
+          image-id (str (random-uuid))]
       (is (= {:delete [:*],
               :from   [:images],
               :where  [:= :id image-id]}

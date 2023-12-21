@@ -7,10 +7,7 @@
     [next.jdbc :as jdbc]
     [xiana.commons :as commons]
     [xiana.config :as config]
-    [xiana.db :as db])
-  (:import
-    (java.util
-      UUID)))
+    [xiana.db :as db]))
 
 (defn merge-connection
   [config]
@@ -85,7 +82,7 @@
     (is (= {"first-name" "Piotr", "id" 1, "email" "piotr@example.com", "last-name" "Developer"}
            user)
         "User has been logged in")
-    (is (true? (try (UUID/fromString body-session-id)
+    (is (true? (try (parse-uuid body-session-id)
                     true
                     (catch Exception _ false)))
         "and has UUID session id")
@@ -132,7 +129,7 @@
     (is (= {"first-name" "Piotr", "id" 1, "email" "piotr@example.com", "last-name" "Developer"}
            user)
         "User is logged in")
-    (is (true? (try (UUID/fromString session-id)
+    (is (true? (try (parse-uuid session-id)
                     true
                     (catch Exception _ false)))
         "and has UUID session id")

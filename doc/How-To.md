@@ -32,7 +32,7 @@ To implement login, you need to [use the session interceptor](tutorials.md#inter
 
 ```clojure
 (let [;; Create a unique ID
-      session-id (UUID/randomUUID)]
+      session-id (random-uuid)]
   ;; Store a new session in session storage
   (add! session-storage session-id {:session-id session-id})
   ;; Make sure session-id is part of the response
@@ -64,7 +64,7 @@ you already have this injected, you can modify your create session function like
 (let [;; Get user from database result
       user (-> state :response-data :db-data first)
       ;; Create session
-      session-id (UUID/randomUUID)]
+      session-id (random-uuid)]
   ;; Store the new session in session storage. Notice the addition of user. 
   (add! session-storage session-id (assoc user :session-id session-id))
   ;; Make sure session-id is part of the response
@@ -82,7 +82,7 @@ Be sure to remove user's password and any other sensitive information before sto
                ;; Remove password for session storage
                (dissoc :users/password))
       ;; Create session id
-      session-id (UUID/randomUUID)]
+      session-id (random-uuid)]
   ;; Store the new session in session storage
   (add! session-storage session-id (assoc user :session-id session-id))
   ;; Make sure session-id is part of the response
@@ -101,7 +101,7 @@ Next, we check if the credentials are correct, so we use an `if` statement.
                  ;; Remove password for session storage
                  (dissoc :users/password))
         ;; Create session ID
-        session-id (UUID/randomUUID)]
+        session-id (random-uuid)]
     ;; Store the new session in session storage
     (add! session-storage session-id (assoc user :session-id session-id))
     ;; Make sure session-id is part of the response

@@ -8,24 +8,21 @@
                               columns
                               values
                               sset]
-     :as helpers])
-  (:import
-    (java.util
-      UUID)))
+     :as helpers]))
 
 (defn fetch-query
   [{{{id :id} :query-params} :request
     :as                      state}]
   (assoc state :query (cond->
                         (from (select :*) :comments)
-                        id (where [:= :id (UUID/fromString id)]))))
+                        id (where [:= :id (parse-uuid id)]))))
 
 (defn add-query
   [{{user-id :users/id}                                :session-data
     {{content :content post-id :post_id} :body-params} :request
     :as                                                state}]
-  (let [pid (try (UUID/fromString post-id)
-                 (catch Exception _ (UUID/randomUUID)))]
+  (let [pid (try (parse-uuid post-id)
+                 (catch Exception _ (random-uuid)))]
     (assoc state :query (-> (insert-into :comments)
                             (columns :content :post_id :user_id)
                             (values [[content pid user-id]])))))
@@ -35,7 +32,7 @@
     {{content :content} :body-params} :request
     :as                               state}]
   (assoc state :query (-> (helpers/update :comments)
-                          (where [:= :id (UUID/fromString id)])
+                          (where [:= :id (parse-uuid id)])
                           (sset {:content content}))))
 
 (defn delete-query
@@ -43,4 +40,4 @@
     :as                state}]
   (assoc state :query (cond->
                         (delete-from :comments)
-                        id (where [:= :id (UUID/fromString id)]))))
+                        id (where [:= :id (parse-uuid id)]))))

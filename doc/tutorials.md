@@ -368,7 +368,7 @@ Adding to the previous examples:
    After the session addition, it updates the user's last-login value in the database."
   [state]
   (if (valid-credentials? state)
-    (let [new-session-id (str (UUID/randomUUID))
+    (let [new-session-id (str (random-uuid))
           session-backend (-> state :deps :session-backend)
           {:users/keys [id] :as user} (-> state :response-data :db-data first)]
       (remove-from-session-store! session-backend id)
@@ -584,7 +584,7 @@ ping:
 (defn ping [deps]
   (let [channel (get-in deps [:events-channel :channel])]
     (async/>!! channel {:type      :ping
-                        :id        (str (UUID/randomUUID))
+                        :id        (str (random-uuid))
                         :timestamp (.getTime (Date.))})))
 
 (defn ->system

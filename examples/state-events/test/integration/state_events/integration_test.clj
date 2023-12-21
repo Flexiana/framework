@@ -3,15 +3,12 @@
     [clj-http.client :as client]
     [clojure.test :refer :all]
     [jsonista.core :as json]
-    [state-events-fixture :as fixture])
-  (:import
-    (java.util
-      UUID)))
+    [state-events-fixture :as fixture]))
 
 (use-fixtures :once fixture/std-system-fixture)
 
 (deftest new-event
-  (let [resource-uuid (UUID/randomUUID)
+  (let [resource-uuid (random-uuid)
         response (client/request
                    {:method       :put
                     :url          "http://localhost:3333/person"
@@ -23,7 +20,7 @@
     (is (= 200 (:status response)))))
 
 (deftest modify-event
-  (let [resource-uuid (UUID/randomUUID)
+  (let [resource-uuid (random-uuid)
         create (client/request
                  {:method       :put
                   :url          "http://localhost:3333/person"
@@ -53,7 +50,7 @@
            (get-in modify [:body :data :events/payload])))))
 
 (deftest cannot-create-already-existing-resource
-  (let [resource-uuid (UUID/randomUUID)
+  (let [resource-uuid (random-uuid)
         create (client/request
                  {:method       :put
                   :url          "http://localhost:3333/person"
