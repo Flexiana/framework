@@ -45,7 +45,7 @@
 (def all-methods
   [:get :patch :trace :connect :delete :head :post :options :put])
 
-(defn- no-method?
+(defn- has-no-method?
   [opt-map]
   (:action opt-map))
 
@@ -62,7 +62,7 @@
 
 (defn- process-opt-map
   [opt-map all-methods]
-  (if (no-method? opt-map)
+  (if (has-no-method? opt-map)
     (-> opt-map
         (assoc-in [:get :handler] identity)
         (assoc-in [:get :action] (:action opt-map)))
