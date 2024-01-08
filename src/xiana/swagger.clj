@@ -98,7 +98,7 @@
        (apply meta-merge (keep (comp :swagger :data) middleware))
        (apply meta-merge (keep (comp :swagger :data) interceptors))
        (when coercion
-         (coercion/get-apidocs coercion :swagger data))
+         (coercion/-get-apidocs coercion :swagger data))
        (select-keys data [:tags :summary :description])
        (strip-top-level-keys swagger))]))
 
