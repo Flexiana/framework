@@ -4,7 +4,6 @@
     [piotr-yuxuan.closeable-map]
     [reitit.coercion :as coercion]
     [reitit.core :as r]
-    [ring.adapter.jetty9 :as jetty]
     [xiana.commons :refer [?assoc-in]]
     [xiana.route.helpers :as helpers]))
 
@@ -36,8 +35,7 @@
         (?assoc-in [:request-data :match] match)
         (?assoc-in [:request-data :permission] permission)
         (assoc-in [:request-data :action]
-                  (cond (and (jetty/ws-upgrade-request? request) ws-action) ws-action
-                        action action
+                  (cond action action
                         handler helpers/action
                         :else helpers/not-found)))))
 
