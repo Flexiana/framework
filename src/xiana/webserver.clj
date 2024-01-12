@@ -13,15 +13,16 @@
   AutoCloseable
   (close [this]
     (log/info "Stop webserver" (:options this))
-    (server/stop-server (:server this))))
+    ((:server this) :timeout 100)))
 
 (defn- make
   "Web server instance."
   [dependencies]
-  (let [options (:webserver dependencies (:xiana/web-server dependencies))]
+  (let [options (:webserver dependencies (:xiana/web-server dependencies))
+        server (server/run-server (handler-fn dependencies) options)]
     (map->webserver
       {:options options
-       :server  (server/run-server (handler-fn dependencies) options)})))
+       :server server})))
 
 (defn start
   "Start web server."
