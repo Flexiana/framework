@@ -8,7 +8,7 @@
     [crypto.password.scrypt :as hash-s]
     [crypto.password.argon2 :as argon2]))
 
-(def supported [:bcrypt :pbkdf2 :scrypt])
+(def supported [:bcrypt :pbkdf2 :scrypt :argon2])
 
 (defn- dispatch
   ([state password]
