@@ -50,6 +50,18 @@
     (if (= :sha1 (:type pbkdf2-settings))
       "HMAC-SHA1" "HMAC-SHA256")))
 
+(defmethod make :argon2
+  [{{:keys [argon2-settings]
+     :or   {argon2-settings {:iterations      22
+                             :memory-cost     65536
+                             :parallelization 1}}} :deps/auth}
+   password]
+  (argon2/encrypt
+    password
+    (:iterations argon2-settings)
+    (:memory-cost argon2-settings)
+    (:parallelization argon2-settings)))
+
 (defmulti check
   "Validating password."
   dispatch)
