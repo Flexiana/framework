@@ -5,7 +5,8 @@
   (:require
     [crypto.password.bcrypt :as hash-b]
     [crypto.password.pbkdf2 :as hash-p]
-    [crypto.password.scrypt :as hash-s]))
+    [crypto.password.scrypt :as hash-s]
+    [crypto.password.argon2 :as argon2]))
 
 (def supported [:bcrypt :pbkdf2 :scrypt])
 
