@@ -1,8 +1,8 @@
 (ns xiana.websockets
   (:require
-    [clojure.data.json :refer [read-str]]
     [clojure.edn :as edn]
     [clojure.string :as str]
+    [jsonista.core :as j]
     [reitit.core :as r]
     [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log]
@@ -24,7 +24,7 @@
 (defn json->
   "JSON to 'uri', converts json string to map, extract :action key"
   [j]
-  (:action (read-str j :key-fn keyword)))
+  (:action (j/read-value j j/keyword-keys-object-mapper)))
 
 (defn probe->
   [e]

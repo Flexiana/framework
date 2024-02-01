@@ -1,7 +1,7 @@
 (ns xiana.sse
   (:require
     [clojure.core.async :as async :refer (<! go-loop)]
-    [clojure.data.json :as json]
+    [jsonista.core :as j]
     [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log])
   (:import
@@ -15,7 +15,7 @@
 (def EOL "\n")
 
 (defn ->message [data]
-  (str "data: " (json/write-str data) EOL EOL))
+  (str "data: " (j/write-value-as-string data) EOL EOL))
 
 (defn- clients->channels
   [clients]
@@ -47,7 +47,7 @@
         session-id (get-in state [:session-data :session-id])]
     {:on-connect (fn [ch]
                    (swap! clients update session-id (fnil conj #{}) ch)
-                   (jetty/send! ch {:headers headers :body (json/write-str {})}))
+                   (jetty/send! ch {:headers headers :body (j/write-value-as-string {})}))
      :on-text    (fn [c m] (jetty/send! c m))
      :on-close   (fn [ch _status _reason] (swap! clients update session-id disj ch))}))
 

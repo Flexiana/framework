@@ -3,7 +3,6 @@
     [acl]
     [acl-fixture]
     [clj-http.client :as http]
-    [clojure.data.json :as json]
     [clojure.test :refer [deftest is use-fixtures]]
     [helpers :refer [delete
                      put
@@ -12,6 +11,7 @@
                      test_member
                      test_admin
                      test_staff]]
+    [jsonista.core :as j]
     [post-helpers :refer [post-ids
                           update-count
                           init-db-with-two-posts
@@ -151,7 +151,7 @@
                 :headers              {"Authorization" test_admin
                                        "Content-Type"  "application/json;charset=utf-8"}
                 :unexceptional-status (constantly true)
-                :body                 (json/write-str {:ids (butlast ids)})
+                :body                 (j/write-value-as-string {:ids (butlast ids)})
                 :method               :post}
                http/request
                :body
@@ -168,7 +168,7 @@
                                       :content "test comment on test post"})
         result (-> (fetch "posts/comments" test_member)
                    :body
-                   (json/read-str :key-fn keyword)
+                   (j/read-value j/keyword-keys-object-mapper)
                    :data
                    :posts
                    first)]

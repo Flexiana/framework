@@ -1,7 +1,7 @@
 (ns xiana.web-socket.router-test
   (:require
-    [clojure.data.json :as json]
     [clojure.test :refer [deftest is]]
+    [jsonista.core :as j]
     [reitit.core :as r]
     [xiana.interceptor :as interceptors]
     [xiana.websockets :refer [router]]))
@@ -29,7 +29,7 @@
 
 (deftest router-test
   (let [string-action "/log-string"
-        json-action (json/write-str {:action :log-json})
+        json-action (j/write-value-as-string {:action :log-json})
         edn-action "{:action :log-edn}"]
     (is (= "Log was called via string"
            (-> (routing {:request-data

@@ -1,6 +1,6 @@
 (ns app.controllers.login
   (:require
-    [clojure.data.json :as json]
+    [jsonista.core :as j]
     [ring.util.request :refer [body-string]]
     [xiana.session :as session]))
 
@@ -25,7 +25,7 @@
   [{request :request :as state}]
   (try (let [rbody (or (some-> request
                                body-string
-                               (json/read-str :key-fn keyword))
+                               (j/read-value j/keyword-keys-object-mapper))
                        (throw (ex-message "Missing body")))
              user (find-user (:email rbody))
              session-id (random-uuid)
@@ -38,7 +38,7 @@
                     :response {:status  200
                                :headers {"Content-Type" "application/json"
                                          "Session-id"   (str session-id)}
-                               :body    (json/write-str (update session-data :session-id str))}))
+                               :body    (j/write-value-as-string (update session-data :session-id str))}))
            (assoc state :response {:status 401
                                    :body   "Incorrect credentials"})))
        (catch Exception _ (missing-credentials state))))

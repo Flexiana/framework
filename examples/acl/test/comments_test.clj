@@ -2,10 +2,10 @@
   (:require
     [acl]
     [acl-fixture :refer [std-system-fixture]]
-    [clojure.data.json :refer [read-str]]
     [clojure.test :refer [deftest is use-fixtures]]
     [helpers :refer [test_member
                      test_admin]]
+    [jsonista.core :as j]
     [post-helpers :refer [init-db-with-two-posts
                           all-post-ids]]))
 
@@ -19,7 +19,7 @@
                                        :content "Test comment on first post"})
     (let [new-posts (-> (helpers/fetch "posts/comments" test_admin)
                         :body
-                        (read-str :key-fn keyword)
+                        (j/read-value j/keyword-keys-object-mapper)
                         :data
                         :posts)]
       (is (= 1 (->> (filter #(#{first-id} (:posts/id %)) new-posts)
@@ -36,7 +36,7 @@
   [response]
   (-> response
       :body
-      (read-str :key-fn keyword)
+      (j/read-value j/keyword-keys-object-mapper)
       :data
       :comments))
 

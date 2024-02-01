@@ -1,7 +1,6 @@
 (ns users-test
   (:require
     [acl-fixture]
-    [clojure.data.json :as json]
     [clojure.test :refer [deftest is use-fixtures]]
     [helpers :refer [delete
                      put
@@ -9,6 +8,7 @@
                      post
                      test_member
                      test_admin]]
+    [jsonista.core :as j]
     [post-helpers]))
 
 (use-fixtures :once acl-fixture/std-system-fixture)
@@ -17,7 +17,7 @@
   [response]
   (-> response
       :body
-      (json/read-str :key-fn keyword)
+      (j/read-value j/keyword-keys-object-mapper)
       :data
       :users))
 
