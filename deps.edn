@@ -7,7 +7,23 @@
          com.draines/postal                      {:mvn/version "2.0.5"}
          com.flexiana/tiny-rbac                  {:mvn/version "0.1.1"}
          com.taoensso/timbre                     {:mvn/version "5.2.1"}
-         crypto-password/crypto-password         {:mvn/version "0.3.0"}
+
+         ;; This is a temporary solution: the reference repo does not
+         ;; contain a deps.edn or pom.xml manifest.
+         ;; This solution overrides the reference repo as an empty deps.edn
+         ;; file, so the transitive dependencies have been added below.
+         ;; https://clojure.org/reference/deps_edn#deps_deps_manifest
+         crypto-random/crypto-random {:mvn/version "1.2.1"}
+         crypto-equality/crypto-equality {:mvn/version "1.0.1"}
+         org.clojars.amit/commons-codec {:mvn/version "1.8.0"}
+         at.favre.lib/bcrypt {:mvn/version "0.7.0"}
+         com.lambdaworks/scrypt {:mvn/version "1.4.0"}
+         de.mkammerer/argon2-jvm {:mvn/version "2.11"}
+         ;; crypto-password/crypto-password         {:mvn/version "0.3.0"}
+         crypto-password/crypto-password         {:git/url "https://github.com/Flexiana/crypto-password"
+                                                  :sha     "e3f6719b33cd04033ce0c0328b6aef611675e0b6"
+                                                  :deps/manifest :deps}
+
          funcool/cuerdas                         {:mvn/version "2.2.1"}
          info.sunng/ring-jetty9-adapter          {:mvn/version "0.30.1"}
          metosin/malli                           {:mvn/version "0.8.4"}
