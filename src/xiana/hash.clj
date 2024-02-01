@@ -74,3 +74,6 @@
 
 (defmethod check :pbkdf2 [_ password encrypted]
   (hash-p/check password encrypted))
+
+(defmethod check :argon2 [_ password encrypted]
+  (argon2/check password encrypted))
