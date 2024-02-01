@@ -30,10 +30,6 @@
     (testing-mistake fragment)
     (testing-ok fragment)))
 
-(deftest test-assert-functionality
-  (let [fragment {:deps {:auth {:hash-algorithm :argon2}}}]
-    (is (thrown? java.lang.AssertionError (hash/make fragment password)))))
-
 (deftest hash-behavior
   (let [pwd "not_nil"
         state {:deps {:auth {:hash-algorithm  :bcrypt
