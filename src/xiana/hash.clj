@@ -3,11 +3,12 @@
   Supported algorithms are bcrypr, pbkdf2, and scrypt.
   The required algorithm should be in (-> state :deps :auth :hash-algorithm)"
   (:require
+    [crypto.password.argon2 :as argon2]
     [crypto.password.bcrypt :as hash-b]
     [crypto.password.pbkdf2 :as hash-p]
     [crypto.password.scrypt :as hash-s]))
 
-(def supported [:bcrypt :pbkdf2 :scrypt])
+(def supported [:bcrypt :pbkdf2 :scrypt :argon2])
 
 (defn- dispatch
   ([state password]
@@ -49,6 +50,18 @@
     (if (= :sha1 (:type pbkdf2-settings))
       "HMAC-SHA1" "HMAC-SHA256")))
 
+(defmethod make :argon2
+  [{{:keys [argon2-settings]
+     :or   {argon2-settings {:iterations      22
+                             :memory-cost     65536
+                             :parallelization 1}}} :deps/auth}
+   password]
+  (argon2/encrypt
+    password
+    (:iterations argon2-settings)
+    (:memory-cost argon2-settings)
+    (:parallelization argon2-settings)))
+
 (defmulti check
   "Validating password."
   dispatch)
@@ -61,3 +74,6 @@
 
 (defmethod check :pbkdf2 [_ password encrypted]
   (hash-p/check password encrypted))
+
+(defmethod check :argon2 [_ password encrypted]
+  (argon2/check password encrypted))
