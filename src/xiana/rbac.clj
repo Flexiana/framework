@@ -29,7 +29,8 @@
   If it's not restricted do nothing,
   if the given user has no rights, it throws ex-info with data {:status 403 :body \"Forbidden\"}.
   On leave executes restriction function if any."
-  {:enter (fn [state]
+  {:name ::rbac
+   :enter (fn [state]
             (let [operation-restricted (get-in state [:request-data :permission])
                   permits (and operation-restricted (permissions state))]
               (cond

@@ -15,7 +15,8 @@
   "Log interceptor.
   Enter: Print 'Enter:' followed by the complete state map.
   Leave: Print 'Leave:' followed by the complete state map."
-  {:enter (fn [state] (pprint ["Enter: " state]) state)
+  {:name ::log
+   :enter (fn [state] (pprint ["Enter: " state]) state)
    :leave (fn [state] (pprint ["Leave: " state]) state)})
 
 (def side-effect
@@ -33,7 +34,8 @@
   "View interceptor.
   Enter: nil. Leave: apply `:view` state key to state if it exists and
   `:response` is absent."
-  {:leave
+  {:name ::view
+   :leave
    (fn [{:keys [view response] :as state}]
      (if (and (not (:body response)) view)
        (view state)

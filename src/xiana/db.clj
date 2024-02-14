@@ -191,7 +191,8 @@
   driver, if succeeds associate its results into state response data.
   Remember the entry query must be a sql-map, e.g:
   {:select [:*] :from [:users]}."
-  {:leave
+  {:name ::db-access
+   :leave
    (fn [{query-or-fn   :query
          db-queries    :db-queries
          :as        state}]

@@ -39,12 +39,6 @@
           direction-enter?    (= :enter direction)
           exception           (:error state)]
 
-      (log/debug (format "%s | %s | err?: %s | exception %s"
-                         direction
-                         (-> interceptors first :name)
-                         direction-error?
-                         exception))
-
       (cond
         ;; just got an exception, executing all remaining interceptors backwards
         (and exception (not direction-error?))
@@ -67,6 +61,11 @@
               next-interceptors (if (and (:error state) (= :leave direction))
                                   interceptors
                                   (rest interceptors))]
+          (log/debug (format "%s | %s | err?: %s | exception %s"
+                             direction
+                             (-> interceptors first :name)
+                             direction-error?
+                             exception))
           (recur state
                  next-interceptors
                  (when direction-enter? (conj backwards (first interceptors)))
