@@ -5,7 +5,7 @@
          org.clojure/data.xml                    {:mvn/version "0.0.8"}
          com.draines/postal                      {:mvn/version "2.0.5"}
          com.flexiana/tiny-rbac                  {:mvn/version "0.1.1"}
-         com.taoensso/timbre                     {:mvn/version "5.2.1"}
+         com.taoensso/timbre                     {:mvn/version "6.4.0"}
          ;; crypto-password/crypto-password         {:mvn/version "0.3.0"}
          crypto-password/crypto-password         {:git/url "https://github.com/Flexiana/crypto-password"
                                                   :sha     "cfd90d519e09797a97ded565a1e27c0b938771f1"}
