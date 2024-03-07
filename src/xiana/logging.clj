@@ -1,7 +1,6 @@
 (ns xiana.logging
   (:require
-    [taoensso.timbre :as log]
-    [xiana.config :as config]))
+    [taoensso.timbre :as log]))
 
 (defn set-level
   [cfg]
