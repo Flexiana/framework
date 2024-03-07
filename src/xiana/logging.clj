@@ -5,6 +5,6 @@
 
 (defn set-level
   [cfg]
-  (when-let [level (-> (config/config) :logging/timbre-config :min-level)]
+  (when-let [level (-> cfg :logging/timbre-config :min-level)]
     (log/set-min-level! level))
   cfg)
