@@ -27,4 +27,3 @@
           leave    (:leave kc/interceptor)
           result   (leave state)]
       (is (= expected result)))))
-

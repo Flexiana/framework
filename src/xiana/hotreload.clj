@@ -1,9 +1,9 @@
 (ns xiana.hotreload
   (:require
-   [clojure.core.async :refer [go-loop]]
-   [ns-tracker.core :refer [ns-tracker]]))
+    [clojure.core.async :refer [go-loop]]
+    [ns-tracker.core :refer [ns-tracker]]))
 
-;;; reloader function from ring.middleware.reload
+;; reloader function from ring.middleware.reload
 
 (defn- reloader [dirs retry?]
   (let [modified-namespaces (ns-tracker dirs)
