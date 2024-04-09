@@ -40,4 +40,5 @@
         (do
           (reload!)
           (restart-fn))
-        (recur)))))
+        (recur)))
+    cfg))
