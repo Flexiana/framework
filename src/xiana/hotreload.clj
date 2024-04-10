@@ -6,13 +6,13 @@
 ;; reloader function from ring.middleware.reload
 
 (defn- reloader
-"Reload namespaces of modified files before the request is passed to the
+  "Reload namespaces of modified files before the request is passed to the
 supplied handler.
 
 Accepts the following options:
 
 :dirs    - A list of directories that contain the source files.
-           Defaults to ["src"].
+           Defaults to [" src "].
 :retry? - If true, keep attempting to reload namespaces
           that have compile errors.  Defaults to true."
   [dirs retry?]
