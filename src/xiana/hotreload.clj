@@ -39,17 +39,19 @@ Accepts the following options:
   :restart-fn \"the function to restart the system\" if none 'user/start-dev-system
   :tracker {:dirs \"the directories vector list to search for changes\" :reload-compile-errors? \"true\"}."
   [cfg]
-  (let [{:keys [restart-fn tracker]} (:xiana/hotreload cfg {:restart-fn 'user/start-dev-system})
+  (let [{:keys [restart-fn tracker]} (:xiana/hotreload cfg)
         dirs (:dirs tracker ["src"])
         retry? (:reload-compile-errors? tracker true)
         track-fn (ns-tracker dirs)
         reload! (reloader dirs retry?)
-        restart-fn (resolve restart-fn)]
-    (go-loop []
-      (<! (timeout 1000))
-      (if (track-fn)
-        (do
-          (reload!)
-          (restart-fn))
-        (recur)))
+        restart-fn (when restart-fn (resolve restart-fn))]
+    (when restart-fn
+      (go-loop []
+        (<! (timeout 1000))
+        (println "hotreload!")
+        (if (track-fn)
+          (do
+            (reload!)
+            (restart-fn))
+          (recur))))
     cfg))
