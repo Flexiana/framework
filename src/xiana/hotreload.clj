@@ -48,7 +48,6 @@ Accepts the following options:
     (when restart-fn
       (go-loop []
         (<! (timeout 1000))
-        (println "hotreload!")
         (if (track-fn)
           (do
             (reload!)
