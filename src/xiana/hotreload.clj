@@ -1,6 +1,6 @@
 (ns xiana.hotreload
   (:require
-    [clojure.core.async :refer [go-loop]]
+    [clojure.core.async :refer [go-loop <! timeout]]
     [ns-tracker.core :refer [ns-tracker]]))
 
 ;; reloader function from ring.middleware.reload
@@ -46,6 +46,7 @@ Accepts the following options:
         reload! (reloader dirs retry?)
         restart-fn (resolve restart-fn)]
     (go-loop []
+      (<! (timeout 1000))
       (if (track-fn)
         (do
           (reload!)
