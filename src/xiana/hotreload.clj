@@ -12,7 +12,7 @@ supplied handler.
 Accepts the following options:
 
 :dirs    - A list of directories that contain the source files.
-           Defaults to [" src "].
+           Defaults to [\"src\"].
 :retry? - If true, keep attempting to reload namespaces
           that have compile errors.  Defaults to true."
   [dirs retry?]
