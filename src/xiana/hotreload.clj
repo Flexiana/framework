@@ -1,0 +1,56 @@
+(ns xiana.hotreload
+  (:require
+    [clojure.core.async :refer [go-loop <! timeout]]
+    [ns-tracker.core :refer [ns-tracker]]))
+
+;; reloader function from ring.middleware.reload
+
+(defn- reloader
+  "Reload namespaces of modified files before the request is passed to the
+supplied handler.
+
+Accepts the following options:
+
+:dirs    - A list of directories that contain the source files.
+           Defaults to [\"src\"].
+:retry? - If true, keep attempting to reload namespaces
+          that have compile errors.  Defaults to true."
+  [dirs retry?]
+  (let [modified-namespaces (ns-tracker dirs)
+        load-queue (java.util.concurrent.LinkedBlockingDeque.)]
+    (fn []
+      (locking load-queue
+        (doseq [ns-sym (reverse (modified-namespaces))]
+          (.push load-queue ns-sym))
+        (loop []
+          (when-let [ns-sym (.peek load-queue)]
+            (if retry?
+              (do (require ns-sym :reload) (.remove load-queue))
+              (do (.remove load-queue) (require ns-sym :reload)))
+            (recur)))))))
+
+(defn hotreload
+  "Function to hotreload the system. Add it after server-start at configuration phase \"->system\".
+  (-> (config/config app-cfg)
+      ...
+      xiana.webserver/start
+      xiana.hotreload/hotreload)
+  If a :xiana/hotreload config key is provided it needs:
+  :restart-fn \"the function to restart the system\" if none 'user/start-dev-system
+  :tracker {:dirs \"the directories vector list to search for changes\" :reload-compile-errors? \"true\"}."
+  [cfg]
+  (let [{:keys [restart-fn tracker]} (:xiana/hotreload cfg)
+        dirs (:dirs tracker ["src"])
+        retry? (:reload-compile-errors? tracker true)
+        track-fn (ns-tracker dirs)
+        reload! (reloader dirs retry?)
+        restart-fn (when restart-fn (resolve restart-fn))]
+    (when restart-fn
+      (go-loop []
+        (<! (timeout 1000))
+        (if (track-fn)
+          (do
+            (reload!)
+            (restart-fn))
+          (recur))))
+    cfg))

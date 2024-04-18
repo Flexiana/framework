@@ -97,4 +97,3 @@
         expected helpers/not-found]
     ;; verify if action has the expected value
     (is (= action expected))))
-
