@@ -193,17 +193,20 @@
   {:select [:*] :from [:users]}."
   {:name ::db-access
    :leave
-   (fn [{query-or-fn   :query
-         db-queries    :db-queries
-         :as        state}]
+   (fn [{query-or-fn      :query
+         db-queries-or-fn :db-queries
+         :as              state}]
      (let [datasource (get-in state [:deps :db :datasource])
-           query (cond
-                   (fn? query-or-fn) (query-or-fn state)
-                   :else query-or-fn)
-           db-data (cond-> []
-                     query (into (execute datasource query))
-                     db-queries (into (multi-execute! datasource db-queries))
-                     :always seq)]
+           query      (cond
+                        (fn? query-or-fn) (query-or-fn state)
+                        :else             query-or-fn)
+           db-queries (cond
+                        (fn? db-queries-or-fn) (db-queries-or-fn state)
+                        :else                  db-queries-or-fn)
+           db-data    (cond-> []
+                        query      (into (execute datasource query))
+                        db-queries (into (multi-execute! datasource db-queries))
+                        :always    seq)]
        (assoc-in state [:response-data :db-data] db-data)))
    :error
    (fn [state]
