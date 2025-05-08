@@ -9,8 +9,8 @@
          crypto-password/crypto-password         {:mvn/version "0.3.0"}
          com.lambdaworks/scrypt                  {:mvn/version "1.4.0"}
          de.mkammerer/argon2-jvm                 {:mvn/version "2.12"}
-         ;crypto-password/crypto-password         {:git/url "https://github.com/Flexiana/crypto-password"
-         ;                                         :sha     "cfd90d519e09797a97ded565a1e27c0b938771f1"}
+         ;; crypto-password/crypto-password         {:git/url "https://github.com/Flexiana/crypto-password"
+         ;;                                         :sha     "cfd90d519e09797a97ded565a1e27c0b938771f1"}
          funcool/cuerdas                         {:mvn/version "2023.11.09-407"}
          info.sunng/ring-jetty9-adapter          {:mvn/version "0.37.3"}
          metosin/malli                           {:mvn/version "0.17.0"}

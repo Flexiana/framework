@@ -4,10 +4,9 @@
     [clojure.string :as str]
     [jsonista.core :as j]
     [reitit.core :as r]
-    [taoensso.timbre :as log]
     [ring.websocket :as ringws]
+    [taoensso.timbre :as log]
     [xiana.interceptor.queue :as queue]))
-
 
 (def send! ringws/send)
 (def close! ringws/close)

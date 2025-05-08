@@ -2,7 +2,9 @@
   "Functions for encrypting passwords using the recommended argon2 algorithm.
    See: https://infosecscout.com/best-algorithm-password-storage
    https://github.com/phxql/argon2-jvm"
-  (:import (de.mkammerer.argon2 Argon2Factory)))
+  (:import
+    (de.mkammerer.argon2
+      Argon2Factory)))
 
 (import '(de.mkammerer.argon2 Argon2Factory))
 
@@ -16,7 +18,6 @@
 
 (def ^:private default-parallelization-parameter
   (Long/parseLong (System/getProperty "crypto.password.argon2.default-parallelization-parameter" "1")))
-
 
 (defn encrypt
   "Encrypt a password string using the argon2 algorithm. This function takes
