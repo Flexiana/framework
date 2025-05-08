@@ -15,9 +15,9 @@
                            (log/info "Message: " msg)
                            (ws/send! ch msg))
              :on-error   (fn [ch _e] (ws/close! ch))
-             :on-pong    (fn [ch msg]
+             :on-pong    (fn [_ch _msg]
                            (tap> [:ws :pong]))
-             :on-ping    (fn [ch msg]
+             :on-ping    (fn [_ch _msg]
                            (tap> [:ws :ping]))
              :on-close   (fn [_ch _status _reason]
                            (log/info "\nCLOSE=============="))
