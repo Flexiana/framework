@@ -33,7 +33,8 @@
            result (reduce (fn [s f] (f s)) state queue)
            channel (get-in result [:response-data :channel])]
        (if (and websocket? channel)
-         (jetty/ws-upgrade-response channel)
+         {:ring.websocket/listener channel
+          :ring.websocket/protocol (first (:websocket-subprotocols http-request))}
          (:response result))))
     ([request respond _]
      (respond (handle* request)))))

@@ -21,4 +21,3 @@
                                       :parallelization 1}
                     :pbkdf2-settings {:type       :sha1     ; Available values: :sha1 and :sha256
                                       :iterations 100000}}}
-

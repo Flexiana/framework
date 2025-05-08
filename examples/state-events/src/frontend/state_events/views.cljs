@@ -80,4 +80,3 @@
      new-person]
     (inputs)
     (info-panel)]])
-

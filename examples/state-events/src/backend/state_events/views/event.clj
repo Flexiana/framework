@@ -28,4 +28,3 @@
   [state]
   (assoc-in state [:response :body :data]
             (group-events state)))
-

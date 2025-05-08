@@ -64,4 +64,3 @@
             :url                  (format "http://localhost:3333/%s" (name uri))
             :query-params         {:id id}
             :body                 (j/write-value-as-string content)}))
-
