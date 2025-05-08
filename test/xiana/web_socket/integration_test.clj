@@ -11,16 +11,17 @@
 
 (defn echo [{req :request :as state}]
   (assoc-in state [:response-data :channel]
-            {:on-text    (fn [ch msg]
-                           (log/info "Message: " msg)
-                           (ws/send! ch msg))
-             :on-bytes   (fn [ch msg _offset _len]
+            {:on-message (fn [ch msg]
                            (log/info "Message: " msg)
                            (ws/send! ch msg))
              :on-error   (fn [ch _e] (ws/close! ch))
+             :on-pong    (fn [ch msg]
+                           (tap> [:ws :pong]))
+             :on-ping    (fn [ch msg]
+                           (tap> [:ws :ping]))
              :on-close   (fn [_ch _status _reason]
                            (log/info "\nCLOSE=============="))
-             :on-connect (fn [ch]
+             :on-open    (fn [ch]
                            (log/info "INIT: " ch)
                            (log/info "Session-Id: " (get-in req [:headers :session-id])))}))
 
@@ -34,10 +35,10 @@
            :action    hello}]])
 
 (def system-config
-  {:routes                   routes
-   :web-socket-interceptors  [interceptors/params]
-   :controller-interceptors  [interceptors/params
-                              rbac/interceptor]})
+  {:routes                  routes
+   :web-socket-interceptors [interceptors/params]
+   :controller-interceptors [interceptors/params
+                             rbac/interceptor]})
 
 (use-fixtures :once (partial fixture/std-system-fixture system-config))
 

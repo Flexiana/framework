@@ -4,12 +4,13 @@
     [clojure.string :as str]
     [jsonista.core :as j]
     [reitit.core :as r]
-    [ring.adapter.jetty9 :as jetty]
     [taoensso.timbre :as log]
+    [ring.websocket :as ringws]
     [xiana.interceptor.queue :as queue]))
 
-(def send! jetty/send!)
-(def close! jetty/close!)
+
+(def send! ringws/send)
+(def close! ringws/close)
 
 (defn string->
   "String to 'uri', uses the first word as action key"

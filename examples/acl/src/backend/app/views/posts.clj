@@ -44,4 +44,3 @@
                        :data      {:posts (render-posts-with-comments (:db-data response-data))}})
     (c/response state {:view-type "Multiple posts with comments"
                        :data      {:posts (render-posts-with-comments (:db-data response-data))}})))
-

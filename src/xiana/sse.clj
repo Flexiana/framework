@@ -2,13 +2,13 @@
   (:require
     [clojure.core.async :as async :refer (<! go-loop)]
     [jsonista.core :as j]
-    [ring.adapter.jetty9 :as jetty]
+    [ring.websocket :as ringws]
     [taoensso.timbre :as log])
   (:import
     (java.lang
       AutoCloseable)))
 
-(def close-channel jetty/close!)
+(def close-channel ringws/close)
 
 (def headers {"Content-Type" "text/event-stream"})
 
@@ -27,7 +27,7 @@
   (close [this]
     (.close! (:channel this))
     (doseq [c (clients->channels @(:clients this))]
-      (jetty/close! c))))
+      (ringws/close c))))
 
 (defn init [config]
   (let [channel (async/chan 5)
@@ -36,19 +36,21 @@
       (when-let [data (<! channel)]
         (log/debug "Sending data via SSE: " data)
         (doseq [c (clients->channels @clients)]
-          (jetty/send! c (->message data)))
+          (ringws/send c (->message data)))
         (recur)))
     (assoc config :events-channel (->closable-events-channel
                                     channel
                                     clients))))
 
-(defn server-event-channel [state]
+(defn server-event-channel
+  "valid keys for channels: :on-open :on-message :on-close :on-pong :on-ping :on-error"
+  [state]
   (let [clients (get-in state [:deps :events-channel :clients])
         session-id (get-in state [:session-data :session-id])]
-    {:on-connect (fn [ch]
+    {:on-open    (fn [ch]
                    (swap! clients update session-id (fnil conj #{}) ch)
-                   (jetty/send! ch {:headers headers :body (j/write-value-as-string {})}))
-     :on-text    (fn [c m] (jetty/send! c m))
+                   (ringws/send ch {:headers headers :body (j/write-value-as-string {})}))
+     :on-message (fn [c m] (ringws/send c m))
      :on-close   (fn [ch _status _reason] (swap! clients update session-id disj ch))}))
 
 (defn stop-heartbeat-loop
@@ -65,7 +67,7 @@
   [deps session-id message]
   (let [clients (get-in deps [:events-channel :clients])
         session-clients (get @clients session-id)]
-    (doseq [c session-clients] (jetty/send! c (->message message)))
+    (doseq [c session-clients] (ringws/send c (->message message)))
     (not-empty session-clients)))
 
 (defn sse-action

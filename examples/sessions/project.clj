@@ -1,8 +1,8 @@
 (defproject sessions "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
-  :dependencies [[com.flexiana/framework "0.5.0-rc4"]]
-  :plugins [[lein-shadow "0.4.0"]
+  :dependencies [[com.flexiana/framework "0.5.0-rc7"]]
+  :plugins [[lein-shadow "0.4.1"]
             [lein-shell "0.5.0"]
             [migratus-lein "0.7.3"]]
   :main ^:skip-aot app.core
@@ -10,15 +10,15 @@
   :source-paths ["src/backend/"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :profiles {:dev   {:resource-paths ["config/dev"]
-                     :dependencies   [[binaryage/devtools "1.0.5"]]}
+                     :dependencies   [[binaryage/devtools "1.0.7"]]}
              :frontend {:source-paths ["src/frontend"]
-                        :dependencies [[thheller/shadow-cljs "2.19.0"]
-                                       [re-frame "1.2.0"]]}
+                        :dependencies [[thheller/shadow-cljs "3.0.5"]
+                                       [re-frame "1.4.3"]]}
              :local {:resource-paths ["config/local"]}
              :prod  {:resource-paths ["config/prod"]}
              :test  {:resource-paths ["config/test"]
-                     :dependencies   [[clj-http "3.12.3"]
-                                      [mvxcvi/cljstyle "0.15.0"
+                     :dependencies   [[clj-http "3.13.0"]
+                                      [mvxcvi/cljstyle "0.17.642"
                                        :exclusions [org.clojure/clojure]]]}}
   :shadow-cljs {:nrepl {:port 8777}
                 :builds {:app {:target     :browser

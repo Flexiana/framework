@@ -6,4 +6,3 @@
   [f]
   (with-open [_ (->system app-cfg)]
     (f)))
-

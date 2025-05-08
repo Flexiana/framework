@@ -30,15 +30,15 @@
 (defn chat-action
   [state]
   (assoc-in state [:response-data :channel]
-            {:on-text    (fn [ch msg]
+            {:on-message (fn [ch msg]
                            (routing (update state :request-data
                                             merge {:ch         ch
                                                    :income-msg msg
                                                    :fallback   views/fallback
                                                    :channels   channels})))
-             :on-connect (fn [ch]
-                           (routing (update state :request-data
-                                            merge {:ch         ch
-                                                   :channels   channels
-                                                   :income-msg "/welcome"})))
+             :on-open (fn [ch]
+                        (routing (update state :request-data
+                                         merge {:ch         ch
+                                                :channels   channels
+                                                :income-msg "/welcome"})))
              :on-close   (fn [ch _status _reason] (swap! channels dissoc ch))}))

@@ -68,4 +68,3 @@
                 :no-claims
                 (-> new-token :body (j/read-value j/keyword-keys-object-mapper) :auth-token)
                 (get-in @jwt-fixture/test-system [:xiana/jwt :auth]))))))
-
